@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "allowJs": false,
-    "lib": ["es2015", "es2017"],
+    "lib": ["esnext"],
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es5",
@@ -14,7 +14,7 @@
     "inlineSources": true,
     "sourceRoot": "/",
     "outDir": "./lib",
-    "skipLibCheck": false,
+    "skipLibCheck": true,
     "noImplicitAny": false,
     "esModuleInterop": true,
     "declaration": true,

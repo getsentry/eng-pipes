@@ -1,4 +1,4 @@
-import fastify, { FastifyInstance, RouteShorthandOptions } from 'fastify';
+import fastify, { FastifyInstance /*RouteShorthandOptions*/ } from 'fastify';
 import * as Sentry from '@sentry/node';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 
@@ -16,20 +16,20 @@ const server: FastifyInstance<
   ServerResponse
 > = fastify({ logger: console });
 
-const opts: RouteShorthandOptions = {
-  schema: {
-    response: {
-      200: {
-        type: 'object',
-        properties: {
-          pong: {
-            type: 'string',
-          },
-        },
-      },
-    },
-  },
-};
+// const opts: RouteShorthandOptions = {
+// schema: {
+// response: {
+// 200: {
+// type: 'object',
+// properties: {
+// pong: {
+// type: 'string',
+// },
+// },
+// },
+// },
+// },
+// };
 
 server.register(require('fastify-formbody'));
 
@@ -56,11 +56,15 @@ server.post('/metrics/github/webhook', {}, async request => {
   return {};
 });
 
-server.listen(Number(process.env.PORT) || DEFAULT_PORT, (err, address) => {
-  if (err) {
-    server.log.error(err);
-    Sentry.captureException(err);
-    process.exit(0);
+server.listen(
+  Number(process.env.PORT) || DEFAULT_PORT,
+  '0.0.0.0',
+  (err, address) => {
+    if (err) {
+      server.log.error(err);
+      Sentry.captureException(err);
+      process.exit(0);
+    }
+    server.log.info(`server listening on ${address}`);
   }
-  server.log.info(`server listening on ${address}`);
-});
+);

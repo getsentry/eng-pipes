@@ -14,9 +14,9 @@
     "development-metrics"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "yarn tsc -p tsconfig.json",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
-    "deploy:development-metrics": "gcloud run deploy development-metrics --allow-unauthenticated --project=sentry-dev-tooling --trigger-http --memory=128MB",
+    "deploy:development-metrics": "gcloud run deploy development-metrics --allow-unauthenticated --project=sentry-dev-tooling",
     "dev": "yarn dev:smee & yarn build --watch & nodemon --exec \"yarn start\"",
     "dev:smee": "smee -u https://smee.io/O0PvxCnh7srFDwoS",
     "start": "node ./lib/index.js",
@@ -26,12 +26,13 @@
   },
   "dependencies": {
     "@sentry/node": "^5.12.3",
+    "@types/node": "12",
     "dotenv": "^8.2.0",
     "fastify": "^2.14.0",
-    "fastify-formbody": "^3.1.0"
+    "fastify-formbody": "^3.1.0",
+    "typescript": "^3.9.2"
   },
   "devDependencies": {
-    "@types/node": "12",
     "@typescript-eslint/eslint-plugin": "^2.19.0",
     "@typescript-eslint/parser": "^2.19.0",
     "eslint": "^6.8.0",
@@ -43,8 +44,7 @@
     "lint-staged": ">=10",
     "nodemon": "^2.0.0",
     "prettier": "^1.19.1",
-    "ts-jest": "^25.2.0",
-    "typescript": "^3.6.4"
+    "ts-jest": "^25.2.0"
   },
   "engines": {
     "node": ">= 12.0.0"
