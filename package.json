@@ -1,0 +1,60 @@
+{
+  "name": "sentry-development-metrics",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tracks Sentry development metrics",
+  "author": "Billy Vong <billy@sentry.io>",
+  "license": "BSL",
+  "repository": "https://github.com/getsentry/sentry-development-metrics.git",
+  "homepage": "https://github.com/getsentry/sentry-development-metrics",
+  "bugs": "https://github.com/billyvg/sentry-development-metrics/issues",
+  "main": "lib/index",
+  "keywords": [
+    "sentry",
+    "development-metrics"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "deploy": "yarn build && (yarn deploy:development-metrics)",
+    "deploy:development-metrics": "gcloud run deploy development-metrics --allow-unauthenticated --project=sentry-dev-tooling --trigger-http --memory=128MB",
+    "dev": "yarn dev:smee & yarn build --watch & nodemon --exec \"yarn start\"",
+    "dev:smee": "smee -u https://smee.io/O0PvxCnh7srFDwoS",
+    "start": "node ./lib/index.js",
+    "lint": "yarn eslint **/*.ts --fix",
+    "test": "yarn jest && yarn eslint **/*.ts",
+    "test:watch": "yarn jest --watch --notify --notifyMode=change --coverage"
+  },
+  "dependencies": {
+    "@sentry/node": "^5.12.3",
+    "dotenv": "^8.2.0",
+    "fastify": "^2.14.0",
+    "fastify-formbody": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "12",
+    "@typescript-eslint/eslint-plugin": "^2.19.0",
+    "@typescript-eslint/parser": "^2.19.0",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.0",
+    "eslint-plugin-prettier": "^3.1.2",
+    "eslint-plugin-typescript": "^0.14.0",
+    "husky": ">=4",
+    "jest": "^25.1.0",
+    "lint-staged": ">=10",
+    "nodemon": "^2.0.0",
+    "prettier": "^1.19.1",
+    "ts-jest": "^25.2.0",
+    "typescript": "^3.6.4"
+  },
+  "engines": {
+    "node": ">= 12.0.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.ts": "eslint --cache --fix"
+  }
+}
