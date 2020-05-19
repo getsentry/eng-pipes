@@ -1,14 +1,14 @@
 import travisPayload from '@test/travis.json';
 
-import { buildServer } from './buildServer';
-import { insert } from './db';
-import { verifyTravisWebhook } from './verifyTravisWebhook';
+import { buildServer } from '@app/buildServer';
+import { insert } from '@app/db';
+import { verifyTravisWebhook } from '@app/verifyTravisWebhook';
 
-jest.mock('./verifyTravisWebhook', () => ({
+jest.mock('@app/verifyTravisWebhook', () => ({
   verifyTravisWebhook: jest.fn(() => true),
 }));
 
-jest.mock('./db', () => ({
+jest.mock('@app/db', () => ({
   insert: jest.fn(() => []),
 }));
 

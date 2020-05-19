@@ -21,9 +21,11 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "@app/*": ["src/*"],
       "@test/*": ["test/*"]
     }
   },
   "include": ["src/**/*"],
+  "exclude": ["*.test.ts"],
   "compileOnSave": false
 }

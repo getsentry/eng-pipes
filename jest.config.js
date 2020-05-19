@@ -10,5 +10,6 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   moduleNameMapper: {
     '^@test/(.*)$': '<rootDir>/test/$1',
+    '^@app/(.*)$': '<rootDir>/src/$1',
   },
 };
