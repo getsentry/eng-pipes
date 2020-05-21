@@ -58,7 +58,7 @@ jobs:
       with:
         version: '275.0.0'
         service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS}}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
     # Deploy to Google Cloud Functions
     - name: Deploy

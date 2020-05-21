@@ -1,8 +1,8 @@
 #!/bin/sh
 
 PROJECT=super-big-data
-IMAGE=gcr.io/${PROJECT}/product_eng
+IMAGE=gcr.io/${PROJECT}/project-eng-webhooks
 
-gcloud builds submit --tag $IMAGE --project=$PROJECT
-gcloud run deploy product_eng_webhooks --image $IMAGE --project=$PROJECT --platform managed --allow-unauthenticated --region=us-west1
+gcloud builds submit --tag $IMAGE --project=$PROJECT --gcs-log-dir=gs://${PROJECT}_cloudbuild/logs
+gcloud run deploy product-eng-webhooks --image $IMAGE --project=$PROJECT --platform managed --allow-unauthenticated --region=us-west1
 
