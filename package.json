@@ -16,8 +16,8 @@
   "scripts": {
     "build": "yarn tsc -p tsconfig.json",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
-    "deploy:development-metrics": "gcloud run deploy development-metrics --allow-unauthenticated --project=sentry-dev-tooling",
-    "dev": "yarn dev:smee & yarn build --watch & nodemon --exec \"yarn start\"",
+    "deploy:development-metrics": "./bin/deploy.sh",
+    "dev": "yarn dev:smee & yarn build --watch & NODE_ENV=development nodemon --exec \"yarn start\"",
     "dev:smee": "smee -u https://smee.io/O0PvxCnh7srFDwoS",
     "start": "node ./lib/index.js",
     "lint": "yarn eslint **/*.ts --fix",

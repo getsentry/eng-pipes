@@ -33,9 +33,14 @@ const schema = {
   source: 'string',
 
   /**
-   * timestamp for the event
+   * start timestamp for the event
    */
-  timestamp: 'timestamp',
+  start_timestamp: 'timestamp',
+
+  /**
+   * end timestamp for the event
+   */
+  end_timestamp: 'timestamp',
 
   /**
    * Other data in JSON

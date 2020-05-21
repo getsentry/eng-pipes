@@ -1,3 +1,3 @@
 export const SENTRY_DSN =
-  'https://03623bd5366b464daa73ed7bc59d63c0@sentry.io/2450415';
+  'https://34b97f5891a044c6ab1f6ce6332733fb@o1.ingest.sentry.io/5246761';
 export const DEFAULT_PORT = 3000;

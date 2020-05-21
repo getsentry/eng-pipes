@@ -10,9 +10,15 @@ export function buildServer() {
     Server,
     IncomingMessage,
     ServerResponse
-  > = fastify({ logger: { prettyPrint: true } });
+  > = fastify({
+    logger: { prettyPrint: process.env.NODE_ENV === 'development' },
+  });
 
   server.register(require('fastify-formbody'));
+
+  server.get('/', {}, async () => {
+    return 'Hello world';
+  });
 
   server.post('/metrics/travis/webhook', {}, async request => {
     try {
@@ -39,7 +45,8 @@ export function buildServer() {
       object_id: payload.pull_request_number,
       source_id: payload.id,
       // `finished_at` is null when it has not completed yet
-      timestamp: payload.finished_at || payload.started_at,
+      start_timestamp: payload.started_at,
+      end_timestamp: payload.finished_at,
       meta: {
         head_commit: payload.head_commit,
         base_commit: payload.base_commit,
@@ -58,7 +65,8 @@ export function buildServer() {
           source_id: matrixPayload.id,
           parent_id: matrixPayload.parent_id,
           // `finished_at` is null when it has not completed yet
-          timestamp: matrixPayload.finished_at || matrixPayload.started_at,
+          start_timestamp: matrixPayload.started_at,
+          end_timestamp: matrixPayload.finished_at,
           meta: {
             name: config.name,
             head_commit: payload.head_commit,
@@ -72,10 +80,11 @@ export function buildServer() {
     return {};
   });
 
-  // server.post('/metrics/github/webhook', {}, async request => {
-  // const payload = JSON.parse(request.body.payload);
-  // return {};
-  // });
+  server.post('/metrics/github/webhook', {}, async request => {
+    const payload = JSON.parse(request.body.payload);
+    console.log(payload);
+    return {};
+  });
 
   return server;
 }
