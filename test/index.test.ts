@@ -40,7 +40,8 @@ describe('travis webhook', function() {
       object_id: 11,
       source_id: 684354870,
       source: 'travis',
-      timestamp: '2020-05-13T23:43:52Z',
+      start_timestamp: '2020-05-13T23:43:52Z',
+      end_timestamp: null,
     });
 
     expect(insert).toHaveBeenCalledWith({
@@ -55,7 +56,8 @@ describe('travis webhook', function() {
       source_id: 684354871,
       parent_id: 684354870,
       source: 'travis',
-      timestamp: '2020-05-13T23:43:52Z',
+      start_timestamp: '2020-05-13T23:43:52Z',
+      end_timestamp: null,
     });
 
     expect(insert).toHaveBeenCalledWith({
@@ -70,7 +72,8 @@ describe('travis webhook', function() {
       source_id: 684354872,
       parent_id: 684354870,
       source: 'travis',
-      timestamp: '2020-05-15T20:59:02Z',
+      start_timestamp: '2020-05-15T20:56:26Z',
+      end_timestamp: '2020-05-15T20:59:02Z',
     });
   });
 });
