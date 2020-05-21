@@ -1,4 +1,5 @@
 import * as Sentry from '@sentry/node';
+import { RewriteFrames } from '@sentry/integrations';
 
 import { buildServer } from './buildServer';
 import { DEFAULT_PORT, SENTRY_DSN } from './config';
@@ -6,6 +7,7 @@ import { DEFAULT_PORT, SENTRY_DSN } from './config';
 Sentry.init({
   dsn: SENTRY_DSN,
   release: process.env.VERSION,
+  integrations: [new RewriteFrames({ root: __dirname || process.cwd() })],
 });
 
 const server = buildServer();
