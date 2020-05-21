@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@google-cloud/bigquery": "^4.7.0",
+    "@sentry/integrations": "^5.15.5",
     "@sentry/node": "^5.12.3",
     "@types/node": "12",
     "dotenv": "^8.2.0",
