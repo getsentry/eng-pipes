@@ -1,8 +1,8 @@
 #!/bin/sh
 
-PROJECT=sentry-dev-tooling
-IMAGE=gcr.io/${PROJECT}/webhooks
+PROJECT=super-big-data
+IMAGE=gcr.io/${PROJECT}/product_eng
 
 gcloud builds submit --tag $IMAGE --project=$PROJECT
-gcloud run deploy webhooks --image $IMAGE --project=$PROJECT --platform managed --allow-unauthenticated --region=us-west1
+gcloud run deploy product_eng_webhooks --image $IMAGE --project=$PROJECT --platform managed --allow-unauthenticated --region=us-west1
 
