@@ -2,7 +2,7 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 const DATASET = 'product_eng';
 const TABLE = 'development_metrics';
-const PROJECT = 'sentry-dev-tooling';
+const PROJECT = 'super-big-data';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
