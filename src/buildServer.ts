@@ -86,5 +86,11 @@ export function buildServer() {
     return {};
   });
 
+  server.post('/metrics/freight/webhook', {}, async request => {
+    const payload = JSON.parse(request.body.payload);
+    console.log(payload);
+    return {};
+  });
+
   return server;
 }
