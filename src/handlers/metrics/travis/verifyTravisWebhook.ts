@@ -3,8 +3,6 @@ import crypto, { BinaryLike } from 'crypto';
 import fastify from 'fastify';
 import fetch from 'node-fetch';
 
-import { TravisPayload } from '@types';
-
 export async function verifyTravisWebhook(request: fastify.FastifyRequest) {
   const { payload } = request.body;
   const payloadObject = JSON.parse(payload);
