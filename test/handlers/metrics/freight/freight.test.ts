@@ -7,7 +7,7 @@ jest.mock('@utils/db', () => ({
   insert: jest.fn(() => []),
 }));
 
-describe('freight webhook', function() {
+describe.skip('freight webhook', function() {
   let fastify;
   beforeEach(function() {
     fastify = buildServer();
