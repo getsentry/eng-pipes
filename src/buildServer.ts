@@ -1,5 +1,6 @@
 import path from 'path';
 
+import * as Sentry from '@sentry/node';
 import fastify, { FastifyInstance, FastifyReply } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 
@@ -52,15 +53,11 @@ export function buildServer() {
       }
 
       return handler(request, reply);
-    } catch {
+    } catch (err) {
+      console.error(err);
+      Sentry.captureException(err);
       return server.notFound(request, reply);
     }
-  });
-
-  server.post('/metrics/freight/webhook', {}, async request => {
-    const payload = JSON.parse(request.body.payload);
-    console.log(payload);
-    return {};
   });
 
   return server;
