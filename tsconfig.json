@@ -7,7 +7,7 @@
     "target": "es5",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": false,
+    "noUnusedLocals": true,
     "pretty": true,
     "strict": true,
     "sourceMap": true,
@@ -22,7 +22,9 @@
     "baseUrl": ".",
     "paths": {
       "@app/*": ["src/*"],
-      "@test/*": ["test/*"]
+      "@utils/*": ["src/utils/*"],
+      "@test/*": ["test/*"],
+      "@types": ["src/types"]
     }
   },
   "include": ["src/**/*"],
