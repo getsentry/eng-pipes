@@ -1,0 +1,18 @@
+{
+  "app_name": "getsentry",
+  "date_created": "2020-05-13T23:43:52Z",
+  "date_started": "2020-05-13T23:43:52Z",
+  "date_finished": "2020-05-15T20:59:02Z",
+  "deploy_number": 13,
+  "duration": 600,
+  "environment": "production",
+  "link": "/deploys/getsentry/production/13/",
+  "params": {},
+  "previous_sha": "xyz",
+  "ref": "test/ref",
+  "sha": "abc",
+  "status": "started",
+  "title": "title",
+  "user": "billy@sentry.io",
+  "user_id": "billy@sentry.io"
+}
