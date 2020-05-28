@@ -21,8 +21,8 @@
     "dev:smee": "smee -u https://smee.io/O0PvxCnh7srFDwoS",
     "start": "node ./lib/index.js",
     "lint": "yarn eslint **/*.ts --fix",
-    "test": "yarn jest && yarn eslint **/*.ts",
-    "test:watch": "yarn jest --watch --notify --notifyMode=change --coverage"
+    "test": "yarn eslint **/*.ts && yarn jest",
+    "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^4.7.0",

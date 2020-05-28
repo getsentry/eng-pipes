@@ -116,3 +116,22 @@ export type TravisPayload = {
   matrix: TravisMatrix[];
   config: TravisConfig;
 };
+
+export type FreightPayload = {
+  app_name: string;
+  date_created: string;
+  date_started: string;
+  date_finished: string;
+  deploy_number: number;
+  duration: number;
+  environment: string;
+  link: string;
+  params: Record<string, any>;
+  previous_sha: string;
+  ref: string;
+  sha: string;
+  status: string;
+  title: string;
+  user: string;
+  user_id: string;
+};
