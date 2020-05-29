@@ -1,26 +1,77 @@
 import { FastifyRequest } from 'fastify';
 
 import { FreightPayload } from '../../../types';
-// import { insert } from '../../../utils/db';
+import { insert, mapDeployToPullRequest } from '../../../utils/db';
+import { getSentryPullRequestsForGetsentryRange } from '../../../api/github/getSentryPullRequestsForGetsentryRange';
 
 export async function handler(request: FastifyRequest) {
   const { body }: { body: FreightPayload } = request;
-  console.log(body);
+  let promises: Promise<any>[] = [];
+
+  let { status } = body;
+
+  // Need to wait for this to be deployed/merged https://github.com/getsentry/freight/pull/231
+  // In the meantime we can parse title for the status
+  //
+  // After the PR is deployed, body.status is a string (vs a stringified int) and
+  // we will have NaN !== NaN, so the below will be skipped
+  if (parseInt(body.status) === parseInt(body.status)) {
+    if (status === '0') {
+      status = 'queued';
+    } else if (status === '1') {
+      status = 'started';
+    } else {
+      status = status.includes('Successfully finished')
+        ? 'finished'
+        : status.includes('Failed to finish')
+        ? 'failed'
+        : 'canceled';
+    }
+  }
 
   // Wait for actual data before inserting into db
-  // await insert({
-  // source: 'freight',
-  // event: `build_${payload.state}`, // TODO: translate state --> string maybe
-  // object_id: null, // TODO: Need to take sha/previous_sha and find the sentry commit
-  // source_id: payload.deploy_number,
-  // start_timestamp: payload.date_started,
-  // // `finished_at` is null when it has not completed yet
-  // end_timestamp: payload.date_finished,
-  // meta: {
-  // head_commit: payload.sha,
-  // base_commit: payload.previous_sha,
-  // },
-  // });
+  promises.push(
+    insert({
+      source: 'freight',
+      event: `deploy_${status}`,
+      object_id: null,
+      source_id: body.deploy_number,
+      start_timestamp: body.date_started,
+      // `finished_at` is null when it has not completed yet
+      end_timestamp: body.date_finished,
+      meta: {
+        head_commit: body.sha,
+        base_commit: body.previous_sha,
+      },
+    })
+  );
+
+  // If we have the previous sha, then look up the list of commits (in getsentry) between
+  // current and previous sha. Use this list of commits to find the corresponding commits/prs in sentry
+  //
+  // Only do this step if deploy is successful
+  //
+  // TODO: figure out how rollbacks will affect this data
+  if (body.previous_sha && status === 'finished') {
+    const sentryPullRequests = await getSentryPullRequestsForGetsentryRange(
+      body.sha,
+      body.previous_sha
+    );
+
+    // insert these into a different table that maps freight deploys to the pr
+    promises = [
+      ...promises,
+      ...sentryPullRequests.map(pr =>
+        mapDeployToPullRequest(
+          body.deploy_number,
+          pr.number,
+          pr.merge_commit_sha
+        )
+      ),
+    ];
+  }
+
+  await Promise.all(promises);
 
   return {};
 }

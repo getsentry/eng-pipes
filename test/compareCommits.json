@@ -1,0 +1,385 @@
+{
+  "status": 200,
+  "url": "https://api.github.com/repos/getsentry/getsentry/compare/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f...c88d886ba52bd85431052abaef4916469f7db2e8",
+  "headers": {
+    "access-control-allow-origin": "*",
+    "access-control-expose-headers": "ETag, Link, Location, Retry-After, X-GitHub-OTP, X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset, X-OAuth-Scopes, X-Accepted-OAuth-Scopes, X-Poll-Interval, X-GitHub-Media-Type, Deprecation, Sunset",
+    "cache-control": "private, max-age=60, s-maxage=60",
+    "connection": "close",
+    "content-encoding": "gzip",
+    "content-security-policy": "default-src 'none'",
+    "content-type": "application/json; charset=utf-8",
+    "date": "Fri, 29 May 2020 21:02:08 GMT",
+    "etag": "W/\"30fbab65c2c38d908f0dd1e8f475813a\"",
+    "last-modified": "Thu, 28 May 2020 20:26:23 GMT",
+    "referrer-policy": "origin-when-cross-origin, strict-origin-when-cross-origin",
+    "server": "GitHub.com",
+    "status": "200 OK",
+    "strict-transport-security": "max-age=31536000; includeSubdomains; preload",
+    "transfer-encoding": "chunked",
+    "vary": "Accept, Authorization, Cookie, X-GitHub-OTP, Accept-Encoding, Accept, X-Requested-With, Accept-Encoding",
+    "x-content-type-options": "nosniff",
+    "x-frame-options": "deny",
+    "x-github-media-type": "github.v3; format=json",
+    "x-github-request-id": "E246:9F11:352F7E:401FC8:5ED17850",
+    "x-ratelimit-limit": "9050",
+    "x-ratelimit-remaining": "9004",
+    "x-ratelimit-reset": "1590788495",
+    "x-xss-protection": "1; mode=block"
+  },
+  "data": {
+    "url": "https://api.github.com/repos/getsentry/getsentry/compare/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f...c88d886ba52bd85431052abaef4916469f7db2e8",
+    "html_url": "https://github.com/getsentry/getsentry/compare/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f...c88d886ba52bd85431052abaef4916469f7db2e8",
+    "permalink_url": "https://github.com/getsentry/getsentry/compare/getsentry:ab2e85f...getsentry:c88d886",
+    "diff_url": "https://github.com/getsentry/getsentry/compare/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f...c88d886ba52bd85431052abaef4916469f7db2e8.diff",
+    "patch_url": "https://github.com/getsentry/getsentry/compare/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f...c88d886ba52bd85431052abaef4916469f7db2e8.patch",
+    "base_commit": {
+      "sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "node_id": "MDY6Q29tbWl0MzA2MDkyNTphYjJlODVmMWU1MmMzOGNmMTM4YmJjNjBmOGE3MmI3YWIyODJiMDJm",
+      "commit": {
+        "author": {
+          "name": "Daniel Griesser",
+          "email": "daniel.griesser.86@gmail.com",
+          "date": "2020-05-28T12:51:12Z"
+        },
+        "committer": {
+          "name": "Sentry Bot",
+          "email": "bot@getsentry.com",
+          "date": "2020-05-28T12:51:12Z"
+        },
+        "message": "getsentry/sentry@2f59d44445c2a687cc0f13c19185e54ee9da8ee2\n\n#skipsentry",
+        "tree": {
+          "sha": "efe3a2f3c026d60625e41344f2284bfd6607b836",
+          "url": "https://api.github.com/repos/getsentry/getsentry/git/trees/efe3a2f3c026d60625e41344f2284bfd6607b836"
+        },
+        "url": "https://api.github.com/repos/getsentry/getsentry/git/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null
+        }
+      },
+      "url": "https://api.github.com/repos/getsentry/getsentry/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "html_url": "https://github.com/getsentry/getsentry/commit/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "comments_url": "https://api.github.com/repos/getsentry/getsentry/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f/comments",
+      "author": {
+        "login": "HazAT",
+        "id": 363802,
+        "node_id": "MDQ6VXNlcjM2MzgwMg==",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/363802?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/HazAT",
+        "html_url": "https://github.com/HazAT",
+        "followers_url": "https://api.github.com/users/HazAT/followers",
+        "following_url": "https://api.github.com/users/HazAT/following{/other_user}",
+        "gists_url": "https://api.github.com/users/HazAT/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/HazAT/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/HazAT/subscriptions",
+        "organizations_url": "https://api.github.com/users/HazAT/orgs",
+        "repos_url": "https://api.github.com/users/HazAT/repos",
+        "events_url": "https://api.github.com/users/HazAT/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/HazAT/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "getsentry-bot",
+        "id": 10587625,
+        "node_id": "MDQ6VXNlcjEwNTg3NjI1",
+        "avatar_url": "https://avatars3.githubusercontent.com/u/10587625?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/getsentry-bot",
+        "html_url": "https://github.com/getsentry-bot",
+        "followers_url": "https://api.github.com/users/getsentry-bot/followers",
+        "following_url": "https://api.github.com/users/getsentry-bot/following{/other_user}",
+        "gists_url": "https://api.github.com/users/getsentry-bot/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/getsentry-bot/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/getsentry-bot/subscriptions",
+        "organizations_url": "https://api.github.com/users/getsentry-bot/orgs",
+        "repos_url": "https://api.github.com/users/getsentry-bot/repos",
+        "events_url": "https://api.github.com/users/getsentry-bot/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/getsentry-bot/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "b372e9d075825104d026fa72cf1b0f1451b33c8a",
+          "url": "https://api.github.com/repos/getsentry/getsentry/commits/b372e9d075825104d026fa72cf1b0f1451b33c8a",
+          "html_url": "https://github.com/getsentry/getsentry/commit/b372e9d075825104d026fa72cf1b0f1451b33c8a"
+        }
+      ]
+    },
+    "merge_base_commit": {
+      "sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "node_id": "MDY6Q29tbWl0MzA2MDkyNTphYjJlODVmMWU1MmMzOGNmMTM4YmJjNjBmOGE3MmI3YWIyODJiMDJm",
+      "commit": {
+        "author": {
+          "name": "Daniel Griesser",
+          "email": "daniel.griesser.86@gmail.com",
+          "date": "2020-05-28T12:51:12Z"
+        },
+        "committer": {
+          "name": "Sentry Bot",
+          "email": "bot@getsentry.com",
+          "date": "2020-05-28T12:51:12Z"
+        },
+        "message": "getsentry/sentry@2f59d44445c2a687cc0f13c19185e54ee9da8ee2\n\n#skipsentry",
+        "tree": {
+          "sha": "efe3a2f3c026d60625e41344f2284bfd6607b836",
+          "url": "https://api.github.com/repos/getsentry/getsentry/git/trees/efe3a2f3c026d60625e41344f2284bfd6607b836"
+        },
+        "url": "https://api.github.com/repos/getsentry/getsentry/git/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+        "comment_count": 0,
+        "verification": {
+          "verified": false,
+          "reason": "unsigned",
+          "signature": null,
+          "payload": null
+        }
+      },
+      "url": "https://api.github.com/repos/getsentry/getsentry/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "html_url": "https://github.com/getsentry/getsentry/commit/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+      "comments_url": "https://api.github.com/repos/getsentry/getsentry/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f/comments",
+      "author": {
+        "login": "HazAT",
+        "id": 363802,
+        "node_id": "MDQ6VXNlcjM2MzgwMg==",
+        "avatar_url": "https://avatars2.githubusercontent.com/u/363802?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/HazAT",
+        "html_url": "https://github.com/HazAT",
+        "followers_url": "https://api.github.com/users/HazAT/followers",
+        "following_url": "https://api.github.com/users/HazAT/following{/other_user}",
+        "gists_url": "https://api.github.com/users/HazAT/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/HazAT/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/HazAT/subscriptions",
+        "organizations_url": "https://api.github.com/users/HazAT/orgs",
+        "repos_url": "https://api.github.com/users/HazAT/repos",
+        "events_url": "https://api.github.com/users/HazAT/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/HazAT/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "committer": {
+        "login": "getsentry-bot",
+        "id": 10587625,
+        "node_id": "MDQ6VXNlcjEwNTg3NjI1",
+        "avatar_url": "https://avatars3.githubusercontent.com/u/10587625?v=4",
+        "gravatar_id": "",
+        "url": "https://api.github.com/users/getsentry-bot",
+        "html_url": "https://github.com/getsentry-bot",
+        "followers_url": "https://api.github.com/users/getsentry-bot/followers",
+        "following_url": "https://api.github.com/users/getsentry-bot/following{/other_user}",
+        "gists_url": "https://api.github.com/users/getsentry-bot/gists{/gist_id}",
+        "starred_url": "https://api.github.com/users/getsentry-bot/starred{/owner}{/repo}",
+        "subscriptions_url": "https://api.github.com/users/getsentry-bot/subscriptions",
+        "organizations_url": "https://api.github.com/users/getsentry-bot/orgs",
+        "repos_url": "https://api.github.com/users/getsentry-bot/repos",
+        "events_url": "https://api.github.com/users/getsentry-bot/events{/privacy}",
+        "received_events_url": "https://api.github.com/users/getsentry-bot/received_events",
+        "type": "User",
+        "site_admin": false
+      },
+      "parents": [
+        {
+          "sha": "b372e9d075825104d026fa72cf1b0f1451b33c8a",
+          "url": "https://api.github.com/repos/getsentry/getsentry/commits/b372e9d075825104d026fa72cf1b0f1451b33c8a",
+          "html_url": "https://github.com/getsentry/getsentry/commit/b372e9d075825104d026fa72cf1b0f1451b33c8a"
+        }
+      ]
+    },
+    "status": "ahead",
+    "ahead_by": 2,
+    "behind_by": 0,
+    "total_commits": 2,
+    "commits": [
+      {
+        "sha": "88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+        "node_id": "MDY6Q29tbWl0MzA2MDkyNTo4ODM1N2QwZmVhZjg5MGM1ZTczYzY1Nzc0ZjVmM2UxY2U3MmNkMzFm",
+        "commit": {
+          "author": {
+            "name": "MeredithAnya",
+            "email": "meredith.a.heller@gmail.com",
+            "date": "2020-05-28T14:02:51Z"
+          },
+          "committer": {
+            "name": "Sentry Bot",
+            "email": "bot@getsentry.com",
+            "date": "2020-05-28T14:02:51Z"
+          },
+          "message": "getsentry/sentry@c399a07b6ac176d9309eaa9240cb6e262b0ba04d\n\n#skipsentry",
+          "tree": {
+            "sha": "9246280291118691ab5afbe06c488643ba615738",
+            "url": "https://api.github.com/repos/getsentry/getsentry/git/trees/9246280291118691ab5afbe06c488643ba615738"
+          },
+          "url": "https://api.github.com/repos/getsentry/getsentry/git/commits/88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+          "comment_count": 0,
+          "verification": {
+            "verified": false,
+            "reason": "unsigned",
+            "signature": null,
+            "payload": null
+          }
+        },
+        "url": "https://api.github.com/repos/getsentry/getsentry/commits/88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+        "html_url": "https://github.com/getsentry/getsentry/commit/88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+        "comments_url": "https://api.github.com/repos/getsentry/getsentry/commits/88357d0feaf890c5e73c65774f5f3e1ce72cd31f/comments",
+        "author": {
+          "login": "MeredithAnya",
+          "id": 15368179,
+          "node_id": "MDQ6VXNlcjE1MzY4MTc5",
+          "avatar_url": "https://avatars0.githubusercontent.com/u/15368179?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/MeredithAnya",
+          "html_url": "https://github.com/MeredithAnya",
+          "followers_url": "https://api.github.com/users/MeredithAnya/followers",
+          "following_url": "https://api.github.com/users/MeredithAnya/following{/other_user}",
+          "gists_url": "https://api.github.com/users/MeredithAnya/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/MeredithAnya/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/MeredithAnya/subscriptions",
+          "organizations_url": "https://api.github.com/users/MeredithAnya/orgs",
+          "repos_url": "https://api.github.com/users/MeredithAnya/repos",
+          "events_url": "https://api.github.com/users/MeredithAnya/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/MeredithAnya/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "committer": {
+          "login": "getsentry-bot",
+          "id": 10587625,
+          "node_id": "MDQ6VXNlcjEwNTg3NjI1",
+          "avatar_url": "https://avatars3.githubusercontent.com/u/10587625?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/getsentry-bot",
+          "html_url": "https://github.com/getsentry-bot",
+          "followers_url": "https://api.github.com/users/getsentry-bot/followers",
+          "following_url": "https://api.github.com/users/getsentry-bot/following{/other_user}",
+          "gists_url": "https://api.github.com/users/getsentry-bot/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/getsentry-bot/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/getsentry-bot/subscriptions",
+          "organizations_url": "https://api.github.com/users/getsentry-bot/orgs",
+          "repos_url": "https://api.github.com/users/getsentry-bot/repos",
+          "events_url": "https://api.github.com/users/getsentry-bot/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/getsentry-bot/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "parents": [
+          {
+            "sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+            "url": "https://api.github.com/repos/getsentry/getsentry/commits/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+            "html_url": "https://github.com/getsentry/getsentry/commit/ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f"
+          }
+        ]
+      },
+      {
+        "sha": "b96e592e2ec93cb2695be30ef6c0615f61e36be9",
+        "node_id": "MDY6Q29tbWl0MzA2MDkyNTpiOTZlNTkyZTJlYzkzY2IyNjk1YmUzMGVmNmMwNjE1ZjYxZTM2YmU5",
+        "commit": {
+          "author": {
+            "name": "Tony",
+            "email": "Zylphrex@users.noreply.github.com",
+            "date": "2020-05-28T14:24:33Z"
+          },
+          "committer": {
+            "name": "Sentry Bot",
+            "email": "bot@getsentry.com",
+            "date": "2020-05-28T14:24:33Z"
+          },
+          "message": "getsentry/sentry@ab65e75e4df9b0dfe715327738a6779f132fb1ae\n\n#skipsentry",
+          "tree": {
+            "sha": "f24bbafb0bae784a68f79a6b4c37d25f73ab559f",
+            "url": "https://api.github.com/repos/getsentry/getsentry/git/trees/f24bbafb0bae784a68f79a6b4c37d25f73ab559f"
+          },
+          "url": "https://api.github.com/repos/getsentry/getsentry/git/commits/b96e592e2ec93cb2695be30ef6c0615f61e36be9",
+          "comment_count": 0,
+          "verification": {
+            "verified": false,
+            "reason": "unsigned",
+            "signature": null,
+            "payload": null
+          }
+        },
+        "url": "https://api.github.com/repos/getsentry/getsentry/commits/b96e592e2ec93cb2695be30ef6c0615f61e36be9",
+        "html_url": "https://github.com/getsentry/getsentry/commit/b96e592e2ec93cb2695be30ef6c0615f61e36be9",
+        "comments_url": "https://api.github.com/repos/getsentry/getsentry/commits/b96e592e2ec93cb2695be30ef6c0615f61e36be9/comments",
+        "author": {
+          "login": "Zylphrex",
+          "id": 10239353,
+          "node_id": "MDQ6VXNlcjEwMjM5MzUz",
+          "avatar_url": "https://avatars2.githubusercontent.com/u/10239353?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/Zylphrex",
+          "html_url": "https://github.com/Zylphrex",
+          "followers_url": "https://api.github.com/users/Zylphrex/followers",
+          "following_url": "https://api.github.com/users/Zylphrex/following{/other_user}",
+          "gists_url": "https://api.github.com/users/Zylphrex/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/Zylphrex/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/Zylphrex/subscriptions",
+          "organizations_url": "https://api.github.com/users/Zylphrex/orgs",
+          "repos_url": "https://api.github.com/users/Zylphrex/repos",
+          "events_url": "https://api.github.com/users/Zylphrex/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/Zylphrex/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "committer": {
+          "login": "getsentry-bot",
+          "id": 10587625,
+          "node_id": "MDQ6VXNlcjEwNTg3NjI1",
+          "avatar_url": "https://avatars3.githubusercontent.com/u/10587625?v=4",
+          "gravatar_id": "",
+          "url": "https://api.github.com/users/getsentry-bot",
+          "html_url": "https://github.com/getsentry-bot",
+          "followers_url": "https://api.github.com/users/getsentry-bot/followers",
+          "following_url": "https://api.github.com/users/getsentry-bot/following{/other_user}",
+          "gists_url": "https://api.github.com/users/getsentry-bot/gists{/gist_id}",
+          "starred_url": "https://api.github.com/users/getsentry-bot/starred{/owner}{/repo}",
+          "subscriptions_url": "https://api.github.com/users/getsentry-bot/subscriptions",
+          "organizations_url": "https://api.github.com/users/getsentry-bot/orgs",
+          "repos_url": "https://api.github.com/users/getsentry-bot/repos",
+          "events_url": "https://api.github.com/users/getsentry-bot/events{/privacy}",
+          "received_events_url": "https://api.github.com/users/getsentry-bot/received_events",
+          "type": "User",
+          "site_admin": false
+        },
+        "parents": [
+          {
+            "sha": "88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+            "url": "https://api.github.com/repos/getsentry/getsentry/commits/88357d0feaf890c5e73c65774f5f3e1ce72cd31f",
+            "html_url": "https://github.com/getsentry/getsentry/commit/88357d0feaf890c5e73c65774f5f3e1ce72cd31f"
+          }
+        ]
+      }
+    ],
+    "files": [
+      {
+        "sha": "45812cab7e8caa86ef79c941c1c97d4e4f4e3537",
+        "filename": "Dockerfile",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1,
+        "changes": 2,
+        "blob_url": "https://github.com/getsentry/getsentry/blob/c88d886ba52bd85431052abaef4916469f7db2e8/Dockerfile",
+        "raw_url": "https://github.com/getsentry/getsentry/raw/c88d886ba52bd85431052abaef4916469f7db2e8/Dockerfile",
+        "contents_url": "https://api.github.com/repos/getsentry/getsentry/contents/Dockerfile?ref=c88d886ba52bd85431052abaef4916469f7db2e8",
+        "patch": "@@ -156,7 +156,7 @@ RUN pip install -r requirements-base.txt \\\n     && uwsgi --need-plugin=/var/lib/uwsgi/dogstatsd --help > /dev/null\n \n # Do not change this manually. If you are testing a non-master branch, use bin/bump-sentry.\n-ENV SENTRY_VERSION_SHA 2f59d44445c2a687cc0f13c19185e54ee9da8ee2\n+ENV SENTRY_VERSION_SHA df57809a812ad0bea66ddea6f15564e9ad602a0b\n RUN export YARN_CACHE_FOLDER=\"$(mktemp -d)\" \\\n     && SENTRY_SKIP_BACKEND_VALIDATION=1 \\\n         pip install -e git+https://github.com/getsentry/sentry.git@${SENTRY_VERSION_SHA}#egg=sentry \\"
+      },
+      {
+        "sha": "cc7fb6705c94df90d2c19aec8e789a7dd7aee145",
+        "filename": "requirements-sentry.txt",
+        "status": "modified",
+        "additions": 1,
+        "deletions": 1,
+        "changes": 2,
+        "blob_url": "https://github.com/getsentry/getsentry/blob/c88d886ba52bd85431052abaef4916469f7db2e8/requirements-sentry.txt",
+        "raw_url": "https://github.com/getsentry/getsentry/raw/c88d886ba52bd85431052abaef4916469f7db2e8/requirements-sentry.txt",
+        "contents_url": "https://api.github.com/repos/getsentry/getsentry/contents/requirements-sentry.txt?ref=c88d886ba52bd85431052abaef4916469f7db2e8",
+        "patch": "@@ -1,2 +1,2 @@\n # Do not change this manually. If you are testing a non-master branch, use bin/bump-sentry.\n--e git+https://github.com/getsentry/sentry.git@2f59d44445c2a687cc0f13c19185e54ee9da8ee2#egg=sentry-dev\n+-e git+https://github.com/getsentry/sentry.git@df57809a812ad0bea66ddea6f15564e9ad602a0b#egg=sentry-dev"
+      }
+    ]
+  }
+}

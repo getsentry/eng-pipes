@@ -4,21 +4,29 @@ Tracks certain development metrics from different services used during developme
 
 ## Setup
 
+Install the github application to relevant repos here: https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools/installations
+
+### Setup Secrets
+
+The following secrets need to be configured in GitHub for this app to function and to deploy to Google.
+You can grab GitHub secrets in the app configuration page: https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools
+
+ * `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
+ * `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
+ * `GITHUB_APP_IDENTIFIER` - GitHub App identifier
+ * `GITHUB_APP_SECRET_KEY` - GitHub App private key
+ * `GITHUB_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
+
+
+## Development
+
 ```sh
 # Install dependencies
 yarn install
 
-# Run typescript
-yarn build
+# Start dev
+yarn dev
 ```
-
-### Setup Secrets
-
-The following secrets need to be configured in GitHub for this app to function and to deploy to Google
-
- * `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
- * `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
- * `GITHUB_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 
 ### Google Cloud Platform
 

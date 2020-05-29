@@ -1,7 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 
 const DATASET = 'product_eng';
-const TABLE = 'development_metrics';
 const PROJECT = 'super-big-data';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
@@ -50,7 +49,7 @@ const schema = {
 
 export async function insert({ meta = {}, ...row }) {
   const dataset = bigqueryClient.dataset(DATASET);
-  const table = dataset.table(TABLE);
+  const table = dataset.table('development_metrics');
 
   return table.insert(
     { ...row, meta: JSON.stringify(meta) },
@@ -58,6 +57,30 @@ export async function insert({ meta = {}, ...row }) {
       schema: Object.entries(schema)
         .map(entry => entry.join(':'))
         .join(','),
+    }
+  );
+}
+
+export async function mapDeployToPullRequest(
+  deploy_id,
+  pull_request_number,
+  commit_sha
+) {
+  const dataset = bigqueryClient.dataset(DATASET);
+  const table = dataset.table('freight_to_pull_request');
+  console.log(deploy_id, pull_request_number, commit_sha);
+  return table.insert(
+    {
+      deploy_id,
+      pull_request_number,
+      commit_sha,
+    },
+    {
+      schema: {
+        deploy_id: 'integer',
+        pull_request_number: 'integer',
+        commit_sha: 'string',
+      },
     }
   );
 }
