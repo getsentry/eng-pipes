@@ -8,11 +8,11 @@
   "environment": "production",
   "link": "/deploys/getsentry/production/13/",
   "params": {},
-  "previous_sha": "xyz",
-  "ref": "test/ref",
-  "sha": "abc",
+  "previous_sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
+  "ref": "master",
+  "sha": "c88d886ba52bd85431052abaef4916469f7db2e8",
   "status": "started",
-  "title": "title",
+  "title": "[freight/production] Freight started deploy </deploys/freight/production/18|#18> (f3d0c2e)",
   "user": "billy@sentry.io",
-  "user_id": "billy@sentry.io"
+  "user_id": 1
 }

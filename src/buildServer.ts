@@ -33,6 +33,8 @@ export function buildServer() {
 
   server.post('/metrics/:service/webhook', {}, async (request, reply) => {
     const rootDir = __dirname;
+    let handler;
+
     try {
       const handlerPath = path.join(
         __dirname,
@@ -46,17 +48,22 @@ export function buildServer() {
         throw new Error('Invalid service');
       }
 
-      const { handler } = require(handlerPath);
-
+      ({ handler } = require(handlerPath));
       if (!handler) {
         throw new Error('Invalid service');
       }
-
-      return await handler(request, reply);
     } catch (err) {
       console.error(err);
       Sentry.captureException(err);
       return server.notFound(request, reply);
+    }
+
+    try {
+      return await handler(request, reply);
+    } catch (err) {
+      console.error(err);
+      Sentry.captureException(err);
+      return reply.code(400).send('Bad Request');
     }
   });
 
