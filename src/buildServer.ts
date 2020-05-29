@@ -52,7 +52,7 @@ export function buildServer() {
         throw new Error('Invalid service');
       }
 
-      return handler(request, reply);
+      return await handler(request, reply);
     } catch (err) {
       console.error(err);
       Sentry.captureException(err);
