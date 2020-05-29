@@ -1,5 +1,3 @@
-// import { BigQuery } from '@google-cloud/bigquery';
-
 import { buildServer } from '@app/buildServer';
 
 import payload from '@test/freight.json';
@@ -8,12 +6,6 @@ const insertMock = jest.fn();
 const tableMock = jest.fn(() => ({
   insert: insertMock,
 }));
-
-// jest.mock('@utils/db', () => ({
-// insert: jest.fn(() => []),
-// mapDeployToPullRequest: jest.requireActual('@utils/db')
-// .mapDeployToPullRequest,
-// }));
 
 // Mock octokit client
 jest.mock('@app/api/github/getClient', () => ({
