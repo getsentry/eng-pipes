@@ -33,4 +33,3 @@ package-lock.json
 coverage
 .eslintcache
 .DS_Store
-*.d.ts
