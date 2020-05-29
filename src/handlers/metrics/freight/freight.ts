@@ -4,9 +4,8 @@ import { FreightPayload } from '../../../types';
 // import { insert } from '../../../utils/db';
 
 export async function handler(request: FastifyRequest) {
-  const payload = JSON.parse(request.body.payload) as FreightPayload;
-
-  console.log(payload);
+  const { body }: { body: FreightPayload } = request;
+  console.log(body);
 
   // Wait for actual data before inserting into db
   // await insert({
