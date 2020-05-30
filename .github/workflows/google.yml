@@ -24,6 +24,8 @@ jobs:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
+      GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
 
     steps:
     - name: Checkout
