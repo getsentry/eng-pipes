@@ -13,9 +13,9 @@ You can grab GitHub secrets in the app configuration page: https://github.com/or
 
  * `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
  * `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
- * `GITHUB_APP_IDENTIFIER` - GitHub App identifier
- * `GITHUB_APP_SECRET_KEY` - GitHub App private key
- * `GITHUB_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
+ * `GH_APP_IDENTIFIER` - GitHub App identifier
+ * `GH_APP_SECRET_KEY` - GitHub App private key
+ * `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 
 
 ## Development

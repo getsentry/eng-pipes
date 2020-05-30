@@ -1,12 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
 
-if (!process.env.GITHUB_APP_SECRET_KEY) {
-  throw new Error('GITHUB_APP_SECRET_KEY not defined');
+if (!process.env.GH_APP_SECRET_KEY) {
+  throw new Error('GH_APP_SECRET_KEY not defined');
 }
 
-if (!process.env.GITHUB_APP_IDENTIFIER) {
-  throw new Error('GITHUB_APP_IDENTIFIER not defined');
+if (!process.env.GH_APP_IDENTIFIER) {
+  throw new Error('GH_APP_IDENTIFIER not defined');
 }
 
 /**
@@ -17,8 +17,8 @@ const getOctokitClient = (installationId?: number) =>
     authStrategy: createAppAuth,
     auth: {
       // Initialize GitHub App with id:private_key pair and generate JWT which is used for
-      id: Number(process.env.GITHUB_APP_IDENTIFIER),
-      privateKey: process.env.GITHUB_APP_SECRET_KEY,
+      id: Number(process.env.GH_APP_IDENTIFIER),
+      privateKey: process.env.GH_APP_SECRET_KEY,
       installationId,
     },
   });
