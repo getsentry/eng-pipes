@@ -22,9 +22,9 @@ export async function handler(request: FastifyRequest) {
     } else if (status === '0') {
       status = 'started';
     } else {
-      status = status.includes('Successfully finished')
+      status = body.title.includes('Successfully finished')
         ? 'finished'
-        : status.includes('Failed to finish')
+        : body.title.includes('Failed to finish')
         ? 'failed'
         : 'canceled';
     }
