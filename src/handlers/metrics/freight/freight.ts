@@ -17,9 +17,9 @@ export async function handler(request: FastifyRequest) {
   // After the PR is deployed, body.status is a string (vs a stringified int) and
   // we will have NaN !== NaN, so the below will be skipped
   if (parseInt(body.status) === parseInt(body.status)) {
-    if (status === '0') {
+    if (status === '2') {
       status = 'queued';
-    } else if (status === '1') {
+    } else if (status === '0') {
       status = 'started';
     } else {
       status = status.includes('Successfully finished')
