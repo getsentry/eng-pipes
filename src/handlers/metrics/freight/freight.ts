@@ -10,6 +10,7 @@ export async function handler(request: FastifyRequest) {
 
   let { status } = body;
 
+  console.log(JSON.stringify(body, null, 4));
   // Need to wait for this to be deployed/merged https://github.com/getsentry/freight/pull/231
   // In the meantime we can parse title for the status
   //
