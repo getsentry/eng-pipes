@@ -5,6 +5,12 @@ const PROJECT = 'super-big-data';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
+function objectToSchema(obj: Record<string, any>) {
+  return Object.entries(obj)
+    .map(entry => entry.join(':'))
+    .join(',');
+}
+
 const schema = {
   /**
    * This represents an id that can be used across services
@@ -54,20 +60,24 @@ export async function insert({ meta = {}, ...row }) {
   return table.insert(
     { ...row, meta: JSON.stringify(meta) },
     {
-      schema: Object.entries(schema)
-        .map(entry => entry.join(':'))
-        .join(','),
+      schema: objectToSchema(schema),
     }
   );
 }
 
 export async function mapDeployToPullRequest(
-  deploy_id,
-  pull_request_number,
-  commit_sha
+  deploy_id: number,
+  pull_request_number: number,
+  commit_sha: string
 ) {
   const dataset = bigqueryClient.dataset(DATASET);
   const table = dataset.table('freight_to_pull_request');
+  const schema = {
+    deploy_id: 'integer',
+    pull_request_number: 'integer',
+    commit_sha: 'string',
+  };
+
   console.log(deploy_id, pull_request_number, commit_sha);
   return table.insert(
     {
@@ -76,11 +86,7 @@ export async function mapDeployToPullRequest(
       commit_sha,
     },
     {
-      schema: {
-        deploy_id: 'integer',
-        pull_request_number: 'integer',
-        commit_sha: 'string',
-      },
+      schema: objectToSchema(schema),
     }
   );
 }
