@@ -21,27 +21,11 @@ export async function handler(request: FastifyRequest) {
     return 'pong';
   }
 
-  console.log(eventType, payload);
-
   // This is for open source data so we can consolidate github webhooks
   insertOss(eventType, payload);
 
-  // action: 'completed',
-  // check_suite: {
-  // id: 746981862,
-  // node_id: 'MDEwOkNoZWNrU3VpdGU3NDY5ODE4NjI=',
-  // head_branch: 'build/github/test-github-webhooks',
-  // head_sha: '2bb35947d1883861e5d135192c36281a2230637b',
-  // status: 'completed',
-  // conclusion: 'failure',
-  // url: 'https://api.github.com/repos/billyvg/sentry/check-suites/746981862',
-  // before: '590528c32a4f2e67087bf3297ecdd017d48ca912',
-  // after: '2bb35947d1883861e5d135192c36281a2230637b',
-  // pull_requests: [ [Object] ],
-
   const { check_run } = payload;
   if (eventType === 'check_run' && check_run) {
-    console.log(check_run.pullRequests[0]);
     const status =
       check_run.status === 'queued'
         ? 'queued'
@@ -55,7 +39,7 @@ export async function handler(request: FastifyRequest) {
         ? 'canceled'
         : check_run.conclusion;
 
-    const [pullRequest] = check_run.pullRequests;
+    const [pullRequest] = check_run.pull_requests;
 
     insert({
       source: 'github',
