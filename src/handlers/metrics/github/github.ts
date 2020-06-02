@@ -1,53 +1,76 @@
 import { FastifyRequest } from 'fastify';
 
-// import { insert } from '../../../utils/db';
+import { insert, insertOss } from '../../../utils/db';
+
+import { verifyWebhook } from './verifyWebhook';
 
 export async function handler(request: FastifyRequest) {
-  const { payload } = request.body;
+  try {
+    if (!verifyWebhook(request)) {
+      throw new Error('Could not verify GitHub signature');
+    }
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
 
-  console.log(JSON.stringify(payload, null, 4));
+  const { body: payload } = request;
+  const { 'x-github-event': eventType } = request.headers;
 
-  const eventType = request.headers['X-GitHub-Event'];
+  if (eventType === 'ping') {
+    return 'pong';
+  }
 
-  const data = {
-    type: eventType,
-    action: payload['action'],
-    username: payload['sender']['login'],
-    user_id: payload['sender']['id'],
-    repository: payload['repository']['full_name'],
-  };
-  // if eventType == "issues":
-  // data["object_id"] = payload["issue"]["number"]
-  // data["created_at"] = payload["issue"]["created_at"]
-  // data["updated_at"] = payload["issue"]["updated_at"]
-  // elif eventType == "issue_comment":
-  // data["object_id"] = payload["comment"]["id"]
-  // data["created_at"] = payload["comment"]["created_at"]
-  // data["updated_at"] = payload["comment"]["updated_at"]
-  // data["target_id"] = payload["issue"]["number"]
-  // data["target_type"] = "issue"
-  // elif eventType == "pull_request":
-  // data["object_id"] = payload["pull_request"]["number"]
-  // data["created_at"] = payload["pull_request"]["created_at"]
-  // data["updated_at"] = payload["pull_request"]["updated_at"]
-  // if payload["action"] == "review_requested":
-  // if "requested_reviewer" in payload:
-  // data["target_id"] = payload["requested_reviewer"]["id"]
-  // data["target_name"] = payload["requested_reviewer"]["login"]
-  // data["target_type"] = "user"
-  // elif "requested_team" in payload:
-  // data["target_id"] = payload["requested_team"]["id"]
-  // data["target_name"] = payload["requested_team"]["name"]
-  // data["target_type"] = "team"
-  // elif eventType == "pull_request_review":
-  // data["object_id"] = payload["review"]["id"]
-  // data["created_at"] = payload["review"]["submitted_at"]
-  // data["updated_at"] = payload["pull_request"]["updated_at"]
-  // data["target_id"] = payload["pull_request"]["number"]
-  // data["target_name"] = payload["review"]["state"]
-  // data["target_type"] = "pull_request"
-  // else:
-  // raise ValueError("Unknown payload type")
+  console.log(eventType, payload);
+
+  // This is for open source data so we can consolidate github webhooks
+  insertOss(eventType, payload);
+
+  // action: 'completed',
+  // check_suite: {
+  // id: 746981862,
+  // node_id: 'MDEwOkNoZWNrU3VpdGU3NDY5ODE4NjI=',
+  // head_branch: 'build/github/test-github-webhooks',
+  // head_sha: '2bb35947d1883861e5d135192c36281a2230637b',
+  // status: 'completed',
+  // conclusion: 'failure',
+  // url: 'https://api.github.com/repos/billyvg/sentry/check-suites/746981862',
+  // before: '590528c32a4f2e67087bf3297ecdd017d48ca912',
+  // after: '2bb35947d1883861e5d135192c36281a2230637b',
+  // pull_requests: [ [Object] ],
+
+  const { check_run } = payload;
+  if (eventType === 'check_run' && check_run) {
+    console.log(check_run.pullRequests[0]);
+    const status =
+      check_run.status === 'queued'
+        ? 'queued'
+        : check_run.status === 'in_progress'
+        ? 'started'
+        : check_run.conclusion === 'failure'
+        ? 'failed'
+        : check_run.conclusion === 'success'
+        ? 'passed'
+        : check_run.conclusion === 'cancelled'
+        ? 'canceled'
+        : check_run.conclusion;
+
+    const [pullRequest] = check_run.pullRequests;
+
+    insert({
+      source: 'github',
+      event: `build_${status}`,
+      object_id: pullRequest?.number,
+      source_id: check_run.id,
+      start_timestamp: check_run.started_at,
+      // can be null if it has not completed yet
+      end_timestamp: check_run.completed_at,
+      meta: {
+        name: check_run.name,
+        head_commit: check_run.head_sha,
+      },
+    });
+  }
 
   return {};
 }
