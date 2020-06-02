@@ -105,11 +105,8 @@ describe('freight webhook', function() {
         pull_request_number: 19050,
       },
       {
-        schema: {
-          commit_sha: 'string',
-          deploy_id: 'integer',
-          pull_request_number: 'integer',
-        },
+        schema:
+          'deploy_id:integer,pull_request_number:integer,commit_sha:string',
       }
     );
     expect(insertMock).toHaveBeenCalledWith(
@@ -119,11 +116,8 @@ describe('freight webhook', function() {
         pull_request_number: 19047,
       },
       {
-        schema: {
-          commit_sha: 'string',
-          deploy_id: 'integer',
-          pull_request_number: 'integer',
-        },
+        schema:
+          'deploy_id:integer,pull_request_number:integer,commit_sha:string',
       }
     );
   });
