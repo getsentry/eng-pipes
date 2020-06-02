@@ -2,8 +2,7 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 const PRODUCT_ENG_DATASET = 'product_eng';
 const OPEN_SOURCE_DATASET = 'open_source';
-// const PROJECT = 'super-big-data';
-const PROJECT = 'sentry-dev-tooling';
+const PROJECT = 'super-big-data';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
@@ -149,7 +148,7 @@ export async function insertOss(
   }
 
   const dataset = bigqueryClient.dataset(OPEN_SOURCE_DATASET);
-  const table = dataset.table('github_events2');
+  const table = dataset.table('github_events');
 
   return table.insert(data, {
     schema: objectToSchema(ossSchema),
