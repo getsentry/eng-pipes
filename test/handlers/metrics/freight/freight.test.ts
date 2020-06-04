@@ -2,9 +2,12 @@ import { buildServer } from '@app/buildServer';
 
 import payload from '@test/freight.json';
 
-const insertMock = jest.fn();
-const tableMock = jest.fn(() => ({
-  insert: insertMock,
+const mockInsert = jest.fn();
+const mockTable = jest.fn(() => ({
+  insert: mockInsert,
+}));
+const mockDataset = jest.fn(() => ({
+  table: mockTable,
 }));
 
 // Mock octokit client
@@ -22,9 +25,7 @@ jest.mock('@app/api/github/getClient', () => ({
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function() {
     return {
-      dataset: jest.fn(() => ({
-        table: tableMock,
-      })),
+      dataset: mockDataset,
     };
   },
 }));
@@ -36,8 +37,8 @@ describe('freight webhook', function() {
   });
 
   afterEach(function() {
-    tableMock.mockClear();
-    insertMock.mockClear();
+    mockTable.mockClear();
+    mockInsert.mockClear();
     fastify.close();
   });
 
@@ -49,7 +50,7 @@ describe('freight webhook', function() {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(mockInsert).toHaveBeenCalledWith(
       {
         event: 'deploy_started',
         meta: JSON.stringify({
@@ -65,7 +66,7 @@ describe('freight webhook', function() {
       },
       expect.anything()
     );
-    expect(tableMock).toHaveBeenCalledTimes(1);
+    expect(mockTable).toHaveBeenCalledTimes(1);
   });
 
   it('correctly inserts freight webhook when deploy finishes', async function() {
@@ -79,7 +80,7 @@ describe('freight webhook', function() {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(mockInsert).toHaveBeenCalledWith(
       {
         event: 'deploy_finished',
         meta: JSON.stringify({
@@ -97,8 +98,8 @@ describe('freight webhook', function() {
     );
 
     // 2 commits
-    expect(tableMock).toHaveBeenCalledTimes(3);
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(mockTable).toHaveBeenCalledTimes(3);
+    expect(mockInsert).toHaveBeenCalledWith(
       {
         commit_sha: 'c399a07b6ac176d9309eaa9240cb6e262b0ba04d',
         deploy_id: 13,
@@ -109,7 +110,7 @@ describe('freight webhook', function() {
           'deploy_id:integer,pull_request_number:integer,commit_sha:string',
       }
     );
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(mockInsert).toHaveBeenCalledWith(
       {
         commit_sha: 'ab65e75e4df9b0dfe715327738a6779f132fb1ae',
         deploy_id: 13,
@@ -130,7 +131,7 @@ describe('freight webhook', function() {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(insertMock).toHaveBeenCalledWith(
+    expect(mockInsert).toHaveBeenCalledWith(
       {
         event: 'deploy_failed',
         meta: JSON.stringify({
@@ -146,6 +147,6 @@ describe('freight webhook', function() {
       },
       expect.anything()
     );
-    expect(tableMock).toHaveBeenCalledTimes(1);
+    expect(mockTable).toHaveBeenCalledTimes(1);
   });
 });
