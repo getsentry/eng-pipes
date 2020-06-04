@@ -4,6 +4,13 @@ import { insert, insertOss } from '../../../utils/db';
 
 import { verifyWebhook } from './verifyWebhook';
 
+const CHECK_STATUS_MAP = {
+  in_progress: 'started',
+  failure: 'failed',
+  success: 'passed',
+  cancelled: 'canceled',
+};
+
 export async function handler(request: FastifyRequest) {
   try {
     // XXX: If this needs to scale better, we should investigate
@@ -36,18 +43,8 @@ export async function handler(request: FastifyRequest) {
   const { check_run } = payload;
 
   if (eventType === 'check_run' && check_run) {
-    const status =
-      check_run.status === 'queued'
-        ? 'queued'
-        : check_run.status === 'in_progress'
-        ? 'started'
-        : check_run.conclusion === 'failure'
-        ? 'failed'
-        : check_run.conclusion === 'success'
-        ? 'passed'
-        : check_run.conclusion === 'cancelled'
-        ? 'canceled'
-        : check_run.conclusion;
+    const key = check_run.conclusion || check_run.status;
+    const status = CHECK_STATUS_MAP[key] || key;
 
     const [pullRequest] = check_run.pull_requests;
 
