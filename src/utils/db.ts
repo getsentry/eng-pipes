@@ -1,9 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 
-const PRODUCT_ENG_DATASET = 'product_eng';
-const OPEN_SOURCE_DATASET = 'open_source';
 const PROJECT = 'super-big-data';
-
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
 function objectToSchema(obj: Record<string, any>) {
@@ -12,70 +9,80 @@ function objectToSchema(obj: Record<string, any>) {
     .join(',');
 }
 
-const schema = {
-  /**
-   * This represents an id that can be used across services
-   */
-  object_id: 'integer',
+// Configuration based on a target type
+const TARGETS = {
+  oss: {
+    dataset: 'open_source',
+    table: 'github_events',
+    schema: {
+      type: 'STRING',
+      action: 'STRING',
+      username: 'STRING',
+      user_id: 'INT64',
+      repository: 'STRING',
+      object_id: 'INT64',
+      created_at: 'TIMESTAMP',
+      updated_at: 'TIMESTAMP',
+      target_id: 'INT64',
+      target_name: 'STRING',
+      target_type: 'STRING',
+    },
+  },
+  product: {
+    dataset: 'product_eng',
+    table: 'development_metrics',
+    schema: {
+      /**
+       * This represents an id that can be used across services
+       */
+      object_id: 'integer',
 
-  /**
-   * id used on current service
-   */
-  source_id: 'integer',
+      /**
+       * id used on current service
+       */
+      source_id: 'integer',
 
-  /**
-   * A parent reference
-   */
-  parent_id: 'integer',
+      /**
+       * A parent reference
+       */
+      parent_id: 'integer',
 
-  /**
-   * started, passed, failed?
-   */
-  event: 'string',
+      /**
+       * started, passed, failed?
+       */
+      event: 'string',
 
-  /**
-   * service name, e.g. travis
-   */
-  source: 'string',
+      /**
+       * service name, e.g. travis
+       */
+      source: 'string',
 
-  /**
-   * start timestamp for the event
-   */
-  start_timestamp: 'timestamp',
+      /**
+       * start timestamp for the event
+       */
+      start_timestamp: 'timestamp',
 
-  /**
-   * end timestamp for the event
-   */
-  end_timestamp: 'timestamp',
+      /**
+       * end timestamp for the event
+       */
+      end_timestamp: 'timestamp',
 
-  /**
-   * Other data in JSON
-   */
-  meta: 'string',
-};
-
-const ossSchema = {
-  type: 'STRING',
-  action: 'STRING',
-  username: 'STRING',
-  user_id: 'INT64',
-  repository: 'STRING',
-  object_id: 'INT64',
-  created_at: 'TIMESTAMP',
-  updated_at: 'TIMESTAMP',
-  target_id: 'INT64',
-  target_name: 'STRING',
-  target_type: 'STRING',
+      /**
+       * Other data in JSON
+       */
+      meta: 'string',
+    },
+  },
 };
 
 export async function insert({ meta = {}, ...row }) {
-  const dataset = bigqueryClient.dataset(PRODUCT_ENG_DATASET);
-  const table = dataset.table('development_metrics');
+  const dataset = bigqueryClient.dataset(TARGETS.product.dataset);
+  const table = dataset.table(TARGETS.product.table);
 
   return table.insert(
     { ...row, meta: JSON.stringify(meta) },
     {
-      schema: objectToSchema(schema),
+      schema: objectToSchema(TARGETS.product.schema),
     }
   );
 }
@@ -147,11 +154,11 @@ export async function insertOss(
     return {};
   }
 
-  const dataset = bigqueryClient.dataset(OPEN_SOURCE_DATASET);
-  const table = dataset.table('github_events');
+  const dataset = bigqueryClient.dataset(TARGETS.oss.dataset);
+  const table = dataset.table(TARGETS.oss.table);
 
   return table.insert(data, {
-    schema: objectToSchema(ossSchema),
+    schema: objectToSchema(TARGETS.oss.schema),
   });
 }
 
@@ -160,8 +167,8 @@ export async function mapDeployToPullRequest(
   pull_request_number: number,
   commit_sha: string
 ) {
-  const dataset = bigqueryClient.dataset(PRODUCT_ENG_DATASET);
-  const table = dataset.table('freight_to_pull_request');
+  const dataset = bigqueryClient.dataset(TARGETS.product.dataset);
+  const table = dataset.table(TARGETS.product.table);
   const schema = {
     deploy_id: 'integer',
     pull_request_number: 'integer',

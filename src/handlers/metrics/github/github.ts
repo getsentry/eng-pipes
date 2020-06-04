@@ -6,6 +6,13 @@ import { verifyWebhook } from './verifyWebhook';
 
 export async function handler(request: FastifyRequest) {
   try {
+    // XXX: If this needs to scale better, we should investigate
+    // into a middleware that processes a raw request body
+    //
+    // Currently we a parsed JSON object for body and there is no native way
+    // in fastify to get the raw body.
+    //
+    // See https://github.com/fastify/fastify/issues/707
     if (!verifyWebhook(request)) {
       throw new Error('Could not verify GitHub signature');
     }
@@ -22,9 +29,12 @@ export async function handler(request: FastifyRequest) {
   }
 
   // This is for open source data so we can consolidate github webhooks
+  // It does some data mangling in there, so we may want to extract that out of the
+  // "db" utils
   insertOss(eventType, payload);
 
   const { check_run } = payload;
+
   if (eventType === 'check_run' && check_run) {
     const status =
       check_run.status === 'queued'
