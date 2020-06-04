@@ -1,0 +1,137 @@
+import pullRequestPayload from '@test/payloads/github/pullRequest.json';
+import checkRunPayload from '@test/payloads/github/checkRun.json';
+
+const mockInsert = jest.fn();
+const mockTable = jest.fn(() => ({
+  insert: mockInsert,
+}));
+const mockDataset = jest.fn(() => ({
+  table: mockTable,
+}));
+
+// Needs to be mocked before `app/utils/db`
+jest.mock('@google-cloud/bigquery', () => ({
+  BigQuery: function() {
+    return {
+      dataset: mockDataset,
+    };
+  },
+}));
+
+import { buildServer } from '@app/buildServer';
+import * as db from '@app/utils/db';
+
+jest.spyOn(db, 'insert');
+jest.spyOn(db, 'insertOss');
+
+jest.mock('@app/handlers/metrics/github/verifyWebhook', () => ({
+  verifyWebhook: jest.fn(() => true),
+}));
+
+describe('github webhook', function() {
+  let fastify;
+  beforeEach(function() {
+    fastify = buildServer();
+  });
+
+  afterEach(function() {
+    fastify.close();
+    mockDataset.mockClear();
+    mockTable.mockClear();
+    mockInsert.mockClear();
+  });
+
+  it('correctly inserts github pull request created webhook', async function() {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'pull_request',
+      },
+      payload: pullRequestPayload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertOss).toHaveBeenCalledWith(
+      'pull_request',
+      expect.anything()
+    );
+    expect(mockDataset).toHaveBeenCalledWith('open_source');
+    expect(mockTable).toHaveBeenCalledWith('github_events');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        action: 'opened',
+        created_at: '2019-05-15T15:20:33Z',
+        object_id: 2,
+        repository: 'Codertocat/Hello-World',
+        type: 'pull_request',
+        updated_at: '2019-05-15T15:20:33Z',
+        user_id: 21031067,
+        username: 'Codertocat',
+      },
+      {
+        schema:
+          'type:STRING,action:STRING,username:STRING,user_id:INT64,repository:STRING,object_id:INT64,created_at:TIMESTAMP,updated_at:TIMESTAMP,target_id:INT64,target_name:STRING,target_type:STRING',
+      }
+    );
+  });
+
+  it('does not insert unsupported webhook events', async function() {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'invalid',
+      },
+      payload: pullRequestPayload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertOss).toHaveBeenCalledWith('invalid', expect.anything());
+    expect(mockDataset).not.toHaveBeenCalled();
+  });
+
+  it('correctly inserts github record for `check_run` webhooks', async function() {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'check_run',
+      },
+      payload: checkRunPayload,
+    });
+    expect(response.statusCode).toBe(200);
+    expect(db.insert).toHaveBeenCalledWith({
+      event: 'build_queued',
+      meta: {
+        name: 'Octocoders-linter',
+        head_commit: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
+      },
+      object_id: 2,
+      source_id: 128620228,
+      source: 'github',
+      start_timestamp: '2019-05-15T15:21:12Z',
+      end_timestamp: null,
+    });
+    expect(mockDataset).toHaveBeenCalledWith('product_eng');
+    expect(mockTable).toHaveBeenCalledWith('development_metrics');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        end_timestamp: null,
+        event: 'build_queued',
+        meta:
+          '{"name":"Octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
+        object_id: 2,
+        source: 'github',
+        source_id: 128620228,
+        start_timestamp: '2019-05-15T15:21:12Z',
+      },
+      {
+        schema:
+          'object_id:integer,source_id:integer,parent_id:integer,event:string,source:string,start_timestamp:timestamp,end_timestamp:timestamp,meta:string',
+      }
+    );
+  });
+});
