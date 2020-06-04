@@ -1,6 +1,6 @@
 import { buildServer } from '@app/buildServer';
 
-import payload from '@test/freight.json';
+import payload from '@test/payloads/freight.json';
 
 const mockInsert = jest.fn();
 const mockTable = jest.fn(() => ({

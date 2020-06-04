@@ -1,4 +1,4 @@
-import travisPayload from '@test/travis.json';
+import travisPayload from '@test/payloads/travis.json';
 
 import { buildServer } from '@app/buildServer';
 
