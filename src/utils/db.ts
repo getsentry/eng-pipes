@@ -99,13 +99,13 @@ export async function insertOss(
     repository: payload.repository.full_name,
   };
 
-  if (eventType == 'issues') {
+  if (eventType === 'issues') {
     const { issue } = payload;
 
     data.object_id = issue.number;
     data.created_at = issue.created_at;
     data.updated_at = issue.updated_at;
-  } else if (eventType == 'issue_comment') {
+  } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
 
     data.object_id = comment.id;
@@ -113,7 +113,7 @@ export async function insertOss(
     data.updated_at = comment.updated_at;
     data.target_id = issue.number;
     data.target_type = 'issue';
-  } else if (eventType == 'pull_request') {
+  } else if (eventType === 'pull_request') {
     const {
       action,
       pull_request,
@@ -129,18 +129,18 @@ export async function insertOss(
       data.action = 'merged';
     }
 
-    if (action == 'review_requested') {
-      if ('requested_reviewer' in payload) {
+    if (action === 'review_requested') {
+      if (requested_reviewer) {
         data.target_id = requested_reviewer.id;
         data.target_name = requested_reviewer.login;
         data.target_type = 'user';
-      } else if ('requested_team' in payload) {
+      } else if (requested_team) {
         data.target_id = requested_team.id;
         data.target_name = requested_team.name;
         data.target_type = 'team';
       }
     }
-  } else if (eventType == 'pull_request_review') {
+  } else if (eventType === 'pull_request_review') {
     const { review, pull_request } = payload;
 
     data.object_id = review.id;
