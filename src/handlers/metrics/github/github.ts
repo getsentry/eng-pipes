@@ -43,6 +43,7 @@ export async function handler(request: FastifyRequest) {
   const { check_run } = payload;
 
   if (eventType === 'check_run' && check_run) {
+    // The status is based on the combination of the conclusion and status
     const key = check_run.conclusion || check_run.status;
     const status = CHECK_STATUS_MAP[key] || key;
 
