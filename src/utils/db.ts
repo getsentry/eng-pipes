@@ -76,16 +76,23 @@ const TARGETS = {
   },
 };
 
-export async function insert({ meta = {}, ...row }) {
-  const dataset = bigqueryClient.dataset(TARGETS.product.dataset);
-  const table = dataset.table(TARGETS.product.table);
+type TargetConfig = {
+  dataset: string;
+  table: string;
+  schema: Record<string, string>;
+};
 
-  return table.insert(
-    { ...row, meta: JSON.stringify(meta) },
-    {
-      schema: objectToSchema(TARGETS.product.schema),
-    }
-  );
+function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+  const dataset = bigqueryClient.dataset(targetConfig.dataset);
+  const table = dataset.table(targetConfig.table);
+
+  return table.insert(data, {
+    schema: objectToSchema(targetConfig.schema),
+  });
+}
+
+export async function insert({ meta = {}, ...row }) {
+  return _insert({ ...row, meta: JSON.stringify(meta) }, TARGETS.product);
 }
 
 export async function insertOss(
@@ -155,12 +162,7 @@ export async function insertOss(
     return {};
   }
 
-  const dataset = bigqueryClient.dataset(TARGETS.oss.dataset);
-  const table = dataset.table(TARGETS.oss.table);
-
-  return table.insert(data, {
-    schema: objectToSchema(TARGETS.oss.schema),
-  });
+  return _insert(data, TARGETS.oss);
 }
 
 export async function mapDeployToPullRequest(
@@ -168,23 +170,21 @@ export async function mapDeployToPullRequest(
   pull_request_number: number,
   commit_sha: string
 ) {
-  const dataset = bigqueryClient.dataset(TARGETS.product.dataset);
-  const table = dataset.table(TARGETS.product.table);
   const schema = {
     deploy_id: 'integer',
     pull_request_number: 'integer',
     commit_sha: 'string',
   };
 
-  console.log(deploy_id, pull_request_number, commit_sha);
-  return table.insert(
+  return _insert(
     {
       deploy_id,
       pull_request_number,
       commit_sha,
     },
     {
-      schema: objectToSchema(schema),
+      ...TARGETS.product,
+      schema,
     }
   );
 }
