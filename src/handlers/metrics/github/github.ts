@@ -16,7 +16,7 @@ export async function handler(request: FastifyRequest) {
     // XXX: If this needs to scale better, we should investigate
     // into a middleware that processes a raw request body
     //
-    // Currently we a parsed JSON object for body and there is no native way
+    // Currently we use the parsed JSON object for body and there is no native way
     // in fastify to get the raw body.
     //
     // See https://github.com/fastify/fastify/issues/707
