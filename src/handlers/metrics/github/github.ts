@@ -12,20 +12,8 @@ const CHECK_STATUS_MAP = {
 };
 
 export async function handler(request: FastifyRequest) {
-  try {
-    // XXX: If this needs to scale better, we should investigate
-    // into a middleware that processes a raw request body
-    //
-    // Currently we use the parsed JSON object for body and there is no native way
-    // in fastify to get the raw body.
-    //
-    // See https://github.com/fastify/fastify/issues/707
-    if (!verifyWebhook(request)) {
-      throw new Error('Could not verify GitHub signature');
-    }
-  } catch (err) {
-    console.error(err);
-    throw err;
+  if (!verifyWebhook(request)) {
+    throw new Error('Could not verify GitHub signature');
   }
 
   const { body: payload } = request;
