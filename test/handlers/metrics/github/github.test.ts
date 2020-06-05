@@ -45,6 +45,9 @@ describe('github webhook', function() {
   it('returns 400 if signature verification fails', async function() {
     // @ts-ignore
     verifyWebhook.mockImplementationOnce(() => false);
+    // To keep logs clean since this is expected
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/github/webhook',
@@ -54,6 +57,10 @@ describe('github webhook', function() {
       payload: pullRequestPayload,
     });
     expect(response.statusCode).toBe(400);
+
+    expect(console.error).toHaveBeenCalled();
+    // @ts-ignore
+    console.error.mockRestore();
   });
 
   it('correctly inserts github pull request created webhook', async function() {

@@ -34,10 +34,7 @@ describe('github > verifyWebhook', function() {
       },
       payload: pullRequestPayload,
     });
-
-    // Below doesn't work because `verifyWebhook` is an async function,
-    // so we'll test the response code of fastify, which should return a 200
-    // expect(verify.verifyWebhook).toHaveReturnedWith(true);
+    expect(verify.verifyWebhook).toHaveReturnedWith(true);
     expect(response.statusCode).toBe(200);
   });
 });
