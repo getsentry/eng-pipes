@@ -30,6 +30,12 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
+const SCHEMA = [
+  { name: 'deploy_id', type: 'integer' },
+  { name: 'pull_request_number', type: 'integer' },
+  { name: 'commit_sha', type: 'string' },
+];
+
 describe('freight webhook', function() {
   let fastify;
   beforeEach(function() {
@@ -106,8 +112,7 @@ describe('freight webhook', function() {
         pull_request_number: 19050,
       },
       {
-        schema:
-          'deploy_id:integer,pull_request_number:integer,commit_sha:string',
+        schema: SCHEMA,
       }
     );
     expect(mockInsert).toHaveBeenCalledWith(
@@ -117,8 +122,7 @@ describe('freight webhook', function() {
         pull_request_number: 19047,
       },
       {
-        schema:
-          'deploy_id:integer,pull_request_number:integer,commit_sha:string',
+        schema: SCHEMA,
       }
     );
   });
