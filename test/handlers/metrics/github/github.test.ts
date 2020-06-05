@@ -20,6 +20,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { buildServer } from '@app/buildServer';
 import * as db from '@app/utils/db';
+import { verifyWebhook } from '@app/handlers/metrics/github/verifyWebhook';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
@@ -39,6 +40,20 @@ describe('github webhook', function() {
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
+  });
+
+  it('returns 400 if signature verification fails', async function() {
+    // @ts-ignore
+    verifyWebhook.mockImplementationOnce(() => false);
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'pull_request',
+      },
+      payload: pullRequestPayload,
+    });
+    expect(response.statusCode).toBe(400);
   });
 
   it('correctly inserts github pull request created webhook', async function() {
