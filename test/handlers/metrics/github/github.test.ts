@@ -86,8 +86,52 @@ describe('github webhook', function() {
         username: 'Codertocat',
       },
       {
-        schema:
-          'type:STRING,action:STRING,username:STRING,user_id:INT64,repository:STRING,object_id:INT64,created_at:TIMESTAMP,updated_at:TIMESTAMP,target_id:INT64,target_name:STRING,target_type:STRING',
+        schema: [
+          {
+            name: 'type',
+            type: 'STRING',
+          },
+          {
+            name: 'action',
+            type: 'STRING',
+          },
+          {
+            name: 'username',
+            type: 'STRING',
+          },
+          {
+            name: 'user_id',
+            type: 'INT64',
+          },
+          {
+            name: 'repository',
+            type: 'STRING',
+          },
+          {
+            name: 'object_id',
+            type: 'INT64',
+          },
+          {
+            name: 'created_at',
+            type: 'TIMESTAMP',
+          },
+          {
+            name: 'updated_at',
+            type: 'TIMESTAMP',
+          },
+          {
+            name: 'target_id',
+            type: 'INT64',
+          },
+          {
+            name: 'target_name',
+            type: 'STRING',
+          },
+          {
+            name: 'target_type',
+            type: 'STRING',
+          },
+        ],
       }
     );
   });
@@ -144,8 +188,40 @@ describe('github webhook', function() {
         start_timestamp: '2019-05-15T15:21:12Z',
       },
       {
-        schema:
-          'object_id:integer,source_id:integer,parent_id:integer,event:string,source:string,start_timestamp:timestamp,end_timestamp:timestamp,meta:string',
+        schema: [
+          {
+            name: 'object_id',
+            type: 'integer',
+          },
+          {
+            name: 'source_id',
+            type: 'integer',
+          },
+          {
+            name: 'parent_id',
+            type: 'integer',
+          },
+          {
+            name: 'event',
+            type: 'string',
+          },
+          {
+            name: 'source',
+            type: 'string',
+          },
+          {
+            name: 'start_timestamp',
+            type: 'timestamp',
+          },
+          {
+            name: 'end_timestamp',
+            type: 'timestamp',
+          },
+          {
+            name: 'meta',
+            type: 'string',
+          },
+        ],
       }
     );
   });

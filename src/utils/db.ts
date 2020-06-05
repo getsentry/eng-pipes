@@ -4,9 +4,10 @@ const PROJECT = 'super-big-data';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
 function objectToSchema(obj: Record<string, any>) {
-  return Object.entries(obj)
-    .map(entry => entry.join(':'))
-    .join(',');
+  return Object.entries(obj).map(([name, type]) => ({
+    name,
+    type,
+  }));
 }
 
 // Configuration based on a target type
