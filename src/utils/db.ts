@@ -2,7 +2,6 @@ import { BigQuery } from '@google-cloud/bigquery';
 
 const PROJECT = 'super-big-data';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
-const DRY_RUN = true;
 
 function objectToSchema(obj: Record<string, any>) {
   return Object.entries(obj).map(([name, type]) => ({
@@ -84,7 +83,7 @@ type TargetConfig = {
 };
 
 function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
-  if (DRY_RUN) {
+  if (process.env.DRY_RUN) {
     console.log(`
 ###### Dry Run: BigQuery Insert ######
   Dataset: ${targetConfig.dataset}

@@ -42,6 +42,20 @@ describe('github webhook', function() {
     mockInsert.mockClear();
   });
 
+  it('does not call insert on dry run', async function() {
+    process.env.DRY_RUN = '1';
+    await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'pull_request',
+      },
+      payload: pullRequestPayload,
+    });
+    expect(mockInsert).not.toHaveBeenCalled();
+    delete process.env.DRY_RUN;
+  });
+
   it('returns 400 if signature verification fails', async function() {
     // @ts-ignore
     verifyWebhook.mockImplementationOnce(() => false);
