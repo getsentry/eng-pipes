@@ -83,17 +83,6 @@ type TargetConfig = {
 };
 
 function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
-  if (process.env.DRY_RUN) {
-    console.log(`
-###### Dry Run: BigQuery Insert ######
-  Dataset: ${targetConfig.dataset}
-  Table: ${targetConfig.table}
-  Schema: ${objectToSchema(targetConfig.schema)}
-  Data: ${data}
-######################################`);
-    return;
-  }
-
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
@@ -171,6 +160,18 @@ export async function insertOss(
   } else {
     // Unknown payload event, ignoring...
     return {};
+  }
+
+  if (process.env.DRY_RUN) {
+    const targetConfig = TARGETS.oss;
+    console.log(`
+###### Dry Run: BigQuery Insert ######
+  Dataset: ${targetConfig.dataset}
+  Table: ${targetConfig.table}
+  Schema: ${objectToSchema(targetConfig.schema)}
+  Data: ${data}
+######################################`);
+    return;
   }
 
   return _insert(data, TARGETS.oss);
