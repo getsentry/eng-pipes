@@ -8,7 +8,7 @@ export async function handler(request: FastifyRequest) {
   const { body }: { body: FreightPayload } = request;
   let promises: Promise<any>[] = [];
 
-  let { status } = body;
+  let { environment, status } = body;
 
   // Need to wait for this to be deployed/merged https://github.com/getsentry/freight/pull/231
   // In the meantime we can parse title for the status
@@ -27,6 +27,10 @@ export async function handler(request: FastifyRequest) {
         ? 'failed'
         : 'canceled';
     }
+  }
+
+  if (environment !== 'production') {
+    return {};
   }
 
   // Wait for actual data before inserting into db

@@ -75,6 +75,17 @@ describe('freight webhook', function() {
     expect(mockTable).toHaveBeenCalledTimes(1);
   });
 
+  it('does not insert for staging environment', async function() {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/freight/webhook',
+      payload: { ...payload, environment: 'staging' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
   it('correctly inserts freight webhook when deploy finishes', async function() {
     const response = await fastify.inject({
       method: 'POST',
