@@ -37,6 +37,8 @@ describe('github webhook', function() {
 
   afterEach(function() {
     fastify.close();
+    (db.insertOss as jest.Mock).mockClear();
+    (db.insert as jest.Mock).mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
@@ -71,8 +73,9 @@ describe('github webhook', function() {
       payload: pullRequestPayload,
     });
     expect(response.statusCode).toBe(400);
-
+    expect(db.insertOss).not.toHaveBeenCalled();
     expect(console.error).toHaveBeenCalled();
+
     // @ts-ignore
     console.error.mockRestore();
   });
