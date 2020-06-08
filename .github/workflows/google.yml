@@ -26,6 +26,7 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
       GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
       GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
+      GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
 
     steps:
     - name: Checkout

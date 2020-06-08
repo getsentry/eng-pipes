@@ -11,11 +11,11 @@ export function verifyWebhook(request: fastify.FastifyRequest) {
   const sig = request.headers['x-hub-signature'] || '';
   const SECRET = process.env.GH_WEBHOOK_SECRET || '';
   if (!SECRET) {
-    console.error('GH_WEBHOOK_SECRET is not set');
+    throw new Error('GH_WEBHOOK_SECRET is not set');
   }
 
   if (!sig) {
-    console.error('No `x-hub-signature` header found');
+    console.warn('No `x-hub-signature` header found');
   }
 
   const hmac = crypto.createHmac('sha1', SECRET);
