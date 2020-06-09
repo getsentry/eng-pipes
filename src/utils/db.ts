@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { BigQuery } from '@google-cloud/bigquery';
 
 const PROJECT =
@@ -115,9 +116,26 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
-  return table.insert(data, {
-    schema: objectToSchema(targetConfig.schema),
-  });
+  try {
+    return table.insert(data, {
+      schema: objectToSchema(targetConfig.schema),
+    });
+  } catch (err) {
+    if (err.name === 'PartialFailureError') {
+      // Some rows failed to insert, while others may have succeeded.
+
+      err?.errors.forEach(error => {
+        Sentry.setContext('errors', {
+          messages: error.errors.map(e => e.message).join('\n'),
+          reasons: error.errors.map(e => e.reason).join('\n'),
+        });
+        Sentry.setContext('row', error.row);
+        Sentry.captureException(new Error('Unable to insert row'));
+      });
+    }
+
+    throw err;
+  }
 }
 
 export async function insert({ meta = {}, ...row }) {
