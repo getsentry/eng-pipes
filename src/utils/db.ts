@@ -1,6 +1,7 @@
 import { BigQuery } from '@google-cloud/bigquery';
 
-const PROJECT = 'super-big-data';
+const PROJECT =
+  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
 function objectToSchema(obj: Record<string, any>) {
@@ -27,6 +28,34 @@ const TARGETS = {
       target_id: 'INT64',
       target_name: 'STRING',
       target_type: 'STRING',
+    },
+  },
+  assetSize: {
+    dataset: 'product_eng',
+    table: 'asset_sizes',
+    schema: {
+      /**
+       * This represents an id that can be used across services
+       */
+      pull_request_number: 'integer',
+
+      commit: 'string',
+
+      file: 'string',
+
+      entrypointName: 'string',
+
+      /**
+       * Asset file size
+       */
+      size: 'integer',
+
+      environment: 'string',
+
+      /**
+       * start timestamp for the event
+       */
+      created_at: 'timestamp',
     },
   },
   product: {
@@ -93,6 +122,10 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
 
 export async function insert({ meta = {}, ...row }) {
   return _insert({ ...row, meta: JSON.stringify(meta) }, TARGETS.product);
+}
+
+export async function insertAssetSize(data) {
+  return _insert({ ...data, created_at: new Date() }, TARGETS.assetSize);
 }
 
 export async function insertOss(
