@@ -16,6 +16,7 @@ You can grab GitHub secrets in the app configuration page: https://github.com/or
  * `GH_APP_IDENTIFIER` - GitHub App identifier
  * `GH_APP_SECRET_KEY` - GitHub App private key
  * `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
+ * `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
 
 
 ## Development
