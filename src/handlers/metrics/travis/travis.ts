@@ -20,7 +20,7 @@ export async function handler(request: FastifyRequest) {
 
   // Ignore non pull requests
   if (!payload.pull_request) {
-    return;
+    return {};
   }
 
   await insert({
