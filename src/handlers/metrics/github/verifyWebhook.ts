@@ -1,6 +1,6 @@
-import crypto from 'crypto';
-
 import fastify from 'fastify';
+
+import { verifySignature } from '../../../utils/verifySignature';
 
 export function verifyWebhook(request: fastify.FastifyRequest) {
   // XXX: `fastify` does not offer a "raw body" and instead provides us with the decoded payload
@@ -18,17 +18,5 @@ export function verifyWebhook(request: fastify.FastifyRequest) {
     console.warn('No `x-hub-signature` header found');
   }
 
-  const hmac = crypto.createHmac('sha1', SECRET);
-  const digest = Buffer.from(
-    `sha1=${hmac.update(payload).digest('hex')}`,
-    'utf8'
-  );
-  const checksum = Buffer.from(sig, 'utf8');
-  if (
-    checksum.length !== digest.length ||
-    !crypto.timingSafeEqual(digest, checksum)
-  ) {
-    return false;
-  }
-  return true;
+  return verifySignature(payload, sig, SECRET, i => `sha1=${i}`);
 }
