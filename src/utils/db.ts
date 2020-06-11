@@ -106,6 +106,15 @@ const TARGETS = {
       meta: 'string',
     },
   },
+  freight_to_pr: {
+    dataset: 'product_eng',
+    table: 'freight_to_pull_request',
+    schema: {
+      deploy_id: 'integer',
+      pull_request_number: 'integer',
+      commit_sha: 'string',
+    },
+  },
 };
 
 type TargetConfig = {
@@ -114,12 +123,12 @@ type TargetConfig = {
   schema: Record<string, string>;
 };
 
-function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
   try {
-    return table.insert(data, {
+    return await table.insert(data, {
       schema: objectToSchema(targetConfig.schema),
     });
   } catch (err) {
@@ -237,21 +246,12 @@ export async function mapDeployToPullRequest(
   pull_request_number: number,
   commit_sha: string
 ) {
-  const schema = {
-    deploy_id: 'integer',
-    pull_request_number: 'integer',
-    commit_sha: 'string',
-  };
-
   return _insert(
     {
       deploy_id,
       pull_request_number,
       commit_sha,
     },
-    {
-      ...TARGETS.product,
-      schema,
-    }
+    TARGETS.freight_to_pr
   );
 }

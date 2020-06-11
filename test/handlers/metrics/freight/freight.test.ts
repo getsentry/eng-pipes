@@ -114,8 +114,11 @@ describe('freight webhook', function() {
       expect.anything()
     );
 
-    // 2 commits
+    // freight event + mapping 2 commits to deploy
     expect(mockTable).toHaveBeenCalledTimes(3);
+    expect(mockTable).toHaveBeenCalledWith('development_metrics');
+    expect(mockTable).toHaveBeenCalledWith('freight_to_pull_request');
+
     expect(mockInsert).toHaveBeenCalledWith(
       {
         commit_sha: 'c399a07b6ac176d9309eaa9240cb6e262b0ba04d',
