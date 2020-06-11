@@ -123,46 +123,43 @@ type TargetConfig = {
   schema: Record<string, string>;
 };
 
-async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
-  try {
-    return await table.insert(data, {
+  return table
+    .insert(data, {
       schema: objectToSchema(targetConfig.schema),
-    });
-  } catch (err) {
-    console.error('error name', err.name);
-    console.error(err);
-    if (err.name === 'PartialFailureError') {
-      // Some rows failed to insert, while others may have succeeded.
+    })
+    .catch(err => {
+      console.error('error name', err.name);
+      console.error(err);
+      if (err.name === 'PartialFailureError') {
+        // Some rows failed to insert, while others may have succeeded.
 
-      err?.errors.forEach(error => {
-        Sentry.setContext('errors', {
-          messages: error.errors.map(e => e.message).join('\n'),
-          reasons: error.errors.map(e => e.reason).join('\n'),
+        err?.errors.forEach(error => {
+          Sentry.setContext('errors', {
+            messages: error.errors.map(e => e.message).join('\n'),
+            reasons: error.errors.map(e => e.reason).join('\n'),
+          });
+          Sentry.setContext('row', error.row);
+          Sentry.captureException(new Error('Unable to insert row'));
         });
-        Sentry.setContext('row', error.row);
-        Sentry.captureException(new Error('Unable to insert row'));
-      });
-    }
+      }
 
-    throw err;
-  }
+      throw err;
+    });
 }
 
-export async function insert({ meta = {}, ...row }) {
+export function insert({ meta = {}, ...row }) {
   return _insert({ ...row, meta: JSON.stringify(meta) }, TARGETS.product);
 }
 
-export async function insertAssetSize(data) {
+export function insertAssetSize(data) {
   return _insert({ ...data, created_at: new Date() }, TARGETS.assetSize);
 }
 
-export async function insertOss(
-  eventType: string,
-  payload: Record<string, any>
-) {
+export function insertOss(eventType: string, payload: Record<string, any>) {
   const data: Record<string, any> = {
     type: eventType,
     action: payload.action,
@@ -241,7 +238,7 @@ export async function insertOss(
   return _insert(data, TARGETS.oss);
 }
 
-export async function mapDeployToPullRequest(
+export function mapDeployToPullRequest(
   deploy_id: number,
   pull_request_number: number,
   commit_sha: string

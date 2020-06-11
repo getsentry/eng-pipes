@@ -1,7 +1,7 @@
 import pullRequestPayload from '@test/payloads/github/pullRequest.json';
 import checkRunPayload from '@test/payloads/github/checkRun.json';
 
-const mockInsert = jest.fn();
+const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
   insert: mockInsert,
 }));

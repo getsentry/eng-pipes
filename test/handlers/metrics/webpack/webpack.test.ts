@@ -1,4 +1,4 @@
-const mockInsert = jest.fn();
+const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
   insert: mockInsert,
 }));
