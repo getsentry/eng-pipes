@@ -123,6 +123,8 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
       schema: objectToSchema(targetConfig.schema),
     });
   } catch (err) {
+    console.error('error name', err.name);
+    console.error(err);
     if (err.name === 'PartialFailureError') {
       // Some rows failed to insert, while others may have succeeded.
 
