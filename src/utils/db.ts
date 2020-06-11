@@ -53,6 +53,8 @@ const TARGETS = {
 
       environment: 'string',
 
+      node_env: 'string',
+
       /**
        * start timestamp for the event
        */
