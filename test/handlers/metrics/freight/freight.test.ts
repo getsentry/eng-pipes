@@ -2,7 +2,7 @@ import { buildServer } from '@app/buildServer';
 
 import payload from '@test/payloads/freight.json';
 
-const mockInsert = jest.fn();
+const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
   insert: mockInsert,
 }));
