@@ -155,8 +155,16 @@ export function insert({ meta = {}, ...row }) {
   return _insert({ ...row, meta: JSON.stringify(meta) }, TARGETS.product);
 }
 
-export function insertAssetSize(data) {
-  return _insert({ ...data, created_at: new Date() }, TARGETS.assetSize);
+export function insertAssetSize({ pull_request_number, ...data }) {
+  return _insert(
+    {
+      ...data,
+      pull_request_number:
+        typeof pull_request_number === 'number' ? pull_request_number : -1,
+      created_at: new Date(),
+    },
+    TARGETS.assetSize
+  );
 }
 
 export function insertOss(eventType: string, payload: Record<string, any>) {

@@ -116,4 +116,34 @@ describe('webpack webhook', function() {
       ],
     });
   });
+
+  it('can insert payloads without a pull request number', async function() {
+    const payload = {
+      pull_request_number: false,
+      commit: 'abc',
+      file: 'app.js',
+      entrypointName: 'app',
+      node_env: 'production',
+      size: 12345,
+    };
+
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/webpack/webhook',
+      payload,
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertAssetSize).toHaveBeenCalled();
+    expect(mockDataset).toHaveBeenCalledWith('product_eng');
+    expect(mockTable).toHaveBeenCalledWith('asset_sizes');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      expect.objectContaining({
+        ...payload,
+        pull_request_number: -1,
+      }),
+      expect.anything()
+    );
+  });
 });
