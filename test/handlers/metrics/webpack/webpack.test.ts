@@ -64,6 +64,7 @@ describe('webpack webhook', function() {
       commit: 'abc',
       file: 'app.js',
       entrypointName: 'app',
+      node_env: 'production',
       size: 12345,
     };
 
@@ -102,6 +103,10 @@ describe('webpack webhook', function() {
         },
         {
           name: 'environment',
+          type: 'string',
+        },
+        {
+          name: 'node_env',
           type: 'string',
         },
         {
