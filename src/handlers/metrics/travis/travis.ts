@@ -18,20 +18,25 @@ export async function handler(request: FastifyRequest) {
     request.body.payload
   ) as TravisPayload;
 
-  // Ignore non pull requests
-  if (!payload.pull_request) {
+  // Ignore non-main branches as we will use the pull_request event
+  // since we need the pull request number
+  if (payload.type === 'push' && payload.branch !== 'master') {
     return {};
   }
 
+  const source =
+    payload.repository.name === 'sentry' ? 'travis' : 'travis-getsentry';
+
   await insert({
-    source: 'travis',
+    source,
     event: `build_${payload.state}`,
-    object_id: payload.pull_request_number,
+    object_id: payload.pull_request_number, // null if not a pull request (e.g. master push)
     source_id: payload.id,
     // `finished_at` is null when it has not completed yet
     start_timestamp: payload.started_at,
     end_timestamp: payload.finished_at,
     meta: {
+      repo: payload.repository.name,
       head_commit: payload.head_commit,
       base_commit: payload.base_commit,
       pull_request_title: payload.pull_request_title,
@@ -42,7 +47,7 @@ export async function handler(request: FastifyRequest) {
   await Promise.all(
     payload.matrix.map(({ config, ...matrixPayload }) =>
       insert({
-        source: 'travis',
+        source,
         event: `build_${matrixPayload.state}`,
         object_id: payload.pull_request_number,
         source_id: matrixPayload.id,
@@ -52,6 +57,7 @@ export async function handler(request: FastifyRequest) {
         end_timestamp: matrixPayload.finished_at,
         meta: {
           name: config.name,
+          repo: payload.repository.name,
           head_commit: payload.head_commit,
           base_commit: payload.base_commit,
           pull_request_title: payload.pull_request_title,
