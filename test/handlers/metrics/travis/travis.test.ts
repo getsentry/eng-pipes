@@ -142,6 +142,7 @@ describe('travis webhook', function() {
       repository: {
         id: 123,
         name: 'getsentry',
+        owner_name: 'getsentry',
       },
     };
     const response = await fastify.inject({
@@ -212,6 +213,27 @@ describe('travis webhook', function() {
       pull_request: false,
       pull_request_number: null,
       pull_request_title: null,
+    };
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/travis/webhook',
+      payload: { payload: JSON.stringify(payload) },
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    expect(mockDataset).not.toHaveBeenCalled();
+    expect(mockTable).not.toHaveBeenCalled();
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it('ignores forked repos', async function() {
+    const payload = {
+      ...travisPayload,
+      repository: {
+        ...travisPayload.repository,
+        owner_name: 'billyvg',
+      },
     };
     const response = await fastify.inject({
       method: 'POST',

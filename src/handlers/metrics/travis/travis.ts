@@ -24,6 +24,11 @@ export async function handler(request: FastifyRequest) {
     return {};
   }
 
+  // Ignore forks
+  if (payload.repository.owner_name !== 'getsentry') {
+    return {};
+  }
+
   const source =
     payload.repository.name === 'sentry' ? 'travis' : 'travis-getsentry';
 
