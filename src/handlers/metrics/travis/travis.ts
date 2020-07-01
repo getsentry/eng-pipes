@@ -42,8 +42,8 @@ export async function handler(request: FastifyRequest) {
     end_timestamp: payload.finished_at,
     meta: {
       repo: payload.repository.name,
-      head_commit: payload.head_commit,
-      base_commit: payload.base_commit,
+      head_commit: payload.head_commit ?? payload.commit,
+      base_commit: payload.base_commit ?? payload.commit,
       pull_request_title: payload.pull_request_title,
     },
   });
@@ -63,8 +63,8 @@ export async function handler(request: FastifyRequest) {
         meta: {
           name: config.name,
           repo: payload.repository.name,
-          head_commit: payload.head_commit,
-          base_commit: payload.base_commit,
+          head_commit: payload.head_commit ?? payload.commit,
+          base_commit: payload.base_commit ?? payload.commit,
           pull_request_title: payload.pull_request_title,
         },
       })
