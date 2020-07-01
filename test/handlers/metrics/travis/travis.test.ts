@@ -139,6 +139,9 @@ describe('travis webhook', function() {
       pull_request: false,
       pull_request_number: null,
       pull_request_title: null,
+      head_commit: null,
+      base_commit: null,
+      commit: 'e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2',
       repository: {
         id: 123,
         name: 'getsentry',
@@ -161,7 +164,7 @@ describe('travis webhook', function() {
         end_timestamp: null,
         event: 'build_started',
         meta:
-          '{"repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"704b6b8cae9023275785f8a752025d117e788f38","pull_request_title":null}',
+          '{"repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","pull_request_title":null}',
         object_id: null,
         source: 'travis-getsentry',
         source_id: 684354870,
@@ -176,7 +179,7 @@ describe('travis webhook', function() {
         end_timestamp: null,
         event: 'build_started',
         meta:
-          '{"name":"Backend","repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"704b6b8cae9023275785f8a752025d117e788f38","pull_request_title":null}',
+          '{"name":"Backend","repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","pull_request_title":null}',
         object_id: null,
         parent_id: 684354870,
         source: 'travis-getsentry',
@@ -192,7 +195,7 @@ describe('travis webhook', function() {
         end_timestamp: '2020-05-15T20:59:02Z',
         event: 'build_passed',
         meta:
-          '{"name":"Frontend [test]","repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"704b6b8cae9023275785f8a752025d117e788f38","pull_request_title":null}',
+          '{"name":"Frontend [test]","repo":"getsentry","head_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","base_commit":"e2fb88b6df64a87c2cc78256a50a1e0fe1fbefd2","pull_request_title":null}',
         object_id: null,
         parent_id: 684354870,
         source: 'travis-getsentry',
