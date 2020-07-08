@@ -13,7 +13,7 @@ function objectToSchema(obj: Record<string, any>) {
 }
 
 // Configuration based on a target type
-const TARGETS = {
+export const TARGETS = {
   oss: {
     dataset: 'open_source',
     table: 'github_events',
@@ -115,6 +115,20 @@ const TARGETS = {
       commit_sha: 'string',
     },
   },
+  percy: {
+    dataset: 'product_eng',
+    table: 'percy',
+    schema: {
+      event: 'string',
+      total: 'integer',
+      diff: 'integer',
+      branch: 'string',
+      build_number: 'integer',
+      branch_url: 'string',
+      start_timestamp: 'timestamp',
+      end_timestamp: 'timestamp',
+    },
+  },
 };
 
 type TargetConfig = {
@@ -153,6 +167,10 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
 
 export function insert({ meta = {}, ...row }) {
   return _insert({ ...row, meta: JSON.stringify(meta) }, TARGETS.product);
+}
+
+export function insertPercy(data: Record<string, any>) {
+  return _insert(data, TARGETS.percy);
 }
 
 export function insertAssetSize({ pull_request_number, ...data }) {
