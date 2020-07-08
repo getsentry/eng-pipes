@@ -117,7 +117,7 @@ export const TARGETS = {
   },
   percy: {
     dataset: 'product_eng',
-    table: 'snapshots',
+    table: 'percy',
     schema: {
       event: 'string',
       total: 'integer',
