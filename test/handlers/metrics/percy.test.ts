@@ -20,18 +20,6 @@ import { TARGETS } from '@app/utils/db';
 
 import payload from '@test/payloads/percy.json';
 
-// Mock octokit client
-// jest.mock('@app/api/github/getClient', () => ({
-// getClient: jest.fn(() => ({
-// repos: {
-// compareCommits: jest.fn(() => require('@test/compareCommits.json')),
-// listPullRequestsAssociatedWithCommit: jest.fn(({ commit_sha }) =>
-// require(`@test/pr-${commit_sha}`)
-// ),
-// },
-// })),
-// }));
-
 const SCHEMA = Object.entries(TARGETS.percy.schema).map(([name, type]) => ({
   name,
   type,

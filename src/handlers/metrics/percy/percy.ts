@@ -11,24 +11,6 @@ export async function handler(request: FastifyRequest) {
   // throw err;
   // }
 
-  // const { config, ...payload } = JSON.parse(
-  // request.body.payload
-  // ) as TravisPayload;
-
-  // // Ignore non-main branches as we will use the pull_request event
-  // // since we need the pull request number
-  // if (payload.type === 'push' && payload.branch !== 'master') {
-  // return {};
-  // }
-
-  // // Ignore forks
-  // if (payload.repository.owner_name !== 'getsentry') {
-  // return {};
-  // }
-
-  // const source =
-  // payload.repository.name === 'sentry' ? 'travis' : 'travis-getsentry';
-
   const { body } = request;
   const { data } = body;
 
