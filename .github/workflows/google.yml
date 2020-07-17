@@ -74,7 +74,7 @@ jobs:
         bin/deploy.sh
 
     - name: Sentry Release
-      uses: sentry/action-release@v1.0.0
+      uses: getsentry/action-release@v1.0.0
       with:
         environment: 'production'
         sourcemaps: './lib'
