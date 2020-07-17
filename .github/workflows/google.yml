@@ -74,14 +74,9 @@ jobs:
         bin/deploy.sh
 
     - name: Sentry Release
-      env:
-        VERSION: ${{ steps.get-version.outputs.version }}
-        DEPLOY_START: ${{ steps.deploy.outputs.deploy-start }}
-      run: |
-        echo "$VERSION"
-        now=$(date +%s)
-        sentry-cli releases new "$VERSION"
-        sentry-cli releases set-commits "$VERSION" --auto
-        sentry-cli releases files "$VERSION" upload-sourcemaps './lib'
-        sentry-cli releases deploys "$VERSION" new -e production -t $((now-DEPLOY_START))
-        sentry-cli releases finalize "$VERSION"
+      uses: sentry/action-release@v1.0.0
+      with:
+        environment: 'production'
+        sourcemaps: './lib'
+        started_at: ${{ steps.deploy.outputs.deploy-start }}
+        version: ${{ steps.get-version.outputs.version }}
