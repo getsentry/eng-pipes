@@ -28,26 +28,30 @@ export async function handler(request: FastifyRequest) {
   // "db" utils
   insertOss(eventType, payload);
 
-  const { check_run } = payload;
+  const { check_run, check_suite } = payload;
 
-  if (eventType === 'check_run' && check_run) {
+  if (
+    ['check_run', 'check_suite'].includes(eventType) &&
+    (check_run || check_suite)
+  ) {
     // The status is based on the combination of the conclusion and status
-    const key = check_run.conclusion || check_run.status;
+    const payloadObj = check_run || check_suite;
+    const key = payloadObj.conclusion || payloadObj.status;
     const status = CHECK_STATUS_MAP[key] || key;
 
-    const [pullRequest] = check_run.pull_requests;
+    const [pullRequest] = payloadObj.pull_requests;
 
     insert({
       source: 'github',
       event: `build_${status}`,
       object_id: pullRequest?.number,
-      source_id: check_run.id,
-      start_timestamp: check_run.started_at,
+      source_id: payloadObj.id,
+      start_timestamp: payloadObj.started_at || payloadObj.created_at,
       // can be null if it has not completed yet
-      end_timestamp: check_run.completed_at,
+      end_timestamp: payloadObj.completed_at || payloadObj.updated_at || null,
       meta: {
-        name: check_run.name,
-        head_commit: check_run.head_sha,
+        name: payloadObj.name || payloadObj.app?.name,
+        head_commit: payloadObj.head_sha,
       },
     });
   }
