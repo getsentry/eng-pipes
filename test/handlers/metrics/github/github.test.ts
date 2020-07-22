@@ -189,6 +189,7 @@ describe('github webhook', function() {
     expect(db.insert).toHaveBeenCalledWith({
       event: 'build_queued',
       meta: {
+        type: 'check_run',
         name: 'Octocoders-linter',
         head_commit: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       },
@@ -206,7 +207,7 @@ describe('github webhook', function() {
         end_timestamp: null,
         event: 'build_queued',
         meta:
-          '{"name":"Octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
+          '{"type":"check_run","name":"Octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
         object_id: 2,
         source: 'github',
         source_id: 128620228,
@@ -264,6 +265,7 @@ describe('github webhook', function() {
     expect(db.insert).toHaveBeenCalledWith({
       event: 'build_passed',
       meta: {
+        type: 'check_suite',
         name: 'octocoders-linter',
         head_commit: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       },
@@ -280,7 +282,7 @@ describe('github webhook', function() {
       {
         event: 'build_passed',
         meta:
-          '{"name":"octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
+          '{"type":"check_suite","name":"octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
         object_id: 2,
         source_id: 118578147,
         source: 'github',

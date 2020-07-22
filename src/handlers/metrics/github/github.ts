@@ -50,6 +50,7 @@ export async function handler(request: FastifyRequest) {
       // can be null if it has not completed yet
       end_timestamp: payloadObj.completed_at || payloadObj.updated_at || null,
       meta: {
+        type: eventType,
         name: payloadObj.name || payloadObj.app?.name,
         head_commit: payloadObj.head_sha,
       },
