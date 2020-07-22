@@ -1,5 +1,6 @@
 import pullRequestPayload from '@test/payloads/github/pullRequest.json';
 import checkRunPayload from '@test/payloads/github/checkRun.json';
+import checkSuitePayload from '@test/payloads/github/checkSuite.json';
 
 const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
@@ -210,6 +211,81 @@ describe('github webhook', function() {
         source: 'github',
         source_id: 128620228,
         start_timestamp: '2019-05-15T15:21:12Z',
+      },
+      {
+        schema: [
+          {
+            name: 'object_id',
+            type: 'integer',
+          },
+          {
+            name: 'source_id',
+            type: 'integer',
+          },
+          {
+            name: 'parent_id',
+            type: 'integer',
+          },
+          {
+            name: 'event',
+            type: 'string',
+          },
+          {
+            name: 'source',
+            type: 'string',
+          },
+          {
+            name: 'start_timestamp',
+            type: 'timestamp',
+          },
+          {
+            name: 'end_timestamp',
+            type: 'timestamp',
+          },
+          {
+            name: 'meta',
+            type: 'string',
+          },
+        ],
+      }
+    );
+  });
+
+  it('correctly inserts github record for `check_suite` webhooks', async function() {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/github/webhook',
+      headers: {
+        'x-github-event': 'check_suite',
+      },
+      payload: checkSuitePayload,
+    });
+    expect(response.statusCode).toBe(200);
+    expect(db.insert).toHaveBeenCalledWith({
+      event: 'build_passed',
+      meta: {
+        name: 'octocoders-linter',
+        head_commit: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
+      },
+      object_id: 2,
+      source_id: 118578147,
+      source: 'github',
+      start_timestamp: '2019-05-15T15:20:31Z',
+      end_timestamp: '2019-05-15T15:21:14Z',
+    });
+    expect(mockDataset).toHaveBeenCalledWith('product_eng');
+    expect(mockTable).toHaveBeenCalledWith('development_metrics');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        event: 'build_passed',
+        meta:
+          '{"name":"octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821"}',
+        object_id: 2,
+        source_id: 118578147,
+        source: 'github',
+        start_timestamp: '2019-05-15T15:20:31Z',
+        end_timestamp: '2019-05-15T15:21:14Z',
       },
       {
         schema: [
