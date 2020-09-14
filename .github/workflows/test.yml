@@ -30,7 +30,7 @@ jobs:
       run: yarn jest
 
     - name: eslint
-      uses: getsentry/action-eslint@v1
+      uses: getsentry/action-eslint-fix@main
 
     - name: tsc
       run: yarn tsc
