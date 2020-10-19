@@ -28,14 +28,11 @@ export async function handler(request: FastifyRequest) {
   // "db" utils
   insertOss(eventType, payload);
 
-  const { check_run, check_suite } = payload;
+  const { check_run } = payload;
 
-  if (
-    ['check_run', 'check_suite'].includes(eventType) &&
-    (check_run || check_suite)
-  ) {
+  if (['check_run'].includes(eventType) && check_run) {
     // The status is based on the combination of the conclusion and status
-    const payloadObj = check_run || check_suite;
+    const payloadObj = check_run;
     const key = payloadObj.conclusion || payloadObj.status;
     const status = CHECK_STATUS_MAP[key] || key;
 
@@ -46,9 +43,9 @@ export async function handler(request: FastifyRequest) {
       event: `build_${status}`,
       object_id: pullRequest?.number,
       source_id: payloadObj.id,
-      start_timestamp: payloadObj.started_at || payloadObj.created_at,
+      start_timestamp: payloadObj.started_at,
       // can be null if it has not completed yet
-      end_timestamp: payloadObj.completed_at || payloadObj.updated_at || null,
+      end_timestamp: payloadObj.completed_at || null,
       meta: {
         type: eventType,
         name: payloadObj.name || payloadObj.app?.name,
