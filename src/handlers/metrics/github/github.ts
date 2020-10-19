@@ -53,6 +53,8 @@ export async function handler(request: FastifyRequest) {
         type: eventType,
         name: payloadObj.name || payloadObj.app?.name,
         head_commit: payloadObj.head_sha,
+        base_commit: pullRequest?.base.sha,
+        repo: payload.repository?.full_name,
       },
     });
   }
