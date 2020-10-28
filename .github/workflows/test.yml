@@ -31,6 +31,8 @@ jobs:
 
     - name: eslint
       uses: getsentry/action-eslint-fix@main
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: tsc
       run: yarn tsc
