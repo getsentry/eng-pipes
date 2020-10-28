@@ -4,7 +4,12 @@ name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request 
 # events but only for the master branch
-on: push
+on:
+  push:
+    branches:
+      - "main"
+      - "v*"
+  pull_request:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -30,6 +35,7 @@ jobs:
       run: yarn jest
 
     - name: eslint
+      if: github.ref != 'refs/heads/main' || github.ref.startsWith('refs/heads/v')
       uses: getsentry/action-eslint-fix@main
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
