@@ -1,16 +1,16 @@
 import { buildServer } from '@app/buildServer';
 
-describe('index', function() {
+describe('index', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
   });
 
-  it('returns 404 when handler not found', async function() {
+  it('returns 404 when handler not found', async function () {
     // To keep logs clean since this is expected
     jest.spyOn(console, 'error').mockImplementationOnce(() => {});
 

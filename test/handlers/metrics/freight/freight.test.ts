@@ -23,7 +23,7 @@ jest.mock('@app/api/github/getClient', () => ({
 }));
 
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -36,19 +36,19 @@ const SCHEMA = [
   { name: 'commit_sha', type: 'string' },
 ];
 
-describe('freight webhook', function() {
+describe('freight webhook', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     mockTable.mockClear();
     mockInsert.mockClear();
     fastify.close();
   });
 
-  it('correctly inserts freight webhook when deploy starts', async function() {
+  it('correctly inserts freight webhook when deploy starts', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/freight/webhook',
@@ -75,7 +75,7 @@ describe('freight webhook', function() {
     expect(mockTable).toHaveBeenCalledTimes(1);
   });
 
-  it('does not insert for staging environment', async function() {
+  it('does not insert for staging environment', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/freight/webhook',
@@ -86,7 +86,7 @@ describe('freight webhook', function() {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
-  it('correctly inserts freight webhook when deploy finishes', async function() {
+  it('correctly inserts freight webhook when deploy finishes', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/freight/webhook',
@@ -141,7 +141,7 @@ describe('freight webhook', function() {
     );
   });
 
-  it('correctly inserts freight webhook when deploy fails', async function() {
+  it('correctly inserts freight webhook when deploy fails', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/freight/webhook',

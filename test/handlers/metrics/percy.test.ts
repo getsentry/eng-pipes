@@ -8,7 +8,7 @@ const mockDataset = jest.fn(() => ({
 
 // Needs to be mocked before `app/utils/db`
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -25,20 +25,20 @@ const SCHEMA = Object.entries(TARGETS.percy.schema).map(([name, type]) => ({
   type,
 }));
 
-describe('percy webhook', function() {
+describe('percy webhook', function () {
   let fastify;
 
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     mockTable.mockClear();
     mockInsert.mockClear();
     fastify.close();
   });
 
-  it('correctly inserts percy webhook data', async function() {
+  it('correctly inserts percy webhook data', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/percy/webhook',
