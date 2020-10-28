@@ -6,19 +6,19 @@ import crypto from 'crypto';
 import { buildServer } from '@app/buildServer';
 import * as verify from '@app/handlers/metrics/github/verifyWebhook';
 
-describe('github > verifyWebhook', function() {
+describe('github > verifyWebhook', function () {
   let fastify;
 
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
     jest.spyOn(verify, 'verifyWebhook');
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
   });
 
-  it('verifies signature', async function() {
+  it('verifies signature', async function () {
     const hmac = crypto.createHmac(
       'sha1',
       process.env.GH_WEBHOOK_SECRET as string
@@ -38,7 +38,7 @@ describe('github > verifyWebhook', function() {
     expect(response.statusCode).toBe(200);
   });
 
-  it('fails with mismatched signature', async function() {
+  it('fails with mismatched signature', async function () {
     const hmac = crypto.createHmac('sha1', 'rightsecret');
     jest.spyOn(console, 'error').mockImplementation(() => {});
     const response = await fastify.inject({

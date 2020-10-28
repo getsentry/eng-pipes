@@ -8,7 +8,7 @@ const mockDataset = jest.fn(() => ({
 
 // Needs to be mocked before `app/utils/db`
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -21,13 +21,13 @@ import * as db from '@app/utils/db';
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 
-describe('bootstrap-dev-env webhook', function() {
+describe('bootstrap-dev-env webhook', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
     (db.insertOss as jest.Mock).mockClear();
     (db.insert as jest.Mock).mockClear();
@@ -36,7 +36,7 @@ describe('bootstrap-dev-env webhook', function() {
     mockInsert.mockClear();
   });
 
-  it('correctly inserts bootstrap dev env started webhook', async function() {
+  it('correctly inserts bootstrap dev env started webhook', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/bootstrap-dev-env/webhook',

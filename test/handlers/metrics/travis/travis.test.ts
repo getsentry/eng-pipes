@@ -11,7 +11,7 @@ const mockDataset = jest.fn(() => ({
 }));
 
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -57,20 +57,20 @@ const SCHEMA = [
   },
 ];
 
-describe('travis webhook', function() {
+describe('travis webhook', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
   });
 
-  it('correctly inserts travis webhook', async function() {
+  it('correctly inserts travis webhook', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/travis/webhook',
@@ -131,7 +131,7 @@ describe('travis webhook', function() {
     );
   });
 
-  it('captures push events on main branch to a different repo', async function() {
+  it('captures push events on main branch to a different repo', async function () {
     const payload = {
       ...travisPayload,
       type: 'push',
@@ -208,7 +208,7 @@ describe('travis webhook', function() {
     );
   });
 
-  it('ignores push events on non-main branches', async function() {
+  it('ignores push events on non-main branches', async function () {
     const payload = {
       ...travisPayload,
       type: 'push',
@@ -230,7 +230,7 @@ describe('travis webhook', function() {
     expect(mockInsert).not.toHaveBeenCalled();
   });
 
-  it('ignores forked repos', async function() {
+  it('ignores forked repos', async function () {
     const payload = {
       ...travisPayload,
       repository: {

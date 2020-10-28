@@ -145,16 +145,16 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
     .insert(data, {
       schema: objectToSchema(targetConfig.schema),
     })
-    .catch(err => {
+    .catch((err) => {
       console.error('error name', err.name);
       console.error(err);
       if (err.name === 'PartialFailureError') {
         // Some rows failed to insert, while others may have succeeded.
 
-        err?.errors.forEach(error => {
+        err?.errors.forEach((error) => {
           Sentry.setContext('errors', {
-            messages: error.errors.map(e => e.message).join('\n'),
-            reasons: error.errors.map(e => e.reason).join('\n'),
+            messages: error.errors.map((e) => e.message).join('\n'),
+            reasons: error.errors.map((e) => e.reason).join('\n'),
           });
           Sentry.setContext('row', error.row);
           Sentry.captureException(new Error('Unable to insert row'));

@@ -8,7 +8,7 @@ const mockDataset = jest.fn(() => ({
 
 // Needs to be mocked before `app/utils/db`
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -25,13 +25,13 @@ jest.mock('@app/handlers/metrics/webpack/verifyWebhook', () => ({
   verifyWebhook: jest.fn(() => true),
 }));
 
-describe('webpack webhook', function() {
+describe('webpack webhook', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
     (db.insertAssetSize as jest.Mock).mockClear();
     mockDataset.mockClear();
@@ -39,7 +39,7 @@ describe('webpack webhook', function() {
     mockInsert.mockClear();
   });
 
-  it('returns 400 if signature verification fails', async function() {
+  it('returns 400 if signature verification fails', async function () {
     // @ts-ignore
     verifyWebhook.mockImplementationOnce(() => false);
     // To keep logs clean since this is expected
@@ -58,7 +58,7 @@ describe('webpack webhook', function() {
     console.error.mockRestore();
   });
 
-  it('correctly inserts asset sizes from webhook', async function() {
+  it('correctly inserts asset sizes from webhook', async function () {
     const payload = {
       pull_request_number: 123,
       commit: 'abc',
@@ -117,7 +117,7 @@ describe('webpack webhook', function() {
     });
   });
 
-  it('can insert payloads without a pull request number', async function() {
+  it('can insert payloads without a pull request number', async function () {
     const payload = {
       pull_request_number: false,
       commit: 'abc',

@@ -11,7 +11,7 @@ const mockDataset = jest.fn(() => ({
 
 // Needs to be mocked before `app/utils/db`
 jest.mock('@google-cloud/bigquery', () => ({
-  BigQuery: function() {
+  BigQuery: function () {
     return {
       dataset: mockDataset,
     };
@@ -29,13 +29,13 @@ jest.mock('@app/handlers/metrics/github/verifyWebhook', () => ({
   verifyWebhook: jest.fn(() => true),
 }));
 
-describe('github webhook', function() {
+describe('github webhook', function () {
   let fastify;
-  beforeEach(function() {
+  beforeEach(function () {
     fastify = buildServer();
   });
 
-  afterEach(function() {
+  afterEach(function () {
     fastify.close();
     (db.insertOss as jest.Mock).mockClear();
     (db.insert as jest.Mock).mockClear();
@@ -44,7 +44,7 @@ describe('github webhook', function() {
     mockInsert.mockClear();
   });
 
-  it('does not call insert on dry run', async function() {
+  it('does not call insert on dry run', async function () {
     process.env.DRY_RUN = '1';
     await fastify.inject({
       method: 'POST',
@@ -58,7 +58,7 @@ describe('github webhook', function() {
     delete process.env.DRY_RUN;
   });
 
-  it('returns 400 if signature verification fails', async function() {
+  it('returns 400 if signature verification fails', async function () {
     // @ts-ignore
     verifyWebhook.mockImplementationOnce(() => false);
     // To keep logs clean since this is expected
@@ -80,7 +80,7 @@ describe('github webhook', function() {
     console.error.mockRestore();
   });
 
-  it('correctly inserts github pull request created webhook', async function() {
+  it('correctly inserts github pull request created webhook', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/github/webhook',
@@ -160,7 +160,7 @@ describe('github webhook', function() {
     );
   });
 
-  it('does not insert unsupported webhook events', async function() {
+  it('does not insert unsupported webhook events', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/github/webhook',
@@ -175,7 +175,7 @@ describe('github webhook', function() {
     expect(mockDataset).not.toHaveBeenCalled();
   });
 
-  it('correctly inserts github record for `check_run` webhooks', async function() {
+  it('correctly inserts github record for `check_run` webhooks', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/github/webhook',
