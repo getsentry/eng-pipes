@@ -35,7 +35,7 @@ jobs:
       run: yarn jest
 
     - name: eslint
-      if: github.ref != 'refs/heads/main' || github.ref.startsWith('refs/heads/v')
+      if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')
       uses: getsentry/action-eslint-fix@main
       with:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
