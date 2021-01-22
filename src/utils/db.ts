@@ -220,10 +220,6 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
     data.created_at = pull_request.created_at;
     data.updated_at = pull_request.updated_at;
 
-    if (pull_request.merged) {
-      data.action = 'merged';
-    }
-
     if (action === 'review_requested') {
       if (requested_reviewer) {
         data.target_id = requested_reviewer.id;
@@ -234,6 +230,14 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
         data.target_name = requested_team.name;
         data.target_type = 'team';
       }
+    }
+
+    if (action === 'locked') {
+      data.action = 'locked';
+    }
+
+    if (action === 'closed') {
+      data.action = pull_request.merged ? 'merged' : 'closed';
     }
   } else if (eventType === 'pull_request_review') {
     const { review, pull_request } = payload;
