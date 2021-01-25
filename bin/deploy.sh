@@ -7,6 +7,8 @@ env_vars="ENV=production,"
 env_vars="${env_vars}GH_APP_IDENTIFIER=${GH_APP_IDENTIFIER},"
 env_vars="${env_vars}GH_APP_SECRET_KEY=${GH_APP_SECRET_KEY},"
 env_vars="${env_vars}GH_WEBHOOK_SECRET=${GH_WEBHOOK_SECRET},"
+env_vars="${env_vars}SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET},"
+env_vars="${env_vars}SLACK_ACCESS_TOKEN=${SLACK_ACCESS_TOKEN},"
 env_vars="${env_vars}VERSION=${VERSION},"
 env_vars="${env_vars}SENTRY_WEBPACK_WEBHOOK_SECRET=${SENTRY_WEBPACK_WEBHOOK_SECRET},"
 

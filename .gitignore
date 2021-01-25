@@ -3,6 +3,7 @@ npm-debug.log
 *.pem
 !mock-cert.pem
 .env
+.envrc
 package-lock.json
 coverage
 lib

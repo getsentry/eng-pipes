@@ -50,13 +50,13 @@ export async function getSentryPullRequestsForGetsentryRange(
   // Only look for synced commits from sentry
   // (e.g. where `getsentry-bot` is the committer)
   const syncedCommits = data.commits.filter(
-    ({ committer }) => committer.id === GETSENTRY_BOT_ID
+    ({ committer }) => committer?.id === GETSENTRY_BOT_ID
   );
   const sentryShas = syncedCommits.map(getSentrySha);
 
   const sentry = await getClient(OWNER, SENTRY_REPO);
 
-  const pullRequestPromises = sentryShas.map(commit_sha =>
+  const pullRequestPromises = sentryShas.map((commit_sha) =>
     sentry.repos.listPullRequestsAssociatedWithCommit({
       owner: OWNER,
       repo: SENTRY_REPO,
