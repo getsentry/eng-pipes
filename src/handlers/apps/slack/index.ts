@@ -16,7 +16,9 @@ export function createSlack(
     {},
     async (request: FastifyRequest, reply: FastifyReply<ServerResponse>) => {
       try {
-        const data = await getProgress(request.query.date);
+        const data = await getProgress({
+          date: request.query.date,
+        });
         reply.send(data);
       } catch (err) {
         console.error(err);
