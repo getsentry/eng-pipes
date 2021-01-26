@@ -5,10 +5,19 @@ import { getClient } from '../../../api/github/getClient';
  */
 const IGNORED_PATHS = [/views\/events.*/, /views\/dashboards.*/];
 
-export default async function getProgress(date?: string) {
+export default async function getProgress({
+  repo = 'sentry',
+  basePath = 'src/sentry/static/sentry',
+  appDir = 'app',
+  date,
+}: {
+  repo?: string;
+  basePath?: string;
+  appDir?: string;
+  date?: string;
+}) {
   const owner = 'getsentry';
-  const repo = 'sentry';
-  const octokit = await getClient('getsentry', 'sentry');
+  const octokit = await getClient('getsentry', repo);
 
   const getContentsParams: {
     owner: string;
@@ -18,7 +27,7 @@ export default async function getProgress(date?: string) {
   } = {
     owner,
     repo,
-    path: 'src/sentry/static/sentry',
+    path: basePath,
   };
 
   if (date) {
@@ -40,7 +49,7 @@ export default async function getProgress(date?: string) {
     throw new Error('Invalid directory');
   }
 
-  const app = contents.data.find(({ name }) => name === 'app');
+  const app = contents.data.find(({ name }) => name === appDir);
 
   if (!app) {
     throw new Error('Invalid directory');

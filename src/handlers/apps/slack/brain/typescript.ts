@@ -5,7 +5,7 @@ import getProgress from '../getProgress';
 export function typescript() {
   slackEvents.on('app_mention', async (event) => {
     if (event.text.includes('typescript')) {
-      const [message, progressResp] = await Promise.all([
+      const [message, sentryResp, getsentryResp] = await Promise.all([
         web.chat.postMessage({
           channel: event.channel,
           text: '⏱  fetching status ...',
@@ -21,10 +21,23 @@ export function typescript() {
             },
           ],
         }),
-        getProgress(),
+        getProgress({}),
+        getProgress({
+          repo: 'getsentry',
+          basePath: 'static/getsentry',
+          appDir: 'gsApp',
+        }),
       ]);
 
-      const { progress, remainingFiles } = progressResp;
+      const progress = (sentryResp.progress + getsentryResp.progress) / 2;
+      const remainingFiles =
+        sentryResp.remainingFiles + getsentryResp.remainingFiles;
+
+      const text = `:typescript: progress: *${progress}%* completed, *${remainingFiles}* files remaining
+
+  * *sentry:* ${sentryResp.remainingFiles} files remain (${sentryResp.progress}%)
+  * *getsentry:* ${getsentryResp.remainingFiles} files remain (${getsentryResp.progress}%)`;
+
       await web.chat.update({
         channel: String(message.channel),
         ts: String(message.ts),
@@ -34,7 +47,15 @@ export function typescript() {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `TypeScript progress: *${progress}%* completed, *${remainingFiles}* files remaining`,
+              text: `:typescript: progress: *${progress}%* completed, *${remainingFiles}* files remaining`,
+            },
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `• *sentry:* ${sentryResp.remainingFiles} files remain (${sentryResp.progress}%)
+• *getsentry:* ${getsentryResp.remainingFiles} files remain (${getsentryResp.progress}%)`,
             },
           },
         ],
