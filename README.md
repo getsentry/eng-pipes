@@ -17,6 +17,8 @@ You can grab GitHub secrets in the app configuration page: https://github.com/or
  * `GH_APP_SECRET_KEY` - GitHub App private key
  * `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
  * `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
+ * `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
+ * `SLACK_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
 
 
 ## Development
