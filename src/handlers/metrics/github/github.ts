@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
 import { insert, insertOss } from '../../../utils/db';
-
+import { requiredChecks } from './requiredChecks';
 import { verifyWebhook } from './verifyWebhook';
 
 const CHECK_STATUS_MAP = {
@@ -22,6 +22,8 @@ export async function handler(request: FastifyRequest) {
   if (eventType === 'ping') {
     return 'pong';
   }
+
+  requiredChecks(request);
 
   // This is for open source data so we can consolidate github webhooks
   // It does some data mangling in there, so we may want to extract that out of the

@@ -6,6 +6,7 @@ import { Server, IncomingMessage, ServerResponse } from 'http';
 
 import { slackEvents } from './api/slack';
 import { createSlack } from './handlers/apps/slack';
+import { requiredChecks } from './handlers/metrics/github/requiredChecks';
 
 export function buildServer() {
   const server: FastifyInstance<
@@ -29,6 +30,11 @@ export function buildServer() {
 
   server.get('/', {}, async () => {
     return 'Hello world';
+  });
+
+  server.get('/billy', {}, async () => {
+    requiredChecks({ headers: {}, body: {} });
+    return {};
   });
 
   server.use('/apps/slack/events', slackEvents.requestListener());

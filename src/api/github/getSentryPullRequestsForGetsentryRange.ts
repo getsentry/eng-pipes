@@ -11,12 +11,20 @@ import { getClient } from './getClient';
 
 const octokit = new Octokit();
 
-type CommitsResponseDataType = GetResponseDataTypeFromEndpointMethod<
-  typeof octokit.repos.compareCommits
->;
 type PullRequest = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.repos.listPullRequestsAssociatedWithCommit
 >;
+
+function isGetsentryBot({ committer }) {
+  return (
+    committer?.id === GETSENTRY_BOT_ID ||
+    committer?.email === 'bot@getsentry.com'
+  );
+}
+
+function getSentrySha(message: string) {
+  return message.replace('getsentry/sentry@', '').slice(0, 40);
+}
 
 /**
  * Given 2 SHA's in getsentry, get all commits (in sentry) in between the 2 given SHAs
@@ -25,11 +33,40 @@ type PullRequest = GetResponseDataTypeFromEndpointMethod<
  */
 export async function getSentryPullRequestsForGetsentryRange(
   current: string,
-  previous: string
+  previous?: string
 ): Promise<PullRequest[number][]> {
   // getsentry client
   const client = await getClient(OWNER, GETSENTRY_REPO);
+  const sentry = await getClient(OWNER, SENTRY_REPO);
 
+  // Single commit
+  if (!previous) {
+    const resp = await client.git.getCommit({
+      owner: OWNER,
+      repo: GETSENTRY_REPO,
+      commit_sha: current,
+    });
+
+    if (resp.status !== 200) {
+      throw new Error('API Error: retrieving commit');
+    }
+
+    if (!isGetsentryBot(resp.data)) {
+      return [];
+    }
+
+    const sentryCommitSha = getSentrySha(resp.data.message);
+    const pullRequests = await sentry.repos.listPullRequestsAssociatedWithCommit(
+      {
+        owner: OWNER,
+        repo: SENTRY_REPO,
+        commit_sha: sentryCommitSha,
+      }
+    );
+    return pullRequests.data;
+  }
+
+  // Multiple commits
   const resp = await client.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
@@ -43,18 +80,12 @@ export async function getSentryPullRequestsForGetsentryRange(
 
   const { data } = resp;
 
-  function getSentrySha(commit: CommitsResponseDataType['commits'][number]) {
-    return commit.commit.message.replace('getsentry/sentry@', '').slice(0, 40);
-  }
-
   // Only look for synced commits from sentry
   // (e.g. where `getsentry-bot` is the committer)
-  const syncedCommits = data.commits.filter(
-    ({ committer }) => committer?.id === GETSENTRY_BOT_ID
+  const syncedCommits = data.commits.filter(isGetsentryBot);
+  const sentryShas = syncedCommits.map(({ commit }) =>
+    getSentrySha(commit.message)
   );
-  const sentryShas = syncedCommits.map(getSentrySha);
-
-  const sentry = await getClient(OWNER, SENTRY_REPO);
 
   const pullRequestPromises = sentryShas.map((commit_sha) =>
     sentry.repos.listPullRequestsAssociatedWithCommit({
