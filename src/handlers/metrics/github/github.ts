@@ -36,7 +36,16 @@ export async function handler(request: FastifyRequest) {
     const key = payloadObj.conclusion || payloadObj.status;
     const status = CHECK_STATUS_MAP[key] || key;
 
-    const [pullRequest] = payloadObj.pull_requests;
+    // These can include forks, so we need to filter
+    const [pullRequest] = payloadObj.pull_requests.filter(
+      (pr) =>
+        pr.url.startsWith(
+          'https://api.github.com/repos/getsentry/sentry/pulls'
+        ) ||
+        pr.url.startsWith(
+          'https://api.github.com/repos/getsentry/getsentry/pulls'
+        )
+    );
 
     insert({
       source: 'github',
@@ -52,6 +61,7 @@ export async function handler(request: FastifyRequest) {
         head_commit: payloadObj.head_sha,
         base_commit: pullRequest?.base.sha,
         repo: payload.repository?.full_name,
+        branch: payloadObj.check_suite.head_branch,
       },
     });
   }
