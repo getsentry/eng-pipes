@@ -68,6 +68,8 @@ jobs:
       id: deploy
       env:
         VERSION: ${{ steps.get-version.outputs.version }}
+        SLACK_ACCESS_TOKEN: ${{ secrets.SLACK_ACCESS_TOKEN }}
+        SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
       run: |
         echo "::set-output name=deploy-start::$(date +%s)"
         bin/deploy.sh
