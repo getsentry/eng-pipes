@@ -8,7 +8,8 @@ export async function handler(request: FastifyRequest) {
   const { body }: { body: FreightPayload } = request;
   let promises: Promise<any>[] = [];
 
-  let { environment, status } = body;
+  const { environment } = body;
+  let { status } = body;
 
   // Need to wait for this to be deployed/merged https://github.com/getsentry/freight/pull/231
   // In the meantime we can parse title for the status
@@ -44,6 +45,7 @@ export async function handler(request: FastifyRequest) {
       // `finished_at` is null when it has not completed yet
       end_timestamp: body.date_finished,
       meta: {
+        app: body.app_name,
         head_commit: body.sha,
         base_commit: body.previous_sha,
       },
@@ -65,7 +67,7 @@ export async function handler(request: FastifyRequest) {
     // insert these into a different table that maps freight deploys to the pr
     promises = [
       ...promises,
-      ...sentryPullRequests.map(pr =>
+      ...sentryPullRequests.map((pr) =>
         mapDeployToPullRequest(
           body.deploy_number,
           pr.number,
