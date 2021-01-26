@@ -33,11 +33,6 @@ export function typescript() {
       const remainingFiles =
         sentryResp.remainingFiles + getsentryResp.remainingFiles;
 
-      const text = `:typescript: progress: *${progress}%* completed, *${remainingFiles}* files remaining
-
-  * *sentry:* ${sentryResp.remainingFiles} files remain (${sentryResp.progress}%)
-  * *getsentry:* ${getsentryResp.remainingFiles} files remain (${getsentryResp.progress}%)`;
-
       await web.chat.update({
         channel: String(message.channel),
         ts: String(message.ts),
