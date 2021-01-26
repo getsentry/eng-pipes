@@ -1,6 +1,7 @@
 # sentry-development-metrics
 
-Tracks certain development metrics from different services used during development, e.g. GitHub, Travis, Freight
+This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight). 
+There is also Slack integration to provide tools through Slack.
 
 ## Setup
 
@@ -36,3 +37,5 @@ yarn dev
 You'll need to setup a GCP project that has access to Google Cloud Run. You should create a service account that has the following roles: `Cloud Run Admin` and `Service Account User`.
 
 You'll also need to create a private key for the service account (it should download a JSON file). You'll want to run `base64 <path/to/json>` and set it as the `GOOGLE_APPLICATION_CREDENTIALS` secret in GitHub.
+
+All pushes to `main` will deploy to the existing GCP project.
