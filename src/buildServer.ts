@@ -4,6 +4,9 @@ import * as Sentry from '@sentry/node';
 import fastify, { FastifyInstance, FastifyReply } from 'fastify';
 import { Server, IncomingMessage, ServerResponse } from 'http';
 
+import { slackEvents } from './api/slack';
+import { createSlack } from './handlers/apps/slack';
+
 export function buildServer() {
   const server: FastifyInstance<
     Server,
@@ -18,10 +21,7 @@ export function buildServer() {
   server.decorate(
     'notFound',
     (_request: fastify.FastifyRequest, reply: FastifyReply<ServerResponse>) => {
-      reply
-        .code(404)
-        .type('text/html')
-        .send('Not Found');
+      reply.code(404).type('text/html').send('Not Found');
     }
   );
 
@@ -30,6 +30,9 @@ export function buildServer() {
   server.get('/', {}, async () => {
     return 'Hello world';
   });
+
+  server.use('/apps/slack/events', slackEvents.requestListener());
+  server.register(createSlack, { prefix: '/apps/slack' });
 
   server.post('/metrics/:service/webhook', {}, async (request, reply) => {
     const rootDir = __dirname;

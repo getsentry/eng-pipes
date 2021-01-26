@@ -271,7 +271,7 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
 export function mapDeployToPullRequest(
   deploy_id: number,
   pull_request_number: number,
-  commit_sha: string
+  commit_sha: string | null
 ) {
   return _insert(
     {

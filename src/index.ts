@@ -14,18 +14,22 @@ Sentry.init({
   ],
 });
 
-const server = buildServer();
+function main() {
+  const server = buildServer();
 
-server.listen(
-  Number(process.env.PORT) || DEFAULT_PORT,
-  '0.0.0.0',
-  (err, address) => {
-    if (err) {
-      console.error(err);
-      server.log.error(err);
-      Sentry.captureException(err);
-      process.exit(0);
+  server.listen(
+    Number(process.env.PORT) || DEFAULT_PORT,
+    '0.0.0.0',
+    (err, address) => {
+      if (err) {
+        console.error(err);
+        server.log.error(err);
+        Sentry.captureException(err);
+        process.exit(0);
+      }
+      server.log.info(`server listening on ${address}`);
     }
-    server.log.info(`server listening on ${address}`);
-  }
-);
+  );
+}
+
+main();
