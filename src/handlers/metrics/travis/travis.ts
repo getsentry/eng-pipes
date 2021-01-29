@@ -1,7 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
-import { TravisPayload } from '../../../types';
-import { insert } from '../../../utils/db';
+import { TravisPayload } from '@types';
+import { insert } from '@utils/db';
 import { verifyTravisWebhook } from './verifyTravisWebhook';
 
 export async function handler(request: FastifyRequest) {
