@@ -66,6 +66,7 @@ describe('github webhook', function () {
       method: 'POST',
       url: '/metrics/github/webhook',
       headers: {
+        'x-github-delivery': 1234,
         'x-github-event': 'pull_request',
         'x-hub-signature': signature,
       },
