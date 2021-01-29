@@ -19,16 +19,17 @@ if (process.env.ENV === 'production') {
   });
 }
 
-function main() {
-  const server = buildServer();
+async function main() {
+  const server = await buildServer();
 
   server.listen(
     Number(process.env.PORT) || DEFAULT_PORT,
     '0.0.0.0',
     (err, address) => {
       if (err) {
-        console.error(err);
-        server.log.error(err);
+        if (process.env.ENV !== 'production') {
+          console.error(err);
+        }
         Sentry.captureException(err);
         process.exit(0);
       }

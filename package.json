@@ -40,8 +40,9 @@
     "@slack/events-api": "^3.0.0",
     "@slack/web-api": "^6.0.0",
     "@types/node": "12",
-    "fastify": "^2.15.1",
-    "fastify-formbody": "^3.1.0",
+    "fastify": "^3.11.0",
+    "fastify-formbody": "^5.0.0",
+    "middie": "^5.2.0",
     "module-alias": "^2.2.2",
     "typescript": "^4.0.5"
   },

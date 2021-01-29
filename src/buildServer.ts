@@ -10,7 +10,7 @@ import { slackEvents } from '@api/slack';
 import { createSlack } from './handlers/apps/slack';
 import { createGithub } from './handlers/apps/github';
 
-export function buildServer() {
+export async function buildServer() {
   const server: FastifyInstance<
     Server,
     IncomingMessage,
@@ -18,6 +18,8 @@ export function buildServer() {
   > = fastify({
     logger: { prettyPrint: process.env.NODE_ENV === 'development' },
   });
+
+  await server.register(require('middie'));
 
   server.register(require('fastify-formbody'));
 
