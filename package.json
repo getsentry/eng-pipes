@@ -20,7 +20,7 @@
     "dev": "DEBUG=@slack/events-api:* yarn build --watch & NODE_ENV=development nodemon --exec \"yarn start\"",
     "start": "node ./lib/index.js",
     "lint": "yarn eslint src/**/*.ts test/**/*.test.ts --fix",
-    "test": "yarn eslint src/**/*.ts test/**/*.test.ts && yarn jest",
+    "test": "GH_WEBHOOK_SECRET=webhooksecret yarn jest",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
   "_moduleAliases": {

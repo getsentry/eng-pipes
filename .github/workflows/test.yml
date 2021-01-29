@@ -27,7 +27,7 @@ jobs:
       run: yarn install --frozen-lockfile
 
     - name: jest
-      run: yarn jest
+      run: yarn test
 
     - name: eslint
       if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')
