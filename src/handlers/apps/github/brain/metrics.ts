@@ -1,3 +1,5 @@
+import { EventPayloads } from '@octokit/webhooks';
+
 import { insert } from '@utils/db';
 import { githubEvents } from '@api/github';
 
@@ -8,8 +10,13 @@ const CHECK_STATUS_MAP = {
   cancelled: 'canceled',
 };
 
-function handler({ name: eventName, payload }) {
-  console.log('check run');
+function handler({
+  name: eventName,
+  payload,
+}: {
+  name: string;
+  payload: EventPayloads.WebhookPayloadCheckRun;
+}) {
   const { check_run } = payload;
   // The status is based on the combination of the conclusion and status
   const payloadObj = check_run;
