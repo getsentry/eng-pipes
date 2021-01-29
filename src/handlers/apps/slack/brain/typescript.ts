@@ -1,4 +1,4 @@
-import { web, slackEvents } from '../../../../api/slack';
+import { web, slackEvents } from '@api/slack';
 
 import getProgress from '../getProgress';
 

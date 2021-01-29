@@ -1,8 +1,5 @@
-import { FastifyRequest } from 'fastify';
-
-import { insert, insertOss } from '../../../utils/db';
-import { requiredChecks } from './requiredChecks';
-import { verifyWebhook } from './verifyWebhook';
+import { insert } from '@utils/db';
+import { githubEvents } from '@api/github';
 
 const CHECK_STATUS_MAP = {
   in_progress: 'started',
@@ -11,28 +8,10 @@ const CHECK_STATUS_MAP = {
   cancelled: 'canceled',
 };
 
-export async function handler(request: FastifyRequest) {
-  if (!verifyWebhook(request)) {
-    throw new Error('Could not verify GitHub signature');
-  }
-
-  const { body: payload } = request;
-  const { 'x-github-event': eventType } = request.headers;
-
-  if (eventType === 'ping') {
-    return 'pong';
-  }
-
-  requiredChecks(request);
-
-  // This is for open source data so we can consolidate github webhooks
-  // It does some data mangling in there, so we may want to extract that out of the
-  // "db" utils
-  insertOss(eventType, payload);
-
-  const { check_run } = payload;
-
-  if (['check_run'].includes(eventType) && check_run) {
+export async function metrics() {
+  githubEvents.on('check_run', ({ name: eventName, payload }) => {
+    console.log('check run');
+    const { check_run } = payload;
     // The status is based on the combination of the conclusion and status
     const payloadObj = check_run;
     const key = payloadObj.conclusion || payloadObj.status;
@@ -48,7 +27,6 @@ export async function handler(request: FastifyRequest) {
           'https://api.github.com/repos/getsentry/getsentry/pulls'
         )
     );
-
     insert({
       source: 'github',
       event: `build_${status}`,
@@ -58,7 +36,7 @@ export async function handler(request: FastifyRequest) {
       // can be null if it has not completed yet
       end_timestamp: payloadObj.completed_at || null,
       meta: {
-        type: eventType,
+        type: eventName,
         name: payloadObj.name || payloadObj.app?.name,
         head_commit: payloadObj.head_sha,
         base_commit: pullRequest?.base.sha,
@@ -66,7 +44,5 @@ export async function handler(request: FastifyRequest) {
         branch: payloadObj.check_suite.head_branch,
       },
     });
-  }
-
-  return {};
+  });
 }
