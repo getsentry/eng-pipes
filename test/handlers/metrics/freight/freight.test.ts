@@ -1,5 +1,3 @@
-import { buildServer } from '@app/buildServer';
-
 import payload from '@test/payloads/freight.json';
 
 const mockInsert = jest.fn(() => Promise.resolve());
@@ -29,6 +27,8 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
+
+import { buildServer } from '@app/buildServer';
 
 const SCHEMA = [
   { name: 'deploy_id', type: 'integer' },

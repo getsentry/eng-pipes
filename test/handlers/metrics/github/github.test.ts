@@ -20,17 +20,18 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { buildServer } from '@app/buildServer';
 import * as db from '@app/utils/db';
-import { verifyWebhook } from '@app/handlers/metrics/github/verifyWebhook';
+import { createSignature } from '@utils/createSignature';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 
-jest.mock('@app/handlers/metrics/github/verifyWebhook', () => ({
-  verifyWebhook: jest.fn(() => true),
-}));
-
 describe('github webhook', function () {
   let fastify;
+  const signature = createSignature(
+    JSON.stringify(pullRequestPayload),
+    process.env.GH_WEBHOOK_SECRET || '',
+    (i) => `sha1=${i}`
+  ).toString();
   beforeEach(function () {
     fastify = buildServer();
   });
@@ -50,7 +51,9 @@ describe('github webhook', function () {
       method: 'POST',
       url: '/metrics/github/webhook',
       headers: {
+        'x-github-delivery': 1234,
         'x-github-event': 'pull_request',
+        'x-hub-signature': signature,
       },
       payload: pullRequestPayload,
     });
@@ -58,34 +61,14 @@ describe('github webhook', function () {
     delete process.env.DRY_RUN;
   });
 
-  it('returns 400 if signature verification fails', async function () {
-    // @ts-ignore
-    verifyWebhook.mockImplementationOnce(() => false);
-    // To keep logs clean since this is expected
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/github/webhook',
-      headers: {
-        'x-github-event': 'pull_request',
-      },
-      payload: pullRequestPayload,
-    });
-    expect(response.statusCode).toBe(400);
-    expect(db.insertOss).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
-
-    // @ts-ignore
-    console.error.mockRestore();
-  });
-
   it('correctly inserts github pull request created webhook', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/github/webhook',
       headers: {
+        'x-github-delivery': 1234,
         'x-github-event': 'pull_request',
+        'x-hub-signature': signature,
       },
       payload: pullRequestPayload,
     });
@@ -165,7 +148,9 @@ describe('github webhook', function () {
       method: 'POST',
       url: '/metrics/github/webhook',
       headers: {
+        'x-github-delivery': 1234,
         'x-github-event': 'invalid',
+        'x-hub-signature': signature,
       },
       payload: pullRequestPayload,
     });
@@ -180,7 +165,13 @@ describe('github webhook', function () {
       method: 'POST',
       url: '/metrics/github/webhook',
       headers: {
+        'x-github-delivery': 1234,
         'x-github-event': 'check_run',
+        'x-hub-signature': createSignature(
+          JSON.stringify(checkRunPayload),
+          process.env.GH_WEBHOOK_SECRET || '',
+          (i) => `sha1=${i}`
+        ),
       },
       payload: checkRunPayload,
     });

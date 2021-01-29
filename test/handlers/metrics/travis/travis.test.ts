@@ -1,7 +1,5 @@
 import travisPayload from '@test/payloads/travis.json';
 
-import { buildServer } from '@app/buildServer';
-
 const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
   insert: mockInsert,
@@ -21,6 +19,8 @@ jest.mock('@google-cloud/bigquery', () => ({
 jest.mock('@app/handlers/metrics/travis/verifyTravisWebhook', () => ({
   verifyTravisWebhook: jest.fn(() => true),
 }));
+
+import { buildServer } from '@app/buildServer';
 
 const SCHEMA = [
   {
