@@ -5,6 +5,7 @@ import { githubEvents } from '@app/api/github';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 const REQUIRED_CHECK_NAME = 'getsentry required checks';
+const SLACK_NOTIFICATION_CHANNEL = '#team-engineering';
 
 /**
  * Transform GitHub Markdown link to Slack link
@@ -75,7 +76,7 @@ ${failedJobs
     console.log(message);
 
     web.chat.postMessage({
-      channel: '#test',
+      channel: SLACK_NOTIFICATION_CHANNEL,
       text: `Build has failed on ${OWNER}/${GETSENTRY_REPO}@master`,
       attachments: [
         {
