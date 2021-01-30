@@ -1,3 +1,4 @@
+import { getClient } from '@api/github/getClient';
 import { slackEvents } from '@api/slack';
 
 export function ghaCancel() {
@@ -17,13 +18,14 @@ export function ghaCancel() {
 
     const [, owner, repo, pullRequestNumber] = matches;
 
-    const pr = await github.pulls.get({
+    const octokit = await getClient(owner, repo);
+    const pr = await octokit.pulls.get({
       owner,
       repo,
       pull_number: Number(pullRequestNumber),
     });
 
-    const resp = await github.actions.listWorkflowRunsForRepo({
+    const resp = await octokit.actions.listWorkflowRunsForRepo({
       owner,
       repo,
       branch: pr.data.head.ref,
@@ -33,7 +35,7 @@ export function ghaCancel() {
       resp.data.workflow_runs
         .filter((run) => run.status !== 'completed')
         .map((run) =>
-          github.actions.cancelWorkflowRun({
+          octokit.actions.cancelWorkflowRun({
             owner,
             repo,
             run_id: run.id,
