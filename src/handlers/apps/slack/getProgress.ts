@@ -1,4 +1,4 @@
-import { getClient } from '../../../api/github/getClient';
+import { getClient } from '@api/github/getClient';
 
 /**
  * Paths that we do not intend to convert to ts
