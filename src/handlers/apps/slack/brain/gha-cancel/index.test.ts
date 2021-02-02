@@ -13,7 +13,9 @@ describe('gha-test', function () {
   beforeEach(async function () {
     octokit = await getClient('', '');
     fastify = buildServer();
+    // @ts-ignore
     web.chat.postMessage.mockClear();
+    // @ts-ignore
     web.chat.update.mockClear();
     octokit.pulls.get.mockClear();
     octokit.actions.listWorkflowRunsForRepo.mockClear();
