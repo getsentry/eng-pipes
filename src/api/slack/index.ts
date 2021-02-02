@@ -1,10 +1,11 @@
+import { App } from '@slack/bolt';
 import { createEventAdapter } from '@slack/events-api';
 import { WebClient } from '@slack/web-api';
 
 import { SLACK_BOT_USER_ACCESS_TOKEN, SLACK_SIGNING_SECRET } from '@app/config';
 
 const token = process.env.SLACK_ACCESS_TOKEN || '';
-const slackSigningSecret = process.env.SLACK_SIGNING_SECRET || '';
+const signingSecret = process.env.SLACK_SIGNING_SECRET || '';
 
 const slackEvents = createEventAdapter(SLACK_SIGNING_SECRET);
 const web = new WebClient(SLACK_BOT_USER_ACCESS_TOKEN);
@@ -17,4 +18,9 @@ const web = new WebClient(SLACK_BOT_USER_ACCESS_TOKEN);
 // I currently have a support ticket with slack about this
 const web2 = new WebClient(process.env.SLACK_BOT_USER_ACCESS_TOKEN_TEMP);
 
-export { web, web2, slackEvents };
+const bolt = new App({
+  token: SLACK_BOT_USER_ACCESS_TOKEN,
+  signingSecret: SLACK_SIGNING_SECRET,
+});
+
+export { web, web2, slackEvents, bolt };

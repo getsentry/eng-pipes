@@ -7,7 +7,7 @@ import fastify, { FastifyReply } from 'fastify';
 import { Fastify } from '@types';
 
 import { githubEvents } from '@api/github';
-import { slackEvents } from '@api/slack';
+import { bolt, slackEvents } from '@api/slack';
 
 import { createGithub } from './handlers/apps/github';
 import { createSlack } from './handlers/apps/slack';
@@ -37,11 +37,15 @@ export function buildServer(
     return '';
   });
 
+  // server.post('/apps/slack/events', (request, reply) => {
+  // console.log(request, JSON.stringify(request.body));
+  // });
   // Slack middleware to listen to slack events
-  server.use('/apps/slack/events', slackEvents.requestListener());
+  // server.use('/apps/slack/events', slackEvents.requestListener());
   // Initializes slack apps
   server.register(createSlack, { prefix: '/apps/slack' });
 
+  server.use('/apps/slack/events', bolt.receiver.router);
   // Use the GitHub webhooks middleware
   server.use('/metrics/github/webhook', githubEvents.middleware);
   server.register(createGithub, { prefix: '/apps/github' });
