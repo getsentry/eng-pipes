@@ -14,7 +14,7 @@ async function handler(event) {
   );
 
   if (!matches) {
-    web.chat.postMessage({
+    await web.chat.postMessage({
       channel: event.channel,
       thread_ts: event.ts,
       text: 'Unable to find PR to cancel, please use the full PR URL',
@@ -51,7 +51,7 @@ async function handler(event) {
     });
   } catch (err) {
     Sentry.captureException(err);
-    updateMessage(':x: Unable to find PR');
+    await updateMessage(':x: Unable to find PR');
     return;
   }
 

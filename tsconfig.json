@@ -28,7 +28,7 @@
       "@types": ["src/types"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "test"],
   "exclude": ["*.test.ts"],
   "compileOnSave": false
 }
