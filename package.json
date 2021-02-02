@@ -75,6 +75,9 @@
     }
   },
   "lint-staged": {
-    "*.ts": "eslint --cache --fix"
+    "*.ts": [
+      "eslint --cache --fix",
+      "jest --findRelatedTests"
+    ]
   }
 }
