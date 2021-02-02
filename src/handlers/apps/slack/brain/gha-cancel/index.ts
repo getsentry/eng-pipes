@@ -1,5 +1,7 @@
+import * as Sentry from '@sentry/node';
+
 import { getClient } from '@api/github/getClient';
-import { slackEvents } from '@api/slack';
+import { slackEvents, web } from '@api/slack';
 
 export function ghaCancel() {
   slackEvents.on('app_mention', async (event) => {
@@ -13,17 +15,46 @@ export function ghaCancel() {
     );
 
     if (!matches) {
+      web.chat.postMessage({
+        channel: event.channel,
+        thread_ts: event.ts,
+        text: 'Unable to find PR to cancel, please use the full PR URL',
+      });
       return;
     }
 
     const [, owner, repo, pullRequestNumber] = matches;
 
     const octokit = await getClient(owner, repo);
-    const pr = await octokit.pulls.get({
-      owner,
-      repo,
-      pull_number: Number(pullRequestNumber),
+
+    const initialMessagePromise = web.chat.postMessage({
+      channel: event.channel,
+      thread_ts: event.ts,
+      text: ':fidget_spinner_right: Cancelling jobs...',
     });
+
+    async function updateMessage(text: string) {
+      const message = await initialMessagePromise;
+      web.chat.update({
+        channel: String(message.channel),
+        ts: String(message.ts),
+        text,
+      });
+    }
+
+    let pr;
+
+    try {
+      pr = await octokit.pulls.get({
+        owner,
+        repo,
+        pull_number: Number(pullRequestNumber),
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+      updateMessage(':x: Unable to find PR');
+      return;
+    }
 
     const resp = await octokit.actions.listWorkflowRunsForRepo({
       owner,
@@ -31,16 +62,37 @@ export function ghaCancel() {
       branch: pr.data.head.ref,
     });
 
-    await Promise.all(
-      resp.data.workflow_runs
-        .filter((run) => run.status !== 'completed')
-        .map((run) =>
+    const workflowsToCancel = resp.data.workflow_runs.filter(
+      (run) => run.status !== 'completed'
+    );
+
+    if (!workflowsToCancel.length) {
+      updateMessage(':shrug: No workflows to cancel');
+      return;
+    }
+
+    const workflowNames = workflowsToCancel.map((run) => run.name);
+    const workflowText = `${
+      workflowsToCancel.length
+    } workflow: ${workflowNames.join(', ')}`;
+
+    updateMessage(`:fidget_spinner_right: Cancelling ${workflowText}`);
+
+    try {
+      await Promise.all(
+        workflowsToCancel.map((run) =>
           octokit.actions.cancelWorkflowRun({
             owner,
             repo,
             run_id: run.id,
           })
         )
-    );
+      );
+
+      updateMessage(`:successkid: Cancelled ${workflowText}`);
+    } catch (err) {
+      updateMessage(`:x: Error cancelling ${workflowText}`);
+      Sentry.captureException(err);
+    }
   });
 }
