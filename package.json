@@ -15,6 +15,7 @@
   ],
   "scripts": {
     "build": "yarn tsc",
+    "build:production": "yarn tsc -p tsconfig.build.json",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",
     "dev": "DEBUG=@slack/events-api:* yarn build --watch & NODE_ENV=development nodemon --exec \"yarn start\"",

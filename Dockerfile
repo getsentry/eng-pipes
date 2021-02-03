@@ -16,7 +16,7 @@ RUN yarn install --frozen-lockfile --production
 # Copy local code to the container image.
 COPY . ./
 
-RUN yarn build
+RUN yarn build:production
 
 RUN rm -rf src
 
