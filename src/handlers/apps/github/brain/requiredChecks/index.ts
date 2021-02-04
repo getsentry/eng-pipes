@@ -50,7 +50,7 @@ function getBlocksForCommit(commit: ReposGetCommit | null): KnownBlock[] {
   const authorName =
     commit.commit.author?.name || commit.commit.author?.email || 'Unknown';
   const login = commit.author?.login;
-  const avatarUrl = commit.author?.avatar_url;
+  const avatarUrl = commit.author?.avatar_url || '';
 
   const commitBlocks: KnownBlock[] = [
     {
@@ -80,13 +80,11 @@ function getBlocksForCommit(commit: ReposGetCommit | null): KnownBlock[] {
     {
       type: 'context',
       elements: [
-        ...(avatarUrl && [
-          {
-            type: 'image',
-            image_url: commit.author?.avatar_url,
-            alt_text: authorName,
-          },
-        ]),
+        {
+          type: 'image',
+          image_url: avatarUrl,
+          alt_text: authorName,
+        },
         {
           type: 'mrkdwn',
           text: `<${commit.author?.html_url}|${authorName}${
