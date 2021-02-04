@@ -1,5 +1,5 @@
 const payload = {
-  action: 'created' as const,
+  action: 'completed' as const,
   check_run: {
     id: 128620228,
     node_id: 'MDg6Q2hlY2tSdW4xMjg2MjAyMjg=',
