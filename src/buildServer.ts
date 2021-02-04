@@ -1,8 +1,10 @@
 import path from 'path';
 
 import * as Sentry from '@sentry/node';
-import fastify, { FastifyInstance, FastifyReply } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
+import fastify, { FastifyReply } from 'fastify';
+import { ServerResponse } from 'http';
+
+import { Fastify } from '@types';
 
 import { githubEvents } from '@api/github';
 import { slackEvents } from '@api/slack';
@@ -10,13 +12,13 @@ import { slackEvents } from '@api/slack';
 import { createSlack } from './handlers/apps/slack';
 import { createGithub } from './handlers/apps/github';
 
-export function buildServer() {
-  const server: FastifyInstance<
-    Server,
-    IncomingMessage,
-    ServerResponse
-  > = fastify({
-    logger: { prettyPrint: process.env.NODE_ENV === 'development' },
+export function buildServer(
+  logger: boolean | { prettyPrint: boolean } = {
+    prettyPrint: process.env.NODE_ENV === 'development',
+  }
+) {
+  const server: Fastify = fastify({
+    logger,
   });
 
   server.register(require('fastify-formbody'));

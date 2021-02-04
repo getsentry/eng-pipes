@@ -21,14 +21,14 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "@app/*": ["src/*"],
       "@api/*": ["src/api/*"],
       "@utils/*": ["src/utils/*"],
       "@test/*": ["test/*"],
-      "@types": ["src/types"]
+      "@types": ["src/types"],
+      "@app/*": ["src/*"]
     }
   },
   "include": ["src/**/*", "test"],
-  "exclude": ["*.test.ts"],
+  "exclude": ["*.test.ts", "**/__mocks__/**"],
   "compileOnSave": false
 }

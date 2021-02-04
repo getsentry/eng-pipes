@@ -12,7 +12,7 @@ describe('gha-test', function () {
 
   beforeEach(async function () {
     octokit = await getClient('', '');
-    fastify = buildServer();
+    fastify = buildServer(false);
     // @ts-ignore
     web.chat.postMessage.mockClear();
     // @ts-ignore

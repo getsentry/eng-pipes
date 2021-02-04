@@ -6,6 +6,9 @@ const mock = {
   pulls: {
     get: jest.fn(),
   },
+  repos: {
+    getCommit: jest.fn(),
+  },
 };
 
 export async function getClient(owner, repo) {
