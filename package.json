@@ -80,7 +80,7 @@
   "lint-staged": {
     "*.ts": [
       "eslint --cache --fix",
-      "jest --findRelatedTests"
+      "yarn test --findRelatedTests"
     ]
   }
 }
