@@ -143,7 +143,7 @@ async function getRelevantCommit(ref: string) {
   }
 }
 
-async function handler({ payload }: EventTypesPayload['check_run']) {
+async function handler({ id, payload }: EventTypesPayload['check_run']) {
   // Only on `getsentry` repo
   if (payload.repository?.full_name !== 'getsentry/getsentry') {
     return;
@@ -169,7 +169,7 @@ async function handler({ payload }: EventTypesPayload['check_run']) {
   }
 
   console.log(
-    `Received failed check run ${checkRun.id} for commit ${checkRun.head_sha}`
+    `Received failed check run ${checkRun.id} (${id}) for commit ${checkRun.head_sha}`
   );
 
   // Retrieve commit information
