@@ -168,6 +168,17 @@ async function handler({ id, payload }: EventTypesPayload['check_run']) {
     return;
   }
 
+  // This will stop double messages because of action == 'created' and 'completed' with the
+  // same status/conclusion
+  // Run only on `completed` action (can be `created`, and not sure what `rerequested` is)
+  // This can still fire multiple times if we have additional failing checks?
+  // I don't think running this once on created will work either as you can have a created w/ non-failure
+  // and later it becomes failing
+  if (payload.action !== 'completed') {
+    console.warn(`Required check with non-completed action: ${payload.action}`);
+    return;
+  }
+
   console.log(
     `Received failed check run ${checkRun.id} (${id}) for commit ${checkRun.head_sha}`
   );
