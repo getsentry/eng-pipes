@@ -16,11 +16,14 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
+jest.mock('@app/handlers/apps/github');
 
 import { buildServer } from '@app/buildServer';
 import * as db from '@app/utils/db';
 import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+import { metrics } from './metrics';
+import { metricsOss } from './metricsOss';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
@@ -30,6 +33,8 @@ describe('github webhook', function () {
 
   beforeEach(function () {
     fastify = buildServer(false);
+    metrics();
+    metricsOss();
   });
 
   afterEach(function () {
