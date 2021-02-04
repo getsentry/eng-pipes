@@ -1,6 +1,6 @@
 {
   "extends": "./tsconfig.json",
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "**/__mocks__/**"],
+  "exclude": ["**/*.test.ts"],
   "compileOnSave": false
 }

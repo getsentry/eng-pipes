@@ -3,7 +3,7 @@ import { buildServer } from '@app/buildServer';
 describe('index', function () {
   let fastify;
   beforeEach(function () {
-    fastify = buildServer();
+    fastify = buildServer(false);
   });
 
   afterEach(function () {

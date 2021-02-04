@@ -24,7 +24,7 @@ jest.spyOn(db, 'insertOss');
 describe('bootstrap-dev-env webhook', function () {
   let fastify;
   beforeEach(function () {
-    fastify = buildServer();
+    fastify = buildServer(false);
   });
 
   afterEach(function () {

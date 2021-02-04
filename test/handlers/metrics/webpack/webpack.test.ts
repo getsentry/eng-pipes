@@ -28,7 +28,7 @@ jest.mock('@app/handlers/metrics/webpack/verifyWebhook', () => ({
 describe('webpack webhook', function () {
   let fastify;
   beforeEach(function () {
-    fastify = buildServer();
+    fastify = buildServer(false);
   });
 
   afterEach(function () {

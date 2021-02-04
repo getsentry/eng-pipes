@@ -1,3 +1,4 @@
+import { Fastify } from '@app/types';
 import { createSignature } from '@utils/createSignature';
 
 function createSlackSignature(payload, timestamp) {
@@ -8,7 +9,7 @@ function createSlackSignature(payload, timestamp) {
     'sha256'
   );
 }
-export async function createSlackEvent(fastify, payload) {
+export async function createSlackEvent(fastify: Fastify, payload) {
   const now = +new Date();
   const signature = createSlackSignature(payload, now);
 

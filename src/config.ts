@@ -6,3 +6,7 @@ export const OWNER = 'getsentry';
 export const SENTRY_REPO = 'sentry';
 export const GETSENTRY_REPO = 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
+
+// The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
+export const REQUIRED_CHECK_NAME = 'getsentry required checks';
+export const REQUIRED_CHECK_CHANNEL = '#team-engineering';

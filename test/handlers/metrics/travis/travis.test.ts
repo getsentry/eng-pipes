@@ -60,7 +60,7 @@ const SCHEMA = [
 describe('travis webhook', function () {
   let fastify;
   beforeEach(function () {
-    fastify = buildServer();
+    fastify = buildServer(false);
   });
 
   afterEach(function () {

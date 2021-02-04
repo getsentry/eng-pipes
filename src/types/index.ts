@@ -1,3 +1,21 @@
+import { Octokit } from '@octokit/rest';
+import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
+
+import { FastifyInstance } from 'fastify';
+import { Server, IncomingMessage, ServerResponse } from 'http';
+
+// e.g. the return type of `buildServer`
+export type Fastify = FastifyInstance<Server, IncomingMessage, ServerResponse>;
+
+/**
+ * GitHub types
+ */
+const octokit = new Octokit();
+
+export type ReposGetCommit = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.repos.getCommit
+>;
+
 type TravisRepository = {
   id: number;
   name: string;

@@ -1,5 +1,4 @@
-import pullRequestPayload from '@test/payloads/github/pullRequest.json';
-import checkRunPayload from '@test/payloads/github/checkRun.json';
+import pullRequestPayload from '@test/payloads/github/pull_request';
 
 const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
@@ -17,23 +16,25 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
+jest.mock('@app/handlers/apps/github');
 
 import { buildServer } from '@app/buildServer';
 import * as db from '@app/utils/db';
-import { createSignature } from '@utils/createSignature';
+import { Fastify } from '@types';
+import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+import { metrics } from './metrics';
+import { metricsOss } from './metricsOss';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 
 describe('github webhook', function () {
-  let fastify;
-  const signature = createSignature(
-    JSON.stringify(pullRequestPayload),
-    process.env.GH_WEBHOOK_SECRET || '',
-    (i) => `sha1=${i}`
-  ).toString();
+  let fastify: Fastify;
+
   beforeEach(function () {
-    fastify = buildServer();
+    fastify = buildServer(false);
+    metrics();
+    metricsOss();
   });
 
   afterEach(function () {
@@ -47,31 +48,13 @@ describe('github webhook', function () {
 
   it('does not call insert on dry run', async function () {
     process.env.DRY_RUN = '1';
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/github/webhook',
-      headers: {
-        'x-github-delivery': 1234,
-        'x-github-event': 'pull_request',
-        'x-hub-signature': signature,
-      },
-      payload: pullRequestPayload,
-    });
+    await createGitHubEvent(fastify, 'pull_request');
     expect(mockInsert).not.toHaveBeenCalled();
     delete process.env.DRY_RUN;
   });
 
   it('correctly inserts github pull request created webhook', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/github/webhook',
-      headers: {
-        'x-github-delivery': 1234,
-        'x-github-event': 'pull_request',
-        'x-hub-signature': signature,
-      },
-      payload: pullRequestPayload,
-    });
+    const response = await createGitHubEvent(fastify, 'pull_request');
 
     expect(response.statusCode).toBe(200);
     expect(db.insertOss).toHaveBeenCalledWith(
@@ -144,37 +127,26 @@ describe('github webhook', function () {
   });
 
   it('does not insert unsupported webhook events', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/github/webhook',
-      headers: {
-        'x-github-delivery': 1234,
-        'x-github-event': 'invalid',
-        'x-hub-signature': signature,
-      },
-      payload: pullRequestPayload,
-    });
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const response = await createGitHubEvent(
+      fastify,
+      // @ts-ignore
+      'invalid',
+      pullRequestPayload
+    );
 
     expect(response.statusCode).toBe(200);
     expect(db.insertOss).toHaveBeenCalledWith('invalid', expect.anything());
     expect(mockDataset).not.toHaveBeenCalled();
+    expect(console.warn).toHaveBeenCalled();
+
+    // @ts-ignore
+    console.warn.mockRestore();
   });
 
   it('correctly inserts github record for `check_run` webhooks', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/github/webhook',
-      headers: {
-        'x-github-delivery': 1234,
-        'x-github-event': 'check_run',
-        'x-hub-signature': createSignature(
-          JSON.stringify(checkRunPayload),
-          process.env.GH_WEBHOOK_SECRET || '',
-          (i) => `sha1=${i}`
-        ),
-      },
-      payload: checkRunPayload,
-    });
+    const response = await createGitHubEvent(fastify, 'check_run');
+
     expect(response.statusCode).toBe(200);
     expect(db.insert).toHaveBeenCalledWith({
       event: 'build_queued',
