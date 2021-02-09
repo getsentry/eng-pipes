@@ -1,4 +1,4 @@
-# sentry-development-metrics
+# sentry-ci-tooling
 
 This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight). 
 There is also Slack integration to provide tools through Slack.
