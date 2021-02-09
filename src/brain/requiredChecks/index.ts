@@ -1,4 +1,4 @@
-import { EventTypesPayload } from '@octokit/webhooks';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import { Color, GETSENTRY_REPO, OWNER, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -26,7 +26,7 @@ async function handler({
   id,
   payload,
   ...rest
-}: EventTypesPayload['check_run']) {
+}: EmitterWebhookEvent<'check_run'>) {
   // Make sure this is on `getsentry` and we are examining the aggregate "required check" run
   if (!isGetsentryRequiredCheck({ id, payload, ...rest })) {
     return;

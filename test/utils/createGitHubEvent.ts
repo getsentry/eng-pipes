@@ -1,11 +1,12 @@
-import { EventTypesPayload } from '@octokit/webhooks';
+import {
+  EmitterWebhookEventName,
+  EmitterWebhookEvent,
+} from '@octokit/webhooks';
 import merge from 'lodash.merge';
 
 import { Fastify } from '@types';
 
 import { createSignature } from '@utils/createSignature';
-
-type Event = Omit<EventTypesPayload, 'error'>;
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -15,10 +16,12 @@ type DeepPartial<T> = {
     : T[P];
 };
 
-export async function createGitHubEvent<E extends keyof Event>(
+export async function createGitHubEvent<
+  E extends keyof EmitterWebhookEventName
+>(
   fastify: Fastify,
   event: E,
-  payload?: DeepPartial<Event[E]['payload']>
+  payload?: DeepPartial<EmitterWebhookEvent<E>['payload']>
 ) {
   let defaultPayload;
   try {
@@ -40,7 +43,7 @@ export async function createGitHubEvent<E extends keyof Event>(
     url: '/metrics/github/webhook',
     headers: {
       'x-github-delivery': 1234,
-      'x-github-event': event,
+      'x-github-event': event as string,
       'x-hub-signature': signature,
     },
     payload: fullPayload,
