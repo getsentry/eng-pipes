@@ -4,7 +4,7 @@ import { getClient } from '@api/github/getClient';
 import { slackEvents, web } from '@api/slack';
 
 async function handler(event) {
-  if (!event.text.includes('gha cancel')) {
+  if (!event.text?.includes('gha cancel')) {
     return;
   }
 
@@ -101,6 +101,12 @@ export function ghaCancel() {
     if (event.channel_type != 'im') {
       return;
     }
+
+    // ignore messages from bots (including myself)
+    if (event.bot_id) {
+      return;
+    }
+
     handler(event);
   });
 }
