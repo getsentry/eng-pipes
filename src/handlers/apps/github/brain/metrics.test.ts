@@ -8,7 +8,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `app/utils/db`
+// Needs to be mocked before `@utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -18,10 +18,13 @@ jest.mock('@google-cloud/bigquery', () => ({
 }));
 jest.mock('@app/handlers/apps/github');
 
-import { buildServer } from '@app/buildServer';
-import * as db from '@app/utils/db';
 import { Fastify } from '@types';
+
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+
+import { buildServer } from '@app/buildServer';
+import * as db from '@utils/metrics';
+
 import { metrics } from './metrics';
 import { metricsOss } from './metricsOss';
 

@@ -1,7 +1,7 @@
 import { EventPayloads } from '@octokit/webhooks';
 
-import { insert } from '@utils/db';
 import { githubEvents } from '@api/github';
+import { insert } from '@utils/metrics';
 
 const CHECK_STATUS_MAP = {
   in_progress: 'started',

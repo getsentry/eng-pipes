@@ -1,6 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
-import { insertAssetSize } from '../../../utils/db';
+import { insertAssetSize } from '@utils/metrics';
+
 import { verifyWebhook } from './verifyWebhook';
 
 export async function handler(request: FastifyRequest) {

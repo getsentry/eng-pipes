@@ -18,7 +18,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 import payload from '@test/payloads/percy.json';
 
 import { buildServer } from '@app/buildServer';
-import { TARGETS } from '@app/utils/db';
+import { TARGETS } from '@utils/metrics';
 
 const SCHEMA = Object.entries(TARGETS.percy.schema).map(([name, type]) => ({
   name,

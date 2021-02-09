@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { insert } from '../../../utils/db';
+import { insert } from '@utils/metrics';
 
 export async function handler(request: FastifyRequest) {
   const { body: payload } = request;
