@@ -3,7 +3,7 @@ module.exports = {
     browser: true,
     es6: true,
   },
-  plugins: ['@typescript-eslint', 'prettier'],
+  plugins: ['@typescript-eslint', 'prettier', 'simple-import-sort'],
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/eslint-recommended',
@@ -20,5 +20,29 @@ module.exports = {
   },
   rules: {
     'no-unused-vars': 'off',
+    'simple-import-sort/imports': [
+      'error',
+      {
+        groups: [
+          // Side effect imports.
+          ['^\\u0000'],
+
+          // Node.js builtins.
+          [`^(${require('module').builtinModules.join('|')})(/|$)`],
+
+          ['^(@types)(/.*|$)'],
+
+          ['^(@test)(/.*|$)'],
+
+          ['^@(app|api|utils)(/.*|$)'],
+
+          // Parent imports. Put `..` last.
+          ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
+
+          // Other relative imports. Put same-folder imports and `.` last.
+          ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
+        ],
+      },
+    ],
   },
 };

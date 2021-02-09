@@ -1,5 +1,5 @@
-import * as Sentry from '@sentry/node';
 import { BigQuery } from '@google-cloud/bigquery';
+import * as Sentry from '@sentry/node';
 
 const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
