@@ -28,7 +28,7 @@
       "@app/*": ["src/*"]
     }
   },
-  "include": ["src/**/*", "test"],
+  "include": ["src/**/*", "test", "migrations/*.ts"],
   "exclude": ["*.test.ts", "**/__mocks__/**"],
   "compileOnSave": false
 }
