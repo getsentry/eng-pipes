@@ -1,16 +1,16 @@
+import { ServerResponse } from 'http';
 import path from 'path';
 
 import * as Sentry from '@sentry/node';
 import fastify, { FastifyReply } from 'fastify';
-import { ServerResponse } from 'http';
 
 import { Fastify } from '@types';
 
 import { githubEvents } from '@api/github';
 import { slackEvents } from '@api/slack';
 
-import { createSlack } from './handlers/apps/slack';
 import { createGithub } from './handlers/apps/github';
+import { createSlack } from './handlers/apps/slack';
 
 export function buildServer(
   logger: boolean | { prettyPrint: boolean } = {

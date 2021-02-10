@@ -14,5 +14,5 @@ export function verifyWebhook(request: fastify.FastifyRequest) {
     throw new Error('SENTRY_WEBPACK_WEBHOOK_SECRET is not set');
   }
 
-  return verifySignature(payload, sig, SECRET, i => `sha1=${i}`);
+  return verifySignature(payload, sig, SECRET, (i) => `sha1=${i}`);
 }

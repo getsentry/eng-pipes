@@ -1,5 +1,6 @@
+import { IncomingMessage, Server, ServerResponse } from 'http';
+
 import { FastifyInstance } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
 
 import { metrics } from './brain/metrics';
 import { metricsOss } from './brain/metricsOss';

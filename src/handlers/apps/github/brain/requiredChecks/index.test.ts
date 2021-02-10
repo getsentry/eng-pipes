@@ -11,6 +11,7 @@ import { web } from '@api/slack';
 import { buildServer } from '@app/buildServer';
 import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@app/config';
 import { Fastify } from '@app/types';
+
 import { requiredChecks } from '.';
 
 describe('requiredChecks', function () {

@@ -1,7 +1,8 @@
-import { buildServer } from '@app/buildServer';
 import { createSlackMessage } from '@test/utils/createSlackMessage';
-import { web } from '@api/slack';
+
 import { getClient } from '@api/github/getClient';
+import { web } from '@api/slack';
+import { buildServer } from '@app/buildServer';
 
 jest.mock('@api/slack');
 jest.mock('@api/github/getClient');

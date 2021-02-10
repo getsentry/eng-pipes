@@ -1,12 +1,13 @@
-import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
 import { Octokit } from '@octokit/rest';
+import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
 
 import {
+  GETSENTRY_BOT_ID,
+  GETSENTRY_REPO,
   OWNER,
   SENTRY_REPO,
-  GETSENTRY_REPO,
-  GETSENTRY_BOT_ID,
 } from '../../config';
+
 import { getClient } from './getClient';
 
 const octokit = new Octokit();

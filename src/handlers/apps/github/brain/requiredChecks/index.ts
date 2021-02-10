@@ -1,19 +1,19 @@
+import { EventTypesPayload } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
 import { ReposGetCommit } from '@types';
 
-import {
-  OWNER,
-  GETSENTRY_REPO,
-  REQUIRED_CHECK_NAME,
-  REQUIRED_CHECK_CHANNEL,
-  SENTRY_REPO,
-} from '@app/config';
 import { web } from '@api/slack';
 import { githubEvents } from '@app/api/github';
 import { getClient } from '@app/api/github/getClient';
-import { EventTypesPayload } from '@octokit/webhooks';
+import {
+  GETSENTRY_REPO,
+  OWNER,
+  REQUIRED_CHECK_CHANNEL,
+  REQUIRED_CHECK_NAME,
+  SENTRY_REPO,
+} from '@app/config';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 
