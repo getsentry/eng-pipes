@@ -19,6 +19,7 @@ jobs:
   build-deploy:
     name: google
     runs-on: ubuntu-latest
+    environment: production
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}

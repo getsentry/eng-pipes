@@ -1,6 +1,6 @@
 # This workflow allow you to run migrations from GitHub UI
 
-name: migration
+name: Migration
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
         required: false
         default: 'latest'
       environment:
-        description: 'The environment to run migration on'
+        description: 'The database environment to run migration on'
         required: false
         default: 'production'
 
@@ -18,6 +18,7 @@ jobs:
   run:
     name: run migration
     runs-on: ubuntu-latest
+    environment: migration
     env:
       DB_USER: ${{ secrets.DB_USER }}
       DB_NAME: ${{ secrets.DB_NAME }}
