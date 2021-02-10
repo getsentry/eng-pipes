@@ -34,6 +34,14 @@ jobs:
         echo "$(yarn global bin)" >> $GITHUB_PATH
         yarn install --frozen-lockfile
 
+    # Setup gcloud CLI
+    - name: Setup gcloud CLI
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+
     # Build ts
     - name: Run migration
       env:
