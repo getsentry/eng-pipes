@@ -15,11 +15,12 @@
   ],
   "scripts": {
     "build": "yarn tsc -p tsconfig.build.json",
-    "build:production": "yarn tsc -p tsconfig.build.json",
+    "build:production": "yarn clean && yarn tsc -p tsconfig.build.json",
+    "clean": "rm -rf lib/*",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",
-    "dev": "DEBUG=@slack/events-api:* yarn build --watch & NODE_ENV=development nodemon --exec \"yarn start\"",
-    "start": "node ./lib/index.js",
+    "dev": "DEBUG=@slack/events-api:* yarn clean && NODE_ENV=development nodemon --watch src/ -e ts --exec \"yarn start\"",
+    "start": "yarn build && node ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
     "test": "GH_WEBHOOK_SECRET=webhooksecret yarn jest",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
