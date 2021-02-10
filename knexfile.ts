@@ -38,22 +38,6 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
-  migration: {
-    client: 'postgresql',
-    connection: {
-      host: `${DB_HOST}`,
-      database: DB_NAME,
-      user: DB_USER,
-      password: DB_PASSWORD,
-    },
-    pool: {
-      min: 2,
-      max: 10,
-    },
-    migrations: {
-      tableName: 'knex_migrations',
-    },
-  },
   production: {
     client: 'postgresql',
     connection: {
