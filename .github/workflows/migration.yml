@@ -12,18 +12,13 @@ on:
       environment:
         description: 'The database environment to run migration on'
         required: false
-        default: 'production'
+        default: 'migration'
 
 jobs:
   run:
     name: run migration
     runs-on: ubuntu-latest
     environment: migration
-    env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_NAME: ${{ secrets.DB_NAME }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
 
     steps:
     - name: Checkout
@@ -41,5 +36,10 @@ jobs:
 
     # Build ts
     - name: Run migration
+      env:
+        DB_HOST: ${{ secrets.DB_HOST }}
+        DB_USER: ${{ secrets.DB_USER }}
+        DB_NAME: ${{ secrets.DB_NAME }}
+        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         yarn knex migrate:${{ github.event.inputs.name }} --env ${{ github.event.inputs.environment }}
