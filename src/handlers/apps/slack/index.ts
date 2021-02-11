@@ -2,6 +2,8 @@ import { IncomingMessage, Server, ServerResponse } from 'http';
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
+import { pleaseDeployNotifier } from '../github/brain/pleaseDeployNotifier';
+
 import { ghaCancel } from './brain/gha-cancel';
 import { typescript } from './brain/typescript';
 import getProgress from './getProgress';
@@ -13,6 +15,7 @@ export function createSlack(
 ) {
   typescript();
   ghaCancel();
+  pleaseDeployNotifier();
 
   server.get(
     '/stats',
