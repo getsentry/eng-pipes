@@ -23,7 +23,7 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
-  development: {
+  proxy: {
     client: 'postgresql',
     connection: {
       database: 'postgres',

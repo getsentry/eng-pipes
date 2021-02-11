@@ -161,16 +161,6 @@ describe('requiredChecks', function () {
           "blocks": Array [
             Object {
               "text": Object {
-                "text": "Relevant commit",
-                "type": "mrkdwn",
-              },
-              "type": "section",
-            },
-            Object {
-              "type": "divider",
-            },
-            Object {
-              "text": Object {
                 "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
                 "type": "mrkdwn",
               },
@@ -312,16 +302,6 @@ describe('requiredChecks', function () {
       Array [
         Object {
           "blocks": Array [
-            Object {
-              "text": Object {
-                "text": "Relevant commit",
-                "type": "mrkdwn",
-              },
-              "type": "section",
-            },
-            Object {
-              "type": "divider",
-            },
             Object {
               "text": Object {
                 "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Display gifted attachments (#5043)*>",
