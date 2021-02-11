@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { App, LogLevel } from '@slack/bolt';
 import { WebClient } from '@slack/web-api';
 
@@ -19,5 +20,5 @@ export { bolt };
 // @ts-ignore
 bolt.error((error) => {
   // Check the details of the error to handle cases where you should retry sending a message or stop the app
-  console.error(error);
+  Sentry.captureException(error);
 });

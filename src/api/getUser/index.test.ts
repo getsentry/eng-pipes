@@ -10,6 +10,10 @@ describe('getUser', function () {
   });
 
   beforeEach(async function () {
+    // @ts-ignore
+    bolt.client.users.lookupByEmail.mockClear();
+    // @ts-ignore
+    bolt.client.users.profile.get.mockClear();
     await db('users').delete();
   });
 
@@ -52,31 +56,26 @@ describe('getUser', function () {
       slackUser: 'U789123',
       githubUser: null,
     });
+    expect(user).toMatchObject({
+      email: 'test@sentry.io',
+      slackUser: 'U789123',
+      githubUser: undefined,
+    });
   });
 
   it('fetches user from slack via email, and github user from slack profile, saves to db', async function () {
     // @ts-ignore
-    bolt.client.users.profile.get.mockReset();
-    // @ts-ignore
-    bolt.client.users.profile.get.mockReturnValue({
-      ok: true,
-      profile: {
-        fields: {
-          [SLACK_PROFILE_ID_GITHUB]: {
-            value: 'githubLogin',
-          },
-        },
-      },
-    });
+    bolt.client.users.lookupByEmail.mockReturnValue({ ok: false, user: {} });
 
-    const user = await getUser({ email: 'test@sentry.io' });
+    const user = await getUser({
+      email: 'test@sentry.io',
+      github: 'realGithubUser',
+    });
 
     expect(bolt.client.users.lookupByEmail).toHaveBeenCalledWith({
       email: 'test@sentry.io',
     });
-    expect(bolt.client.users.profile.get).toHaveBeenCalledWith({
-      user: 'U789123',
-    });
+    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
 
     const userDb = await db('users')
       .where('email', 'test@sentry.io')
@@ -84,22 +83,13 @@ describe('getUser', function () {
 
     expect(userDb).toMatchObject({
       email: 'test@sentry.io',
-      slackUser: 'U789123',
-      githubUser: 'githubLogin',
+      slackUser: null,
+      githubUser: 'realGithubUser',
     });
     expect(user).toMatchObject({
       email: 'test@sentry.io',
-      slackUser: 'U789123',
-      githubUser: 'githubLogin',
+      slackUser: undefined,
+      githubUser: 'realGithubUser',
     });
   });
-
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
-  it('', async function () {});
 });
