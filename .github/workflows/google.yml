@@ -1,4 +1,4 @@
-# This workflow will deploy to Google Cloud Functions
+# This workflow will deploy to Google Cloud Run
 #
 # To configure this workflow, set up the following secrets in your workspace
 #
