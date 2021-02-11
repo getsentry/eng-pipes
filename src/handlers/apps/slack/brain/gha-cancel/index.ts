@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/node';
 
 import { getClient } from '@api/github/getClient';
-import { slackEvents, web } from '@api/slack';
+import { bolt } from '@api/slack';
 
-async function handler(event) {
+async function handler({ event, say, client }) {
   if (!event.text?.includes('gha cancel')) {
     return;
   }
@@ -14,8 +14,7 @@ async function handler(event) {
   );
 
   if (!matches) {
-    await web.chat.postMessage({
-      channel: event.channel,
+    await say({
       thread_ts: event.ts,
       text: 'Unable to find PR to cancel, please use the full PR URL',
     });
@@ -26,15 +25,14 @@ async function handler(event) {
 
   const octokit = await getClient(owner, repo);
 
-  const initialMessagePromise = web.chat.postMessage({
-    channel: event.channel,
+  const initialMessagePromise = say({
     thread_ts: event.ts,
     text: ':fidget_spinner_right: Cancelling jobs...',
   });
 
   async function updateMessage(text: string) {
     const message = await initialMessagePromise;
-    web.chat.update({
+    client.chat.update({
       channel: String(message.channel),
       ts: String(message.ts),
       text,
@@ -96,17 +94,5 @@ async function handler(event) {
 }
 
 export function ghaCancel() {
-  slackEvents.on('app_mention', handler);
-  slackEvents.on('message', (event) => {
-    if (event.channel_type != 'im') {
-      return;
-    }
-
-    // ignore messages from bots (including myself)
-    if (event.bot_id) {
-      return;
-    }
-
-    handler(event);
-  });
+  bolt.event('app_mention', handler);
 }

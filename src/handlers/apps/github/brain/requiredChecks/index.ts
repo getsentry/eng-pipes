@@ -2,7 +2,7 @@ import { EventTypesPayload } from '@octokit/webhooks';
 
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { web } from '@api/slack';
+import { bolt } from '@api/slack';
 import { githubEvents } from '@app/api/github';
 import { getClient } from '@app/api/github/getClient';
 import {
@@ -94,7 +94,7 @@ async function handler({
     )
     .join('\n');
 
-  const message = await web.chat.postMessage({
+  const message = await bolt.client.chat.postMessage({
     channel: REQUIRED_CHECK_CHANNEL,
     text,
     attachments: [
@@ -106,7 +106,7 @@ async function handler({
   });
 
   // Add thread for jobs list
-  web.chat.postMessage({
+  bolt.client.chat.postMessage({
     channel: `${message.channel}`,
     thread_ts: `${message.ts}`,
     text: `Here are the job statuses

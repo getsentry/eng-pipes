@@ -1,7 +1,7 @@
 import { createSlackMessage } from '@test/utils/createSlackMessage';
 
 import { getClient } from '@api/github/getClient';
-import { web } from '@api/slack';
+import { bolt } from '@api/slack';
 import { buildServer } from '@app/buildServer';
 
 jest.mock('@api/slack');
@@ -15,9 +15,9 @@ describe('gha-test', function () {
     octokit = await getClient('', '');
     fastify = buildServer(false);
     // @ts-ignore
-    web.chat.postMessage.mockClear();
+    bolt.client.chat.postMessage.mockClear();
     // @ts-ignore
-    web.chat.update.mockClear();
+    bolt.client.chat.update.mockClear();
     octokit.pulls.get.mockClear();
     octokit.actions.listWorkflowRunsForRepo.mockClear();
 
@@ -63,7 +63,7 @@ describe('gha-test', function () {
 
     expect(resp.statusCode).toBe(200);
 
-    expect(web.chat.postMessage).toHaveBeenCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         text: ':fidget_spinner_right: Cancelling jobs...',
       })
@@ -97,12 +97,12 @@ describe('gha-test', function () {
       repo: 'sentry',
       run_id: 3,
     });
-    expect(web.chat.update).toHaveBeenCalledWith(
+    expect(bolt.client.chat.update).toHaveBeenCalledWith(
       expect.objectContaining({
         text: ':fidget_spinner_right: Cancelling 2 workflow: job 1, job 2',
       })
     );
-    expect(web.chat.update).toHaveBeenCalledWith(
+    expect(bolt.client.chat.update).toHaveBeenCalledWith(
       expect.objectContaining({
         text: ':successkid: Cancelled 2 workflow: job 1, job 2',
       })
@@ -115,14 +115,14 @@ describe('gha-test', function () {
       'gha cancel https://github.com/getsentry/sentry/invalid/123'
     );
 
-    expect(web.chat.postMessage).toHaveBeenCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         text: 'Unable to find PR to cancel, please use the full PR URL',
       })
     );
 
     expect(octokit.pulls.get).toHaveBeenCalledTimes(0);
-    expect(web.chat.postMessage).toHaveBeenCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         text: 'Unable to find PR to cancel, please use the full PR URL',
       })

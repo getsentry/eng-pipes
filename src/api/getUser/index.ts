@@ -1,4 +1,4 @@
-import { web, web2 } from '@api/slack';
+import { bolt, web2 } from '@api/slack';
 import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
 
@@ -45,7 +45,7 @@ export async function getUser({
   }
 
   // First fetch slack user
-  const userResult: any = await web.users.lookupByEmail({
+  const userResult: any = await bolt.client.users.lookupByEmail({
     email,
   });
 

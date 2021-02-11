@@ -1,6 +1,6 @@
 import { createSlackMessage } from '@test/utils/createSlackMessage';
 
-import { web } from '@api/slack';
+import { bolt } from '@api/slack';
 import { buildServer } from '@app/buildServer';
 import getProgress from '@app/handlers/apps/slack/getProgress';
 
@@ -30,15 +30,15 @@ describe('slack app', function () {
       '<@U018UAXJVG8> typescript'
     );
     expect(response.statusCode).toBe(200);
-    expect(web.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(getProgress).toHaveBeenCalledWith({});
     expect(getProgress).toHaveBeenCalledWith({
       repo: 'getsentry',
       basePath: 'static/getsentry',
       appDir: 'gsApp',
     });
-    expect(web.chat.update).toHaveBeenCalledTimes(1);
-    expect(web.chat.update).toHaveBeenCalledWith(
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.update).toHaveBeenCalledWith(
       expect.objectContaining({
         blocks: [
           {
