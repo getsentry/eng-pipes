@@ -11,7 +11,8 @@ const bolt = new App({
 
 // We have to do this because the original client does not have a token associated with it
 // This is to support multiple workspaces, see https://github.com/slackapi/bolt-js/issues/250
-bolt.client = new WebClient(SLACK_BOT_USER_ACCESS_TOKEN);
+// @ts-ignore
+bolt.client.token = SLACK_BOT_USER_ACCESS_TOKEN;
 
 export { bolt };
 
