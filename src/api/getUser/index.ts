@@ -13,6 +13,11 @@ type GetUserParams = {
  * - email
  * - slack user id
  * - github login name
+ *
+ * If user is not found in local database:
+ * - search slack via `email`
+ * - use slack's profile field for `GitHub Profile`
+ *  - or, if a `github` param was passed, use that
  */
 export async function getUser({
   email,
