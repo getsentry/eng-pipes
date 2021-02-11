@@ -23,6 +23,27 @@ jest.mock('@slack/web-api', () => ({
         return Promise.resolve({});
       }),
     },
+    users: {
+      lookupByEmail: jest.fn(() =>
+        Promise.resolve({
+          ok: true,
+          user: {
+            id: 'U789123',
+          },
+        })
+      ),
+      profile: {
+        set: jest.fn(() => Promise.resolve({})),
+        get: jest.fn(() =>
+          Promise.resolve({
+            ok: true,
+            profile: {
+              fields: {},
+            },
+          })
+        ),
+      },
+    },
   })),
 }));
 

@@ -1,4 +1,5 @@
-// Update with your config settings.
+import path from 'path';
+
 import {
   DB_HOST,
   DB_INSTANCE_CONNECTION_NAME,
@@ -7,7 +8,7 @@ import {
   DB_USER,
 } from './src/config';
 
-module.exports = {
+const config = {
   local: {
     client: 'postgresql',
     connection: {
@@ -23,6 +24,20 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
+
+  // We use sqlite3 only for testing
+  test: {
+    client: 'sqlite3',
+    connection: ':memory:',
+    useNullAsDefault: true,
+    migrations: {
+      directory: path.join(__dirname, 'migrations'),
+    },
+    seeds: {
+      directory: path.join(__dirname, 'seeds'),
+    },
+  },
+
   proxy: {
     client: 'postgresql',
     connection: {
@@ -38,6 +53,7 @@ module.exports = {
       tableName: 'knex_migrations',
     },
   },
+
   production: {
     client: 'postgresql',
     connection: {
@@ -55,3 +71,7 @@ module.exports = {
     },
   },
 };
+
+module.exports = config;
+
+export default config;
