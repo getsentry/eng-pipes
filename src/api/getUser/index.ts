@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { bolt } from '@api/slack';
 import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
@@ -53,25 +55,31 @@ export async function getUser({
     });
   } catch (err) {
     // TODO(billy); should probably only explicitly ignore when a user is not found
-    return null;
-  }
-
-  if (!userResult?.ok) {
-    return null;
   }
 
   // Check for github profile field in slack
-  const profileResult: any = await bolt.client.users.profile.get({
-    user: userResult.user.id,
-  });
+  let profileResult: any;
+
+  if (userResult?.ok && userResult?.user) {
+    try {
+      await bolt.client.users.profile.get({
+        user: userResult?.user.id,
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  }
 
   const githubLogin =
-    profileResult.ok && profileResult.profile.fields[SLACK_PROFILE_ID_GITHUB];
+    profileResult?.ok &&
+    !githubUser &&
+    profileResult?.profile.fields[SLACK_PROFILE_ID_GITHUB];
 
   const userObject = {
     email,
-    slackUser: userResult.user.id,
-    githubUser: githubLogin?.value || githubUser,
+    slackUser: userResult?.user.id,
+    // trust githubUser input since it should be coming from github, and not user input
+    githubUser: githubUser || githubLogin?.value,
   };
 
   await db('users').insert(userObject);
