@@ -4,7 +4,6 @@ import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { buildServer } from '@app/buildServer';
 
-jest.mock('@api/slack');
 jest.mock('@api/github/getClient');
 
 describe('gha-test', function () {
