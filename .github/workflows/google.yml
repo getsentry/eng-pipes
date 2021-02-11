@@ -19,6 +19,7 @@ jobs:
   build-deploy:
     name: google
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: production
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -66,6 +67,7 @@ jobs:
         VERSION: ${{ steps.get-version.outputs.version }}
         SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
         SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+        SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
         GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
         GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
         GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
