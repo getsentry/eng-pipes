@@ -47,19 +47,18 @@ async function handler({
     email: relevantCommit.commit.author?.email,
   });
 
-  // XXX(billy): Just debugging for now
+  // XXX(billy): Using this to debug and maybe manually alert people for now
   // const slackTarget = !user ? '#z-billy' : user.slackUser;
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
   const text = `Your commit is ready to deploy`;
-  // Ready to deploy getsentry@${checkRun.head_sha}`
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${checkRun.head_sha}`;
   const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
   const freightDeployUrl = 'https://freight.getsentry.net/deploy?app=getsentry';
 
   await bolt.client.chat.postMessage({
-    channel: '#z-billy',
+    channel: '#z-billy', // slackTarget
     text,
     attachments: [
       {
@@ -69,24 +68,23 @@ async function handler({
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `getsentry@<${commitLink}|${commitLinkText}> - <${freightDeployUrl}|Deploy>
+              text: `getsentry@<${commitLink}|${commitLinkText}>
 
 Found slack user: ${user?.slackUser ?? 'no'}
 `,
             },
-            // TODO(billy): Make this work without warning symbol
-            // Requires setting up interactivity.
-            // accessory: {
-            // type: 'button',
-            // text: {
-            // type: 'plain_text',
-            // text: 'Deploy',
-            // emoji: true,
-            // },
-            // value: checkRun.head_sha,
-            // url: 'https://freight.getsentry.net/deploy?app=getsentry',
-            // action_id: 'freight-deploy',
-            // },
+            accessory: {
+              type: 'button',
+              style: 'primary',
+              text: {
+                type: 'plain_text',
+                text: 'Deploy',
+                emoji: true,
+              },
+              value: checkRun.head_sha,
+              url: freightDeployUrl,
+              action_id: 'freight-deploy',
+            },
           },
           ...commitBlocks,
         ],
@@ -102,4 +100,11 @@ Found slack user: ${user?.slackUser ?? 'no'}
 export async function pleaseDeployNotifier() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
+
+  // We need to respond to button clicks, otherwise it will display a warning message
+  bolt.action('freight-deploy', async ({ ack }) => {
+    // ack asap
+    await ack();
+    // TODO(billy): Call freight API directly to deploy
+  });
 }
