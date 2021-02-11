@@ -19,4 +19,6 @@ module.exports = {
     '^@test/(.*)$': '<rootDir>/test/$1',
     '^@types$': '<rootDir>/src/types',
   },
+
+  setupFilesAfterEnv: ['./test/jest.setup.js'],
 };

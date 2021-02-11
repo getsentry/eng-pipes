@@ -7,7 +7,7 @@ import merge from 'lodash.merge';
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { getClient } from '@api/github/getClient';
-import { web } from '@api/slack';
+import { bolt } from '@api/slack';
 import { buildServer } from '@app/buildServer';
 import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@app/config';
 import { Fastify } from '@app/types';
@@ -24,7 +24,7 @@ describe('requiredChecks', function () {
     octokit = await getClient('getsentry', 'getsentry');
     octokit.repos.getCommit.mockClear();
     // @ts-ignore
-    web.chat.postMessage.mockClear();
+    bolt.client.chat.postMessage.mockClear();
   });
 
   afterEach(function () {
@@ -42,7 +42,7 @@ describe('requiredChecks', function () {
         name: REQUIRED_CHECK_NAME,
       },
     });
-    expect(web.chat.postMessage).not.toHaveBeenCalled();
+    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
   });
 
   it('ignores successful conclusions', async function () {
@@ -56,7 +56,7 @@ describe('requiredChecks', function () {
         name: REQUIRED_CHECK_NAME,
       },
     });
-    expect(web.chat.postMessage).not.toHaveBeenCalled();
+    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
   });
 
   it('ignores other check runs', async function () {
@@ -70,7 +70,7 @@ describe('requiredChecks', function () {
         name: 'other check run',
       },
     });
-    expect(web.chat.postMessage).not.toHaveBeenCalled();
+    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
   });
 
   it('notifies slack channel with failure due to a sentry commit (via getsentry bump commit)', async function () {
@@ -142,10 +142,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
 
     // This is called twice because we use threads to list the job statuses
-    expect(web.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
 
     // First message
-    expect(web.chat.postMessage).toHaveBeenNthCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
@@ -154,7 +154,7 @@ describe('requiredChecks', function () {
       })
     );
     // @ts-ignore
-    expect(web.chat.postMessage.mock.calls[0][0].attachments)
+    expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
       .toMatchInlineSnapshot(`
       Array [
         Object {
@@ -194,14 +194,15 @@ describe('requiredChecks', function () {
     `);
 
     // Threaded message with job statuses
-    expect(web.chat.postMessage).toHaveBeenLastCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
         channel: 'channel_id',
         thread_ts: '1234123.123',
       })
     );
     // @ts-ignore
-    expect(web.chat.postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
+    expect(bolt.client.chat.postMessage.mock.calls[1][0].text)
+      .toMatchInlineSnapshot(`
       "Here are the job statuses
 
       <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 
@@ -285,10 +286,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
 
     // This is called twice because we use threads to list the job statuses
-    expect(web.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
 
     // First message
-    expect(web.chat.postMessage).toHaveBeenNthCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
@@ -297,7 +298,7 @@ describe('requiredChecks', function () {
       })
     );
     // @ts-ignore
-    expect(web.chat.postMessage.mock.calls[0][0].attachments)
+    expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
       .toMatchInlineSnapshot(`
       Array [
         Object {
@@ -337,14 +338,15 @@ describe('requiredChecks', function () {
     `);
 
     // Threaded message with job statuses
-    expect(web.chat.postMessage).toHaveBeenLastCalledWith(
+    expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
         channel: 'channel_id',
         thread_ts: '1234123.123',
       })
     );
     // @ts-ignore
-    expect(web.chat.postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
+    expect(bolt.client.chat.postMessage.mock.calls[1][0].text)
+      .toMatchInlineSnapshot(`
       "Here are the job statuses
 
       <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 

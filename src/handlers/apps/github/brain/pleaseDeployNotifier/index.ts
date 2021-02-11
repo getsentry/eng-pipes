@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { web } from '@api/slack';
+import { bolt } from '@api/slack';
 import { githubEvents } from '@app/api/github';
 import { Color, GETSENTRY_REPO, OWNER } from '@app/config';
 import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
@@ -58,7 +58,7 @@ async function handler({
   const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
   const freightDeployUrl = 'https://freight.getsentry.net/deploy?app=getsentry';
 
-  await web.chat.postMessage({
+  await bolt.client.chat.postMessage({
     channel: '#z-billy',
     text,
     attachments: [

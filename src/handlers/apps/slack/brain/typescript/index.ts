@@ -1,15 +1,14 @@
-import { slackEvents, web } from '@api/slack';
+import { bolt } from '@api/slack';
 import getProgress from '@app/handlers/apps/slack/getProgress';
 
 export function typescript() {
-  slackEvents.on('app_mention', async (event) => {
+  bolt.event('app_mention', async ({ event, say, client }) => {
     if (!event.text.includes('typescript')) {
       return;
     }
 
     const [message, sentryResp, getsentryResp] = await Promise.all([
-      web.chat.postMessage({
-        channel: event.channel,
+      say({
         text: '⏱  fetching status ...',
         blocks: [
           {
@@ -35,7 +34,7 @@ export function typescript() {
     const remainingFiles =
       sentryResp.remainingFiles + getsentryResp.remainingFiles;
 
-    await web.chat.update({
+    await client.chat.update({
       channel: String(message.channel),
       ts: String(message.ts),
       text: `TypeScript progress: ${progress}% completed, ${remainingFiles} files remaining`,
