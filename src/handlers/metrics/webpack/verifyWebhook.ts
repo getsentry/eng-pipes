@@ -1,6 +1,6 @@
 import fastify from 'fastify';
 
-import { verifySignature } from '../../../utils/verifySignature';
+import { verifySignature } from '@utils/verifySignature';
 
 export function verifyWebhook(request: fastify.FastifyRequest) {
   // XXX: `fastify` does not offer a "raw body" and instead provides us with the decoded payload
@@ -14,5 +14,5 @@ export function verifyWebhook(request: fastify.FastifyRequest) {
     throw new Error('SENTRY_WEBPACK_WEBHOOK_SECRET is not set');
   }
 
-  return verifySignature(payload, sig, SECRET, i => `sha1=${i}`);
+  return verifySignature(payload, sig, SECRET, (i) => `sha1=${i}`);
 }

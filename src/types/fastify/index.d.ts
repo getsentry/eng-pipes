@@ -1,5 +1,6 @@
-import * as fastify from 'fastify';
 import * as http from 'http';
+
+import * as fastify from 'fastify';
 
 declare module 'fastify' {
   export interface FastifyInstance<

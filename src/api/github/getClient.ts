@@ -1,5 +1,5 @@
-import { Octokit } from '@octokit/rest';
 import { createAppAuth } from '@octokit/auth-app';
+import { Octokit } from '@octokit/rest';
 
 /**
  * get API client given an app installation id

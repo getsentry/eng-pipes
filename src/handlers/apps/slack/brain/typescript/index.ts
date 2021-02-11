@@ -1,6 +1,5 @@
-import { web, slackEvents } from '@api/slack';
-
-import getProgress from '../../getProgress';
+import { slackEvents, web } from '@api/slack';
+import getProgress from '@app/handlers/apps/slack/getProgress';
 
 export function typescript() {
   slackEvents.on('app_mention', async (event) => {

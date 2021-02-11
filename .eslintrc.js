@@ -31,6 +31,9 @@ module.exports = {
           // Node.js builtins.
           [`^(${require('module').builtinModules.join('|')})(/|$)`],
 
+          // Packages `react` related packages come first.
+          ['^@?\\w'],
+
           ['^(@types)(/.*|$)'],
 
           ['^(@test)(/.*|$)'],

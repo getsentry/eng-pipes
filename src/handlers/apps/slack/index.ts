@@ -1,8 +1,9 @@
-import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { Server, IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, Server, ServerResponse } from 'http';
 
-import { typescript } from './brain/typescript';
+import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
 import { ghaCancel } from './brain/gha-cancel';
+import { typescript } from './brain/typescript';
 import getProgress from './getProgress';
 
 export function createSlack(

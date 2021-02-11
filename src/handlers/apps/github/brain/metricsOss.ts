@@ -1,5 +1,5 @@
-import { insertOss } from '@utils/db';
 import { githubEvents } from '@api/github';
+import { insertOss } from '@utils/metrics';
 
 function handler({ name: eventType, payload }) {
   insertOss(eventType, payload);

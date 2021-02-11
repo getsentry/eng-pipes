@@ -1,19 +1,18 @@
-import * as Sentry from '@sentry/node';
-import { KnownBlock } from '@slack/types';
+import { EventTypesPayload } from '@octokit/webhooks';
 
-import { ReposGetCommit } from '@types';
-
-import {
-  OWNER,
-  GETSENTRY_REPO,
-  REQUIRED_CHECK_NAME,
-  REQUIRED_CHECK_CHANNEL,
-  SENTRY_REPO,
-} from '@app/config';
+import { getBlocksForCommit } from '@api/getBlocksForCommit';
+import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { web } from '@api/slack';
 import { githubEvents } from '@app/api/github';
 import { getClient } from '@app/api/github/getClient';
-import { EventTypesPayload } from '@octokit/webhooks';
+import {
+  Color,
+  GETSENTRY_REPO,
+  OWNER,
+  REQUIRED_CHECK_CHANNEL,
+  SENTRY_REPO,
+} from '@app/config';
+import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 
@@ -29,136 +28,18 @@ function githubMdToSlack(str: string) {
 
   return str;
 }
-/**
- * Use a GitHub commit object and turn it to a pretty slack message
- */
-function getBlocksForCommit(commit: ReposGetCommit | null): KnownBlock[] {
-  if (!commit) {
-    return [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `Unable to fetch relevant commit`,
-        },
-      },
-    ];
-  }
 
-  const [commitTitle, ...commitBody] = commit.commit.message.split('\n');
-
-  const authorName =
-    commit.commit.author?.name || commit.commit.author?.email || 'Unknown';
-  const login = commit.author?.login;
-  const avatarUrl = commit.author?.avatar_url || '';
-
-  const commitBlocks: KnownBlock[] = [
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `Relevant commit`,
-      },
-    },
-
-    { type: 'divider' },
-
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: `<${commit.html_url}|*${commitTitle}*>`,
-      },
-    },
-    {
-      type: 'section',
-      text: {
-        type: 'mrkdwn',
-        text: commitBody.filter(Boolean).join('\n'),
-      },
-    },
-    {
-      type: 'context',
-      elements: [
-        {
-          type: 'image',
-          image_url: avatarUrl,
-          alt_text: authorName,
-        },
-        {
-          type: 'mrkdwn',
-          text: `<${commit.author?.html_url}|${authorName}${
-            login ? ` (${login})` : ''
-          }>`,
-        },
-      ],
-    },
-  ];
-
-  return commitBlocks;
-}
-
-/**
- * Attempts to find the relevant commit for a sha from a check run
- *
- * This can be the getsentry commit or a sentry commit
- */
-async function getRelevantCommit(ref: string) {
-  try {
-    const octokit = await getClient(OWNER, GETSENTRY_REPO);
-
-    // Attempt to get the getsentry commit first
-    const { data: commit } = await octokit.repos.getCommit({
-      owner: OWNER,
-      repo: GETSENTRY_REPO,
-      ref,
-    });
-
-    if (!commit) {
-      return null;
-    }
-    const commitMatches = commit.commit.message.match(
-      /getsentry\/sentry@(\w+)/
-    );
-    const sentryCommitSha = commitMatches?.[1];
-
-    if (sentryCommitSha) {
-      // If this matches, then it means the commit was a bump from the getsentry bot due to
-      // a merge in the sentry repo
-      //
-      // In this case, fetch the sentry commit to display
-      const { data } = await octokit.repos.getCommit({
-        owner: OWNER,
-        repo: SENTRY_REPO,
-        ref: sentryCommitSha,
-      });
-
-      return data;
-    }
-
-    return commit;
-  } catch (err) {
-    Sentry.captureException(err);
-    return null;
-  }
-}
-
-async function handler({ id, payload }: EventTypesPayload['check_run']) {
-  // Only on `getsentry` repo
-  if (payload.repository?.full_name !== 'getsentry/getsentry') {
+async function handler({
+  id,
+  payload,
+  ...rest
+}: EventTypesPayload['check_run']) {
+  // Make sure this is on `getsentry` and we are examining the aggregate "required check" run
+  if (!isGetsentryRequiredCheck({ id, payload, ...rest })) {
     return;
   }
 
   const { check_run: checkRun } = payload;
-
-  // Only care about completed checks
-  if (checkRun.status !== 'completed') {
-    return;
-  }
-
-  if (checkRun.name !== REQUIRED_CHECK_NAME) {
-    return;
-  }
 
   // Conclusion can be one of:
   //   success, failure, neutral, cancelled, skipped, timed_out, or action_required
@@ -218,7 +99,7 @@ async function handler({ id, payload }: EventTypesPayload['check_run']) {
     text,
     attachments: [
       {
-        color: '#F55459',
+        color: Color.DANGER,
         blocks: [...commitBlocks],
       },
     ],

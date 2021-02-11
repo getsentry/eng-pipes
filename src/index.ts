@@ -1,8 +1,8 @@
 import 'module-alias/register';
 
+import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import { Integrations } from '@sentry/tracing';
-import { RewriteFrames } from '@sentry/integrations';
 
 import { buildServer } from './buildServer';
 import { DEFAULT_PORT, SENTRY_DSN } from './config';

@@ -1,5 +1,6 @@
 import { FastifyRequest } from 'fastify';
-import { insertPercy } from '../../../utils/db';
+
+import { insertPercy } from '@utils/metrics';
 
 export async function handler(request: FastifyRequest) {
   // try {
