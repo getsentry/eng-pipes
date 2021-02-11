@@ -1,9 +1,9 @@
 import { FastifyRequest } from 'fastify';
 
-import { insert, mapDeployToPullRequest } from '@utils/metrics';
+import { FreightPayload } from '@types';
 
-import { getSentryPullRequestsForGetsentryRange } from '../../../api/github/getSentryPullRequestsForGetsentryRange';
-import { FreightPayload } from '../../../types';
+import { getSentryPullRequestsForGetsentryRange } from '@api/github/getSentryPullRequestsForGetsentryRange';
+import { insert, mapDeployToPullRequest } from '@utils/metrics';
 
 export async function handler(request: FastifyRequest) {
   const { body }: { body: FreightPayload } = request;

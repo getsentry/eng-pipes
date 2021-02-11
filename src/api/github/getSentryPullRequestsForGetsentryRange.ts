@@ -6,7 +6,7 @@ import {
   GETSENTRY_REPO,
   OWNER,
   SENTRY_REPO,
-} from '../../config';
+} from '@app/config';
 
 import { getClient } from './getClient';
 
