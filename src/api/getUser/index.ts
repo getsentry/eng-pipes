@@ -1,4 +1,4 @@
-import { bolt, web2 } from '@api/slack';
+import { bolt } from '@api/slack';
 import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
 
@@ -54,7 +54,7 @@ export async function getUser({
   }
 
   // Check for github profile field in slack
-  const profileResult: any = await web2.users.profile.get({
+  const profileResult: any = await bolt.client.users.profile.get({
     user: userResult.user.id,
   });
 
