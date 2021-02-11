@@ -9,6 +9,10 @@ describe('getUser', function () {
     await db.migrate.latest();
   });
 
+  afterAll(async function () {
+    await db.destroy();
+  });
+
   beforeEach(async function () {
     // @ts-ignore
     bolt.client.users.lookupByEmail.mockClear();

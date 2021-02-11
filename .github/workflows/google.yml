@@ -42,7 +42,7 @@ jobs:
         yarn global add @sentry/cli
 
     - name: test
-      run: yarn test
+      run: yarn test:ci
 
     - name: Get version
       id: get-version

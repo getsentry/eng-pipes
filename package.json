@@ -24,6 +24,7 @@
     "start": "node ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
     "test": "GH_WEBHOOK_SECRET=webhooksecret yarn jest",
+    "test:ci": "yarn test --forceExit",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
   "_moduleAliases": {
