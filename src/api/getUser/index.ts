@@ -44,12 +44,19 @@ export async function getUser({
     return null;
   }
 
-  // First fetch slack user
-  const userResult: any = await bolt.client.users.lookupByEmail({
-    email,
-  });
+  let userResult: any;
 
-  if (!userResult.ok) {
+  try {
+    // First fetch slack user
+    userResult = await bolt.client.users.lookupByEmail({
+      email,
+    });
+  } catch (err) {
+    // TODO(billy); should probably only explicitly ignore when a user is not found
+    return null;
+  }
+
+  if (!userResult?.ok) {
     return null;
   }
 
