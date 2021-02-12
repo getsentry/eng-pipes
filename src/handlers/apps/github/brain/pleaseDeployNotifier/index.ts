@@ -60,7 +60,6 @@ async function handler({
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
-  const freightDeployUrl = 'https://freight.getsentry.net/deploy?app=getsentry';
 
   await bolt.client.chat.postMessage({
     channel: '#z-billy', // slackTarget
