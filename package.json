@@ -20,6 +20,7 @@
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",
     "dev": "DEBUG=@slack/events-api:* yarn clean && NODE_ENV=development nodemon --watch src/ -e ts --exec \"yarn start:clean\"",
+    "migrate": "yarn knex --knexfile ./src/knexfile.ts",
     "start:clean": "yarn build && yarn start",
     "start": "node ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",

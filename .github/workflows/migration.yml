@@ -57,4 +57,4 @@ jobs:
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
-        yarn knex migrate:${{ github.event.inputs.name }} --env ${{ github.event.inputs.environment }}
+        yarn migrate migrate:${{ github.event.inputs.name }} --env ${{ github.event.inputs.environment }}

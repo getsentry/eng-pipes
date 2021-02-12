@@ -6,7 +6,7 @@ import {
   DB_NAME,
   DB_PASSWORD,
   DB_USER,
-} from './src/config';
+} from './config';
 
 const config = {
   local: {
@@ -21,6 +21,7 @@ const config = {
       max: 10,
     },
     migrations: {
+      directory: path.join(__dirname, '..', 'migrations'),
       tableName: 'knex_migrations',
     },
   },
@@ -31,10 +32,10 @@ const config = {
     connection: ':memory:',
     useNullAsDefault: true,
     migrations: {
-      directory: path.join(__dirname, 'migrations'),
+      directory: path.join(__dirname, '..', 'migrations'),
     },
     seeds: {
-      directory: path.join(__dirname, 'seeds'),
+      directory: path.join(__dirname, '..', 'seeds'),
     },
   },
 
@@ -50,6 +51,7 @@ const config = {
       max: 10,
     },
     migrations: {
+      directory: path.join(__dirname, '..', 'migrations'),
       tableName: 'knex_migrations',
     },
   },
@@ -67,6 +69,7 @@ const config = {
       max: 10,
     },
     migrations: {
+      directory: path.join(__dirname, '..', 'migrations'),
       tableName: 'knex_migrations',
     },
   },
