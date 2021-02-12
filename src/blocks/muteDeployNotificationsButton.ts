@@ -14,11 +14,6 @@ export function muteDeployNotificationsButton() {
         type: 'plain_text',
         text: 'Mute deploy notifications?',
       },
-      text: {
-        type: 'mrkdwn',
-        text:
-          'Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me `deploy notifications on`',
-      },
       confirm: {
         type: 'plain_text',
         text: 'Mute',
@@ -26,6 +21,15 @@ export function muteDeployNotificationsButton() {
       deny: {
         type: 'plain_text',
         text: 'Cancel',
+      },
+      text: {
+        type: 'mrkdwn',
+        text: `Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
+
+\`\`\`
+deploy notifications on
+\`\`\`
+`,
       },
     },
   };
