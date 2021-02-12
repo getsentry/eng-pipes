@@ -9,13 +9,9 @@ import {
 } from './config';
 
 const config = {
-  local: {
+  development: {
     client: 'postgresql',
-    connection: {
-      database: 'postgres',
-      user: 'postgres',
-      password: 'docker',
-    },
+    connection: 'postgresql://postgres:docker@127.0.0.1:5434/postgres',
     pool: {
       min: 2,
       max: 10,

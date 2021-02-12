@@ -18,8 +18,8 @@ describe('slackMessageUser', function () {
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
     // @ts-ignore
-    // bolt.client.users.profile.get.mockClear();
     await db('users').delete();
+    await db('user_preferences').delete();
   });
 
   it('messages user if no preferences are set', async function () {

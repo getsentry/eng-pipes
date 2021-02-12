@@ -64,11 +64,11 @@ describe('getUser', function () {
     expect(user).toMatchObject({
       email: 'test@sentry.io',
       slackUser: 'U789123',
-      githubUser: undefined,
+      githubUser: null,
     });
   });
 
-  it('fetches user from slack via email, and github user from parameters, saves to db', async function () {
+  it('fails to find user from slack via email, github user from parameters, saves to db', async function () {
     // @ts-ignore
     bolt.client.users.lookupByEmail.mockReturnValueOnce({
       ok: false,
@@ -96,8 +96,35 @@ describe('getUser', function () {
     });
     expect(user).toMatchObject({
       email: 'test@sentry.io',
-      slackUser: undefined,
+      slackUser: null,
       githubUser: 'realGithubUser',
+    });
+  });
+
+  it('fetches user from slack via user id, saves to db', async function () {
+    const user = await getUser({
+      slackUser: 'U789123',
+      githubUser: 'githubUser',
+    });
+
+    expect(bolt.client.users.info).toHaveBeenCalledWith({
+      user: 'U789123',
+    });
+    expect(bolt.client.users.profile.get).toHaveBeenCalledTimes(1);
+
+    const userDb = await db('users')
+      .where('email', 'test@sentry.io')
+      .first('*');
+
+    expect(userDb).toMatchObject({
+      email: 'test@sentry.io',
+      slackUser: 'U789123',
+      githubUser: 'githubUser',
+    });
+    expect(user).toMatchObject({
+      email: 'test@sentry.io',
+      slackUser: 'U789123',
+      githubUser: 'githubUser',
     });
   });
 
@@ -174,5 +201,47 @@ describe('getUser', function () {
       slackUser: 'U789123',
       githubUser: 'githubUser',
     });
+  });
+
+  it('deny access to deleted user accounts', async function () {
+    // @ts-ignore
+    bolt.client.users.lookupByEmail.mockReturnValueOnce({
+      ok: true,
+      user: {
+        deleted: true,
+      },
+    });
+
+    const user = await getUser({
+      email: 'test@sentry.io',
+      githubUser: 'realGithubUser',
+    });
+
+    expect(bolt.client.users.lookupByEmail).toHaveBeenCalledWith({
+      email: 'test@sentry.io',
+    });
+    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
+    expect(user).toBe(null);
+  });
+
+  it('deny access to user accounts without emails confirmed', async function () {
+    // @ts-ignore
+    bolt.client.users.lookupByEmail.mockReturnValueOnce({
+      ok: true,
+      user: {
+        is_email_confirmed: false,
+      },
+    });
+
+    const user = await getUser({
+      email: 'test@sentry.io',
+      githubUser: 'realGithubUser',
+    });
+
+    expect(bolt.client.users.lookupByEmail).toHaveBeenCalledWith({
+      email: 'test@sentry.io',
+    });
+    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
+    expect(user).toBe(null);
   });
 });

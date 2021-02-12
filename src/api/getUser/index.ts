@@ -25,22 +25,35 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
     return hasUser;
   }
 
-  // If not found in db then we need to lookup the user via email and save to db
-  // Only supporting email because it seems unlikely you're looking up by slack id or github username
-  if (!email) {
+  // If not found in db then we need to lookup the user via email or slack username and save to db
+  if (!email && !slackUser) {
     return null;
   }
 
   let userResult: any;
 
-  try {
-    // First fetch slack user
-    userResult = await bolt.client.users.lookupByEmail({
-      email,
+  if (email) {
+    try {
+      // First fetch slack user
+      userResult = await bolt.client.users.lookupByEmail({
+        email,
+      });
+    } catch (err) {
+      // TODO(billy); should probably only explicitly ignore when a user is not found
+      console.error(err);
+    }
+  } else if (slackUser) {
+    userResult = await bolt.client.users.info({
+      user: slackUser,
     });
-  } catch (err) {
-    // TODO(billy); should probably only explicitly ignore when a user is not found
-    console.error(err);
+  }
+
+  // Do not insert into db if user has not confirmed email, or if they are deleted
+  if (
+    userResult?.user.is_email_confirmed === false ||
+    userResult?.user.deleted === true
+  ) {
+    return null;
   }
 
   // Check for github profile field in slack
@@ -60,25 +73,33 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
   const githubLogin =
     profileResult?.ok &&
     !githubUser &&
-    profileResult?.profile.fields[SLACK_PROFILE_ID_GITHUB]?.value.replace(
+    profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value.replace(
       'https://github.com/',
       ''
     );
 
   const userObject = {
-    email,
-    slackUser: userResult?.user.id,
+    email: email || userResult?.user.profile.email,
+    slackUser: slackUser || userResult?.user.id,
     // trust githubUser input since it should be coming from github, and not user input
     githubUser: githubUser || githubLogin,
   };
 
-  try {
-    await db('users').insert(userObject).onConflict(['email']).merge();
-  } catch (err) {
-    // Shouldn't have duplicates... but maybe this happens if `githubUser` does not match slack profile value?
-    Sentry.captureException(err);
-    console.error(err);
-  }
+  return await db.transaction(async (trx) => {
+    const rows = await db('users')
+      .insert(userObject)
+      .onConflict(['email'])
+      .merge()
+      .returning('*')
+      .transacting(trx);
 
-  return userObject;
+    await Promise.all(
+      rows.map((row) =>
+        db('user_preferences')
+          .insert({ userId: row.id, preferences: {} })
+          .transacting(trx)
+      )
+    );
+    return rows?.[0];
+  });
 }
