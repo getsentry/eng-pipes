@@ -20,12 +20,17 @@ export function getBlocksForCommit(
     ];
   }
 
-  const [commitTitle, ...commitBody] = commit.commit.message.split('\n');
+  const [commitTitle, ...commitBodyLines] = commit.commit.message.split('\n');
 
   const authorName =
     commit.commit.author?.name || commit.commit.author?.email || 'Unknown';
   const login = commit.author?.login;
   const avatarUrl = commit.author?.avatar_url || '';
+
+  // Slack API will error if this is empty, We could leave this out, but why not try
+  // to shame people?
+  const commitBody =
+    commitBodyLines.filter(Boolean).join('\n') || '_<empty commit message>_';
 
   const commitBlocks: KnownBlock[] = [
     {
@@ -39,7 +44,7 @@ export function getBlocksForCommit(
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: commitBody.filter(Boolean).join('\n'),
+        text: commitBody,
       },
     },
     {
