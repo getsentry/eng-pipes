@@ -59,8 +59,11 @@ jobs:
     - name: yarn install
       run: yarn install --frozen-lockfile
 
-    - name: jest
-      run: yarn test:ci
+    - name: tests
+      id: test
+      uses: getsentry/Jest-Coverage-Diff@master
+      with:
+        runCommand: yarn test:ci --coverage --coverageReporters="json-summary"
 
     - name: eslint
       if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')

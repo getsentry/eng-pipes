@@ -25,6 +25,8 @@ You can grab GitHub secrets in the app configuration page: https://github.com/or
 ## Development
 
 ```sh
+ docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12
+
 # Install dependencies
 yarn install
 
