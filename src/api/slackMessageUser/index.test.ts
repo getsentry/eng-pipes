@@ -19,7 +19,6 @@ describe('slackMessageUser', function () {
     bolt.client.chat.postMessage.mockClear();
     // @ts-ignore
     await db('users').delete();
-    await db('user_preferences').delete();
   });
 
   it('messages user if no preferences are set', async function () {
@@ -38,10 +37,13 @@ describe('slackMessageUser', function () {
     };
     const [userId] = await db('users').returning('id').insert(user);
 
-    const result = await db('user_preferences').insert({
-      userId,
-      preferences: { disableSlackNotifications: true },
-    });
+    const result = await db('users')
+      .where({
+        id: userId,
+      })
+      .update({
+        preferences: { disableSlackNotifications: true },
+      });
 
     await slackMessageUser('U1234', { text: 'Testing' });
     expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();

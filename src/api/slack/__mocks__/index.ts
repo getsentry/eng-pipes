@@ -30,6 +30,7 @@ jest.mock('@slack/web-api', () => ({
         update: jest.fn(() => {
           return Promise.resolve({});
         }),
+        postEphemeral: jest.fn(() => Promise.resolve({ ok: true })),
       },
       users: {
         info: jest.fn(() =>

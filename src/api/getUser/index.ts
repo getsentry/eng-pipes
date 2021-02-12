@@ -92,14 +92,6 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
       .merge()
       .returning('*')
       .transacting(trx);
-
-    await Promise.all(
-      rows.map((row) =>
-        db('user_preferences')
-          .insert({ userId: row.id, preferences: {} })
-          .transacting(trx)
-      )
-    );
     return rows?.[0];
   });
 }

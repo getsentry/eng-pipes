@@ -19,13 +19,17 @@ export async function setUserPreference(
     return false;
   }
   try {
-    await db.raw(
-      `UPDATE user_preferences SET preferences = preferences || ? WHERE "userId" = ?`,
-      [JSON.stringify(preferences), user.id]
-    );
+    await db('users')
+      .where({
+        id: user.id,
+      })
+      .update({
+        preferences: db.raw(`preferences || ?`, [preferences]),
+      });
     return true;
   } catch (err) {
     Sentry.captureException(err);
+    console.error(err); // eslint-disable-line no-console
     return false;
   }
 }

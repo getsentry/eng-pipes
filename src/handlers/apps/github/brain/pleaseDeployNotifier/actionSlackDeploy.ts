@@ -1,0 +1,97 @@
+import { EventTypesPayload } from '@octokit/webhooks';
+import * as Sentry from '@sentry/node';
+
+import { githubEvents } from '@app/api/github';
+import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
+import { unmuteDeployNotificationsButton } from '@app/blocks/unmuteDeployNotificationsButton';
+import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
+import { setUserPreference } from '@utils/db/setUserPreference';
+
+/**
+ * Update an attachments block with new actions
+ *
+ * TODO(billy): This can be a bit more generic, but for now it just updates
+ * an actions section within an attachments block
+ */
+function updateAttachment(
+  attachments: any[],
+  targetAttachmentId: number,
+  oldActionFilter: (args: any) => boolean,
+  newActions: any[]
+) {
+  // Need to find the attachment where the Mute button belongs to
+  const attachment = attachments.find(({ id }) => id === targetAttachmentId);
+
+  // Preserve other attachments if present
+  const otherAttachments = attachments.filter(
+    ({ id }) => id !== targetAttachmentId
+  );
+
+  // Find the actions section (this could be more generic)
+  const actions = attachment.blocks.find(({ type }) => type === 'actions');
+
+  // Preserve other blocks in the attachment
+  const oldBlocks = attachment.blocks.filter(({ type }) => type !== 'actions');
+
+  const newElements = [
+    ...actions.elements.filter(oldActionFilter),
+    ...newActions,
+  ];
+
+  return [
+    ...otherAttachments,
+    {
+      ...attachment,
+      blocks: [...oldBlocks, { ...actions, elements: newElements }],
+    },
+  ];
+}
+
+export async function actionSlackDeploy({ ack, body, client, context }) {
+  console.log(context);
+  const shouldMute = context.actionIdMatches[1] === 'mute';
+  await ack();
+  // @ts-ignore
+  console.log(body.message, body);
+  try {
+    await setUserPreference(
+      { slackUser: body.user.id },
+      { disableSlackNotifications: shouldMute }
+    );
+  } catch (err) {
+    console.error(err); // eslint-disable-line no-console
+    Sentry.captureException(err);
+    await client.chat.postEphemeral({
+      channel: body.channel?.id || '',
+      // @ts-ignore
+      user: payload.user.id,
+      text: 'There was an error changing your deploy notification preferences',
+    });
+  }
+
+  /**
+   * Update the message to hide Mute button and show Un-mute button
+   */
+  // @ts-ignore
+  const { container, message } = body;
+  const { ts, text, attachments, blocks } = message;
+
+  // Update original message to change mute button to unmute
+  await client.chat.update({
+    channel: body.channel?.id || '',
+    ts,
+    text,
+    blocks,
+    attachments: updateAttachment(
+      attachments,
+      container.attachment_id,
+      ({ action_id }) =>
+        action_id !== `${context.actionIdMatches[1]}-slack-deploy`,
+      [
+        shouldMute
+          ? unmuteDeployNotificationsButton()
+          : muteDeployNotificationsButton(),
+      ]
+    ),
+  });
+}
