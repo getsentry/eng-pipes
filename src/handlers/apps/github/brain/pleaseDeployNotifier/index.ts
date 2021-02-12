@@ -43,7 +43,7 @@ async function handler({
   // Message author on slack that they're commit is ready to deploy
   // and send a link to open freight
   const user = await getUser({
-    github: relevantCommit.author?.login,
+    githubUser: relevantCommit.author?.login,
     email: relevantCommit.commit.author?.email,
   });
 

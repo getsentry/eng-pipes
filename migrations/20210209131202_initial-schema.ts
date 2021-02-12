@@ -10,21 +10,25 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('updated').defaultTo(knex.fn.now());
   });
 
+  await knex.schema.alterTable('users', (table) => {
+    table.unique(['email', 'slackUser', 'githubUser']);
+  });
+
   await knex.schema.createTable('user_preferences', (table) => {
     table.bigIncrements('id').primary();
     table
-      .integer('userId')
+      .bigInteger('userId')
       .references('id')
       .inTable('users')
       .onDelete('CASCADE');
-    table.json('preferences');
+    table.jsonb('preferences');
     table.timestamp('created').defaultTo(knex.fn.now());
     table.timestamp('updated').defaultTo(knex.fn.now());
   });
 
   await knex.schema.createTable('user_emails', (table) => {
     table
-      .integer('userId')
+      .bigInteger('userId')
       .references('id')
       .inTable('users')
       .onDelete('CASCADE');

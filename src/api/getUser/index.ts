@@ -3,12 +3,9 @@ import * as Sentry from '@sentry/node';
 import { bolt } from '@api/slack';
 import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
+import { findUser } from '@utils/db/findUser';
 
-type GetUserParams = {
-  email?: string;
-  slack?: string;
-  github?: string;
-};
+type GetUserParams = Parameters<typeof findUser>[0];
 
 /**
  * Attempts to fetches a user based on one of the following params
@@ -21,20 +18,8 @@ type GetUserParams = {
  * - use slack's profile field for `GitHub Profile`
  *  - or, if a `github` param was passed, use that
  */
-export async function getUser({
-  email,
-  slack: slackUser,
-  github: githubUser,
-}: GetUserParams) {
-  const whereQuery = Object.fromEntries(
-    Object.entries({
-      email,
-      slackUser,
-      githubUser,
-    }).filter(([, v]) => v)
-  );
-
-  const hasUser = await db('users').where(whereQuery).first('*');
+export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
+  const hasUser = await findUser({ email, slackUser, githubUser }).first('*');
 
   if (hasUser) {
     return hasUser;
@@ -55,6 +40,7 @@ export async function getUser({
     });
   } catch (err) {
     // TODO(billy); should probably only explicitly ignore when a user is not found
+    console.error(err);
   }
 
   // Check for github profile field in slack
@@ -62,7 +48,7 @@ export async function getUser({
 
   if (userResult?.ok && userResult?.user) {
     try {
-      await bolt.client.users.profile.get({
+      profileResult = await bolt.client.users.profile.get({
         user: userResult?.user.id,
       });
     } catch (err) {
@@ -70,19 +56,40 @@ export async function getUser({
     }
   }
 
+  // Some people have the full URL in their slack profile
   const githubLogin =
     profileResult?.ok &&
     !githubUser &&
-    profileResult?.profile.fields[SLACK_PROFILE_ID_GITHUB];
+    profileResult?.profile.fields[SLACK_PROFILE_ID_GITHUB]?.value.replace(
+      'https://github.com/',
+      ''
+    );
 
   const userObject = {
     email,
     slackUser: userResult?.user.id,
     // trust githubUser input since it should be coming from github, and not user input
-    githubUser: githubUser || githubLogin?.value,
+    githubUser: githubUser || githubLogin,
   };
 
-  await db('users').insert(userObject);
+  try {
+    await db('users')
+      .insert(userObject)
+      .onConflict(['email'])
+      // .onConflict(['email', 'slackUser', 'githubUser'])
+      // .onConflict(['githubUser', 'slackUser'])
+      .merge();
+    // .onConflict('email')
+    // .merge()
+    // .onConflict('slackUser')
+    // .merge()
+    // .onConflict('githubUser')
+    // .merge();
+  } catch (err) {
+    // Shouldn't have duplicates... but this can happen if `githubUser` does not match slack profile value?
+    Sentry.captureException(err);
+    console.error(err);
+  }
 
   return userObject;
 }
