@@ -24,7 +24,7 @@ const config = {
 
   test: {
     client: 'pg',
-    connection: 'postgresql://postgres:docker@127.0.0.1:5434/postgres',
+    connection: 'postgresql://postgres:docker@127.0.0.1:5434/test_database',
     migrations: {
       directory: path.join(__dirname, '..', 'migrations'),
     },
