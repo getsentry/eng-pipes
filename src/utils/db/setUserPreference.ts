@@ -12,7 +12,7 @@ type GetUserParams = Parameters<typeof findUser>[0];
  */
 export async function setUserPreference(
   args: GetUserParams,
-  preferences: Record<string, boolean | string | number>
+  preferences: Record<string, any>
 ) {
   const user = await getUser(args);
   if (!user) {
@@ -24,6 +24,7 @@ export async function setUserPreference(
         id: user.id,
       })
       .update({
+        // @ts-ignore
         preferences: db.raw(`preferences || ?`, [preferences]),
       });
     return true;
