@@ -63,7 +63,7 @@ jobs:
       id: test
       uses: getsentry/Jest-Coverage-Diff@master
       with:
-        runCommand: yarn test:ci --coverage --coverageReporters="json-summary"
+        runCommand: yarn test:ci --coverage --coverageReporters="json-summary" --coverageDirectory='./'
 
     - name: eslint
       if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')
