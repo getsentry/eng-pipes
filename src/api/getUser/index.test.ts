@@ -122,8 +122,6 @@ describe('getUser', function () {
       email: 'test@sentry.io',
     });
 
-    console.log('check profile call');
-
     expect(bolt.client.users.profile.get).toHaveBeenCalledWith({
       user: 'U789123',
     });
@@ -144,7 +142,7 @@ describe('getUser', function () {
     });
   });
 
-  it.only('handles conflicts by merging fields instead of creating a new row', async function () {
+  it('handles conflicts by merging fields instead of creating a new row', async function () {
     await db('users').insert({
       email: 'test@sentry.io',
       slackUser: 'UWRONG',
@@ -164,11 +162,9 @@ describe('getUser', function () {
     });
 
     const userDb = await db('users').where('email', 'test@sentry.io');
-    // .first('*');
-    console.log(userDb);
 
     expect(userDb.length).toBe(1);
-    expect(userDb).toMatchObject({
+    expect(userDb[0]).toMatchObject({
       email: 'test@sentry.io',
       slackUser: 'U789123',
       githubUser: 'githubUser',

@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   await knex.schema.alterTable('users', (table) => {
-    table.unique(['email', 'slackUser', 'githubUser']);
+    table.unique(['email']);
   });
 
   await knex.schema.createTable('user_preferences', (table) => {

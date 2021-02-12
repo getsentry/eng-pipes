@@ -73,20 +73,9 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
   };
 
   try {
-    await db('users')
-      .insert(userObject)
-      .onConflict(['email'])
-      // .onConflict(['email', 'slackUser', 'githubUser'])
-      // .onConflict(['githubUser', 'slackUser'])
-      .merge();
-    // .onConflict('email')
-    // .merge()
-    // .onConflict('slackUser')
-    // .merge()
-    // .onConflict('githubUser')
-    // .merge();
+    await db('users').insert(userObject).onConflict(['email']).merge();
   } catch (err) {
-    // Shouldn't have duplicates... but this can happen if `githubUser` does not match slack profile value?
+    // Shouldn't have duplicates... but maybe this happens if `githubUser` does not match slack profile value?
     Sentry.captureException(err);
     console.error(err);
   }
