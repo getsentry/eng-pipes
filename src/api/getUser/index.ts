@@ -19,6 +19,11 @@ type GetUserParams = Parameters<typeof findUser>[0];
  *  - or, if a `github` param was passed, use that
  */
 export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
+  // Only allow looking up via `@sentry.io` emails
+  if (email && !email.endsWith('@sentry.io')) {
+    email = undefined;
+  }
+
   const hasUser = await findUser({ email, slackUser, githubUser }).first('*');
 
   if (hasUser) {

@@ -244,4 +244,15 @@ describe('getUser', function () {
     expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
     expect(user).toBe(null);
   });
+
+  it('does not store non-sentry emails', async function () {
+    const user = await getUser({
+      email: 'test@gmail.io',
+      githubUser: 'githubUser',
+    });
+
+    expect(bolt.client.users.lookupByEmail).not.toHaveBeenCalled();
+    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
+    expect(user).toBe(null);
+  });
 });
