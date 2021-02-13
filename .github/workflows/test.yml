@@ -66,10 +66,7 @@ jobs:
         runCommand: yarn test:ci --coverage --coverageReporters="json-summary" --coverageDirectory='./'
 
     - name: eslint
-      if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')
-      uses: getsentry/action-eslint-fix@main
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: yarn lint
 
     - name: tsc
       run: yarn tsc
