@@ -57,7 +57,7 @@ describe('setUserPreference', function () {
       },
     });
 
-    const result = await setUserPreference(
+    await setUserPreference(
       {
         email: 'test@sentry.io',
         slackUser: 'U1234',

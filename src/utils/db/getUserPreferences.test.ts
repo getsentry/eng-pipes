@@ -38,13 +38,10 @@ describe('getUserPreference', function () {
 
   it('returns undefined for invalid user', async function () {
     expect(
-      await getUserPreferences(
-        {
-          email: 'test@sentry.io',
-          slackUser: 'U1234',
-        },
-        { myPreference: true }
-      )
+      await getUserPreferences({
+        email: 'test@sentry.io',
+        slackUser: 'U1234',
+      })
     ).toBe(undefined);
   });
 });
