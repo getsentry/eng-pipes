@@ -60,10 +60,7 @@ jobs:
       run: yarn install --frozen-lockfile
 
     - name: tests
-      id: test
-      uses: getsentry/Jest-Coverage-Diff@master
-      with:
-        runCommand: yarn test:ci --coverage --coverageReporters="json-summary" --coverageDirectory='./'
+      run: yarn test:ci --coverage
 
     - name: eslint
       run: yarn lint
