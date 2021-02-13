@@ -12,6 +12,7 @@ async function createDatabase() {
   const db = getDbConnection();
 
   try {
+    await db.raw('DROP DATABASE IF EXISTS test_database');
     await db.raw('CREATE DATABASE test_database');
   } catch (err) {
     console.log(err);
