@@ -5,6 +5,7 @@ import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { bolt } from '@api/slack';
+import { slackMessageUser } from '@api/slackMessageUser';
 import { githubEvents } from '@app/api/github';
 import { freightDeploy } from '@app/blocks/freightDeploy';
 import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
@@ -52,7 +53,7 @@ async function handler({
   });
 
   // XXX(billy): Using this to debug and maybe manually alert people for now
-  // const slackTarget = !user ? '#z-billy' : user.slackUser;
+  const slackTarget = !user ? '#z-billy' : user.slackUser;
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
@@ -61,8 +62,7 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-  await bolt.client.chat.postMessage({
-    channel: '#z-billy', // slackTarget
+  await slackMessageUser(slackTarget, {
     text,
     attachments: [
       {
