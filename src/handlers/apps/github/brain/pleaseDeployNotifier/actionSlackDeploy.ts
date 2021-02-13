@@ -48,11 +48,8 @@ function updateAttachment(
 }
 
 export async function actionSlackDeploy({ ack, body, client, context }) {
-  console.log(context);
   const shouldMute = context.actionIdMatches[1] === 'mute';
   await ack();
-  // @ts-ignore
-  console.log(body.message, body);
   try {
     await setUserPreference(
       { slackUser: body.user.id },

@@ -77,6 +77,14 @@ async function handler({
           },
           ...commitBlocks,
           {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `This is currently alpha™, please leave feedback in #discuss-dev-tooling`,
+            },
+          },
+
+          {
             type: 'actions',
             elements: [freightDeploy(commit), muteDeployNotificationsButton()],
           },
