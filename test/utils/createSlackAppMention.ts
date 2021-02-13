@@ -1,9 +1,9 @@
 import { createSlackEvent } from './createSlackEvent';
 
-function createMessageEvent(text: string, event?: Record<string, any>) {
+function createAppMentionEvent(text: string, event?: Record<string, any>) {
   return {
     client_msg_id: 'd9285761-0feb-44f1-8854-aecaf9aad3a2',
-    type: 'message',
+    type: 'app_mention',
     text,
     user: 'U018H4DA8N5',
     ts: '1611956722.000900',
@@ -31,15 +31,13 @@ const payload = {
       is_enterprise_install: false,
     },
   ],
-  user: 'U018H4DA8N5',
-  channel: 'G018X8Y9B1N',
   is_ext_shared_channel: false,
   event_context: '1-app_mention-T018UAQ7YRW-G018X8Y9B1N',
 };
 
-export async function createSlackMessage(fastify, message: string) {
+export async function createSlackAppMention(fastify, message: string) {
   return await createSlackEvent(fastify, {
     ...payload,
-    event: createMessageEvent(message),
+    event: createAppMentionEvent(message),
   });
 }

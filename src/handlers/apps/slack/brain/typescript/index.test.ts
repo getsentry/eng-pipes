@@ -1,4 +1,4 @@
-import { createSlackMessage } from '@test/utils/createSlackMessage';
+import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { bolt } from '@api/slack';
 import { buildServer } from '@app/buildServer';
@@ -25,7 +25,7 @@ describe('slack app', function () {
   });
 
   it('fetches typescript status', async function () {
-    const response = await createSlackMessage(
+    const response = await createSlackAppMention(
       fastify,
       '<@U018UAXJVG8> typescript'
     );

@@ -14,6 +14,24 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:12
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: docker
+        ports:
+          - 5434:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
 
@@ -41,14 +59,14 @@ jobs:
     - name: yarn install
       run: yarn install --frozen-lockfile
 
-    - name: jest
-      run: yarn test:ci
+    - name: tests
+      id: test
+      uses: getsentry/Jest-Coverage-Diff@master
+      with:
+        runCommand: yarn test:ci --coverage --coverageReporters="json-summary" --coverageDirectory='./'
 
     - name: eslint
-      if: github.ref != 'refs/heads/main' || startsWith(github.ref, 'refs/heads/v')
-      uses: getsentry/action-eslint-fix@main
-      with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: yarn lint
 
     - name: tsc
       run: yarn tsc

@@ -8,6 +8,7 @@ declare module 'knex/types/tables' {
     githubUser?: string;
     created: string;
     updated: string;
+    preferences: Record<string, any>;
   }
 
   interface Tables {

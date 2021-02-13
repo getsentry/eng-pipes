@@ -1,4 +1,4 @@
-import { createSlackMessage } from '@test/utils/createSlackMessage';
+import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
@@ -55,7 +55,7 @@ describe('gha-test', function () {
   });
 
   it('cancels workflows for a PR', async function () {
-    const resp = await createSlackMessage(
+    const resp = await createSlackAppMention(
       fastify,
       'gha cancel https://github.com/getsentry/sentry/pull/123'
     );
@@ -109,7 +109,7 @@ describe('gha-test', function () {
   });
 
   it('tries to cancel with invalid argument', async function () {
-    await createSlackMessage(
+    await createSlackAppMention(
       fastify,
       'gha cancel https://github.com/getsentry/sentry/invalid/123'
     );

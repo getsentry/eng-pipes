@@ -3,12 +3,9 @@ import * as Sentry from '@sentry/node';
 import { bolt } from '@api/slack';
 import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
+import { findUser } from '@utils/db/findUser';
 
-type GetUserParams = {
-  email?: string;
-  slack?: string;
-  github?: string;
-};
+type GetUserParams = Parameters<typeof findUser>[0];
 
 /**
  * Attempts to fetches a user based on one of the following params
@@ -21,40 +18,47 @@ type GetUserParams = {
  * - use slack's profile field for `GitHub Profile`
  *  - or, if a `github` param was passed, use that
  */
-export async function getUser({
-  email,
-  slack: slackUser,
-  github: githubUser,
-}: GetUserParams) {
-  const whereQuery = Object.fromEntries(
-    Object.entries({
-      email,
-      slackUser,
-      githubUser,
-    }).filter(([, v]) => v)
-  );
+export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
+  // Only allow looking up via `@sentry.io` emails
+  if (email && !email.endsWith('@sentry.io')) {
+    email = undefined;
+  }
 
-  const hasUser = await db('users').where(whereQuery).first('*');
+  const hasUser = await findUser({ email, slackUser, githubUser }).first('*');
 
   if (hasUser) {
     return hasUser;
   }
 
-  // If not found in db then we need to lookup the user via email and save to db
-  // Only supporting email because it seems unlikely you're looking up by slack id or github username
-  if (!email) {
+  // If not found in db then we need to lookup the user via email or slack username and save to db
+  if (!email && !slackUser) {
     return null;
   }
 
   let userResult: any;
 
-  try {
-    // First fetch slack user
-    userResult = await bolt.client.users.lookupByEmail({
-      email,
+  if (email) {
+    try {
+      // First fetch slack user
+      userResult = await bolt.client.users.lookupByEmail({
+        email,
+      });
+    } catch (err) {
+      // TODO(billy); should probably only explicitly ignore when a user is not found
+      console.error(err);
+    }
+  } else if (slackUser) {
+    userResult = await bolt.client.users.info({
+      user: slackUser,
     });
-  } catch (err) {
-    // TODO(billy); should probably only explicitly ignore when a user is not found
+  }
+
+  // Do not insert into db if user has not confirmed email, or if they are deleted
+  if (
+    userResult?.user.is_email_confirmed === false ||
+    userResult?.user.deleted === true
+  ) {
+    return null;
   }
 
   // Check for github profile field in slack
@@ -62,7 +66,7 @@ export async function getUser({
 
   if (userResult?.ok && userResult?.user) {
     try {
-      await bolt.client.users.profile.get({
+      profileResult = await bolt.client.users.profile.get({
         user: userResult?.user.id,
       });
     } catch (err) {
@@ -70,19 +74,29 @@ export async function getUser({
     }
   }
 
+  // Some people have the full URL in their slack profile
   const githubLogin =
     profileResult?.ok &&
     !githubUser &&
-    profileResult?.profile.fields[SLACK_PROFILE_ID_GITHUB];
+    profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value.replace(
+      'https://github.com/',
+      ''
+    );
 
   const userObject = {
-    email,
-    slackUser: userResult?.user.id,
+    email: email || userResult?.user.profile.email,
+    slackUser: slackUser || userResult?.user.id,
     // trust githubUser input since it should be coming from github, and not user input
-    githubUser: githubUser || githubLogin?.value,
+    githubUser: githubUser || githubLogin,
   };
 
-  await db('users').insert(userObject);
-
-  return userObject;
+  return await db.transaction(async (trx) => {
+    const rows = await db('users')
+      .insert(userObject)
+      .onConflict(['email'])
+      .merge()
+      .returning('*')
+      .transacting(trx);
+    return rows?.[0];
+  });
 }

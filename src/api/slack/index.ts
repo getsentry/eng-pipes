@@ -21,4 +21,8 @@ export { bolt };
 bolt.error((error) => {
   // Check the details of the error to handle cases where you should retry sending a message or stop the app
   Sentry.captureException(error);
+
+  if (process.env.NODE_ENV !== 'production') {
+    console.error(error);
+  }
 });

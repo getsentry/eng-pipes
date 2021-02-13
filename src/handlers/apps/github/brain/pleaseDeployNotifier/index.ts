@@ -6,8 +6,12 @@ import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { bolt } from '@api/slack';
 import { githubEvents } from '@app/api/github';
+import { freightDeploy } from '@app/blocks/freightDeploy';
+import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
 import { Color, GETSENTRY_REPO, OWNER } from '@app/config';
 import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
+
+import { actionSlackDeploy } from './actionSlackDeploy';
 
 async function handler({
   id,
@@ -43,7 +47,7 @@ async function handler({
   // Message author on slack that they're commit is ready to deploy
   // and send a link to open freight
   const user = await getUser({
-    github: relevantCommit.author?.login,
+    githubUser: relevantCommit.author?.login,
     email: relevantCommit.commit.author?.email,
   });
 
@@ -52,10 +56,10 @@ async function handler({
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
-  const text = `Your commit is ready to deploy`;
-  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${checkRun.head_sha}`;
-  const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
-  const freightDeployUrl = 'https://freight.getsentry.net/deploy?app=getsentry';
+  const commit = checkRun.head_sha;
+  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
+  const commitLinkText = `${commit.slice(0, 7)}`;
+  const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
   await bolt.client.chat.postMessage({
     channel: '#z-billy', // slackTarget
@@ -68,25 +72,22 @@ async function handler({
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `getsentry@<${commitLink}|${commitLinkText}>
-
-Found slack user: ${user?.slackUser ?? 'no'}
-`,
-            },
-            accessory: {
-              type: 'button',
-              style: 'primary',
-              text: {
-                type: 'plain_text',
-                text: 'Deploy',
-                emoji: true,
-              },
-              value: checkRun.head_sha,
-              url: freightDeployUrl,
-              action_id: 'freight-deploy',
+              text: `> Found slack user: ${user?.slackUser ?? 'no'}`,
             },
           },
           ...commitBlocks,
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `This is currently alpha™, please leave feedback in #discuss-dev-tooling`,
+            },
+          },
+
+          {
+            type: 'actions',
+            elements: [freightDeploy(commit), muteDeployNotificationsButton()],
+          },
         ],
       },
     ],
@@ -107,4 +108,7 @@ export async function pleaseDeployNotifier() {
     await ack();
     // TODO(billy): Call freight API directly to deploy
   });
+
+  // Handles both mute and unmute action that comes from deploy notification
+  bolt.action(/(unmute|mute)-slack-deploy/, actionSlackDeploy);
 }
