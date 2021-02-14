@@ -16,11 +16,11 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-jest.mock('@/handlers/metrics/travis/verifyTravisWebhook', () => ({
+jest.mock('@apps/metrics/travis/verifyTravisWebhook', () => ({
   verifyTravisWebhook: jest.fn(() => true),
 }));
 
-import { buildServer } from '@/buildServer';
+import { buildServer } from '@app/apps/slack/brain/gha-cancel/node_modules/@/buildServer';
 
 const SCHEMA = [
   {

@@ -30,6 +30,7 @@
   },
   "_moduleAliases": {
     "@": "lib",
+    "@apps": "lib/apps",
     "@api": "lib/api",
     "@utils": "lib/utils"
   },

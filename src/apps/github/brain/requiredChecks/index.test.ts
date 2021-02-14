@@ -1,6 +1,6 @@
 jest.mock('@api/slack');
 jest.mock('@api/github/getClient');
-jest.mock('@/handlers/apps/github');
+jest.mock('@apps/github');
 
 import merge from 'lodash.merge';
 

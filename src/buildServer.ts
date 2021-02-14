@@ -9,8 +9,8 @@ import { Fastify } from '@types';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 
-import { createGithub } from './handlers/apps/github';
-import { createSlack } from './handlers/apps/slack';
+import { createGithub } from './apps/github';
+import { createSlack } from './apps/slack';
 
 export function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
@@ -61,8 +61,8 @@ export function buildServer(
     try {
       const handlerPath = path.join(
         __dirname,
-        'handlers',
-        'metrics',
+        'apps',
+        'webhooks',
         request.params.service
       );
 
