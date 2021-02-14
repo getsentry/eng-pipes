@@ -16,7 +16,7 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
-jest.mock('@/handlers/apps/github');
+jest.mock('@apps/github');
 
 import { Fastify } from '@types';
 

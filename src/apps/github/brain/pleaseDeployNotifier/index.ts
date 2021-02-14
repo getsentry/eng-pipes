@@ -4,6 +4,7 @@ import * as Sentry from '@sentry/node';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
+import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
 
@@ -13,7 +14,7 @@ import { githubEvents } from '@/api/github';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
-import { isGetsentryRequiredCheck } from '@/handlers/apps/github/utils/isGetsentryRequiredCheck';
+import { isGetsentryRequiredCheck } from '@apps/github/utils/isGetsentryRequiredCheck';
 
 async function handler({
   id,
