@@ -1,9 +1,10 @@
 import * as Sentry from '@sentry/node';
 
 import { bolt } from '@api/slack';
-import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
 import { findUser } from '@utils/db/findUser';
+
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 
 type GetUserParams = Parameters<typeof findUser>[0];
 

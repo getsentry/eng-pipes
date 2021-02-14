@@ -1,8 +1,9 @@
 import { createSlackMessage } from '@test/utils/createSlackMessage';
 
 import { bolt } from '@api/slack';
-import { buildServer } from '@app/buildServer';
 import { db } from '@utils/db';
+
+import { buildServer } from '@/buildServer';
 
 // @ts-ignore
 jest.spyOn(db.context, 'raw');

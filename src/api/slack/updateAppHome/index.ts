@@ -2,8 +2,9 @@ import { KnownBlock } from '@slack/bolt';
 
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
-import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
-import { unmuteDeployNotificationsButton } from '@app/blocks/unmuteDeployNotificationsButton';
+
+import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
+import { unmuteDeployNotificationsButton } from '@/blocks/unmuteDeployNotificationsButton';
 
 export async function updateAppHome(slackUser: string) {
   // Listen for users opening your App Home

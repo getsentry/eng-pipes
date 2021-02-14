@@ -2,8 +2,9 @@ import { createSlackEvent } from '@test/utils/createSlackEvent';
 
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
-import { buildServer } from '@app/buildServer';
 import { db } from '@utils/db';
+
+import { buildServer } from '@/buildServer';
 
 jest.mock('@api/getUser');
 

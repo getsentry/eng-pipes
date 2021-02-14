@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { App, LogLevel } from '@slack/bolt';
 
-import { SLACK_BOT_USER_ACCESS_TOKEN, SLACK_SIGNING_SECRET } from '@app/config';
+import { SLACK_BOT_USER_ACCESS_TOKEN, SLACK_SIGNING_SECRET } from '@/config';
 
 const bolt = new App({
   logLevel: LogLevel.INFO,

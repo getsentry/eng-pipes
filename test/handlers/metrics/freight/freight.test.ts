@@ -9,7 +9,7 @@ const mockDataset = jest.fn(() => ({
 }));
 
 // Mock octokit client
-jest.mock('@app/api/github/getClient', () => ({
+jest.mock('@/api/github/getClient', () => ({
   getClient: jest.fn(() => ({
     repos: {
       compareCommits: jest.fn(() => require('@test/compareCommits.json')),
@@ -28,7 +28,7 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import { buildServer } from '@app/buildServer';
+import { buildServer } from '@/buildServer';
 
 const SCHEMA = [
   { name: 'deploy_id', type: 'integer' },

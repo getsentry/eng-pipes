@@ -1,6 +1,6 @@
 import { EventTypesPayload } from '@octokit/webhooks';
 
-import { REQUIRED_CHECK_NAME } from '@app/config';
+import { REQUIRED_CHECK_NAME } from '@/config';
 
 /**
  * Checks payload to see if:
