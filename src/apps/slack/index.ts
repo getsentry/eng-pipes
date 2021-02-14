@@ -1,6 +1,6 @@
 import { IncomingMessage, Server, ServerResponse } from 'http';
 
-import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyInstance } from 'fastify';
 
 import { pleaseDeployNotifier } from '../github/brain/pleaseDeployNotifier';
 
@@ -8,7 +8,6 @@ import { appHome } from './brain/appHome';
 import { ghaCancel } from './brain/gha-cancel';
 import { notificationPreferences } from './brain/notificationPreferences';
 import { typescript } from './brain/typescript';
-import getProgress from './getProgress';
 
 export function createSlack(
   server: FastifyInstance<Server, IncomingMessage, ServerResponse>,
@@ -20,22 +19,6 @@ export function createSlack(
   pleaseDeployNotifier();
   notificationPreferences();
   appHome();
-
-  server.get(
-    '/stats',
-    {},
-    async (request: FastifyRequest, reply: FastifyReply<ServerResponse>) => {
-      try {
-        const data = await getProgress({
-          date: request.query.date,
-        });
-        reply.send(data);
-      } catch (err) {
-        console.error(err);
-        reply.status(400).send(err);
-      }
-    }
-  );
 
   done();
 }
