@@ -35,7 +35,7 @@ const DEFAULT_PAYLOAD = {
 export async function createSlackEvent(
   fastify: Fastify,
   event: string,
-  payload: Record<string, any>
+  payload?: Record<string, any>
 ) {
   const now = +new Date();
 
