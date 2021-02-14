@@ -46,14 +46,6 @@ export function buildServer(
   server.use('/metrics/github/webhook', githubEvents.middleware);
   server.register(createGithub, { prefix: '/apps/github' });
 
-  githubEvents.onError((err) => {
-    if (process.env.ENV !== 'production') {
-      console.error(err);
-    }
-
-    Sentry.captureException(err);
-  });
-
   server.post('/metrics/:service/webhook', {}, async (request, reply) => {
     const rootDir = __dirname;
     let handler;
