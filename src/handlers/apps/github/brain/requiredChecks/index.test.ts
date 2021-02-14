@@ -1,6 +1,6 @@
 jest.mock('@api/slack');
 jest.mock('@api/github/getClient');
-jest.mock('@app/handlers/apps/github');
+jest.mock('@/handlers/apps/github');
 
 import merge from 'lodash.merge';
 
@@ -8,11 +8,12 @@ import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { buildServer } from '@app/buildServer';
-import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@app/config';
-import { Fastify } from '@app/types';
 
 import { requiredChecks } from '.';
+
+import { buildServer } from '@/buildServer';
+import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@/config';
+import { Fastify } from '@/types';
 
 describe('requiredChecks', function () {
   let fastify: Fastify;

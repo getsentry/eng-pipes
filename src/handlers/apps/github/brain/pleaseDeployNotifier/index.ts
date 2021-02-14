@@ -6,13 +6,14 @@ import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
-import { githubEvents } from '@app/api/github';
-import { freightDeploy } from '@app/blocks/freightDeploy';
-import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
-import { Color, GETSENTRY_REPO, OWNER } from '@app/config';
-import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
+
+import { githubEvents } from '@/api/github';
+import { freightDeploy } from '@/blocks/freightDeploy';
+import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
+import { Color, GETSENTRY_REPO, OWNER } from '@/config';
+import { isGetsentryRequiredCheck } from '@/handlers/apps/github/utils/isGetsentryRequiredCheck';
 
 async function handler({
   id,

@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@app/api/github/getClient';
-import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@app/config';
+import { getClient } from '@/api/github/getClient';
+import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 
 /**
  * Attempts to find the relevant commit for a SHA

@@ -1,8 +1,9 @@
 import { bolt } from '@api/slack';
-import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
 
 import { slackMessageUser } from './';
+
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 
 describe('slackMessageUser', function () {
   beforeAll(async function () {

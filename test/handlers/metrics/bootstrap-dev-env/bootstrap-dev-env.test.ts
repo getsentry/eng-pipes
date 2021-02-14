@@ -15,8 +15,9 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import { buildServer } from '@app/buildServer';
 import * as db from '@utils/metrics';
+
+import { buildServer } from '@/buildServer';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');

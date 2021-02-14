@@ -1,9 +1,10 @@
 import * as Sentry from '@sentry/node';
 
 import { updateAppHome } from '@api/slack/updateAppHome';
-import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
-import { unmuteDeployNotificationsButton } from '@app/blocks/unmuteDeployNotificationsButton';
 import { setUserPreference } from '@utils/db/setUserPreference';
+
+import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
+import { unmuteDeployNotificationsButton } from '@/blocks/unmuteDeployNotificationsButton';
 
 /**
  * Update an attachments block with new actions

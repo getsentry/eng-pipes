@@ -29,7 +29,7 @@
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
   "_moduleAliases": {
-    "@app": "lib",
+    "@": "lib",
     "@api": "lib/api",
     "@utils": "lib/utils"
   },

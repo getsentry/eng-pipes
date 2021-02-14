@@ -2,7 +2,8 @@ import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { buildServer } from '@app/buildServer';
+
+import { buildServer } from '@/buildServer';
 
 jest.mock('@api/github/getClient');
 
