@@ -1,10 +1,10 @@
 import * as Sentry from '@sentry/node';
 import { App, LogLevel } from '@slack/bolt';
-import { WebClient } from '@slack/web-api';
 
 import { SLACK_BOT_USER_ACCESS_TOKEN, SLACK_SIGNING_SECRET } from '@app/config';
 
 const bolt = new App({
+  logLevel: LogLevel.INFO,
   token: SLACK_BOT_USER_ACCESS_TOKEN,
   signingSecret: SLACK_SIGNING_SECRET,
   endpoints: '/',

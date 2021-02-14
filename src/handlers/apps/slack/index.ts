@@ -4,6 +4,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { pleaseDeployNotifier } from '../github/brain/pleaseDeployNotifier';
 
+import { appHome } from './brain/appHome';
 import { ghaCancel } from './brain/gha-cancel';
 import { notificationPreferences } from './brain/notificationPreferences';
 import { typescript } from './brain/typescript';
@@ -18,6 +19,7 @@ export function createSlack(
   ghaCancel();
   pleaseDeployNotifier();
   notificationPreferences();
+  appHome();
 
   server.get(
     '/stats',
