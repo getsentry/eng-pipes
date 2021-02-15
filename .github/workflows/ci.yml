@@ -94,7 +94,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [build-and-lint, test]
-    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'ci' }}
+    environment: 'production'
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
