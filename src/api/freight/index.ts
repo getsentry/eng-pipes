@@ -6,8 +6,8 @@
 //   FREIGHT_API_KEY
 import axios from 'axios';
 
+import { FREIGHT_API_KEY, FREIGHT_URL } from '@/config';
 import { bolt } from '@api/slack';
-import { FREIGHT_API_KEY, FREIGHT_URL } from '@app/config';
 
 const apiInstance = axios.create({
   baseURL: FREIGHT_URL,
@@ -42,10 +42,10 @@ type FreightParams = {
 };
 
 // Check that the user is in slack, and has a sentry.io e-mail
-function allowUser(user: string) {
+async function allowUser(slackUserId: string) {
   try {
-    const resp = await bolt.client.users.info({ user });
-    const { user } = resp;
+    const resp = await bolt.client.users.info({ user: slackUserId });
+    const user: any = resp.user;
 
     if (
       !user ||
@@ -55,12 +55,19 @@ function allowUser(user: string) {
     ) {
       throw new Error('Unauthorized user');
     }
+    return user.profile.email;
   } catch (err) {
     throw new Error('Error authorizing user');
   }
 }
 
-export async function deployRevision({ ref, env, user, app }: FreightParams) {
+export async function deployRevision({
+  ref,
+  env,
+  user: slackUser,
+  app,
+}: FreightParams) {
+  const user = await allowUser(slackUser);
   const data = {
     ref,
     env,
@@ -71,7 +78,12 @@ export async function deployRevision({ ref, env, user, app }: FreightParams) {
   return await apiInstance.post('/tasks/', data);
 }
 
-export async function rollback({ env, user, app }: Omit<FreightParams, 'ref'>) {
+export async function rollback({
+  env,
+  user: slackUser,
+  app,
+}: Omit<FreightParams, 'ref'>) {
+  const user = await allowUser(slackUser);
   const data = {
     ref: ':previous',
     env,
@@ -84,8 +96,10 @@ export async function rollback({ env, user, app }: Omit<FreightParams, 'ref'>) {
 export async function cancelDeploy({
   app,
   env,
+  user: slackUser,
   freightId,
-}: Pick<FreightParams, 'app' | 'env'> & { freightId: number }) {
+}: Pick<FreightParams, 'app' | 'env' | 'user'> & { freightId: number }) {
+  await allowUser(slackUser);
   const data = {
     status: 'cancelled',
   };

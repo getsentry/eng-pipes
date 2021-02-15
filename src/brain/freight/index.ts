@@ -41,7 +41,7 @@ async function handler({ event, say, client }) {
         app: deployMatches[1],
         ref: deployMatches[3],
         env: deployMatches[5],
-        user: event.user.id,
+        user: event.user,
       });
     } catch (err) {
       Sentry.captureException(err);
@@ -57,7 +57,7 @@ async function handler({ event, say, client }) {
       await rollback({
         app: rollbackMatches[1],
         env: rollbackMatches[3],
-        user: event.user.id,
+        user: event.user,
       });
     } catch (err) {
       Sentry.captureException(err);
@@ -73,6 +73,7 @@ async function handler({ event, say, client }) {
         app: cancelMatches[1],
         env: cancelMatches[2],
         freightId: cancelMatches[3],
+        user: event.user,
       });
     } catch (err) {
       Sentry.captureException(err);

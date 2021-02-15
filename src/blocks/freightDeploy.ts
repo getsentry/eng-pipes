@@ -1,4 +1,4 @@
-import { FREIGHT_URL } from '@app/config';
+import { FREIGHT_URL } from '@/config';
 
 export function freightDeploy(commit: string) {
   return {
