@@ -68,13 +68,6 @@ async function handler({
       {
         color: Color.NEUTRAL,
         blocks: [
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `> Found slack user: ${user?.slackUser ?? 'no'}`,
-            },
-          },
           ...commitBlocks,
           {
             type: 'section',
