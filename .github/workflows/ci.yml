@@ -8,24 +8,20 @@
 #  * `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
 #  * `GITHUB_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 
-name: Deploy
+name: CI
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-deploy:
-    name: google
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    environment: production
-    env:
-      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
-      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
-      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
-
     services:
       # Label used to access the service container
       postgres:
@@ -44,6 +40,55 @@ jobs:
           --health-retries 5
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: yarn install
+        run: yarn install --immutable
+
+      - name: eslint
+        run: yarn lint
+
+      - name: test
+        run: yarn test:ci --coverage
+
+      # Only run this on PRs, as our deploy task needs to build before deploying
+      - name: tsc
+        if: github.event_name == 'pull_request'
+        run: yarn tsc
+
+      - name: Get version
+        id: get-version
+        run: echo "::set-output name=version::$(yarn dlx sentry-cli releases propose-version)"
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Builds docker image
+        run: docker build -t ci-tooling .
+
+  build-deploy:
+    name: tsc + deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [test]
+    environment: production
+    env:
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+    steps:
     - name: Checkout
       uses: actions/checkout@v2
 
@@ -52,39 +97,22 @@ jobs:
       with:
         node-version: '12'
 
-    - name: Get yarn cache directory path
-      id: yarn-cache-dir-path
-      run: echo "::set-output name=dir::$(yarn cache dir)"
-
-    - uses: actions/cache@v2
-      id: yarn-cache
-      with:
-        path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-        key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-        restore-keys: |
-          ${{ runner.os }}-yarn-
-
     - name: yarn install
-      run: |
-        echo "$(yarn global bin)" >> $GITHUB_PATH
-        yarn install --immutable
-        yarn global add @sentry/cli
-
-    - name: test
-      run: yarn test:ci
+      run: yarn install --immutable
 
     - name: Get version
       id: get-version
-      run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
+      if: github.ref == 'refs/heads/main'
+      run: echo "::set-output name=version::$(yarn dlx sentry-cli releases propose-version)"
 
     # Build ts
     - name: Build
-      run: |
-        yarn build
+      run: yarn build
 
     # Setup gcloud CLI
     - name: Setup gcloud CLI
       uses: google-github-actions/setup-gcloud@master
+      if: github.ref == 'refs/heads/main'
       with:
         service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
         service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
@@ -92,6 +120,7 @@ jobs:
     # Deploy to Google Cloud Functions
     - name: Deploy
       id: deploy
+      if: github.ref == 'refs/heads/main'
       env:
         VERSION: ${{ steps.get-version.outputs.version }}
         SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
@@ -111,6 +140,7 @@ jobs:
 
     - name: Sentry Release
       uses: getsentry/action-release@v1.0.0
+      if: github.ref == 'refs/heads/main'
       with:
         environment: 'production'
         sourcemaps: './lib'
