@@ -7,6 +7,9 @@ export const SENTRY_REPO = 'sentry';
 export const GETSENTRY_REPO = 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
 
+export const FREIGHT_URL = 'https://freight.getsentry.net';
+export const FREIGHT_API_KEY = process.env.FREIGHT_API_KEY || '';
+
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
 export const REQUIRED_CHECK_CHANNEL = '#team-engineering';

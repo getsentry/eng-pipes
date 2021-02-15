@@ -1,3 +1,5 @@
+import { FREIGHT_URL } from '@app/config';
+
 export function freightDeploy(commit: string) {
   return {
     type: 'button',
@@ -8,7 +10,7 @@ export function freightDeploy(commit: string) {
       emoji: true,
     },
     value: commit,
-    url: 'https://freight.getsentry.net/deploy?app=getsentry',
+    url: `${FREIGHT_URL}/deploy?app=getsentry`,
     action_id: 'freight-deploy',
   };
 }
