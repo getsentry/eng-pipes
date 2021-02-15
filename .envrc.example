@@ -1,0 +1,21 @@
+# GitHub App ID
+export GH_APP_IDENTIFIER=""
+# Github App Webhook Secret to verify requests come from GitHub
+export GH_WEBHOOK_SECRET=""
+# GitHub App Secret Key
+export GH_APP_SECRET_KEY='-----BEGIN RSA PRIVATE KEY-----
+-----END RSA PRIVATE KEY-----'
+
+# Slack signing secret to verify requests come from Slack
+export SLACK_SIGNING_SECRET=
+# Slack Bot user access token
+export SLACK_BOT_USER_ACCESS_TOKEN=
+# The Slack bot's App ID
+export SLACK_BOT_APP_ID=
+
+# DB Host
+export DB_HOST=127.0.0.1
+export DB_NAME=postgres
+export DB_USER=postgres
+export DB_PASSWORD=""
+export DB_INSTANCE_CONNECTION_NAME=
