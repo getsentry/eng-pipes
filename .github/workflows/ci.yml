@@ -19,6 +19,30 @@ on:
       - main
 
 jobs:
+  build-and-lint:
+    name: build and lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '12'
+
+      - name: yarn install
+        run: yarn install --immutable
+
+      - name: eslint
+        run: yarn lint
+
+      # Only run this on PRs, as our deploy task needs to build before deploying
+      - name: tsc
+        if: github.event_name == 'pull_request'
+        run: yarn tsc
+
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -51,20 +75,8 @@ jobs:
       - name: yarn install
         run: yarn install --immutable
 
-      - name: eslint
-        run: yarn lint
-
       - name: test
         run: yarn test:ci --coverage
-
-      # Only run this on PRs, as our deploy task needs to build before deploying
-      - name: tsc
-        if: github.event_name == 'pull_request'
-        run: yarn tsc
-
-      - name: Get version
-        id: get-version
-        run: echo "::set-output name=version::$(yarn dlx sentry-cli releases propose-version)"
 
   docker:
     runs-on: ubuntu-latest
@@ -81,7 +93,7 @@ jobs:
     name: tsc + deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [test]
+    needs: [build-and-lint, test]
     environment: production
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
