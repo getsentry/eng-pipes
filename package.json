@@ -37,9 +37,9 @@
   "dependencies": {
     "@google-cloud/bigquery": "^5.3.0",
     "@octokit/auth-app": "^2.11.0",
-    "@octokit/rest": "^18.1.0",
-    "@octokit/types": "^6.8.2",
-    "@octokit/webhooks": "^8.0.2",
+    "@octokit/rest": "^18.1.1",
+    "@octokit/types": "^6.8.5",
+    "@octokit/webhooks": "^8.4.0",
     "@sentry/integrations": "^6.1.0",
     "@sentry/node": "^6.1.0",
     "@sentry/tracing": "^6.1.0",
