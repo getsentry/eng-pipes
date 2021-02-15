@@ -1,10 +1,8 @@
-import { EventTypesPayload } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { githubEvents } from '@app/api/github';
+import { updateAppHome } from '@api/slack/updateAppHome';
 import { muteDeployNotificationsButton } from '@app/blocks/muteDeployNotificationsButton';
 import { unmuteDeployNotificationsButton } from '@app/blocks/unmuteDeployNotificationsButton';
-import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
 import { setUserPreference } from '@utils/db/setUserPreference';
 
 /**
@@ -64,6 +62,11 @@ export async function actionSlackDeploy({ ack, body, client, context }) {
       user: payload.user.id,
       text: 'There was an error changing your deploy notification preferences',
     });
+  }
+
+  if (body.view) {
+    updateAppHome(body.user.id);
+    return;
   }
 
   /**

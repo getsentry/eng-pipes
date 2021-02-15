@@ -4,13 +4,11 @@ import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { bolt } from '@api/slack';
 import { githubEvents } from '@app/api/github';
-import { getClient } from '@app/api/github/getClient';
 import {
   Color,
   GETSENTRY_REPO,
   OWNER,
   REQUIRED_CHECK_CHANNEL,
-  SENTRY_REPO,
 } from '@app/config';
 import { isGetsentryRequiredCheck } from '@app/handlers/apps/github/utils/isGetsentryRequiredCheck';
 

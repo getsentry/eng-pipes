@@ -1,5 +1,4 @@
 import { findUser } from './findUser';
-import { db } from '.';
 
 type GetUserParams = Parameters<typeof findUser>[0];
 
