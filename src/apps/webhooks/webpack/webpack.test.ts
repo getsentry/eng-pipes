@@ -17,9 +17,8 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { verifyWebhook } from '@apps/webhooks/webpack/verifyWebhook';
 
-import * as db from '@utils/metrics';
-
 import { buildServer } from '@/buildServer';
+import * as db from '@utils/metrics';
 
 jest.spyOn(db, 'insertAssetSize');
 
@@ -29,8 +28,8 @@ jest.mock('@apps/webhooks/webpack/verifyWebhook', () => ({
 
 describe('webpack webhook', function () {
   let fastify;
-  beforeEach(function () {
-    fastify = buildServer(false);
+  beforeEach(async function () {
+    fastify = await buildServer(false);
   });
 
   afterEach(function () {

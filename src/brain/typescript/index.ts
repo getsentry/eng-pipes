@@ -1,6 +1,6 @@
 import { bolt } from '@api/slack';
 
-import getProgress from '@apps/slack/getProgress';
+import getProgress from './getProgress';
 
 export function typescript() {
   bolt.event('app_mention', async ({ event, say, client }) => {

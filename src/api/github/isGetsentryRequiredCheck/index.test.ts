@@ -1,6 +1,6 @@
-import { isGetsentryRequiredCheck } from './isGetsentryRequiredCheck';
-
 import { REQUIRED_CHECK_NAME } from '@/config';
+
+import { isGetsentryRequiredCheck } from '.';
 
 describe('isGetsentryRequiredCheck', function () {
   let payload;

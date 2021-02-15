@@ -1,13 +1,14 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
+import { buildServer } from '@/buildServer';
 import { bolt } from '@api/slack';
 
-import { buildServer } from '@/buildServer';
-import getProgress from '@apps/slack/getProgress';
+import getProgress from './getProgress';
+import { typescript } from '.';
 
 jest.mock('@api/slack');
 
-jest.mock('@apps/slack/getProgress', () =>
+jest.mock('./getProgress', () =>
   jest.fn(() => ({
     progress: 1,
     remainingFiles: 2,
@@ -17,8 +18,9 @@ jest.mock('@apps/slack/getProgress', () =>
 describe('slack app', function () {
   let fastify;
 
-  beforeEach(function () {
-    fastify = buildServer(false);
+  beforeEach(async function () {
+    fastify = await buildServer(false);
+    typescript();
   });
 
   afterEach(function () {

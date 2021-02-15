@@ -1,6 +1,10 @@
 import { EventTypesPayload } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
+import { githubEvents } from '@/api/github';
+import { freightDeploy } from '@/blocks/freightDeploy';
+import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
+import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -9,12 +13,6 @@ import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
-
-import { githubEvents } from '@/api/github';
-import { freightDeploy } from '@/blocks/freightDeploy';
-import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
-import { Color, GETSENTRY_REPO, OWNER } from '@/config';
-import { isGetsentryRequiredCheck } from '@apps/github/utils/isGetsentryRequiredCheck';
 
 async function handler({
   id,

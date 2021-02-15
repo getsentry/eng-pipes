@@ -38,8 +38,8 @@ const SCHEMA = [
 
 describe('freight webhook', function () {
   let fastify;
-  beforeEach(function () {
-    fastify = buildServer(false);
+  beforeEach(async function () {
+    fastify = await buildServer(false);
   });
 
   afterEach(function () {

@@ -38,7 +38,7 @@ module.exports = {
 
           ['^(@test)(/.*|$)'],
 
-          ['^@(app|api|utils)(/.*|$)'],
+          ['^@(|app|api|utils)(/.*|$)'],
 
           // Parent imports. Put `..` last.
           ['^\\.\\.(?!/?$)', '^\\.\\./?$'],

@@ -15,17 +15,16 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import * as db from '@utils/metrics';
-
 import { buildServer } from '@/buildServer';
+import * as db from '@utils/metrics';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 
 describe('bootstrap-dev-env webhook', function () {
   let fastify;
-  beforeEach(function () {
-    fastify = buildServer(false);
+  beforeEach(async function () {
+    fastify = await buildServer(false);
   });
 
   afterEach(function () {

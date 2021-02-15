@@ -1,14 +1,14 @@
 import { createSlackMessage } from '@test/utils/createSlackMessage';
 
+import { buildServer } from '@/buildServer';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { setUserPreference } from '@utils/db/setUserPreference';
 
-import { buildServer } from '@/buildServer';
+import { notificationPreferences } from '.';
 
 // @ts-ignore
 jest.spyOn(db.context, 'raw');
-
-import { setUserPreference } from '@utils/db/setUserPreference';
 
 jest.mock('@utils/db/setUserPreference', () => ({
   setUserPreference: jest.fn(() => true),
@@ -27,7 +27,8 @@ describe('notificationPreferences', function () {
   });
 
   beforeEach(async function () {
-    fastify = buildServer(false);
+    fastify = await buildServer(false);
+    notificationPreferences();
     // @ts-ignore
     bolt.client.chat.postEphemeral.mockClear();
     // @ts-ignore

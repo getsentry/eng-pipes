@@ -1,10 +1,11 @@
 import { createSlackEvent } from '@test/utils/createSlackEvent';
 
+import { buildServer } from '@/buildServer';
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { buildServer } from '@/buildServer';
+import { appHome } from '.';
 
 jest.mock('@api/getUser');
 
@@ -21,7 +22,8 @@ describe('appHome', function () {
   });
 
   beforeEach(async function () {
-    fastify = buildServer(false);
+    fastify = await buildServer(false);
+    appHome();
     // @ts-ignore
     bolt.client.views.publish.mockClear();
     await db('users').delete();
