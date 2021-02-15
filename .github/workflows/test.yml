@@ -55,7 +55,7 @@ jobs:
           ${{ runner.os }}-yarn-
 
     - name: yarn install
-      run: yarn install --frozen-lockfile
+      run: yarn install --immutable
 
     - name: tests
       run: yarn test:ci --coverage

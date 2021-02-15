@@ -11,7 +11,7 @@ WORKDIR /usr/src/app
 COPY package.json yarn.lock ./
 
 # Install production dependencies.
-RUN yarn install --frozen-lockfile --production
+RUN yarn install --immutable --production
 
 # Copy local code to the container image.
 COPY . ./
