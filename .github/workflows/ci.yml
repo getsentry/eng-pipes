@@ -90,11 +90,11 @@ jobs:
         run: docker build -t ci-tooling .
 
   build-deploy:
-    name: tsc + deploy
+    name: build and deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [build-and-lint, test]
-    environment: production
+    environment: ${{ github.ref == 'refs/heads/main' && 'production' || 'ci' }}
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
