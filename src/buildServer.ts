@@ -8,11 +8,9 @@ import { Fastify } from '@types';
 
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
+import { loadBrain } from '@utils/loadBrain';
 
-import { createGithub } from './apps/github';
-import { createSlack } from './apps/slack';
-
-export function buildServer(
+export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
     prettyPrint: process.env.NODE_ENV === 'development',
   }
@@ -40,12 +38,13 @@ export function buildServer(
   // Initializes slack apps
   // @ts-ignore
   server.use('/apps/slack/events', bolt.receiver.requestListener);
-  server.register(createSlack, { prefix: '/apps/slack' });
-
   // Use the GitHub webhooks middleware
   server.use('/metrics/github/webhook', githubEvents.middleware);
-  server.register(createGithub, { prefix: '/apps/github' });
 
+  // Brain = modules that listen to slack/github events
+  await loadBrain();
+
+  // Other webhook handlers
   server.post('/metrics/:service/webhook', {}, async (request, reply) => {
     const rootDir = __dirname;
     let handler;

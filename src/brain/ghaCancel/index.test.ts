@@ -1,9 +1,10 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
+import { buildServer } from '@/buildServer';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
-import { buildServer } from '@/buildServer';
+import { ghaCancel } from '.';
 
 jest.mock('@api/github/getClient');
 
@@ -13,7 +14,8 @@ describe('gha-test', function () {
 
   beforeEach(async function () {
     octokit = await getClient('', '');
-    fastify = buildServer(false);
+    fastify = await buildServer(false);
+    ghaCancel();
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
     // @ts-ignore

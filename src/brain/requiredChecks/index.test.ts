@@ -1,26 +1,24 @@
-jest.mock('@api/slack');
+jest.mock('@utils/loadBrain');
 jest.mock('@api/github/getClient');
-jest.mock('@apps/github');
 
 import merge from 'lodash.merge';
 
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
+import { buildServer } from '@/buildServer';
+import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@/config';
+import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 import { requiredChecks } from '.';
-
-import { buildServer } from '@/buildServer';
-import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@/config';
-import { Fastify } from '@/types';
 
 describe('requiredChecks', function () {
   let fastify: Fastify;
   let octokit;
 
   beforeEach(async function () {
-    fastify = buildServer(false);
+    fastify = await buildServer(false);
     await requiredChecks();
     octokit = await getClient('getsentry', 'getsentry');
     octokit.repos.getCommit.mockClear();

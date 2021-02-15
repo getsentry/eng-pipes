@@ -19,8 +19,8 @@ if (process.env.ENV === 'production') {
   });
 }
 
-function main() {
-  const server = buildServer();
+async function main() {
+  const server = await buildServer();
 
   server.listen(
     Number(process.env.PORT) || DEFAULT_PORT,

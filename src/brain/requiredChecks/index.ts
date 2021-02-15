@@ -1,12 +1,11 @@
 import { EventTypesPayload } from '@octokit/webhooks';
 
-import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { bolt } from '@api/slack';
-
-import { githubEvents } from '@/api/github';
 import { Color, GETSENTRY_REPO, OWNER, REQUIRED_CHECK_CHANNEL } from '@/config';
-import { isGetsentryRequiredCheck } from '@apps/github/utils/isGetsentryRequiredCheck';
+import { getBlocksForCommit } from '@api/getBlocksForCommit';
+import { githubEvents } from '@api/github';
+import { getRelevantCommit } from '@api/github/getRelevantCommit';
+import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
+import { bolt } from '@api/slack';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 

@@ -1,6 +1,5 @@
 import { EventPayloads } from '@octokit/webhooks';
 
-import { githubEvents } from '@api/github';
 import { insert } from '@utils/metrics';
 
 const CHECK_STATUS_MAP = {
@@ -10,7 +9,10 @@ const CHECK_STATUS_MAP = {
   cancelled: 'canceled',
 };
 
-function handler({
+/**
+ * GitHub webhook handler for sentry + getsentry repo metrics
+ */
+export function sentryMetrics({
   name: eventName,
   payload,
 }: {
@@ -50,8 +52,4 @@ function handler({
       branch: payloadObj.check_suite.head_branch,
     },
   });
-}
-export async function metrics() {
-  githubEvents.removeListener('check_run', handler);
-  githubEvents.on('check_run', handler);
 }

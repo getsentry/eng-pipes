@@ -1,4 +1,4 @@
-# gha-cancel
+# ghaCancel
 
 
 Cancel GitHub Actions workflows
