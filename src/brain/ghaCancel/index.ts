@@ -27,7 +27,7 @@ async function handler({ event, say, client }) {
 
   const initialMessagePromise = say({
     thread_ts: event.ts,
-    text: ':fidget_spinner_right: Cancelling jobs...',
+    text: ':sentry-loading: Cancelling jobs...',
   });
 
   async function updateMessage(text: string) {
@@ -73,7 +73,7 @@ async function handler({ event, say, client }) {
     workflowsToCancel.length
   } workflow: ${workflowNames.join(', ')}`;
 
-  updateMessage(`:fidget_spinner_right: Cancelling ${workflowText}`);
+  updateMessage(`:sentry-loading: Cancelling ${workflowText}`);
 
   try {
     await Promise.all(
