@@ -6,12 +6,13 @@ FROM node:12-slim
 WORKDIR /usr/src/app
 
 # Copy application dependency manifests to the container image.
-# A wildcard is used to ensure both package.json AND package-lock.json are copied.
 # Copying this separately prevents re-running npm install on every code change.
-COPY package.json yarn.lock ./
+COPY package.json yarn.lock .yarnrc.yml .pnp.js ./
+COPY .yarn/cache ./.yarn/cache
+COPY .yarn/releases ./.yarn/releases
 
 # Install production dependencies.
-RUN yarn install --immutable --production
+RUN yarn install --immutable
 
 # Copy local code to the container image.
 COPY . ./
@@ -21,4 +22,4 @@ RUN yarn build:production
 RUN rm -rf src
 
 # Run the web service on container startup.
-CMD [ "npm", "start" ]
+CMD [ "yarn", "start" ]
