@@ -67,7 +67,7 @@ describe('gha-test', function () {
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: ':fidget_spinner_right: Cancelling jobs...',
+        text: ':sentry-loading: Cancelling jobs...',
       })
     );
 
@@ -101,7 +101,7 @@ describe('gha-test', function () {
     });
     expect(bolt.client.chat.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        text: ':fidget_spinner_right: Cancelling 2 workflow: job 1, job 2',
+        text: ':sentry-loading: Cancelling 2 workflow: job 1, job 2',
       })
     );
     expect(bolt.client.chat.update).toHaveBeenCalledWith(

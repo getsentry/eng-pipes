@@ -10,14 +10,14 @@ export function typescript() {
 
     const [message, sentryResp, getsentryResp] = await Promise.all([
       say({
-        text: '⏱  fetching status ...',
+        text: ':sentry-loading: fetching status ...',
         blocks: [
           {
             type: 'context',
             elements: [
               {
                 type: 'mrkdwn',
-                text: '⏱  fetching status ...',
+                text: ':sentry-loading: fetching status ...',
               },
             ],
           },
