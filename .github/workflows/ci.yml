@@ -105,8 +105,9 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: echo "::set-output name=version::$(yarn dlx sentry-cli releases propose-version)"
 
-    # Build ts
+    # Build ts only when deploying since `test` workflow runs this
     - name: Build
+      if: github.ref == 'refs/heads/main'
       run: yarn build
 
     # Setup gcloud CLI
