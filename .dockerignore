@@ -1,7 +1,20 @@
+.*
 *.md
-!README*.md
 coverage
 jest.config.js
 test
 bin
+lib
+test/
+Dockerfile
 
+!tsconfig*
+!migations
+!src
+!README*.md
+!.yarn/cache
+!.yarn/releases
+!yarn.lock
+!.yarnrc.yml
+!.pnp.js
+!package.json

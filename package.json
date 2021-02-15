@@ -16,10 +16,10 @@
   "scripts": {
     "build": "yarn tsc -p tsconfig.build.json",
     "build:production": "yarn clean && yarn tsc -p tsconfig.build.json",
-    "clean": "rm -rf lib/*",
+    "clean": "[ -d lib ] && rm -rf lib/* || true",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",
-    "dev": "DEBUG=@slack/events-api:* yarn clean && NODE_ENV=development nodemon --watch src/ -e ts --exec \"yarn start:clean\"",
+    "dev": "yarn clean && NODE_ENV=development nodemon --watch src/ -e ts --exec \"yarn start:clean\"",
     "migrate": "yarn knex --knexfile ./src/knexfile.ts",
     "start:clean": "yarn build && yarn start",
     "start": "node ./lib/index.js",
@@ -70,7 +70,6 @@
     "nodemon": "^2.0.7",
     "pino-pretty": "^4.5.0",
     "prettier": "^2.2.1",
-    "sqlite3": "^5.0.1",
     "ts-jest": "^26.5.1",
     "ts-node": "^9.1.1"
   },

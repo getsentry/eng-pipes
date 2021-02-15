@@ -67,7 +67,7 @@ jobs:
     - name: yarn install
       run: |
         echo "$(yarn global bin)" >> $GITHUB_PATH
-        yarn install --frozen-lockfile
+        yarn install --immutable
         yarn global add @sentry/cli
 
     - name: test
