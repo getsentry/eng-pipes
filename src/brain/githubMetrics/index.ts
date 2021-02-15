@@ -7,6 +7,7 @@ export async function metrics() {
   githubEvents.removeListener('check_run', sentryMetrics);
   githubEvents.on('check_run', sentryMetrics);
 
+  // @ts-ignore
   githubEvents.removeListener('*', ossMetrics);
   // This is for open source data so we can consolidate github webhooks
   // It does some data mangling in there, so we may want to extract that out of the

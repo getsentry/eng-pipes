@@ -1,4 +1,4 @@
-import { EventTypesPayload } from '@octokit/webhooks';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@/api/github';
@@ -18,7 +18,7 @@ async function handler({
   id,
   payload,
   ...rest
-}: EventTypesPayload['check_run']) {
+}: EmitterWebhookEvent<'check_run'>) {
   // Make sure this is on `getsentry` and we are examining the aggregate "required check" run
   if (!isGetsentryRequiredCheck({ id, payload, ...rest })) {
     return;

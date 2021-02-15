@@ -1,4 +1,4 @@
-import { EventPayloads } from '@octokit/webhooks';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import { insert } from '@utils/metrics';
 
@@ -15,10 +15,7 @@ const CHECK_STATUS_MAP = {
 export function sentryMetrics({
   name: eventName,
   payload,
-}: {
-  name: string;
-  payload: EventPayloads.WebhookPayloadCheckRun;
-}) {
+}: EmitterWebhookEvent<'check_run'>) {
   const { check_run } = payload;
   // The status is based on the combination of the conclusion and status
   const payloadObj = check_run;

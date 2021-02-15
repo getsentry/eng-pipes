@@ -1,4 +1,4 @@
-import { EventTypesPayload } from '@octokit/webhooks';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import { REQUIRED_CHECK_NAME } from '@/config';
 
@@ -10,7 +10,7 @@ import { REQUIRED_CHECK_NAME } from '@/config';
  */
 export function isGetsentryRequiredCheck({
   payload,
-}: EventTypesPayload['check_run']) {
+}: EmitterWebhookEvent<'check_run'>) {
   // Only on `getsentry` repo
   if (payload.repository?.full_name !== 'getsentry/getsentry') {
     return false;
