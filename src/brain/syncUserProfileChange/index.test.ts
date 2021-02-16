@@ -4,16 +4,8 @@ import { buildServer } from '@/buildServer';
 import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { setUserPreference } from '@utils/db/setUserPreference';
 
 import { syncUserProfileChange } from '.';
-
-// @ts-ignore
-jest.spyOn(db.context, 'raw');
-
-jest.mock('@utils/db/setUserPreference', () => ({
-  setUserPreference: jest.fn(() => true),
-}));
 
 describe('syncUserProfileChange', function () {
   let fastify;
@@ -43,7 +35,6 @@ describe('syncUserProfileChange', function () {
     // @ts-ignore
     bolt.client.users.profile.get.mockImplementation(() => ({
       profile: {
-        email: 'test@sentry.io',
         fields: {
           [SLACK_PROFILE_ID_GITHUB]: { value: 'githubUser' },
         },
@@ -68,6 +59,32 @@ describe('syncUserProfileChange', function () {
     const user = await db('users').first('*');
     expect(user).toMatchObject({
       githubUser: 'githubUser',
+      slackUser: 'U789123',
+      email: 'test@sentry.io',
+    });
+  });
+
+  it('does not fetch GitHub profile field on `user_change` if custom profile field is in event', async function () {
+    const resp = await createSlackEvent(fastify, 'user_change', {
+      user: {
+        id: 'U789123',
+        is_email_confirmed: true,
+        deleted: false,
+        profile: {
+          email: 'test@sentry.io',
+          fields: {
+            [SLACK_PROFILE_ID_GITHUB]: { value: 'githubUser!' },
+          },
+        },
+      },
+    });
+
+    expect(resp.statusCode).toBe(200);
+    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
+
+    const user = await db('users').first('*');
+    expect(user).toMatchObject({
+      githubUser: 'githubUser!',
       slackUser: 'U789123',
       email: 'test@sentry.io',
     });

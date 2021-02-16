@@ -4,6 +4,7 @@ import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { findUser } from '@utils/db/findUser';
+import { isSentrySlackUser } from '@utils/isSentrySlackUser';
 import { normalizeGithubUser } from '@utils/normalizeGithubUser';
 
 type GetUserParams = Parameters<typeof findUser>[0];
@@ -55,10 +56,7 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
   }
 
   // Do not insert into db if user has not confirmed email, or if they are deleted
-  if (
-    userResult?.user.is_email_confirmed === false ||
-    userResult?.user.deleted === true
-  ) {
+  if (userResult && !isSentrySlackUser(userResult.user)) {
     return null;
   }
 

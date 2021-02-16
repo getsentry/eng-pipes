@@ -1,9 +1,8 @@
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { getUser } from './';
-
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 
 describe('getUser', function () {
   beforeAll(async function () {
@@ -73,7 +72,11 @@ describe('getUser', function () {
     // @ts-ignore
     bolt.client.users.lookupByEmail.mockReturnValueOnce({
       ok: false,
-      user: {},
+      user: {
+        profile: {
+          email: 'test@sentry.io',
+        },
+      },
     });
 
     const user = await getUser({
