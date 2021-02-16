@@ -8,7 +8,8 @@ import { normalizeGithubUser } from '@utils/normalizeGithubUser';
  */
 export function syncUserProfileChange() {
   bolt.event('user_change', async ({ event }) => {
-    console.log(event);
+    // @ts-ignore
+    console.log(JSON.stringify(event.user.profile));
 
     // Bad Slack types, we get the full User here
     // @ts-ignore
@@ -29,8 +30,6 @@ export function syncUserProfileChange() {
       // @ts-ignore
       profile?.fields?.[SLACK_PROFILE_ID_GITHUB]?.value
     );
-
-    console.log(profile);
 
     // Let's save email/slack even if githubUser is undefined
     await db('users')
