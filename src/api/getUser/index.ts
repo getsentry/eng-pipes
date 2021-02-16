@@ -1,10 +1,10 @@
 import * as Sentry from '@sentry/node';
 
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { findUser } from '@utils/db/findUser';
-
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
+import { normalizeGithubUser } from '@utils/normalizeGithubUser';
 
 type GetUserParams = Parameters<typeof findUser>[0];
 
@@ -79,9 +79,8 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
   const githubLogin =
     profileResult?.ok &&
     !githubUser &&
-    profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value.replace(
-      'https://github.com/',
-      ''
+    normalizeGithubUser(
+      profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value
     );
 
   const userObject = {
