@@ -9,9 +9,6 @@ import { normalizeGithubUser } from '@utils/normalizeGithubUser';
  */
 export function syncUserProfileChange() {
   bolt.event('user_change', async ({ event }) => {
-    // @ts-ignore
-    console.log(JSON.stringify(event.user.profile.fields));
-
     // Bad Slack types, we get the full User here
     // @ts-ignore
     if (!isSentrySlackUser(event.user)) {
