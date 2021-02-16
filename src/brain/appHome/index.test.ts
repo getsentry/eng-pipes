@@ -90,6 +90,8 @@ describe('appHome', function () {
       \`\`\`
       deploy notifications on
       \`\`\`
+
+      Or you can visit the App's \\"Home\\" tab in Slack.
       ",
                   "type": "mrkdwn",
                 },
