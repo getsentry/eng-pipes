@@ -4,11 +4,13 @@ export function getSlackEvent(
   eventName: string,
   payload?: Record<string, any>
 ) {
-  const eventPayload = require(`@test/payloads/slack/${eventName}.json`);
+  let eventPayload;
 
-  if (!eventPayload) {
-    throw new Error(`Payload not found: @test/payloads/slack/${eventName}`);
+  try {
+    eventPayload = require(`@test/payloads/slack/${eventName}.json`);
+  } catch {
+    // ignore errors as we can have simple events
   }
 
-  return merge(eventPayload, payload);
+  return merge({ type: eventName }, eventPayload, payload);
 }
