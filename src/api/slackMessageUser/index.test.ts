@@ -16,7 +16,9 @@ describe('slackMessageUser', function () {
   beforeEach(async function () {
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
-    // @ts-ignore
+  });
+
+  afterEach(async function () {
     await db('users').delete();
   });
 

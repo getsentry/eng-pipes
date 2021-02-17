@@ -25,11 +25,11 @@ describe('appHome', function () {
     appHome();
     // @ts-ignore
     bolt.client.views.publish.mockClear();
-    await db('users').delete();
   });
 
-  afterEach(function () {
+  afterEach(async function () {
     fastify.close();
+    await db('users').delete();
   });
 
   it('publishes the AppHome view for user that has GitHub username', async function () {
