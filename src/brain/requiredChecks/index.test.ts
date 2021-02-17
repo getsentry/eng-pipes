@@ -32,8 +32,7 @@ describe('requiredChecks', function () {
     await requiredChecks();
     octokit = await getClient('getsentry', 'getsentry');
     octokit.repos.getCommit.mockClear();
-    // @ts-ignore
-    bolt.client.chat.postMessage.mockClear();
+    (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('required_checks_status').delete();
   });
 
@@ -88,7 +87,7 @@ describe('requiredChecks', function () {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
-          data: merge(defaultPayload, {
+          data: merge({}, defaultPayload, {
             commit: {
               author: {
                 name: 'Matej Minar',
@@ -226,13 +225,138 @@ describe('requiredChecks', function () {
       <https://github.com/getsentry/getsentry/runs/1821955073|sentry backend test> -  ❌  skipped 
       <https://github.com/getsentry/getsentry/runs/1821955151|webpack> -  ✅  success "
     `);
+
+    expect(await db('required_checks_status').first('*')).toMatchObject({
+      ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
+      passed_at: null,
+      channel: 'channel_id',
+      ts: '1234123.123',
+      status: 'failure',
+    });
+  });
+
+  it('does not double post if sha was already failing', async function () {
+    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+      const defaultPayload = require('@test/payloads/github/commit').default;
+      if (repo === 'sentry') {
+        return {
+          data: merge({}, defaultPayload, {
+            commit: {
+              author: {
+                name: 'Matej Minar',
+                email: 'matej.minar@sentry.io',
+                date: '2021-02-03T11:06:46Z',
+              },
+              committer: {
+                name: 'GitHub',
+                email: 'noreply@github.com',
+                date: '2021-02-03T11:06:46Z',
+              },
+              message:
+                'feat(ui): Change default period for fresh releases (#23572)\n' +
+                '\n' +
+                'The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.',
+            },
+          }),
+        };
+      }
+
+      return { data: defaultPayload };
+    });
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ❌  failure |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ❌  failure |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  failure |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  failure |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  skipped |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ❌  skipped |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ❌  skipped |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+
+    // This is called twice because we use threads to list the job statuses
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+
+    octokit.repos.getCommit.mockClear();
+    (bolt.client.chat.postMessage as jest.Mock).mockClear();
+    // Signal the same check run as above, should not post again to slack
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ❌  failure |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ❌  failure |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  failure |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  failure |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  skipped |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ❌  skipped |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ❌  skipped |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(0);
+
+    // This is called twice because we use threads to list the job statuses
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
   });
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
-        data: merge(defaultPayload, {
+        data: merge({}, defaultPayload, {
           author: {
             login: 'maheskett',
           },
@@ -372,11 +496,11 @@ describe('requiredChecks', function () {
     `);
   });
 
-  it.only('saves state of a failed check, and updates slack message when it is passing again', async function () {
+  it('saves state of a failed check, and updates slack message when it is passing again', async function () {
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
-        data: merge(defaultPayload, {
+        data: merge({}, defaultPayload, {
           author: {
             login: 'maheskett',
           },

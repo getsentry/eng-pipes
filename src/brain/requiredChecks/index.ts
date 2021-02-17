@@ -114,10 +114,6 @@ async function handler({
     return;
   }
 
-  console.log(
-    `Received failed check run ${checkRun.id} (${id}) for commit ${checkRun.head_sha}`
-  );
-
   // Retrieve commit information
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
 

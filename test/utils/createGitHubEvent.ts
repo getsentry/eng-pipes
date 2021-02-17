@@ -25,7 +25,7 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
     console.warn(`No payload found for event ${event}`);
   }
 
-  const fullPayload = merge(defaultPayload, payload);
+  const fullPayload = merge({}, defaultPayload, payload);
 
   const signature = createSignature(
     JSON.stringify(fullPayload),
