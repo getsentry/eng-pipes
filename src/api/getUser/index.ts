@@ -77,15 +77,13 @@ export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
   const githubLogin =
     profileResult?.ok &&
     !githubUser &&
-    normalizeGithubUser(
-      profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value
-    );
+    profileResult?.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value;
 
   const userObject = {
     email: email || userResult?.user.profile.email,
     slackUser: slackUser || userResult?.user.id,
     // trust githubUser input since it should be coming from github, and not user input
-    githubUser: githubUser || githubLogin,
+    githubUser: normalizeGithubUser(githubUser || githubLogin),
   };
 
   return await db.transaction(async (trx) => {

@@ -2,13 +2,14 @@ import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 import { updateAppHome } from '@api/slack/updateAppHome';
 import { db } from '@utils/db';
+import { normalizeGithubUser } from '@utils/normalizeGithubUser';
 
 export function appHome() {
   // User used App Home to set GitHub login
   bolt.action('set-github-login', async ({ ack, body, payload }) => {
     ack();
     // @ts-ignore
-    const submittedUsername = payload.value;
+    const submittedUsername = normalizeGithubUser(payload.value);
     // If user does not yet exist, this will save a new user with slack + github
     const user = await getUser({
       slackUser: body.user.id,
