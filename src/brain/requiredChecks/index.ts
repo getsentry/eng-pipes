@@ -6,6 +6,8 @@ import { githubEvents } from '@api/github';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
+import { getRequiredCheck } from '@utils/db/getRequiredCheck';
+import { saveRequiredCheck } from '@utils/db/saveRequiredCheck';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 
@@ -20,6 +22,21 @@ function githubMdToSlack(str: string) {
   }
 
   return str;
+}
+
+function getTextParts(
+  checkRun: EmitterWebhookEvent<'check_run'>['payload']['check_run']
+) {
+  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${checkRun.head_sha}`;
+  const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
+  const buildLink = `<${checkRun.html_url}|View Build>`;
+
+  return [
+    `${GETSENTRY_REPO}@master`,
+    `<${commitLink}|${commitLinkText}>`,
+    `is failing`,
+    `(${buildLink})`,
+  ];
 }
 
 async function handler({
@@ -37,8 +54,43 @@ async function handler({
   // Conclusion can be one of:
   //   success, failure, neutral, cancelled, skipped, timed_out, or action_required
   //
-  // Ignore "successful" conclusions
+  // For "successful" conclusions, check if there was a previous failure, if so, update the existing slack message
   if (OK_CONCLUSIONS.includes(checkRun.conclusion || '')) {
+    const dbCheck = await getRequiredCheck(checkRun.head_sha);
+    if (!dbCheck || dbCheck.status !== 'failure') {
+      return;
+    }
+    // Update slack message
+    await saveRequiredCheck({
+      ref: checkRun.head_sha,
+      status: 'success',
+    });
+
+    const textParts = getTextParts(checkRun);
+    textParts.splice(2, 1, 'is ~failing~ passing!');
+    const updatedText = textParts.join(' ');
+
+    // Text is not required?
+    // @ts-ignore
+    await bolt.client.chat.update({
+      channel: dbCheck.channel,
+      ts: dbCheck.ts,
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: updatedText,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
     return;
   }
 
@@ -77,10 +129,7 @@ async function handler({
     .map((text) => text.split('|').filter(Boolean)) // Split and filter out empty els
     .filter(([, conclusion]) => !OK_CONCLUSIONS.includes(conclusion));
 
-  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${checkRun.head_sha}`;
-  const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
-  const buildLink = `<${checkRun.html_url}|View Build>`;
-  const text = `${GETSENTRY_REPO}@master <${commitLink}|${commitLinkText}> is failing (${buildLink})`;
+  const text = getTextParts(checkRun).join(' ');
   const jobsList = failedJobs
     ?.map(
       ([jobName, conclusion]) => `${githubMdToSlack(jobName)} - ${conclusion}`
@@ -105,6 +154,13 @@ async function handler({
     text: `Here are the job statuses
 
 ${jobsList}`,
+  });
+
+  // Save failing required check run to db
+  await saveRequiredCheck({
+    ref: checkRun.head_sha,
+    channel: `${message.channel}`,
+    ts: `${message.ts}`,
   });
 }
 
