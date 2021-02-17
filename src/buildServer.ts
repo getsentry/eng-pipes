@@ -19,6 +19,8 @@ export async function buildServer(
     logger,
   });
 
+  server.use(Sentry.Handlers.requestHandler());
+
   server.register(require('fastify-formbody'));
 
   server.decorate(
@@ -34,15 +36,6 @@ export async function buildServer(
   server.get('/', {}, async () => {
     return '';
   });
-
-  // Initializes slack apps
-  // @ts-ignore
-  server.use('/apps/slack/events', bolt.receiver.requestListener);
-  // Use the GitHub webhooks middleware
-  server.use('/metrics/github/webhook', githubEvents.middleware);
-
-  // Brain = modules that listen to slack/github events
-  await loadBrain();
 
   // Other webhook handlers
   server.post('/metrics/:service/webhook', {}, async (request, reply) => {
@@ -81,6 +74,17 @@ export async function buildServer(
       return reply.code(400).send('Bad Request');
     }
   });
+
+  // server.use(Sentry.Handlers.errorHandler());
+
+  // Initializes slack apps
+  // @ts-ignore
+  server.use('/apps/slack/events', bolt.receiver.requestListener);
+  // Use the GitHub webhooks middleware
+  server.use('/metrics/github/webhook', githubEvents.middleware);
+
+  // Brain = modules that listen to slack/github events
+  await loadBrain();
 
   return server;
 }

@@ -7,18 +7,6 @@ import { Integrations } from '@sentry/tracing';
 import { buildServer } from './buildServer';
 import { DEFAULT_PORT, SENTRY_DSN } from './config';
 
-// Only enable in production
-if (process.env.ENV === 'production') {
-  Sentry.init({
-    dsn: SENTRY_DSN,
-    release: process.env.VERSION,
-    integrations: [
-      new Integrations.Express(),
-      new RewriteFrames({ root: __dirname || process.cwd() }),
-    ],
-  });
-}
-
 async function main() {
   const server = await buildServer();
 
@@ -35,6 +23,22 @@ async function main() {
       server.log.info(`server listening on ${address}`);
     }
   );
+  //
+  // Only enable in production
+  if (process.env.ENV === 'production') {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      release: process.env.VERSION,
+      integrations: [
+        // @ts-ignore
+        new Integrations.Http({ tracing: true }),
+        // @ts-ignore
+        new Integrations.Express({ app: server }),
+        new RewriteFrames({ root: __dirname || process.cwd() }),
+      ],
+      tracesSampleRate: 1.0,
+    });
+  }
 }
 
 main();
