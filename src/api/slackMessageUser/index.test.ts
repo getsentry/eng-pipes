@@ -1,9 +1,8 @@
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { slackMessageUser } from './';
-
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 
 describe('slackMessageUser', function () {
   beforeAll(async function () {
@@ -11,7 +10,6 @@ describe('slackMessageUser', function () {
   });
 
   afterAll(async function () {
-    await db.migrate.rollback();
     await db.destroy();
   });
 

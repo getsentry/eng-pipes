@@ -17,7 +17,6 @@ describe('appHome', function () {
   });
 
   afterAll(async function () {
-    await db.migrate.rollback();
     await db.destroy();
   });
 
