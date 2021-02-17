@@ -10,7 +10,6 @@ describe('getUser', function () {
   });
 
   afterAll(async function () {
-    await db.migrate.rollback();
     await db.destroy();
   });
 
@@ -19,6 +18,9 @@ describe('getUser', function () {
     bolt.client.users.lookupByEmail.mockClear();
     // @ts-ignore
     bolt.client.users.profile.get.mockClear();
+  });
+
+  afterEach(async function () {
     await db('users').delete();
   });
 
