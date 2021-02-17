@@ -31,8 +31,6 @@ async function main() {
       release: process.env.VERSION,
       integrations: [
         // @ts-ignore
-        new Integrations.Http({ tracing: true }),
-        // @ts-ignore
         new Integrations.Express({ app: server }),
         new RewriteFrames({ root: __dirname || process.cwd() }),
       ],
