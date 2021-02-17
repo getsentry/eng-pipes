@@ -51,12 +51,17 @@ async function handler({
 
   const { check_run: checkRun } = payload;
 
+  // Check db to see if the check run at `head_sha` was already failing
+  //
+  // If so, and checkRun is passing, we can update the existing Slack message,
+  // otherwise we can ignore as we don't need a new, spammy message
+  const dbCheck = await getRequiredCheck(checkRun.head_sha);
+
   // Conclusion can be one of:
   //   success, failure, neutral, cancelled, skipped, timed_out, or action_required
   //
   // For "successful" conclusions, check if there was a previous failure, if so, update the existing slack message
   if (OK_CONCLUSIONS.includes(checkRun.conclusion || '')) {
-    const dbCheck = await getRequiredCheck(checkRun.head_sha);
     if (!dbCheck || dbCheck.status !== 'failure') {
       return;
     }
@@ -91,6 +96,10 @@ async function handler({
       ],
     });
 
+    return;
+  }
+
+  if (dbCheck && dbCheck.status === 'failure') {
     return;
   }
 
@@ -161,6 +170,7 @@ ${jobsList}`,
     ref: checkRun.head_sha,
     channel: `${message.channel}`,
     ts: `${message.ts}`,
+    status: 'failure',
   });
 }
 
