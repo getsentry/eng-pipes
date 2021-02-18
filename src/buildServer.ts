@@ -3,7 +3,6 @@ import path from 'path';
 
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
-import * as Tracing from '@sentry/tracing';
 import fastify, { FastifyReply } from 'fastify';
 
 import { Fastify } from '@types';
@@ -28,26 +27,12 @@ export async function buildServer(
     Sentry.init({
       dsn: SENTRY_DSN,
       release: process.env.VERSION,
-      integrations: [
-        new Sentry.Integrations.Http({
-          tracing: true,
-          breadcrumbs: true,
-        }),
-        new Tracing.Integrations.Postgres(),
-        new Tracing.Integrations.Express({
-          // @ts-ignore
-          app: server,
-        }),
-        new RewriteFrames({ root: __dirname || process.cwd() }),
-      ],
+      integrations: [new RewriteFrames({ root: __dirname || process.cwd() })],
       tracesSampleRate: 1.0,
     });
   }
 
   server.register(require('fastify-formbody'));
-
-  server.use(Sentry.Handlers.requestHandler());
-  server.use(Sentry.Handlers.tracingHandler());
 
   server.decorate(
     'notFound',
