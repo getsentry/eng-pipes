@@ -58,7 +58,7 @@ async function handler({
     email: relevantCommit.commit.author?.email,
   });
 
-  if (!user) {
+  if (!user?.slackUser) {
     tx.finish();
     return;
   }
