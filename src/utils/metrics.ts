@@ -177,11 +177,16 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
   };
 
   if (eventType === 'issues') {
-    const { issue } = payload;
+    const { issue, label } = payload;
 
     data.object_id = issue.number;
     data.created_at = issue.created_at;
     data.updated_at = issue.updated_at;
+    if (data.action === 'labeled' || data.action === 'unlabeled') {
+      data.target_type = 'label';
+      data.target_id = label.id;
+      data.target_name = label.name;
+    }
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
 

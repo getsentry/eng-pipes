@@ -126,7 +126,7 @@ describe('github webhook', function () {
     );
   });
 
-  it('correctly inserts github issue edited webhook', async function () {
+  it('correctly inserts github issue created webhook', async function () {
     const response = await createGitHubEvent(fastify, 'issues');
 
     expect(response.statusCode).toBe(200);
@@ -136,7 +136,7 @@ describe('github webhook', function () {
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledWith(
       {
-        action: 'edited',
+        action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
         repository: 'Codertocat/Hello-World',
@@ -144,6 +144,43 @@ describe('github webhook', function () {
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
         username: 'Codertocat',
+      },
+      { schema: SCHEMA }
+    );
+  });
+
+  it('correctly inserts github issue labeled webhook', async function () {
+    const response = await createGitHubEvent(fastify, 'issues', {
+      action: 'labeled',
+      label: {
+        id: 1362934389,
+        node_id: 'MDU6TGFiZWwxMzYyOTM0Mzg5',
+        url: 'https://api.github.com/repos/Codertocat/Hello-World/labels/bug',
+        name: 'bug',
+        color: 'd73a4a',
+        default: true,
+        description: "Something isn't working",
+      },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(mockDataset).toHaveBeenCalledWith('open_source');
+    expect(mockTable).toHaveBeenCalledWith('github_events');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        action: 'labeled',
+        created_at: '2019-05-15T15:20:18Z',
+        object_id: 1,
+        repository: 'Codertocat/Hello-World',
+        type: 'issues',
+        updated_at: '2019-05-15T15:20:18Z',
+        user_id: 21031067,
+        username: 'Codertocat',
+        target_type: 'label',
+        target_id: 1362934389,
+        target_name: 'bug',
       },
       { schema: SCHEMA }
     );
