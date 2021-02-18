@@ -34,12 +34,12 @@ jobs:
 
       - id: dlx
         run: |
-        echo "::set-output name=version::$(npx -q @sentry/cli releases propose-version)"
-        echo "::set-output name=version2::$(yarn dlx -q -p @sentry/cli sentry-cli releases propose-version)"
+          echo "::set-output name=version::$(npx -q @sentry/cli releases propose-version)"
+          echo "::set-output name=version_yarn::$(yarn dlx -q -p @sentry/cli sentry-cli releases propose-version)"
 
       - id: curl
         run: |
           curl -sL https://sentry.io/get-cli/ | bash
-          echo "::set-output name=version2::$(sentry-cli releases propose-version)"
+          echo "::set-output name=version_curl::$(sentry-cli releases propose-version)"
           git status
 
