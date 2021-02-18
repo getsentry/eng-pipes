@@ -1,6 +1,11 @@
-// https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#webhook-payload-example-when-someone-edits-an-issue
-const payload = {
-  action: 'edited',
+// Derived from GitHub's docs:
+//
+//   https://docs.github.com/en/developers/webhooks-and-events/webhook-events-and-payloads#webhook-payload-example-when-someone-edits-an-issue.
+//
+// Changed action from edited to opened, unassigned and unmilestoned it. ¯\_(ツ)_/¯
+
+export default {
+  action: 'opened',
   issue: {
     url: 'https://api.github.com/repos/Codertocat/Hello-World/issues/1',
     repository_url: 'https://api.github.com/repos/Codertocat/Hello-World',
@@ -51,98 +56,9 @@ const payload = {
     ],
     state: 'open',
     locked: false,
-    assignee: {
-      login: 'Codertocat',
-      id: 21031067,
-      node_id: 'MDQ6VXNlcjIxMDMxMDY3',
-      avatar_url: 'https://avatars1.githubusercontent.com/u/21031067?v=4',
-      gravatar_id: '',
-      url: 'https://api.github.com/users/Codertocat',
-      html_url: 'https://github.com/Codertocat',
-      followers_url: 'https://api.github.com/users/Codertocat/followers',
-      following_url:
-        'https://api.github.com/users/Codertocat/following{/other_user}',
-      gists_url: 'https://api.github.com/users/Codertocat/gists{/gist_id}',
-      starred_url:
-        'https://api.github.com/users/Codertocat/starred{/owner}{/repo}',
-      subscriptions_url:
-        'https://api.github.com/users/Codertocat/subscriptions',
-      organizations_url: 'https://api.github.com/users/Codertocat/orgs',
-      repos_url: 'https://api.github.com/users/Codertocat/repos',
-      events_url: 'https://api.github.com/users/Codertocat/events{/privacy}',
-      received_events_url:
-        'https://api.github.com/users/Codertocat/received_events',
-      type: 'User',
-      site_admin: false,
-    },
-    assignees: [
-      {
-        login: 'Codertocat',
-        id: 21031067,
-        node_id: 'MDQ6VXNlcjIxMDMxMDY3',
-        avatar_url: 'https://avatars1.githubusercontent.com/u/21031067?v=4',
-        gravatar_id: '',
-        url: 'https://api.github.com/users/Codertocat',
-        html_url: 'https://github.com/Codertocat',
-        followers_url: 'https://api.github.com/users/Codertocat/followers',
-        following_url:
-          'https://api.github.com/users/Codertocat/following{/other_user}',
-        gists_url: 'https://api.github.com/users/Codertocat/gists{/gist_id}',
-        starred_url:
-          'https://api.github.com/users/Codertocat/starred{/owner}{/repo}',
-        subscriptions_url:
-          'https://api.github.com/users/Codertocat/subscriptions',
-        organizations_url: 'https://api.github.com/users/Codertocat/orgs',
-        repos_url: 'https://api.github.com/users/Codertocat/repos',
-        events_url: 'https://api.github.com/users/Codertocat/events{/privacy}',
-        received_events_url:
-          'https://api.github.com/users/Codertocat/received_events',
-        type: 'User',
-        site_admin: false,
-      },
-    ],
-    milestone: {
-      url: 'https://api.github.com/repos/Codertocat/Hello-World/milestones/1',
-      html_url: 'https://github.com/Codertocat/Hello-World/milestone/1',
-      labels_url:
-        'https://api.github.com/repos/Codertocat/Hello-World/milestones/1/labels',
-      id: 4317517,
-      node_id: 'MDk6TWlsZXN0b25lNDMxNzUxNw==',
-      number: 1,
-      title: 'v1.0',
-      description: 'Add new space flight simulator',
-      creator: {
-        login: 'Codertocat',
-        id: 21031067,
-        node_id: 'MDQ6VXNlcjIxMDMxMDY3',
-        avatar_url: 'https://avatars1.githubusercontent.com/u/21031067?v=4',
-        gravatar_id: '',
-        url: 'https://api.github.com/users/Codertocat',
-        html_url: 'https://github.com/Codertocat',
-        followers_url: 'https://api.github.com/users/Codertocat/followers',
-        following_url:
-          'https://api.github.com/users/Codertocat/following{/other_user}',
-        gists_url: 'https://api.github.com/users/Codertocat/gists{/gist_id}',
-        starred_url:
-          'https://api.github.com/users/Codertocat/starred{/owner}{/repo}',
-        subscriptions_url:
-          'https://api.github.com/users/Codertocat/subscriptions',
-        organizations_url: 'https://api.github.com/users/Codertocat/orgs',
-        repos_url: 'https://api.github.com/users/Codertocat/repos',
-        events_url: 'https://api.github.com/users/Codertocat/events{/privacy}',
-        received_events_url:
-          'https://api.github.com/users/Codertocat/received_events',
-        type: 'User',
-        site_admin: false,
-      },
-      open_issues: 1,
-      closed_issues: 0,
-      state: 'closed',
-      created_at: '2019-05-15T15:20:17Z',
-      updated_at: '2019-05-15T15:20:18Z',
-      due_on: '2019-05-23T07:00:00Z',
-      closed_at: '2019-05-15T15:20:18Z',
-    },
+    assignee: null,
+    assignees: [],
+    milestone: null,
     comments: 0,
     created_at: '2019-05-15T15:20:18Z',
     updated_at: '2019-05-15T15:20:18Z',
@@ -303,5 +219,3 @@ const payload = {
     site_admin: false,
   },
 };
-
-export default payload;
