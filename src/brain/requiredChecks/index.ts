@@ -2,13 +2,15 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { Color, GETSENTRY_REPO, OWNER, REQUIRED_CHECK_CHANNEL } from '@/config';
+import { SlackMessage } from '@/config/slackMessage';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { githubEvents } from '@api/github';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
-import { getRequiredCheck } from '@utils/db/getRequiredCheck';
-import { saveRequiredCheck } from '@utils/db/saveRequiredCheck';
+import { db } from '@utils/db';
+import { getSlackMessage } from '@utils/db/getSlackMessage';
+import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
 
@@ -56,21 +58,30 @@ async function handler({
   //
   // If so, and checkRun is passing, we can update the existing Slack message,
   // otherwise we can ignore as we don't need a new, spammy message
-  const dbCheck = await getRequiredCheck(checkRun.head_sha);
+  const dbCheck = await getSlackMessage(
+    SlackMessage.REQUIRED_CHECK,
+    checkRun.head_sha
+  );
 
   // Conclusion can be one of:
   //   success, failure, neutral, cancelled, skipped, timed_out, or action_required
   //
   // For "successful" conclusions, check if there was a previous failure, if so, update the existing slack message
   if (OK_CONCLUSIONS.includes(checkRun.conclusion || '')) {
-    if (!dbCheck || dbCheck.status !== 'failure') {
+    if (!dbCheck || dbCheck.context.status !== 'failure') {
       return;
     }
+
     // Update slack message
-    await saveRequiredCheck({
-      ref: checkRun.head_sha,
-      status: 'success',
-    });
+    await saveSlackMessage(
+      SlackMessage.REQUIRED_CHECK,
+      {
+        id: dbCheck.id,
+      },
+      {
+        status: 'success',
+      }
+    );
 
     const textParts = getTextParts(checkRun);
     textParts.splice(2, 1, 'is ~failing~ passing!');
@@ -100,7 +111,7 @@ async function handler({
     return;
   }
 
-  if (dbCheck && dbCheck.status === 'failure') {
+  if (dbCheck && dbCheck.context.status === 'failure') {
     console.log({ dbCheck });
     return;
   }
@@ -169,12 +180,17 @@ ${jobsList}`,
   });
 
   // Save failing required check run to db
-  await saveRequiredCheck({
-    ref: checkRun.head_sha,
-    channel: `${message.channel}`,
-    ts: `${message.ts}`,
-    status: 'failure',
-  });
+  await saveSlackMessage(
+    SlackMessage.REQUIRED_CHECK,
+    {
+      refId: checkRun.head_sha,
+      channel: `${message.channel}`,
+      ts: `${message.ts}`,
+    },
+    {
+      status: 'failure',
+    }
+  );
 
   tx.finish();
 }

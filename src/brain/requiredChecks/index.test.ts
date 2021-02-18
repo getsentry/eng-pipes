@@ -32,7 +32,7 @@ describe('requiredChecks', function () {
     octokit = await getClient('getsentry', 'getsentry');
     octokit.repos.getCommit.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
-    await db('required_checks_status').delete();
+    await db('slack_messages').delete();
   });
 
   afterEach(function () {
@@ -225,12 +225,14 @@ describe('requiredChecks', function () {
       <https://github.com/getsentry/getsentry/runs/1821955151|webpack> -  ✅  success "
     `);
 
-    expect(await db('required_checks_status').first('*')).toMatchObject({
-      ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      passed_at: null,
+    expect(await db('slack_messages').first('*')).toMatchObject({
+      refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
       channel: 'channel_id',
       ts: '1234123.123',
-      status: 'failure',
+      context: {
+        passed_at: null,
+        status: 'failure',
+      },
     });
   });
 
@@ -522,7 +524,7 @@ describe('requiredChecks', function () {
       };
     });
 
-    expect(await db('required_checks_status').first('*')).toBeUndefined();
+    expect(await db('slack_messages').first('*')).toBeUndefined();
 
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
@@ -586,12 +588,14 @@ describe('requiredChecks', function () {
       })
     );
 
-    expect(await db('required_checks_status').first('*')).toMatchObject({
-      ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      passed_at: null,
+    expect(await db('slack_messages').first('*')).toMatchObject({
+      refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
       channel: 'channel_id',
       ts: '1234123.123',
-      status: 'failure',
+      context: {
+        passed_at: null,
+        status: 'failure',
+      },
     });
 
     // Now create a successful run
@@ -633,11 +637,13 @@ describe('requiredChecks', function () {
       },
     });
 
-    expect(await db('required_checks_status').first('*')).toMatchObject({
-      ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
+    expect(await db('slack_messages').first('*')).toMatchObject({
+      refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
       channel: 'channel_id',
       ts: '1234123.123',
-      status: 'success',
+      context: {
+        status: 'success',
+      },
     });
 
     expect(await bolt.client.chat.update).toHaveBeenCalledTimes(1);
