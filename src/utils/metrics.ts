@@ -183,9 +183,9 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
     data.created_at = issue.created_at;
     data.updated_at = issue.updated_at;
     if (data.action === 'labeled' || data.action === 'unlabeled') {
-      data.target_type = 'label';
       data.target_id = label.id;
       data.target_name = label.name;
+      data.target_type = 'label';
     }
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
@@ -201,6 +201,7 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
       pull_request,
       requested_reviewer,
       requested_team,
+      label,
     } = payload;
 
     data.object_id = pull_request.number;
@@ -225,6 +226,12 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
 
     if (action === 'closed') {
       data.action = pull_request.merged ? 'merged' : 'closed';
+    }
+
+    if (action === 'labeled' || action === 'unlabeled') {
+      data.target_id = label.id;
+      data.target_name = label.name;
+      data.target_type = 'label';
     }
   } else if (eventType === 'pull_request_review') {
     const { review, pull_request } = payload;
