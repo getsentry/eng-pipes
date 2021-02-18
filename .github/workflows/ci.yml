@@ -101,62 +101,65 @@ jobs:
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Setup node
-      uses: actions/setup-node@v1
-      with:
-        node-version: '14'
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
 
-    - name: yarn install
-      run: yarn install --immutable
+      - name: yarn install
+        run: yarn install --immutable
 
-    - name: Get version
-      id: get-version
-      if: github.ref == 'refs/heads/main'
-      # Calling `sentry-cli` with `yarn dlx` doesn't work....
-      run: echo "::set-output name=version::$(npx -q @sentry/cli releases propose-version)"
+      - name: Install @sentry/cli
+        run: |
+            curl -sL https://sentry.io/get-cli/ | bash
 
-    # Build ts only when deploying since `test` workflow runs this
-    - name: Build
-      if: github.ref == 'refs/heads/main'
-      run: yarn build
+      - name: Get version
+        id: get-version
+        if: github.ref == 'refs/heads/main'
+        run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
 
-    # Setup gcloud CLI
-    - name: Setup gcloud CLI
-      uses: google-github-actions/setup-gcloud@master
-      if: github.ref == 'refs/heads/main'
-      with:
-        service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+      # Build ts only when deploying since `test` workflow runs this
+      - name: Build
+        if: github.ref == 'refs/heads/main'
+        run: yarn build
 
-    # Deploy to Google Cloud Functions
-    - name: Deploy
-      id: deploy
-      if: github.ref == 'refs/heads/main'
-      env:
-        VERSION: ${{ steps.get-version.outputs.version }}
-        SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
-        SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
-        SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
-        GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
-        GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
-        GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
-        SENTRY_WEBPACK_WEBHOOK_SECRET: ${{ secrets.SENTRY_WEBPACK_WEBHOOK_SECRET }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
-      run: |
-        echo "::set-output name=deploy-start::$(date +%s)"
-        bin/deploy.sh
+      # Setup gcloud CLI
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        if: github.ref == 'refs/heads/main'
+        with:
+          service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
 
-    - name: Sentry Release
-      uses: getsentry/action-release@v1.0.0
-      if: github.ref == 'refs/heads/main'
-      with:
-        environment: 'production'
-        sourcemaps: './lib'
-        started_at: ${{ steps.deploy.outputs.deploy-start }}
-        version: ${{ steps.get-version.outputs.version }}
+      # Deploy to Google Cloud Functions
+      - name: Deploy
+        id: deploy
+        if: github.ref == 'refs/heads/main'
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
+          SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
+          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+          SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
+          GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
+          GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
+          GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
+          SENTRY_WEBPACK_WEBHOOK_SECRET: ${{ secrets.SENTRY_WEBPACK_WEBHOOK_SECRET }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
+        run: |
+          echo "::set-output name=deploy-start::$(date +%s)"
+          bin/deploy.sh
+
+      - name: Sentry Release
+        uses: getsentry/action-release@v1.0.0
+        if: github.ref == 'refs/heads/main'
+        with:
+          environment: 'production'
+          sourcemaps: './lib'
+          started_at: ${{ steps.deploy.outputs.deploy-start }}
+          version: ${{ steps.get-version.outputs.version }}
