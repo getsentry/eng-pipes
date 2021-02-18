@@ -1,4 +1,5 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
+import * as Sentry from '@sentry/node';
 
 import { Color, GETSENTRY_REPO, OWNER, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -100,6 +101,7 @@ async function handler({
   }
 
   if (dbCheck && dbCheck.status === 'failure') {
+    console.log({ dbCheck });
     return;
   }
 
@@ -114,6 +116,11 @@ async function handler({
     return;
   }
 
+  const tx = Sentry.startTransaction({
+    op: 'handler',
+    name: 'requiredChecks',
+    description: 'Required check failed',
+  });
   // Retrieve commit information
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
 
@@ -168,6 +175,8 @@ ${jobsList}`,
     ts: `${message.ts}`,
     status: 'failure',
   });
+
+  tx.finish();
 }
 
 export async function requiredChecks() {
