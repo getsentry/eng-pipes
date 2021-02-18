@@ -32,17 +32,134 @@ jobs:
         with:
           node-version: '14'
 
-      - id: dlx
+      - name: yarn install
+        run: yarn install --immutable
+
+      - name: eslint
+        run: yarn lint
+
+      # Only run this on PRs, as our deploy task needs to build before deploying
+      - name: tsc
+        if: github.event_name == 'pull_request'
+        run: yarn tsc
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:12
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: docker
+        ports:
+          - 5434:5432
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: yarn install
+        run: yarn install --immutable
+
+      - name: test
+        run: yarn test:ci --coverage
+
+  docker:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Builds docker image
+        run: docker build -t ci-tooling .
+
+  build-deploy:
+    name: build and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-and-lint, test]
+    environment: 'production'
+    env:
+      SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v1
+        with:
+          node-version: '14'
+
+      - name: yarn install
+        run: yarn install --immutable
+
+      - name: Install @sentry/cli
         run: |
-          npx -v
-          echo "::set-output name=version::$(npx -q @sentry/cli releases propose-version)"
+            curl -sL https://sentry.io/get-cli/ | bash
 
-      - run: |
-          curl -sL https://sentry.io/get-cli/ | bash
+      - name: Get version
+        id: get-version
+        if: github.ref == 'refs/heads/main'
+        run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
 
-      - id: curl
+      # Build ts only when deploying since `test` workflow runs this
+      - name: Build
+        if: github.ref == 'refs/heads/main'
+        run: yarn build
+
+      # Setup gcloud CLI
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@master
+        if: github.ref == 'refs/heads/main'
+        with:
+          service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
+          service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
+
+      # Deploy to Google Cloud Functions
+      - name: Deploy
+        id: deploy
+        if: github.ref == 'refs/heads/main'
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
+          SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
+          SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
+          SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
+          GH_APP_SECRET_KEY: ${{ secrets.GH_APP_SECRET_KEY }}
+          GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
+          GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
+          SENTRY_WEBPACK_WEBHOOK_SECRET: ${{ secrets.SENTRY_WEBPACK_WEBHOOK_SECRET }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
         run: |
-          echo "::set-output name=version_curl::$(sentry-cli releases propose-version)"
+          echo "::set-output name=deploy-start::$(date +%s)"
+          bin/deploy.sh
 
-      - run: echo ${{ steps.curl.outputs.version_curl }}
-
+      - name: Sentry Release
+        uses: getsentry/action-release@v1.0.0
+        if: github.ref == 'refs/heads/main'
+        with:
+          environment: 'production'
+          sourcemaps: './lib'
+          started_at: ${{ steps.deploy.outputs.deploy-start }}
+          version: ${{ steps.get-version.outputs.version }}
