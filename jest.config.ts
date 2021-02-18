@@ -1,5 +1,11 @@
 // eslint-disable-next-line
 module.exports = {
+  collectCoverageFrom: [
+    '**/*.ts',
+    '!test/**',
+    '!migrations/**',
+    '!src/types/**',
+  ],
   testEnvironment: 'node',
   testRunner: 'jest-circus/runner',
   roots: ['<rootDir>/src/', '<rootDir>/test/'],
