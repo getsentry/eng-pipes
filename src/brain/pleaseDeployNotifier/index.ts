@@ -11,6 +11,7 @@ import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
+import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
 
@@ -54,6 +55,7 @@ async function handler({
 
   // XXX(billy): Using this to debug and maybe manually alert people for now
   const slackTarget = !user?.slackUser ? '#z-billy' : user.slackUser;
+  console.log({ slackTarget });
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
@@ -92,8 +94,9 @@ async function handler({
 }
 
 export async function pleaseDeployNotifier() {
-  githubEvents.removeListener('check_run', handler);
-  githubEvents.on('check_run', handler);
+  const wrappedHandler = wrapHandler('pleaseDeployNotifier', handler);
+  githubEvents.removeListener('check_run', wrappedHandler);
+  githubEvents.on('check_run', wrappedHandler);
 
   // We need to respond to button clicks, otherwise it will display a warning message
   bolt.action('freight-deploy', async ({ ack }) => {
