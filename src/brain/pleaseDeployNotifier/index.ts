@@ -58,8 +58,12 @@ async function handler({
     email: relevantCommit.commit.author?.email,
   });
 
-  // XXX(billy): Using this to debug and maybe manually alert people for now
-  const slackTarget = !user?.slackUser ? '#z-billy' : user.slackUser;
+  if (!user) {
+    tx.finish();
+    return;
+  }
+
+  const slackTarget = user?.slackUser;
   console.log({ slackTarget });
 
   // Author of commit found
