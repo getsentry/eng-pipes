@@ -55,6 +55,7 @@ async function handler({
 
   // XXX(billy): Using this to debug and maybe manually alert people for now
   const slackTarget = !user?.slackUser ? '#z-billy' : user.slackUser;
+  console.log({ slackTarget });
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
