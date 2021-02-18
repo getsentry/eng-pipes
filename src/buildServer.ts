@@ -1,7 +1,9 @@
 import { ServerResponse } from 'http';
 import path from 'path';
 
+import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
 import fastify, { FastifyReply } from 'fastify';
 
 import { Fastify } from '@types';
@@ -9,6 +11,8 @@ import { Fastify } from '@types';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { loadBrain } from '@utils/loadBrain';
+
+import { SENTRY_DSN } from './config';
 
 export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
@@ -19,9 +23,31 @@ export async function buildServer(
     logger,
   });
 
-  server.use(Sentry.Handlers.requestHandler());
+  // Only enable in production
+  if (process.env.ENV === 'production') {
+    Sentry.init({
+      dsn: SENTRY_DSN,
+      release: process.env.VERSION,
+      integrations: [
+        new Sentry.Integrations.Http({
+          tracing: true,
+          breadcrumbs: true,
+        }),
+        new Tracing.Integrations.Postgres(),
+        new Tracing.Integrations.Express({
+          // @ts-ignore
+          app: server,
+        }),
+        new RewriteFrames({ root: __dirname || process.cwd() }),
+      ],
+      tracesSampleRate: 1.0,
+    });
+  }
 
   server.register(require('fastify-formbody'));
+
+  server.use(Sentry.Handlers.requestHandler());
+  server.use(Sentry.Handlers.tracingHandler());
 
   server.decorate(
     'notFound',
@@ -33,7 +59,7 @@ export async function buildServer(
   // @ts-ignore
   server.setNotFoundHandler(server.notFound);
 
-  server.get('/', {}, async () => {
+  server.get('/', {}, async (request, reply) => {
     return '';
   });
 
@@ -74,8 +100,6 @@ export async function buildServer(
       return reply.code(400).send('Bad Request');
     }
   });
-
-  // server.use(Sentry.Handlers.errorHandler());
 
   // Initializes slack apps
   // @ts-ignore
