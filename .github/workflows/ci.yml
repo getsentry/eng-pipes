@@ -116,7 +116,7 @@ jobs:
       id: get-version
       if: github.ref == 'refs/heads/main'
       # Calling `sentry-cli` with `yarn dlx` doesn't work....
-      run: echo "::set-output name=version::$(yarn dlx -p @sentry/cli sentry-cli releases propose-version)"
+      run: echo "::set-output name=version::$(yarn dlx -q -p @sentry/cli sentry-cli releases propose-version)"
 
     # Build ts only when deploying since `test` workflow runs this
     - name: Build
