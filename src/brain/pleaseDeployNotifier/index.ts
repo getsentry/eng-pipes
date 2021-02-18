@@ -46,6 +46,11 @@ async function handler({
     return;
   }
 
+  const tx = Sentry.startTransaction({
+    op: 'handler',
+    name: 'pleaseDeployNotifier',
+  });
+
   // Message author on slack that they're commit is ready to deploy
   // and send a link to open freight
   const user = await getUser({
@@ -91,12 +96,12 @@ async function handler({
   // TODO(billy): Deploy directly, save user + sha in db state,
   // Follow up messages with commits that are being deployed
   // Tag people whose commits are being deployed
+  tx.finish();
 }
 
 export async function pleaseDeployNotifier() {
-  const wrappedHandler = wrapHandler('pleaseDeployNotifier', handler);
-  githubEvents.removeListener('check_run', wrappedHandler);
-  githubEvents.on('check_run', wrappedHandler);
+  githubEvents.removeListener('check_run', handler);
+  githubEvents.on('check_run', handler);
 
   // We need to respond to button clicks, otherwise it will display a warning message
   bolt.action('freight-deploy', async ({ ack }) => {
@@ -106,5 +111,8 @@ export async function pleaseDeployNotifier() {
   });
 
   // Handles both mute and unmute action that comes from deploy notification
-  bolt.action(/(unmute|mute)-slack-deploy/, actionSlackDeploy);
+  bolt.action(
+    /(unmute|mute)-slack-deploy/,
+    wrapHandler('actionSlackDeploy', actionSlackDeploy)
+  );
 }
