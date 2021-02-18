@@ -34,12 +34,15 @@ jobs:
 
       - id: dlx
         run: |
+          npx -v
           echo "::set-output name=version::$(npx -q @sentry/cli releases propose-version)"
-          echo "::set-output name=version_yarn::$(yarn dlx -q -p @sentry/cli sentry-cli releases propose-version)"
+
+      - run: |
+          curl -sL https://sentry.io/get-cli/ | bash
 
       - id: curl
         run: |
-          curl -sL https://sentry.io/get-cli/ | bash
           echo "::set-output name=version_curl::$(sentry-cli releases propose-version)"
-          git status
+
+      - run: echo ${{ steps.curl.outputs.version_curl }}
 
