@@ -29,6 +29,53 @@ import { metrics } from '.';
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 
+const SCHEMA = [
+  {
+    name: 'type',
+    type: 'STRING',
+  },
+  {
+    name: 'action',
+    type: 'STRING',
+  },
+  {
+    name: 'username',
+    type: 'STRING',
+  },
+  {
+    name: 'user_id',
+    type: 'INT64',
+  },
+  {
+    name: 'repository',
+    type: 'STRING',
+  },
+  {
+    name: 'object_id',
+    type: 'INT64',
+  },
+  {
+    name: 'created_at',
+    type: 'TIMESTAMP',
+  },
+  {
+    name: 'updated_at',
+    type: 'TIMESTAMP',
+  },
+  {
+    name: 'target_id',
+    type: 'INT64',
+  },
+  {
+    name: 'target_name',
+    type: 'STRING',
+  },
+  {
+    name: 'target_type',
+    type: 'STRING',
+  },
+];
+
 describe('github webhook', function () {
   let fastify: Fastify;
 
@@ -75,54 +122,30 @@ describe('github webhook', function () {
         user_id: 21031067,
         username: 'Codertocat',
       },
+      { schema: SCHEMA }
+    );
+  });
+
+  it('correctly inserts github issue edited webhook', async function () {
+    const response = await createGitHubEvent(fastify, 'issues');
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(mockDataset).toHaveBeenCalledWith('open_source');
+    expect(mockTable).toHaveBeenCalledWith('github_events');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
       {
-        schema: [
-          {
-            name: 'type',
-            type: 'STRING',
-          },
-          {
-            name: 'action',
-            type: 'STRING',
-          },
-          {
-            name: 'username',
-            type: 'STRING',
-          },
-          {
-            name: 'user_id',
-            type: 'INT64',
-          },
-          {
-            name: 'repository',
-            type: 'STRING',
-          },
-          {
-            name: 'object_id',
-            type: 'INT64',
-          },
-          {
-            name: 'created_at',
-            type: 'TIMESTAMP',
-          },
-          {
-            name: 'updated_at',
-            type: 'TIMESTAMP',
-          },
-          {
-            name: 'target_id',
-            type: 'INT64',
-          },
-          {
-            name: 'target_name',
-            type: 'STRING',
-          },
-          {
-            name: 'target_type',
-            type: 'STRING',
-          },
-        ],
-      }
+        action: 'edited',
+        created_at: '2019-05-15T15:20:18Z',
+        object_id: 1,
+        repository: 'Codertocat/Hello-World',
+        type: 'issues',
+        updated_at: '2019-05-15T15:20:18Z',
+        user_id: 21031067,
+        username: 'Codertocat',
+      },
+      { schema: SCHEMA }
     );
   });
 
