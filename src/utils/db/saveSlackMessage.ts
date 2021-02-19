@@ -9,7 +9,7 @@ interface SaveSlackMessage {
 }
 
 export async function saveSlackMessage(
-  type: SlackMessage.REQUIRED_CHECK,
+  type: SlackMessage,
   { refId, channel, ts, id }: SaveSlackMessage,
   context: Record<string, any>
 ) {
