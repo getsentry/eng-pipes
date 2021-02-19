@@ -19,7 +19,7 @@ function getMock() {
 }
 
 const sentry = getMock();
-const getSentry = getMock();
+const getsentry = getMock();
 export async function getClient(owner: string, repo: string) {
-  return Promise.resolve(repo === 'sentry' ? sentry : getSentry);
+  return Promise.resolve(repo === 'getsentry' ? getsentry : sentry);
 }

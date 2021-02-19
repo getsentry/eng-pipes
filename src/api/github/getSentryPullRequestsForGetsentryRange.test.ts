@@ -29,15 +29,15 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   beforeEach(async function () {
     getsentry = await getClient('getsentry', 'getsentry');
     sentry = await getClient('getsentry', 'sentry');
+  });
 
+  afterEach(function () {
     [getsentry, sentry].forEach((c) => {
       c.git.getCommit.mockClear();
       c.repos.listPullRequestsAssociatedWithCommit.mockClear();
       c.repos.compareCommits.mockClear();
     });
   });
-
-  afterEach(function () {});
 
   it('single commit, sentry', async function () {
     sentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
