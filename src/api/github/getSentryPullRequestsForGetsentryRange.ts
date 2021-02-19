@@ -18,8 +18,8 @@ function isGetsentryBot({ committer }) {
   );
 }
 
-function isNotGetsentryBot({committer}) {
-  return !isGetsentryBot({committer});
+function isNotGetsentryBot({ committer }) {
+  return !isGetsentryBot({ committer });
 }
 
 function getSentrySha(message: string) {
@@ -33,7 +33,7 @@ function getSentrySha(message: string) {
  */
 export async function getSentryPullRequestsForGetsentryRange(
   current: string,
-  previous?: string|null,
+  previous?: string | null,
   includeGetsentry?: boolean
 ): Promise<PullRequest[number][]> {
   // getsentry client
@@ -99,13 +99,19 @@ export async function getSentryPullRequestsForGetsentryRange(
     })
   );
 
-  const getSentryPullRequestPromises = nonSyncedCommits.map(({sha: commit_sha}) => getsentry.repos.listPullRequestsAssociatedWithCommit({
-      owner: OWNER,
-      repo: GETSENTRY_REPO,
-      commit_sha,
-  }))
+  const getSentryPullRequestPromises = nonSyncedCommits.map(
+    ({ sha: commit_sha }) =>
+      getsentry.repos.listPullRequestsAssociatedWithCommit({
+        owner: OWNER,
+        repo: GETSENTRY_REPO,
+        commit_sha,
+      })
+  );
 
-  const pullRequests = await Promise.all([...pullRequestPromises, ...getSentryPullRequestPromises]);
+  const pullRequests = await Promise.all([
+    ...pullRequestPromises,
+    ...getSentryPullRequestPromises,
+  ]);
 
-  return pullRequests.map(({ data }) => data?.[0]);
+  return pullRequests.filter(Boolean).map(({ data }) => data?.[0]);
 }

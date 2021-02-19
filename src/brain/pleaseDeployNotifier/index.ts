@@ -75,26 +75,39 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-  const message = await slackMessageUser(slackTarget, {
+  const blocks = [
+    ...commitBlocks,
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `This is currently alpha™, please leave feedback in #discuss-dev-tooling`,
+      },
+    },
+
+    {
+      type: 'actions',
+      elements: [freightDeploy(commit), muteDeployNotificationsButton()],
+    },
+  ];
+
+  await slackMessageUser(slackTarget, {
     text,
     attachments: [
       {
         color: Color.NEUTRAL,
-        blocks: [
-          ...commitBlocks,
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: `This is currently alpha™, please leave feedback in #discuss-dev-tooling`,
-            },
-          },
+        blocks,
+      },
+    ],
+  });
 
-          {
-            type: 'actions',
-            elements: [freightDeploy(commit), muteDeployNotificationsButton()],
-          },
-        ],
+  const message = await bolt.client.chat.postMessage({
+    channel: '#z-billy',
+    text,
+    attachments: [
+      {
+        color: Color.NEUTRAL,
+        blocks,
       },
     ],
   });
@@ -108,7 +121,10 @@ async function handler({
         ts: `${message.ts}`,
       },
       {
+        target: slackTarget,
         status: 'undeployed',
+        blocks,
+        text,
       }
     );
   }

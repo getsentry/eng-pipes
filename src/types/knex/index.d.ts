@@ -1,5 +1,7 @@
 import Knex from 'knex';
 
+import { SlackMessage } from '@/config/slackMessage';
+
 declare module 'knex/types/tables' {
   interface User {
     id: number;
@@ -20,8 +22,18 @@ declare module 'knex/types/tables' {
     passed_at: Date | null;
   }
 
+  interface SlackMessageRow {
+    id: string;
+    refId: string;
+    channel: string;
+    ts: string;
+    type: SlackMessage;
+    context: Record<string, any>;
+  }
+
   interface Tables {
     users: User;
+    slack_messages: SlackMessageRow;
     required_checks_status: RequiredStatusCheck;
   }
 }

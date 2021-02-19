@@ -17,8 +17,10 @@ export const SLACK_BOT_APP_ID = process.env.SLACK_BOT_APP_ID || '';
 
 export enum Color {
   DANGER = '#F55459',
+  DANGER_LIGHT = '#FCC6C8',
   NEUTRAL = '#C6BECF',
   SUCCESS = '#33BF9E',
+  SUCCESS_LIGHT = '#B6ECDF',
 }
 
 /**
@@ -37,3 +39,8 @@ export const DB_NAME = process.env.DB_NAME || 'postgres';
 export const SLACK_BOT_USER_ACCESS_TOKEN =
   process.env.SLACK_BOT_USER_ACCESS_TOKEN || '';
 export const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || '';
+
+/**
+ * Freight
+ */
+export const FREIGHT_HOST = 'https://freight.getsentry.net';
