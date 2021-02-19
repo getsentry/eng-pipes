@@ -5,12 +5,14 @@ import { githubEvents } from '@/api/github';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
+import { SlackMessage } from '@/config/slackMessage';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
+import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
@@ -73,7 +75,7 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-  await slackMessageUser(slackTarget, {
+  const message = await slackMessageUser(slackTarget, {
     text,
     attachments: [
       {
@@ -96,6 +98,20 @@ async function handler({
       },
     ],
   });
+
+  if (message) {
+    await saveSlackMessage(
+      SlackMessage.PLEASE_DEPLOY,
+      {
+        refId: commit,
+        channel: `${message.channel}`,
+        ts: `${message.ts}`,
+      },
+      {
+        status: 'undeployed',
+      }
+    );
+  }
 
   // TODO(billy): Deploy directly, save user + sha in db state,
   // Follow up messages with commits that are being deployed
