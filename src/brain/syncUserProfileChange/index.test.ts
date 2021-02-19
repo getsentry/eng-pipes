@@ -21,12 +21,12 @@ describe('syncUserProfileChange', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     syncUserProfileChange();
-    // @ts-ignore
-    bolt.client.users.profile.get.mockClear();
   });
 
   afterEach(async function () {
     fastify.close();
+    // @ts-ignore
+    bolt.client.users.profile.get.mockClear();
     await db('users').delete();
   });
 

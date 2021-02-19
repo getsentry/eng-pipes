@@ -30,13 +30,14 @@ describe('pleaseDeployNotifier', function () {
     fastify = await buildServer(false);
     await pleaseDeployNotifier();
     octokit = await getClient('getsentry', 'getsentry');
+  });
+
+  afterEach(async function () {
+    fastify.close();
     octokit.repos.getCommit.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
-  });
-
-  afterEach(function () {
-    fastify.close();
+    await db('users').delete();
   });
 
   it('ignores check run in progress', async function () {

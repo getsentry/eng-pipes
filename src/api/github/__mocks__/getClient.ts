@@ -1,21 +1,25 @@
-const mock = {
-  actions: {
-    listWorkflowRunsForRepo: jest.fn(),
-    cancelWorkflowRun: jest.fn(),
-  },
-  git: {
-    getCommit: jest.fn(),
-  },
-  pulls: {
-    get: jest.fn(),
-  },
-  repos: {
-    getCommit: jest.fn(),
-    listPullRequestsAssociatedWithCommit: jest.fn(),
-    compareCommits: jest.fn(),
-  },
-};
+function getMock() {
+  return {
+    actions: {
+      listWorkflowRunsForRepo: jest.fn(),
+      cancelWorkflowRun: jest.fn(),
+    },
+    git: {
+      getCommit: jest.fn(),
+    },
+    pulls: {
+      get: jest.fn(),
+    },
+    repos: {
+      getCommit: jest.fn(),
+      listPullRequestsAssociatedWithCommit: jest.fn(),
+      compareCommits: jest.fn(),
+    },
+  };
+}
 
-export async function getClient(owner, repo) {
-  return Promise.resolve(mock);
+const sentry = getMock();
+const getsentry = getMock();
+export async function getClient(owner: string, repo: string) {
+  return Promise.resolve(repo === 'getsentry' ? getsentry : sentry);
 }

@@ -3,6 +3,7 @@ import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 import { buildServer } from '@/buildServer';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
+import { db } from '@utils/db';
 
 import { ghaCancel } from '.';
 
@@ -12,7 +13,14 @@ describe('gha-test', function () {
   let fastify;
   let octokit;
 
+  beforeAll(async function () {
+    await db.migrate.latest();
+  });
+  afterAll(async function () {
+    await db.destroy();
+  });
   beforeEach(async function () {
+    await db('users').delete();
     octokit = await getClient('', '');
     fastify = await buildServer(false);
     ghaCancel();
@@ -53,8 +61,15 @@ describe('gha-test', function () {
     }));
   });
 
-  afterEach(function () {
+  afterEach(async function () {
     fastify.close();
+    // @ts-ignore
+    bolt.client.chat.postMessage.mockClear();
+    // @ts-ignore
+    bolt.client.chat.update.mockClear();
+    octokit.pulls.get.mockClear();
+    octokit.actions.listWorkflowRunsForRepo.mockClear();
+    await db('users').delete();
   });
 
   it('cancels workflows for a PR', async function () {

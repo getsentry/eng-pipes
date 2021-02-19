@@ -18,6 +18,10 @@ function isGetsentryBot({ committer }) {
   );
 }
 
+function isNotGetsentryBot({committer}) {
+  return !isGetsentryBot({committer});
+}
+
 function getSentrySha(message: string) {
   return message.replace('getsentry/sentry@', '').slice(0, 40);
 }
@@ -29,15 +33,16 @@ function getSentrySha(message: string) {
  */
 export async function getSentryPullRequestsForGetsentryRange(
   current: string,
-  previous?: string
+  previous?: string|null,
+  includeGetsentry?: boolean
 ): Promise<PullRequest[number][]> {
   // getsentry client
-  const client = await getClient(OWNER, GETSENTRY_REPO);
+  const getsentry = await getClient(OWNER, GETSENTRY_REPO);
   const sentry = await getClient(OWNER, SENTRY_REPO);
 
   // Single commit
   if (!previous) {
-    const resp = await client.git.getCommit({
+    const resp = await getsentry.git.getCommit({
       owner: OWNER,
       repo: GETSENTRY_REPO,
       commit_sha: current,
@@ -47,23 +52,25 @@ export async function getSentryPullRequestsForGetsentryRange(
       throw new Error('API Error: retrieving commit');
     }
 
-    if (!isGetsentryBot(resp.data)) {
+    const isBumpCommit = isGetsentryBot(resp.data);
+    if (!isBumpCommit && !includeGetsentry) {
       return [];
     }
 
-    const sentryCommitSha = getSentrySha(resp.data.message);
-    const pullRequests = await sentry.repos.listPullRequestsAssociatedWithCommit(
+    const sentryCommitSha = isBumpCommit && getSentrySha(resp.data.message);
+    const client = isBumpCommit ? sentry : getsentry;
+    const pullRequests = await client.repos.listPullRequestsAssociatedWithCommit(
       {
         owner: OWNER,
-        repo: SENTRY_REPO,
-        commit_sha: sentryCommitSha,
+        repo: isBumpCommit ? SENTRY_REPO : GETSENTRY_REPO,
+        commit_sha: sentryCommitSha || current,
       }
     );
     return pullRequests.data;
   }
 
   // Multiple commits
-  const resp = await client.repos.compareCommits({
+  const resp = await getsentry.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
     base: previous,
@@ -79,6 +86,7 @@ export async function getSentryPullRequestsForGetsentryRange(
   // Only look for synced commits from sentry
   // (e.g. where `getsentry-bot` is the committer)
   const syncedCommits = data.commits.filter(isGetsentryBot);
+  const nonSyncedCommits = data.commits.filter(isNotGetsentryBot);
   const sentryShas = syncedCommits.map(({ commit }) =>
     getSentrySha(commit.message)
   );
@@ -91,7 +99,13 @@ export async function getSentryPullRequestsForGetsentryRange(
     })
   );
 
-  const pullRequests = await Promise.all(pullRequestPromises);
+  const getSentryPullRequestPromises = nonSyncedCommits.map(({sha: commit_sha}) => getsentry.repos.listPullRequestsAssociatedWithCommit({
+      owner: OWNER,
+      repo: GETSENTRY_REPO,
+      commit_sha,
+  }))
+
+  const pullRequests = await Promise.all([...pullRequestPromises, ...getSentryPullRequestPromises]);
 
   return pullRequests.map(({ data }) => data?.[0]);
 }

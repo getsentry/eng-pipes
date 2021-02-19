@@ -13,14 +13,13 @@ describe('getUser', function () {
     await db.destroy();
   });
 
-  beforeEach(async function () {
+  beforeEach(async function () {});
+
+  afterEach(async function () {
     // @ts-ignore
     bolt.client.users.lookupByEmail.mockClear();
     // @ts-ignore
     bolt.client.users.profile.get.mockClear();
-  });
-
-  afterEach(async function () {
     await db('users').delete();
   });
 
