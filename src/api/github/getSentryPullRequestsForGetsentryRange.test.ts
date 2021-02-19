@@ -60,10 +60,10 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
     ]);
     expect(
       getsentry.repos.listPullRequestsAssociatedWithCommit
-    ).not.toHaveBeenCalled()
+    ).not.toHaveBeenCalled();
     expect(
       sentry.repos.listPullRequestsAssociatedWithCommit
-    ).toHaveBeenCalledTimes(1)
+    ).toHaveBeenCalledTimes(1);
     expect(
       sentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
@@ -115,7 +115,6 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
     });
   });
 
-
   it('single commit, getsentry', async function () {
     getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
       () => ({
@@ -126,17 +125,21 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       status: 200,
       data: {
         committer: {
-          id: '123'
+          id: '123',
           email: 'mars@sentry.io',
         },
         message: 'feat: land on mars',
       },
     }));
-    expect(await getSentryPullRequestsForGetsentryRange('f00123', null, true)).toEqual([
-      { foo: 1 },
-    ]);
-    expect(sentry.repos.listPullRequestsAssociatedWithCommit).not.toHaveBeenCalled();
-    expect(getsentry.repos.listPullRequestsAssociatedWithCommit).toHaveBeenCalledTimes(1);
+    expect(
+      await getSentryPullRequestsForGetsentryRange('f00123', null, true)
+    ).toEqual([{ foo: 1 }]);
+    expect(
+      sentry.repos.listPullRequestsAssociatedWithCommit
+    ).not.toHaveBeenCalled();
+    expect(
+      getsentry.repos.listPullRequestsAssociatedWithCommit
+    ).toHaveBeenCalledTimes(1);
     expect(
       getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
@@ -175,8 +178,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
               email: 'mars@sentry.io',
             },
             commit: {
-              message:
-                'feat: lands on mars',
+              message: 'feat: lands on mars',
             },
           },
         ],
@@ -184,7 +186,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
     }));
     expect(
       await getSentryPullRequestsForGetsentryRange('f00123', 'deadbeef', true)
-    ).toEqual([{ foo: 1 }, {bar: 2}]);
+    ).toEqual([{ foo: 1 }, { bar: 2 }]);
     expect(getsentry.repos.compareCommits).toHaveBeenLastCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
