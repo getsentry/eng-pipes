@@ -3,11 +3,16 @@ const mock = {
     listWorkflowRunsForRepo: jest.fn(),
     cancelWorkflowRun: jest.fn(),
   },
+  git: {
+    getCommit: jest.fn(),
+  },
   pulls: {
     get: jest.fn(),
   },
   repos: {
     getCommit: jest.fn(),
+    listPullRequestsAssociatedWithCommit: jest.fn(),
+    compareCommits: jest.fn(),
   },
 };
 
