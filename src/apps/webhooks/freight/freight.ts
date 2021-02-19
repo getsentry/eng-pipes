@@ -2,6 +2,7 @@ import { FastifyRequest } from 'fastify';
 
 import { FreightPayload } from '@types';
 
+import { freight } from '@api/freight';
 import { getSentryPullRequestsForGetsentryRange } from '@api/github/getSentryPullRequestsForGetsentryRange';
 import { insert, mapDeployToPullRequest } from '@utils/metrics';
 
@@ -30,6 +31,8 @@ export async function handler(request: FastifyRequest) {
         : 'canceled';
     }
   }
+
+  freight.emit(status, { ...body, status });
 
   if (environment !== 'production') {
     return {};
