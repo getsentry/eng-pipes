@@ -24,10 +24,9 @@ export function syncUserProfileChange() {
         user: event.user.id,
       });
 
-      githubUser = normalizeGithubUser(
+      githubUser =
         // @ts-ignore
-        profile?.fields?.[SLACK_PROFILE_ID_GITHUB]?.value
-      );
+        profile?.fields?.[SLACK_PROFILE_ID_GITHUB]?.value;
     }
 
     // Let's save email/slack even if githubUser is undefined
@@ -36,7 +35,7 @@ export function syncUserProfileChange() {
         // @ts-ignore
         email: event.user.profile.email,
         slackUser: event.user.id,
-        githubUser,
+        githubUser: normalizeGithubUser(githubUser),
       })
       .onConflict(['email'])
       .merge();
