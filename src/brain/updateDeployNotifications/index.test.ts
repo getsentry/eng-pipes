@@ -186,13 +186,6 @@ describe('updateDeployNotifications', function () {
               },
               Object {
                 "text": Object {
-                  "text": "This is currently alpha™, please leave feedback in #discuss-dev-tooling",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
-                "text": Object {
                   "text": "You have queued this commit for deployment (</deploys/getsentry/production/13/|#13>)",
                   "type": "mrkdwn",
                 },
@@ -246,13 +239,6 @@ describe('updateDeployNotifications', function () {
                   },
                 ],
                 "type": "context",
-              },
-              Object {
-                "text": Object {
-                  "text": "This is currently alpha™, please leave feedback in #discuss-dev-tooling",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
               },
               Object {
                 "text": Object {
@@ -312,13 +298,6 @@ describe('updateDeployNotifications', function () {
               },
               Object {
                 "text": Object {
-                  "text": "This is currently alpha™, please leave feedback in #discuss-dev-tooling",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
-                "text": Object {
                   "text": "You have finished deploying this commit (</deploys/getsentry/production/13/|#13>) after 600 seconds",
                   "type": "mrkdwn",
                 },
@@ -372,13 +351,6 @@ describe('updateDeployNotifications', function () {
                   },
                 ],
                 "type": "context",
-              },
-              Object {
-                "text": Object {
-                  "text": "This is currently alpha™, please leave feedback in #discuss-dev-tooling",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
               },
               Object {
                 "elements": Array [

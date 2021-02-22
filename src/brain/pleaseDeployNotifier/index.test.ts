@@ -175,13 +175,6 @@ describe('pleaseDeployNotifier', function () {
               "type": "context",
             },
             Object {
-              "text": Object {
-                "text": "This is currently alpha™, please leave feedback in #discuss-dev-tooling",
-                "type": "mrkdwn",
-              },
-              "type": "section",
-            },
-            Object {
               "elements": Array [
                 Object {
                   "action_id": "freight-deploy",
