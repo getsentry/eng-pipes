@@ -9,7 +9,7 @@ export async function up(knex: Knex): Promise<void> {
     table.index(['refId']);
   });
 
-  await knex.schema.alterTable('required_check_status', (table) => {
+  await knex.schema.alterTable('required_checks_status', (table) => {
     table.index(['ref']);
   });
 }
@@ -23,7 +23,7 @@ export async function down(knex: Knex): Promise<void> {
     table.dropIndex(['refId']);
   });
 
-  await knex.schema.alterTable('required_check_status', (table) => {
+  await knex.schema.alterTable('required_checks_status', (table) => {
     table.dropIndex(['ref']);
   });
 }
