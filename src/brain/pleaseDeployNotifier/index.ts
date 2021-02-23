@@ -60,10 +60,10 @@ async function handler({
     email: relevantCommit.commit.author?.email,
   });
 
-  if (!user?.slackUser) {
-    tx.finish();
-    return;
-  }
+  // if (!user?.slackUser) {
+  // tx.finish();
+  // return;
+  // }
 
   const slackTarget = user?.slackUser;
 
@@ -83,15 +83,17 @@ async function handler({
     },
   ];
 
-  await slackMessageUser(slackTarget, {
-    text,
-    attachments: [
-      {
-        color: Color.NEUTRAL,
-        blocks,
-      },
-    ],
-  });
+  if (slackTarget) {
+    await slackMessageUser(slackTarget, {
+      text,
+      attachments: [
+        {
+          color: Color.NEUTRAL,
+          blocks,
+        },
+      ],
+    });
+  }
 
   const message = await bolt.client.chat.postMessage({
     channel: '#z-billy',
