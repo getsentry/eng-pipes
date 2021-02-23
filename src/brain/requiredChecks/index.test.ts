@@ -230,7 +230,6 @@ describe('requiredChecks', function () {
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
-        passed_at: null,
         status: 'failure',
       },
     });
@@ -593,7 +592,6 @@ describe('requiredChecks', function () {
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
-        passed_at: null,
         status: 'failure',
       },
     });
