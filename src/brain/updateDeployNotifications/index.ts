@@ -130,11 +130,65 @@ export async function handler(payload: FreightPayload) {
       },
     });
 
+    // We can bypass using `slackMessageUser` because these notifications will only
+    // exist if they have been messaged already
+    if (status === 'finished') {
+      // We want to thread a message only when the commit is deployed
+      // @ts-ignore
+      return await bolt.client.chat.postMessage({
+        thread_ts: message.ts,
+        channel: message.channel,
+        attachments: [
+          {
+            color: progressColor,
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: updatedDeployMessage,
+                },
+              },
+              {
+                type: 'actions',
+                elements: [
+                  {
+                    type: 'button',
+                    text: {
+                      type: 'plain_text',
+                      text: 'View Release (js)',
+                      emoji: true,
+                    },
+                    url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=11276`,
+                    value: 'js-release',
+                    action_id: 'open-sentry-release-js',
+                  },
+                  {
+                    type: 'button',
+                    text: {
+                      type: 'plain_text',
+                      text: 'View Release (py)',
+                      emoji: true,
+                    },
+                    url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=1`,
+                    value: 'py-release',
+                    action_id: 'open-sentry-release-py',
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+    }
+
     // Currently, we ignore deploy errors so they will just see the original messages
     // with the actions to deploy
+    //
+    // Update original message body with deploy status
     return await bolt.client.chat.update({
-      channel: message.channel,
       ts: message.ts,
+      channel: message.channel,
       text: !progressText
         ? progressText
         : message.context.text.replace('is ready to deploy', progressText),
@@ -169,4 +223,8 @@ export async function handler(payload: FreightPayload) {
 export async function updateDeployNotifications() {
   freight.off('*', handler);
   freight.on('*', handler);
+
+  bolt.action(/open-sentry-release-(.*)/, async ({ ack }) => {
+    await ack();
+  });
 }
