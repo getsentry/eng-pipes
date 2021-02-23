@@ -15,18 +15,13 @@ export function syncUserProfileChange() {
       return;
     }
 
-    let githubUser =
+    const githubUser =
       // @ts-ignore
       event.user.profile.fields?.[SLACK_PROFILE_ID_GITHUB]?.value;
 
+    // Only interested for githubUser
     if (!githubUser) {
-      const { profile } = await bolt.client.users.profile.get({
-        user: event.user.id,
-      });
-
-      githubUser =
-        // @ts-ignore
-        profile?.fields?.[SLACK_PROFILE_ID_GITHUB]?.value;
+      return;
     }
 
     // Let's save email/slack even if githubUser is undefined
