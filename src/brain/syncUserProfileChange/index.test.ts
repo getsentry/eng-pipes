@@ -30,39 +30,6 @@ describe('syncUserProfileChange', function () {
     await db('users').delete();
   });
 
-  it('fetches GitHub profile field on `user_change`', async function () {
-    // @ts-ignore
-    bolt.client.users.profile.get.mockImplementation(() => ({
-      profile: {
-        fields: {
-          [SLACK_PROFILE_ID_GITHUB]: { value: 'githubUser' },
-        },
-      },
-    }));
-    const resp = await createSlackEvent(fastify, 'user_change', {
-      user: {
-        id: 'U789123',
-        is_email_confirmed: true,
-        deleted: false,
-        profile: {
-          email: 'test@sentry.io',
-        },
-      },
-    });
-
-    expect(resp.statusCode).toBe(200);
-    expect(bolt.client.users.profile.get).toHaveBeenCalledWith({
-      user: 'U789123',
-    });
-
-    const user = await db('users').first('*');
-    expect(user).toMatchObject({
-      githubUser: 'githubUser',
-      slackUser: 'U789123',
-      email: 'test@sentry.io',
-    });
-  });
-
   it('does not fetch GitHub profile field on `user_change` if custom profile field is in event', async function () {
     const resp = await createSlackEvent(fastify, 'user_change', {
       user: {
@@ -89,7 +56,7 @@ describe('syncUserProfileChange', function () {
     });
   });
 
-  it('does not fetch if email is not from sentry.io', async function () {
+  it('does not update db if email is not from sentry.io', async function () {
     const resp = await createSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
@@ -102,12 +69,11 @@ describe('syncUserProfileChange', function () {
     });
 
     expect(resp.statusCode).toBe(200);
-    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
     const user = await db('users').first('*');
     expect(user).toBeUndefined();
   });
 
-  it('does not fetch if email is not confirmed', async function () {
+  it('does not update db if email is not confirmed', async function () {
     const resp = await createSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
@@ -120,12 +86,11 @@ describe('syncUserProfileChange', function () {
     });
 
     expect(resp.statusCode).toBe(200);
-    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
     const user = await db('users').first('*');
     expect(user).toBeUndefined();
   });
 
-  it('does not fetch if user account is deleted', async function () {
+  it('does not update db if user account is deleted', async function () {
     const resp = await createSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
@@ -138,7 +103,6 @@ describe('syncUserProfileChange', function () {
     });
 
     expect(resp.statusCode).toBe(200);
-    expect(bolt.client.users.profile.get).not.toHaveBeenCalled();
     const user = await db('users').first('*');
     expect(user).toBeUndefined();
   });
