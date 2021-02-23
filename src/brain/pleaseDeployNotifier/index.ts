@@ -95,8 +95,7 @@ async function handler({
     });
   }
 
-  const message = await bolt.client.chat.postMessage({
-    channel: '#z-billy',
+  const message = await slackMessageUser('U5ZKYFHDY', {
     text,
     attachments: [
       {

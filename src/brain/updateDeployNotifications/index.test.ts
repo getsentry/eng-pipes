@@ -268,41 +268,19 @@ describe('updateDeployNotifications', function () {
     `);
 
     updateMock.mockClear();
+    // @ts-ignore
+    bolt.client.chat.postMessage.mockClear();
 
+    // Post message is called when finished
     await handler({ ...payload, status: 'finished' });
-    expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
+    expect(updateMock).not.toHaveBeenCalled();
+    // @ts-ignore
+    expect(bolt.client.chat.postMessage.mock.calls[0][0])
+      .toMatchInlineSnapshot(`
       Object {
         "attachments": Array [
           Object {
             "blocks": Array [
-              Object {
-                "text": Object {
-                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
-                "text": Object {
-                  "text": "The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
-                "elements": Array [
-                  Object {
-                    "alt_text": "mars",
-                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
-                    "type": "image",
-                  },
-                  Object {
-                    "text": "<https://github.com/matejminar|mars (matejminar)>",
-                    "type": "mrkdwn",
-                  },
-                ],
-                "type": "context",
-              },
               Object {
                 "text": Object {
                   "text": "You have finished deploying this commit (</deploys/getsentry/production/13/|#13>) after 600 seconds",
@@ -310,13 +288,39 @@ describe('updateDeployNotifications', function () {
                 },
                 "type": "section",
               },
+              Object {
+                "elements": Array [
+                  Object {
+                    "action_id": "open-sentry-release-js",
+                    "text": Object {
+                      "emoji": true,
+                      "text": "View Release (js)",
+                      "type": "plain_text",
+                    },
+                    "type": "button",
+                    "url": "https://sentry.io/organizations/sentry/releases/c88d886ba52bd85431052abaef4916469f7db2e8/?project=11276",
+                    "value": "js-release",
+                  },
+                  Object {
+                    "action_id": "open-sentry-release-py",
+                    "text": Object {
+                      "emoji": true,
+                      "text": "View Release (py)",
+                      "type": "plain_text",
+                    },
+                    "type": "button",
+                    "url": "https://sentry.io/organizations/sentry/releases/c88d886ba52bd85431052abaef4916469f7db2e8/?project=1",
+                    "value": "py-release",
+                  },
+                ],
+                "type": "actions",
+              },
             ],
             "color": "#33BF9E",
           },
         ],
         "channel": "channel_id",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> was deployed",
-        "ts": "1234123.123",
+        "thread_ts": "1234123.123",
       }
     `);
 
