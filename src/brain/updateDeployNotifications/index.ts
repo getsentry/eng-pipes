@@ -94,6 +94,16 @@ export async function handler(payload: FreightPayload) {
       ? Color.SUCCESS
       : Color.DANGER;
 
+  Sentry.setContext('freight', {
+    ...payload,
+    commits: commitShas,
+  });
+
+  const tx = Sentry.startTransaction({
+    op: 'handler',
+    name: 'updateDeployNotifications',
+  });
+
   const promises = messages.map(async (message) => {
     const updatedBlocks = message.context.blocks.slice(0, -1);
     const payloadUser = await getUser({ email: payload.user });
@@ -132,6 +142,8 @@ export async function handler(payload: FreightPayload) {
   });
 
   await Promise.all(promises);
+
+  tx.finish();
 }
 
 export async function updateDeployNotifications() {
