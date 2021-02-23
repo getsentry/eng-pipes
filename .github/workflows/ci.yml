@@ -89,11 +89,29 @@ jobs:
       - name: Builds docker image
         run: docker build -t ci-tooling .
 
-  build-deploy:
-    name: build and deploy
+  prep-deploy:
+    name: prep deploy
     runs-on: ubuntu-latest
     timeout-minutes: 10
     needs: [build-and-lint, test]
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+
+    steps:
+      - name: Install @sentry/cli
+        run: curl -sL https://sentry.io/get-cli/ | bash
+
+      - name: Get version
+        id: get-version
+        if: github.ref == 'refs/heads/main'
+        run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
+
+  build-deploy:
+    name: build and deploy
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [build-and-lint, test, prep-deploy]
     environment: 'production'
     env:
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
@@ -112,24 +130,13 @@ jobs:
       - name: yarn install
         run: yarn install --immutable
 
-      - name: Install @sentry/cli
-        run: |
-            curl -sL https://sentry.io/get-cli/ | bash
-
-      - name: Get version
-        id: get-version
-        if: github.ref == 'refs/heads/main'
-        run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
-
       # Build ts only when deploying since `test` workflow runs this
       - name: Build
-        if: github.ref == 'refs/heads/main'
         run: yarn build
 
       # Setup gcloud CLI
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@master
-        if: github.ref == 'refs/heads/main'
         with:
           service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
           service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
@@ -137,9 +144,8 @@ jobs:
       # Deploy to Google Cloud Functions
       - name: Deploy
         id: deploy
-        if: github.ref == 'refs/heads/main'
         env:
-          VERSION: ${{ steps.get-version.outputs.version }}
+          VERSION: ${{ needs.prep-deploy.outputs.version }}
           SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
           SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
@@ -157,9 +163,8 @@ jobs:
 
       - name: Sentry Release
         uses: getsentry/action-release@v1.0.0
-        if: github.ref == 'refs/heads/main'
         with:
           environment: 'production'
           sourcemaps: './lib'
           started_at: ${{ steps.deploy.outputs.deploy-start }}
-          version: ${{ steps.get-version.outputs.version }}
+          version: ${{ needs.prep-deploy.outputs.version }}
