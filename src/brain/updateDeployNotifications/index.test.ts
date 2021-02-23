@@ -1,5 +1,6 @@
 jest.mock('@utils/loadBrain');
 jest.mock('@api/github/getClient');
+
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/freight.json';
@@ -11,10 +12,13 @@ import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import * as metrics from '@utils/metrics';
 
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
-import { updateDeployNotifications } from '.';
+// Was having issues integration testing this (e.g. via fastify) due to async issues,
+// instead test `handler` directly
+import { handler, updateDeployNotifications } from '.';
 
 describe('updateDeployNotifications', function () {
   let fastify: Fastify;
@@ -22,10 +26,20 @@ describe('updateDeployNotifications', function () {
 
   beforeAll(async function () {
     await db.migrate.latest();
+    jest.spyOn(metrics, 'insert');
+    jest.spyOn(metrics, 'mapDeployToPullRequest');
+    // @ts-ignore
+    metrics.insert.mockImplementation(() => Promise.resolve());
+    // @ts-ignore
+    metrics.mapDeployToPullRequest.mockImplementation(() => Promise.resolve());
   });
 
   afterAll(async function () {
     await db.destroy();
+    // @ts-ignore
+    metrics.insert.mockReset();
+    // @ts-ignore
+    metrics.mapDeployToPullRequest.mockReset();
   });
 
   beforeEach(async function () {
@@ -47,6 +61,7 @@ describe('updateDeployNotifications', function () {
   it('notifies slack user when check run is successful', async function () {
     const updateMock = bolt.client.chat.update as jest.Mock;
 
+    // @ts-ignore
     octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,
       data: {
@@ -134,7 +149,9 @@ describe('updateDeployNotifications', function () {
     });
     // TODO(updateDeployNotifications): Uncomment the following expectation when out of testing
     // expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(await db('slack_messages').first('*')).toMatchObject({
+    const slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(1);
+    expect(slackMessages[0]).toMatchObject({
       refId: '982345',
       channel: 'channel_id',
       ts: '1234123.123',
@@ -144,13 +161,9 @@ describe('updateDeployNotifications', function () {
       },
     });
 
-    // Simulate freight deploy starting
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/freight/webhook',
-      payload: { ...payload, status: 'queued', date_finished: null },
-    });
-
+    await handler({ ...payload, status: 'queued', date_finished: null });
+    console.log('update check');
+    expect(updateMock).toHaveBeenCalledTimes(1);
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
         "attachments": Array [
@@ -202,11 +215,7 @@ describe('updateDeployNotifications', function () {
     `);
 
     updateMock.mockClear();
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/freight/webhook',
-      payload: { ...payload, status: 'started', date_finished: null },
-    });
+    await handler({ ...payload, status: 'started', date_finished: null });
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
         "attachments": Array [
@@ -258,11 +267,8 @@ describe('updateDeployNotifications', function () {
     `);
 
     updateMock.mockClear();
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/freight/webhook',
-      payload: { ...payload, status: 'finished' },
-    });
+
+    await handler({ ...payload, status: 'finished' });
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
         "attachments": Array [
@@ -314,11 +320,7 @@ describe('updateDeployNotifications', function () {
     `);
 
     updateMock.mockClear();
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/freight/webhook',
-      payload: { ...payload, status: 'failed' },
-    });
+    await handler({ ...payload, status: 'failed' });
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
         "attachments": Array [
@@ -560,11 +562,7 @@ describe('updateDeployNotifications', function () {
     });
 
     // Simulate freight deploy starting
-    await fastify.inject({
-      method: 'POST',
-      url: '/metrics/freight/webhook',
-      payload: { ...payload, status: 'queued', date_finished: null },
-    });
+    await handler({ ...payload, status: 'queued', date_finished: null });
 
     // Each commit (2) gets updated with new status
     expect(updateMock).toHaveBeenCalledTimes(2);

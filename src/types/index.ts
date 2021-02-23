@@ -139,7 +139,7 @@ export type FreightPayload = {
   app_name: string;
   date_created: string;
   date_started: string;
-  date_finished: string;
+  date_finished: string | null;
   deploy_number: number;
   duration: number;
   environment: string;
@@ -151,5 +151,5 @@ export type FreightPayload = {
   status: string;
   title: string;
   user: string;
-  user_id: string;
+  user_id: number;
 };

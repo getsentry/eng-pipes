@@ -58,7 +58,8 @@ function getUpdatedDeployMessage({
 `;
 }
 
-async function handler(payload: FreightPayload) {
+// Exported for tests
+export async function handler(payload: FreightPayload) {
   // Get the range of commits for this payload
 
   const getsentry = await getClient('getsentry', 'getsentry');
