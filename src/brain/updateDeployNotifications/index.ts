@@ -17,7 +17,6 @@ function getUpdatedDeployMessage({
   payload: FreightPayload;
 }) {
   const { deploy_number, status, user, duration, link, title } = payload;
-
   // You have, user has
   const verbByStatus = {
     true: {
@@ -60,8 +59,11 @@ function getUpdatedDeployMessage({
 
 // Exported for tests
 export async function handler(payload: FreightPayload) {
-  // Get the range of commits for this payload
+  if (payload.environment !== 'production') {
+    return;
+  }
 
+  // Get the range of commits for this payload
   const getsentry = await getClient('getsentry', 'getsentry');
 
   const { data } = await getsentry.repos.compareCommits({
