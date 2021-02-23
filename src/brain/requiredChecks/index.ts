@@ -80,6 +80,7 @@ async function handler({
       },
       {
         status: 'success',
+        passed_at: new Date(),
       }
     );
 
@@ -189,6 +190,7 @@ ${jobsList}`,
     },
     {
       status: 'failure',
+      failed_at: new Date(),
     }
   );
 

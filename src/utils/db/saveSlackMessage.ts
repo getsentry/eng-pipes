@@ -14,32 +14,21 @@ export async function saveSlackMessage(
   context: Record<string, any>
 ) {
   if (id) {
-    await db('slack_messages')
+    return await db('slack_messages')
       .where({
         id,
       })
       .update({
         // @ts-ignore
-        context: db.raw(`context || ?`, [
-          {
-            status: context.status,
-            passed_at: context.status === 'success' ? new Date() : null,
-          },
-        ]),
+        context: db.raw(`context || ?`, [JSON.stringify(context)]),
       });
-    return;
   }
 
-  return await db('slack_messages').insert({
+  return await db('slack_messages').returning('*').insert({
     refId,
     channel,
     ts,
     type,
-
-    context: {
-      ...context,
-      passed_at: context.status === 'success' ? new Date() : null,
-      failed_at: new Date(),
-    },
+    context,
   });
 }
