@@ -67,9 +67,11 @@ async function handler({
 
   const slackTarget = user?.slackUser;
 
-  Sentry.setUser({
-    id: slackTarget,
-    email: relevantCommit.commit.author?.email,
+  Sentry.configureScope(async (scope) => {
+    scope.setUser({
+      id: slackTarget,
+      email: relevantCommit.commit.author?.email,
+    });
   });
 
   // Author of commit found
