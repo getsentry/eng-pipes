@@ -147,7 +147,12 @@ export async function handler(payload: FreightPayload) {
     });
   });
 
-  await Promise.all(promises);
+  try {
+    await Promise.all(promises);
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(err);
+  }
 
   Sentry.withScope((scope) => {
     scope.setContext('freight', {
