@@ -49,6 +49,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/types", "npm:2.0.0"],
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:26.0.20"],
+            ["@types/lodash.merge", "npm:4.6.6"],
             ["@types/node", "npm:12.12.39"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.15.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.15.0"],
@@ -1657,6 +1658,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@types/keyv", "npm:3.1.1"],
             ["@types/node", "npm:14.14.22"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/lodash", [
+        ["npm:4.14.168", {
+          "packageLocation": "./.yarn/cache/@types-lodash-npm-4.14.168-2d65abe211-9a4e25f89f.zip/node_modules/@types/lodash/",
+          "packageDependencies": [
+            ["@types/lodash", "npm:4.14.168"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/lodash.merge", [
+        ["npm:4.6.6", {
+          "packageLocation": "./.yarn/cache/@types-lodash.merge-npm-4.6.6-1bd609f0f2-63967ce152.zip/node_modules/@types/lodash.merge/",
+          "packageDependencies": [
+            ["@types/lodash.merge", "npm:4.6.6"],
+            ["@types/lodash", "npm:4.14.168"]
           ],
           "linkType": "HARD",
         }]
@@ -9524,6 +9544,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/types", "npm:2.0.0"],
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:26.0.20"],
+            ["@types/lodash.merge", "npm:4.6.6"],
             ["@types/node", "npm:12.12.39"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.15.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.15.0"],

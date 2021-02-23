@@ -1,8 +1,7 @@
 import { getSlackEvent } from '@test/utils/getSlackEvent';
 
-import { createSignature } from '@utils/createSignature';
-
 import { Fastify } from '@/types';
+import { createSignature } from '@utils/createSignature';
 
 function createSlackSignature(payload, timestamp) {
   return createSignature(

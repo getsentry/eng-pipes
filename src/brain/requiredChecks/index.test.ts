@@ -30,13 +30,13 @@ describe('requiredChecks', function () {
     fastify = await buildServer(false);
     await requiredChecks();
     octokit = await getClient('getsentry', 'getsentry');
+  });
+
+  afterEach(async function () {
+    fastify.close();
     octokit.repos.getCommit.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
-  });
-
-  afterEach(function () {
-    fastify.close();
   });
 
   it('ignores check run in progress', async function () {

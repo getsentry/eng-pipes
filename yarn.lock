@@ -1306,6 +1306,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/lodash.merge@npm:^4.6.6":
+  version: 4.6.6
+  resolution: "@types/lodash.merge@npm:4.6.6"
+  dependencies:
+    "@types/lodash": "*"
+  checksum: 63967ce1520f5fee268a1a81b042bc4730e9a11a0ce140634c73fd77f10c18c7d5b9ea79555e6f16d67308d29cfa67ef670b44aadbfc6690b8d7fc080ba369b5
+  languageName: node
+  linkType: hard
+
+"@types/lodash@npm:*":
+  version: 4.14.168
+  resolution: "@types/lodash@npm:4.14.168"
+  checksum: 9a4e25f89fc035b9f0388f1f7be85e5eff49f9e6db0d93432c9a89fce0916f8a89db4e8290415f7ea02de6b00d3573826378dcb655b7b2d20530a6e8d6dd6fd0
+  languageName: node
+  linkType: hard
+
 "@types/lru-cache@npm:^5.1.0":
   version: 5.1.0
   resolution: "@types/lru-cache@npm:5.1.0"
@@ -8095,6 +8111,7 @@ __metadata:
     "@slack/types": ^2.0.0
     "@slack/web-api": ^6.0.0
     "@types/jest": ^26.0.20
+    "@types/lodash.merge": ^4.6.6
     "@types/node": 12
     "@typescript-eslint/eslint-plugin": ^4.15.0
     "@typescript-eslint/parser": ^4.15.0
