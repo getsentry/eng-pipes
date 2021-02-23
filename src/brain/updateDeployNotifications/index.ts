@@ -99,13 +99,6 @@ export async function handler(payload: FreightPayload) {
       ? Color.SUCCESS
       : Color.DANGER;
 
-  Sentry.setContext('freight', {
-    ...payload,
-    title: 'freight',
-    description: payload.title,
-    commits: commitShas,
-  });
-
   const tx = Sentry.startTransaction({
     op: 'handler',
     name: 'updateDeployNotifications',
@@ -150,7 +143,16 @@ export async function handler(payload: FreightPayload) {
 
   await Promise.all(promises);
 
-  tx.finish();
+  Sentry.withScope((scope) => {
+    scope.setContext('freight', {
+      ...payload,
+      title: 'freight',
+      description: payload.title,
+      commits: commitShas,
+    });
+
+    tx.finish();
+  });
 }
 
 export async function updateDeployNotifications() {

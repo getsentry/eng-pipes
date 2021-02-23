@@ -67,13 +67,6 @@ async function handler({
 
   const slackTarget = user?.slackUser;
 
-  Sentry.configureScope(async (scope) => {
-    scope.setUser({
-      id: slackTarget,
-      email: relevantCommit.commit.author?.email,
-    });
-  });
-
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
   const commit = checkRun.head_sha;
@@ -131,7 +124,13 @@ async function handler({
   // TODO(billy): Deploy directly, save user + sha in db state,
   // Follow up messages with commits that are being deployed
   // Tag people whose commits are being deployed
-  tx.finish();
+  Sentry.withScope(async (scope) => {
+    scope.setUser({
+      id: slackTarget,
+      email: relevantCommit.commit.author?.email,
+    });
+    tx.finish();
+  });
 }
 
 export async function pleaseDeployNotifier() {
