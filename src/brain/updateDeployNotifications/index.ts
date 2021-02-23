@@ -32,8 +32,9 @@ function getUpdatedDeployMessage({
     },
   };
 
+  console.log({ isUserDeploying });
   const subject =
-    verbByStatus[`${isUserDeploying}`][status] ??
+    verbByStatus[`${!!isUserDeploying}`][status] ??
     // Otherwise it has failed
     (isUserDeploying ? `You have` : `${user} has`);
 
