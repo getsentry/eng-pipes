@@ -1,6 +1,7 @@
+import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
-import { SLACK_PROFILE_ID_GITHUB } from '@app/config';
 import { db } from '@utils/db';
+import { isSentrySlackUser } from '@utils/isSentrySlackUser';
 
 export function syncSlackUsers() {
   bolt.event('app_mention', async ({ event, say, client }) => {
@@ -17,11 +18,7 @@ export function syncSlackUsers() {
 
       // @ts-ignore
       for (const member of results.members) {
-        if (!member.is_email_confirmed || member.deleted || member.is_bot) {
-          continue;
-        }
-
-        if (!member.profile?.email.endsWith('@sentry.io')) {
+        if (!isSentrySlackUser(member)) {
           continue;
         }
 
@@ -34,7 +31,15 @@ export function syncSlackUsers() {
           SLACK_PROFILE_ID_GITHUB
         ]?.value.replace(/(https:\/\/|)github.com\//, '');
 
-        if (githubLogin) {
+        const exists = await db('users')
+          .where({
+            email: member.profile?.email,
+            slackUser: member.id,
+          })
+          .first('*');
+
+        // If user doesn't already exist *OR* they do not have a github user set, update db
+        if (!exists || (!exists.githubUser && githubLogin)) {
           total++;
           await db('users')
             .insert({
