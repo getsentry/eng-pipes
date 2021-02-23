@@ -133,7 +133,7 @@ export async function handler(payload: FreightPayload) {
     // Currently, we ignore deploy errors so they will just see the original messages
     // with the actions to deploy
     return await bolt.client.chat.update({
-      channel: message.ts,
+      channel: message.channel,
       ts: message.ts,
       text: !progressText
         ? progressText

@@ -209,7 +209,7 @@ describe('updateDeployNotifications', function () {
             "color": "#C6BECF",
           },
         ],
-        "channel": "1234123.123",
+        "channel": "channel_id",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is queued for deployment",
         "ts": "1234123.123",
       }
@@ -261,7 +261,7 @@ describe('updateDeployNotifications', function () {
             "color": "#B6ECDF",
           },
         ],
-        "channel": "1234123.123",
+        "channel": "channel_id",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
         "ts": "1234123.123",
       }
@@ -314,7 +314,7 @@ describe('updateDeployNotifications', function () {
             "color": "#33BF9E",
           },
         ],
-        "channel": "1234123.123",
+        "channel": "channel_id",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> was deployed",
         "ts": "1234123.123",
       }
@@ -412,7 +412,7 @@ describe('updateDeployNotifications', function () {
             "color": "#F55459",
           },
         ],
-        "channel": "1234123.123",
+        "channel": "channel_id",
         "text": "",
         "ts": "1234123.123",
       }
