@@ -38,10 +38,8 @@ jobs:
       - name: eslint
         run: yarn lint
 
-      # Only run this on PRs, as our deploy task needs to build before deploying
       - name: tsc
-        if: github.event_name == 'pull_request'
-        run: yarn tsc
+        run: yarn build
 
   test:
     runs-on: ubuntu-latest
@@ -89,31 +87,15 @@ jobs:
       - name: Builds docker image
         run: docker build -t ci-tooling .
 
-  prep-deploy:
-    name: prep deploy
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    needs: [build-and-lint, test]
-    outputs:
-      version: ${{ steps.get-version.outputs.version }}
-
-    steps:
-      - name: Install @sentry/cli
-        run: curl -sL https://sentry.io/get-cli/ | bash
-
-      - name: Get version
-        id: get-version
-        if: github.ref == 'refs/heads/main'
-        run: echo "::set-output name=version::$(sentry-cli releases propose-version)"
-
   build-deploy:
     name: build and deploy
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    needs: [build-and-lint, test, prep-deploy]
+    needs: [build-and-lint, test]
     environment: 'production'
     env:
+      VERSION: ${{ github.sha }}
       SENTRY_ORG: ${{ secrets.SENTRY_ORG }}
       SENTRY_PROJECT: ${{ secrets.SENTRY_PROJECT }}
       SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
@@ -130,10 +112,6 @@ jobs:
       - name: yarn install
         run: yarn install --immutable
 
-      # Build ts only when deploying since `test` workflow runs this
-      - name: Build
-        run: yarn build
-
       # Setup gcloud CLI
       - name: Setup gcloud CLI
         uses: google-github-actions/setup-gcloud@master
@@ -145,7 +123,6 @@ jobs:
       - name: Deploy
         id: deploy
         env:
-          VERSION: ${{ needs.prep-deploy.outputs.version }}
           SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
           SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
@@ -167,4 +144,4 @@ jobs:
           environment: 'production'
           sourcemaps: './lib'
           started_at: ${{ steps.deploy.outputs.deploy-start }}
-          version: ${{ needs.prep-deploy.outputs.version }}
+          version: ${{ env.VERSION }}
