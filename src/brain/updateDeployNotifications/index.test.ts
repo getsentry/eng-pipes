@@ -8,6 +8,7 @@ import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_BOT_ID, REQUIRED_CHECK_NAME } from '@/config';
+import { SlackMessage } from '@/config/slackMessage';
 import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
@@ -46,21 +47,8 @@ describe('updateDeployNotifications', function () {
     fastify = await buildServer(false);
     await updateDeployNotifications();
     await pleaseDeployNotifier();
+
     octokit = await getClient('getsentry', 'getsentry');
-  });
-
-  afterEach(async function () {
-    fastify.close();
-    octokit.repos.getCommit.mockClear();
-    (bolt.client.chat.postMessage as jest.Mock).mockClear();
-    (bolt.client.chat.update as jest.Mock).mockClear();
-    await db('slack_messages').delete();
-    await db('users').delete();
-  });
-
-  it('notifies slack user when check run is successful', async function () {
-    const updateMock = bolt.client.chat.update as jest.Mock;
-
     // @ts-ignore
     octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,
@@ -90,6 +78,7 @@ describe('updateDeployNotifications', function () {
         ],
       },
     }));
+
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
@@ -117,6 +106,19 @@ describe('updateDeployNotifications', function () {
 
       return { data: defaultPayload };
     });
+  });
+
+  afterEach(async function () {
+    fastify.close();
+    octokit.repos.getCommit.mockClear();
+    (bolt.client.chat.postMessage as jest.Mock).mockClear();
+    (bolt.client.chat.update as jest.Mock).mockClear();
+    await db('slack_messages').delete();
+    await db('users').delete();
+  });
+
+  it('notifies slack user when check run is successful', async function () {
+    const updateMock = bolt.client.chat.update as jest.Mock;
 
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
@@ -162,7 +164,6 @@ describe('updateDeployNotifications', function () {
     });
 
     await handler({ ...payload, status: 'queued', date_finished: null });
-    console.log('update check');
     expect(updateMock).toHaveBeenCalledTimes(1);
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
@@ -421,62 +422,6 @@ describe('updateDeployNotifications', function () {
   it('updates all slack messages when deploying a range of commits', async function () {
     const updateMock = bolt.client.chat.update as jest.Mock;
 
-    octokit.repos.compareCommits.mockImplementation(() => ({
-      status: 200,
-      data: {
-        commits: [
-          {
-            sha: '982345',
-            committer: {
-              id: GETSENTRY_BOT_ID,
-              email: 'bot@getsentry.com',
-            },
-            commit: {
-              message:
-                'getsentry/sentry@2188f0485424da597dcca9e12093d253ddc67c0a',
-            },
-          },
-          {
-            sha: '99999999',
-            committer: {
-              id: '123',
-              email: 'mars@sentry.io',
-            },
-            commit: {
-              message: 'feat: lands on mars',
-            },
-          },
-        ],
-      },
-    }));
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
-      if (repo === 'sentry') {
-        return {
-          data: merge({}, defaultPayload, {
-            commit: {
-              author: {
-                name: 'mars',
-                email: 'mars@sentry.io',
-                date: '2021-02-03T11:06:46Z',
-              },
-              committer: {
-                name: 'GitHub',
-                email: 'noreply@github.com',
-                date: '2021-02-03T11:06:46Z',
-              },
-              message:
-                'feat(ui): Change default period for fresh releases (#23572)\n' +
-                '\n' +
-                'The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.',
-            },
-          }),
-        };
-      }
-
-      return { data: defaultPayload };
-    });
-
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -566,5 +511,54 @@ describe('updateDeployNotifications', function () {
 
     // Each commit (2) gets updated with new status
     expect(updateMock).toHaveBeenCalledTimes(2);
+  });
+
+  it('only attempts to update pleaseDeployNotifier messages', async function () {
+    const updateMock = bolt.client.chat.update as jest.Mock;
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'success',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '982345',
+        output: {
+          title: 'All checks passed',
+          summary: 'All checks passed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+    // TODO(updateDeployNotifications): Uncomment the following expectation when out of testing
+    // expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    await db('slack_messages').insert({
+      refId: '982345',
+      channel: 'channel_id',
+      ts: '1234123.123',
+      type: SlackMessage.REQUIRED_CHECK,
+      context: {},
+    });
+
+    const slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(2);
+
+    await handler({ ...payload, status: 'queued', date_finished: null });
+    expect(updateMock).toHaveBeenCalledTimes(1);
   });
 });
