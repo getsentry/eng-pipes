@@ -59,7 +59,10 @@ function getUpdatedDeployMessage({
 
 // Exported for tests
 export async function handler(payload: FreightPayload) {
-  if (payload.environment !== 'production') {
+  if (
+    payload.environment !== 'production' &&
+    payload.app_name === 'getsentry'
+  ) {
     return;
   }
 
@@ -69,8 +72,8 @@ export async function handler(payload: FreightPayload) {
   const { data } = await getsentry.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
-    base: payload.sha,
-    head: payload.previous_sha,
+    head: payload.sha,
+    base: payload.previous_sha,
   });
 
   const commitShas = data.commits.map(({ sha }) => sha);
@@ -98,6 +101,8 @@ export async function handler(payload: FreightPayload) {
 
   Sentry.setContext('freight', {
     ...payload,
+    title: 'freight',
+    description: payload.title,
     commits: commitShas,
   });
 
