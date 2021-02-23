@@ -66,7 +66,11 @@ async function handler({
   }
 
   const slackTarget = user?.slackUser;
-  console.log({ slackTarget });
+
+  Sentry.setUser({
+    id: slackTarget,
+    email: relevantCommit.commit.author?.email,
+  });
 
   // Author of commit found
   const commitBlocks = getBlocksForCommit(relevantCommit);
