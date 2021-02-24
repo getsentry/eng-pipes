@@ -49,7 +49,7 @@ async function handler({
   }
 
   const tx = Sentry.startTransaction({
-    op: 'handler',
+    op: 'brain',
     name: 'pleaseDeployNotifier',
   });
 
@@ -60,10 +60,15 @@ async function handler({
     email: relevantCommit.commit.author?.email,
   });
 
-  // if (!user?.slackUser) {
-  // tx.finish();
-  // return;
-  // }
+  if (!user?.slackUser) {
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        email: relevantCommit.commit.author?.email,
+      });
+      tx.finish();
+    });
+    return;
+  }
 
   const slackTarget = user?.slackUser;
 
@@ -83,19 +88,7 @@ async function handler({
     },
   ];
 
-  if (slackTarget) {
-    await slackMessageUser(slackTarget, {
-      text,
-      attachments: [
-        {
-          color: Color.NEUTRAL,
-          blocks,
-        },
-      ],
-    });
-  }
-
-  const message = await slackMessageUser('U5ZKYFHDY', {
+  const message = await slackMessageUser(slackTarget, {
     text,
     attachments: [
       {
@@ -122,9 +115,6 @@ async function handler({
     );
   }
 
-  // TODO(billy): Deploy directly, save user + sha in db state,
-  // Follow up messages with commits that are being deployed
-  // Tag people whose commits are being deployed
   Sentry.withScope(async (scope) => {
     scope.setUser({
       id: slackTarget,
@@ -139,18 +129,19 @@ export async function pleaseDeployNotifier() {
   githubEvents.on('check_run', handler);
 
   // We need to respond to button clicks, otherwise it will display a warning message
-  bolt.action('freight-deploy', async ({ ack, ...args }) => {
-    console.log('freight-deploy', args);
-    // ack asap
+  bolt.action('freight-deploy', async ({ ack, body }) => {
     await ack();
-    // TODO(billy): Call freight API directly to deploy
     Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
       const tx = Sentry.startTransaction({
-        op: 'action',
+        op: 'slack.action',
         name: 'freight-deploy',
       });
       tx.finish();
     });
+    // TODO(billy): Call freight API directly to deploy
   });
 
   // Handles both mute and unmute action that comes from deploy notification

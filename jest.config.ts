@@ -30,4 +30,10 @@ module.exports = {
   globalSetup: './test/jest.globalSetup.ts',
   globalTeardown: './test/jest.globalTeardown.ts',
   setupFilesAfterEnv: ['./test/jest.setup.ts'],
+
+  globals: {
+    'ts-jest': {
+      isolatedModules: true,
+    },
+  },
 };
