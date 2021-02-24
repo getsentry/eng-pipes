@@ -159,7 +159,9 @@ export async function handler(payload: FreightPayload) {
               thread_ts: message.ts,
               channel: message.channel,
               text: `${
-                message.user ? `<@${message.user}>, your` : 'Your'
+                message.context.target
+                  ? `<@${message.context.target}>, your`
+                  : 'Your'
               } commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.`,
               attachments: [
                 {

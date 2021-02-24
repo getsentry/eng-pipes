@@ -313,7 +313,7 @@ describe('updateDeployNotifications', function () {
           },
         ],
         "channel": "channel_id",
-        "text": "<@U018UAXJVG8>, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.",
+        "text": "<@U789123>, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.",
         "thread_ts": "1234123.123",
       }
     `);
