@@ -6,7 +6,6 @@ interface SaveSlackMessage {
   channel: string;
   ts: string;
   id?: string;
-  user?: string;
 }
 
 type UpdateSlackMessage = Required<Pick<SaveSlackMessage, 'id'>> &
@@ -14,7 +13,7 @@ type UpdateSlackMessage = Required<Pick<SaveSlackMessage, 'id'>> &
 
 export async function saveSlackMessage(
   type: SlackMessage,
-  { refId, channel, ts, id, user }: SaveSlackMessage | UpdateSlackMessage,
+  { refId, channel, ts, id }: SaveSlackMessage | UpdateSlackMessage,
   context: Record<string, any>
 ) {
   if (id) {
@@ -31,7 +30,6 @@ export async function saveSlackMessage(
   return await db('slack_messages').returning('*').insert({
     refId,
     channel,
-    user,
     ts,
     type,
     context,
