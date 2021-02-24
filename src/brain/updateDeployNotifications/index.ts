@@ -132,73 +132,71 @@ export async function handler(payload: FreightPayload) {
 
     // We can bypass using `slackMessageUser` because these notifications will only
     // exist if they have been messaged already
-    if (status === 'finished') {
-      // We want to thread a message only when the commit is deployed
-      // @ts-ignore
-      return await bolt.client.chat.postMessage({
-        thread_ts: message.ts,
+    //
+    return await Promise.all([
+      // Currently, we ignore deploy errors so they will just see the original messages
+      // with the actions to deploy
+      //
+      // Update original message body with deploy status
+      bolt.client.chat.update({
+        ts: message.ts,
         channel: message.channel,
+        text: !progressText
+          ? progressText
+          : message.context.text.replace('is ready to deploy', progressText),
         attachments: [
           {
             color: progressColor,
-            blocks: [
-              {
-                type: 'section',
-                text: {
-                  type: 'mrkdwn',
-                  text: updatedDeployMessage,
-                },
-              },
-              {
-                type: 'actions',
-                elements: [
-                  {
-                    type: 'button',
-                    text: {
-                      type: 'plain_text',
-                      text: 'View Release (js)',
-                      emoji: true,
-                    },
-                    url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=11276`,
-                    value: 'js-release',
-                    action_id: 'open-sentry-release-js',
-                  },
-                  {
-                    type: 'button',
-                    text: {
-                      type: 'plain_text',
-                      text: 'View Release (py)',
-                      emoji: true,
-                    },
-                    url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=1`,
-                    value: 'py-release',
-                    action_id: 'open-sentry-release-py',
-                  },
-                ],
-              },
-            ],
+            blocks: !progressText ? message.context.blocks : updatedBlocks,
           },
         ],
-      });
-    }
+      }),
 
-    // Currently, we ignore deploy errors so they will just see the original messages
-    // with the actions to deploy
-    //
-    // Update original message body with deploy status
-    return await bolt.client.chat.update({
-      ts: message.ts,
-      channel: message.channel,
-      text: !progressText
-        ? progressText
-        : message.context.text.replace('is ready to deploy', progressText),
-      attachments: [
-        {
-          color: progressColor,
-          blocks: !progressText ? message.context.blocks : updatedBlocks,
-        },
-      ],
-    });
+      // We want to thread a message only when the commit is deployed
+      ...(status === 'finished'
+        ? [
+            bolt.client.chat.postMessage({
+              thread_ts: message.ts,
+              channel: message.channel,
+              text: `@${message.channel}, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.`,
+              attachments: [
+                {
+                  color: progressColor,
+                  blocks: [
+                    {
+                      type: 'actions',
+                      elements: [
+                        {
+                          type: 'button',
+                          text: {
+                            type: 'plain_text',
+                            text: 'javascript',
+                            emoji: true,
+                          },
+                          url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=11276`,
+                          value: 'js-release',
+                          action_id: 'open-sentry-release-js',
+                        },
+                        {
+                          type: 'button',
+                          text: {
+                            type: 'plain_text',
+                            text: 'sentry',
+                            emoji: true,
+                          },
+                          url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=1`,
+                          value: 'py-release',
+                          action_id: 'open-sentry-release-py',
+                        },
+                      ],
+                    },
+                  ],
+                },
+              ],
+            }),
+          ]
+        : []),
+    ]);
   });
 
   try {
