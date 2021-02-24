@@ -158,7 +158,9 @@ export async function handler(payload: FreightPayload) {
             bolt.client.chat.postMessage({
               thread_ts: message.ts,
               channel: message.channel,
-              text: `<@${message.channel}>, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.`,
+              text: `${
+                message.user ? `<@${message.user}>, your` : 'Your'
+              } commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.`,
               attachments: [
                 {
                   color: progressColor,
