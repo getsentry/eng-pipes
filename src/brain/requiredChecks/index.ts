@@ -113,7 +113,6 @@ async function handler({
   }
 
   if (dbCheck && dbCheck.context.status === 'failure') {
-    console.log({ dbCheck });
     return;
   }
 
@@ -146,15 +145,45 @@ async function handler({
   // 2) The author of the failed commit (will need to lookup their slack user from their gh email)
   // 3) A list of the failed checks (job name, duration, status)
   // 4) Button to re-run job
-  const failedJobs = checkRun.output?.text
+  const jobs = checkRun.output?.text
     ?.split('\n')
     .filter((text) => text.startsWith('|'))
     .slice(2) // First 2 rows are table headers + spacer
-    .map((text) => text.split('|').filter(Boolean)) // Split and filter out empty els
-    .filter(([, conclusion]) => !OK_CONCLUSIONS.includes(conclusion));
+    .map((text) => text.split('|').filter(Boolean)); // Split and filter out empty els
+
+  const failedJobs =
+    jobs?.filter(
+      ([, conclusion]) =>
+        !OK_CONCLUSIONS.includes(conclusion.trim().split(' ').slice(-1)[0])
+    ) ?? [];
+
+  // If all failed jobs are just missing, and the # of missing jobs represents > 50% of all jobs...
+  // then ignore it. Due to GHA, it's difficult to tell if a job is actually missing vs it hasn't started yet
+  const missingJobs = failedJobs.filter(([, conclusion]) =>
+    conclusion.includes('missing')
+  );
+
+  if (
+    missingJobs.length === failedJobs.length &&
+    missingJobs.length >= (jobs?.length ?? 0) / 2
+  ) {
+    Sentry.withScope((scope) => {
+      scope.setContext('Required Checks', {
+        id: checkRun.id,
+        url: checkRun.html_url,
+        sha: checkRun.head_sha,
+        missingJobs,
+      });
+      Sentry.startTransaction({
+        op: 'debug',
+        name: 'requiredChecks',
+      }).finish();
+    });
+    return;
+  }
 
   const text = getTextParts(checkRun).join(' ');
-  const jobsList = failedJobs
+  const jobsList = jobs
     ?.map(
       ([jobName, conclusion]) => `${githubMdToSlack(jobName)} - ${conclusion}`
     )
