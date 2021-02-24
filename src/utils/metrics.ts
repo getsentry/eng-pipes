@@ -1,9 +1,16 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
+import { getOctokitClient } from '@api/github/getClient';
+
 const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
+const KNOWN_BOTS = [
+  'getsentry-bot',
+  'getsentry-release',
+  'sentry-test-fixture-nonmember',
+];
 
 function objectToSchema(obj: Record<string, any>) {
   return Object.entries(obj).map(([name, type]) => ({
@@ -168,11 +175,32 @@ export function insertAssetSize({ pull_request_number, ...data }) {
 }
 
 export function insertOss(eventType: string, payload: Record<string, any>) {
+  let user_type = 'external';
+  if (
+    KNOWN_BOTS.includes(payload.sender.login) ||
+    payload.sender.login.endsWith('[bot]')
+  ) {
+    user_type = 'bot';
+  } else {
+    const { owner } = payload.repository;
+    if (owner.type === 'Organization') {
+      const octokit = getOctokitClient();
+      // NB: Try to keep this test in sync with getsentry/.github/.../validate-new-issue.yml.
+      // @ts-ignore
+      if (
+        octokit.orgs.checkMembershipForUser(owner.login, payload.sender.login)
+      ) {
+        user_type = 'internal';
+      }
+    }
+  }
+
   const data: Record<string, any> = {
     type: eventType,
     action: payload.action,
     username: payload.sender.login,
     user_id: payload.sender.id,
+    user_type: user_type,
     repository: payload.repository.full_name,
   };
 

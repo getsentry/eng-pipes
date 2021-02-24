@@ -1,3 +1,13 @@
+export function getOctokitClient() {
+  return {
+    orgs: {
+      checkMembershipForUser: jest.fn(
+        (org, user) => org === 'Enterprise' && user === 'Picard'
+      ),
+    },
+  };
+}
+
 function getMock() {
   return {
     actions: {
