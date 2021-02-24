@@ -273,7 +273,7 @@ describe('updateDeployNotifications', function () {
 
     // Post message is called when finished
     await handler({ ...payload, status: 'finished' });
-    expect(updateMock).not.toHaveBeenCalled();
+    expect(updateMock).toHaveBeenCalledTimes(1);
     // @ts-ignore
     expect(bolt.client.chat.postMessage.mock.calls[0][0])
       .toMatchInlineSnapshot(`
@@ -282,19 +282,12 @@ describe('updateDeployNotifications', function () {
           Object {
             "blocks": Array [
               Object {
-                "text": Object {
-                  "text": "You have finished deploying this commit (</deploys/getsentry/production/13/|#13>) after 600 seconds",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
                 "elements": Array [
                   Object {
                     "action_id": "open-sentry-release-js",
                     "text": Object {
                       "emoji": true,
-                      "text": "View Release (js)",
+                      "text": "javascript",
                       "type": "plain_text",
                     },
                     "type": "button",
@@ -305,7 +298,7 @@ describe('updateDeployNotifications', function () {
                     "action_id": "open-sentry-release-py",
                     "text": Object {
                       "emoji": true,
-                      "text": "View Release (py)",
+                      "text": "sentry",
                       "type": "plain_text",
                     },
                     "type": "button",
@@ -320,6 +313,7 @@ describe('updateDeployNotifications', function () {
           },
         ],
         "channel": "channel_id",
+        "text": "@channel_id, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.",
         "thread_ts": "1234123.123",
       }
     `);

@@ -139,10 +139,18 @@ export async function pleaseDeployNotifier() {
   githubEvents.on('check_run', handler);
 
   // We need to respond to button clicks, otherwise it will display a warning message
-  bolt.action('freight-deploy', async ({ ack }) => {
+  bolt.action('freight-deploy', async ({ ack, ...args }) => {
+    console.log('freight-deploy', args);
     // ack asap
     await ack();
     // TODO(billy): Call freight API directly to deploy
+    Sentry.withScope(async (scope) => {
+      const tx = Sentry.startTransaction({
+        op: 'action',
+        name: 'freight-deploy',
+      });
+      tx.finish();
+    });
   });
 
   // Handles both mute and unmute action that comes from deploy notification
