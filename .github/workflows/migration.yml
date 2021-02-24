@@ -3,6 +3,11 @@
 name: Migration
 
 on:
+  push:
+    paths:
+      - 'migrations/**'
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       name:
