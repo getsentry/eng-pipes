@@ -2,15 +2,19 @@ import { SlackMessage } from '@/config/slackMessage';
 import { db } from '@utils/db';
 
 interface SaveSlackMessage {
-  refId?: string;
+  refId: string;
+  channel: string;
+  ts: string;
   id?: string;
-  channel?: string;
-  ts?: string;
+  user?: string;
 }
+
+type UpdateSlackMessage = Required<Pick<SaveSlackMessage, 'id'>> &
+  Partial<Omit<SaveSlackMessage, 'id'>>;
 
 export async function saveSlackMessage(
   type: SlackMessage,
-  { refId, channel, ts, id }: SaveSlackMessage,
+  { refId, channel, ts, id, user }: SaveSlackMessage | UpdateSlackMessage,
   context: Record<string, any>
 ) {
   if (id) {
@@ -27,6 +31,7 @@ export async function saveSlackMessage(
   return await db('slack_messages').returning('*').insert({
     refId,
     channel,
+    user,
     ts,
     type,
     context,

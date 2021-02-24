@@ -112,6 +112,8 @@ async function handler({
         refId: commit,
         channel: `${message.channel}`,
         ts: `${message.ts}`,
+        // @ts-ignore
+        user: `${message.message.user}`,
       },
       {
         target: slackTarget,

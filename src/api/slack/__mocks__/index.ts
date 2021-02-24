@@ -25,6 +25,23 @@ jest.mock('@slack/web-api', () => ({
           Promise.resolve({
             channel: 'channel_id',
             ts: '1234123.123',
+            message: {
+              bot_id: 'B01834PAJDT',
+              type: 'message',
+              text: ':sentry-loading: fetching status ...',
+              user: 'U018UAXJVG8',
+              ts: '1234123.123',
+              team: 'T018UAQ7YRW',
+              bot_profile: {
+                id: 'B01834PAJDT',
+                deleted: false,
+                name: 'Bot Name',
+                updated: 1596673914,
+                app_id: 'A017XPC80S2',
+                icons: [],
+                team_id: 'T018UAQ7YRW',
+              },
+            },
           })
         ),
         update: jest.fn(() => {
