@@ -29,6 +29,7 @@ declare module 'knex/types/tables' {
     ts: string;
     type: SlackMessage;
     context: Record<string, any>;
+    user?: string;
   }
 
   interface Tables {

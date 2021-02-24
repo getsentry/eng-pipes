@@ -187,6 +187,8 @@ ${jobsList}`,
       refId: checkRun.head_sha,
       channel: `${message.channel}`,
       ts: `${message.ts}`,
+      // @ts-ignore
+      user: `${message.message.user}`,
     },
     {
       status: 'failure',
