@@ -16,7 +16,6 @@ on:
       - main
     paths:
       - 'src/**/*.ts'
-      - '!migrations/**'
   pull_request:
     branches:
       - main
