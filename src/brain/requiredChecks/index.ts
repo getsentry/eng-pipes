@@ -129,7 +129,7 @@ async function handler({
   }
 
   const tx = Sentry.startTransaction({
-    op: 'handler',
+    op: 'brain',
     name: 'requiredChecks',
     description: 'Required check failed',
   });

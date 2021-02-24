@@ -106,7 +106,7 @@ export async function handler(payload: FreightPayload) {
       : Color.DANGER;
 
   const tx = Sentry.startTransaction({
-    op: 'handler',
+    op: 'brain',
     name: 'updateDeployNotifications',
   });
 
@@ -216,6 +216,7 @@ export async function handler(payload: FreightPayload) {
       title: 'freight',
       description: payload.title,
       commits: commitShas,
+      updatedMessages: messages.map((m) => m.channel),
     });
 
     tx.finish();
@@ -226,7 +227,16 @@ export async function updateDeployNotifications() {
   freight.off('*', handler);
   freight.on('*', handler);
 
-  bolt.action(/open-sentry-release-(.*)/, async ({ ack }) => {
+  bolt.action(/open-sentry-release-(.*)/, async ({ ack, body, context }) => {
     await ack();
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
+      Sentry.startTransaction({
+        op: 'slack.action',
+        name: `open-sentry-release-${context.actionIdMatches[1]}`,
+      }).finish();
+    });
   });
 }
