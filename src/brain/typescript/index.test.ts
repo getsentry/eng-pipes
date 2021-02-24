@@ -41,30 +41,30 @@ describe('slack app', function () {
       appDir: 'gsApp',
     });
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.update).toHaveBeenCalledWith(
-      expect.objectContaining({
-        blocks: [
-          {
-            text: {
-              text:
-                ':typescript: progress: *1%* completed, *4* files remaining',
-              type: 'mrkdwn',
+    // @ts-ignore
+    expect(bolt.client.chat.update.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "blocks": Array [
+          Object {
+            "text": Object {
+              "text": ":typescript: progress: *NaN%* completed, *4* files remaining",
+              "type": "mrkdwn",
             },
-            type: 'section',
+            "type": "section",
           },
-          {
-            text: {
-              text: `• *sentry:* 2 files remain (1%)
-• *getsentry:* 2 files remain (1%)`,
-              type: 'mrkdwn',
+          Object {
+            "text": Object {
+              "text": "• *sentry:* 2 files remain (1%)
+      • *getsentry:* 2 files remain (1%)",
+              "type": "mrkdwn",
             },
-            type: 'section',
+            "type": "section",
           },
         ],
-        channel: 'channel_id',
-        text: 'TypeScript progress: 1% completed, 4 files remaining',
-        ts: '1234123.123',
-      })
-    );
+        "channel": "channel_id",
+        "text": "TypeScript progress: NaN% completed, 4 files remaining",
+        "ts": "1234123.123",
+      }
+    `);
   });
 });

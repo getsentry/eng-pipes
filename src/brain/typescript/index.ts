@@ -34,9 +34,10 @@ export function typescript() {
         }),
       ]);
 
-      const progress = (sentryResp.progress + getsentryResp.progress) / 2;
       const remainingFiles =
         sentryResp.remainingFiles + getsentryResp.remainingFiles;
+      const totalTotal = sentryResp.total + getsentryResp.total;
+      const progress = (totalTotal - remainingFiles) / totalTotal;
 
       await client.chat.update({
         channel: String(message.channel),
