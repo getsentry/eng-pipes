@@ -16,6 +16,9 @@ on:
       - main
     paths:
       - 'src/**/*.ts'
+      - 'yarn.lock'
+      - 'Dockerfile'
+      - '.github/workflows/ci.yml'
   pull_request:
     branches:
       - main
