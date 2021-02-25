@@ -175,12 +175,12 @@ export function insertAssetSize({ pull_request_number, ...data }) {
 }
 
 export function insertOss(eventType: string, payload: Record<string, any>) {
-  let user_type = 'external';
+  let userType = 'external';
   if (
     KNOWN_BOTS.includes(payload.sender.login) ||
     payload.sender.login.endsWith('[bot]')
   ) {
-    user_type = 'bot';
+    userType = 'bot';
   } else {
     const { owner } = payload.repository;
     if (owner.type === 'Organization') {
@@ -190,7 +190,7 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
         // @ts-ignore
         octokit.orgs.checkMembershipForUser(owner.login, payload.sender.login)
       ) {
-        user_type = 'internal';
+        userType = 'internal';
       }
     }
   }
@@ -200,7 +200,7 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
     action: payload.action,
     username: payload.sender.login,
     user_id: payload.sender.id,
-    user_type: user_type,
+    user_type: userType,
     repository: payload.repository.full_name,
   };
 
