@@ -179,7 +179,7 @@ export async function insertOss(
   eventType: string,
   payload: Record<string, any>
 ) {
-  let userType = 'external';
+  let userType: string | null = null;
   if (
     KNOWN_BOTS.includes(payload.sender.login) ||
     payload.sender.login.endsWith('[bot]')
@@ -188,15 +188,30 @@ export async function insertOss(
   } else {
     const { owner } = payload.repository;
     if (owner.type === 'Organization') {
+      // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
       const octokit = await getClient();
-      if (
-        // NB: Try to keep this condition in sync with getsentry/.github/.../validate-new-issue.yml.
-        await octokit.orgs.checkMembershipForUser({
-          org: owner.login,
-          username: payload.sender.login,
-        })
-      ) {
-        userType = 'internal';
+      const response = await octokit.orgs.checkMembershipForUser({
+        org: owner.login,
+        username: payload.sender.login,
+      });
+
+      // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
+      switch (response.status) {
+        case 204: {
+          userType = 'internal';
+          break;
+        }
+        case 404: {
+          userType = 'external';
+          break;
+        }
+        default: {
+          userType = null;
+          Sentry.captureException(
+            new Error(`Can't see org memberships (${response.status})`)
+          );
+          break;
+        }
       }
     }
   }

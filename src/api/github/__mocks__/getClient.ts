@@ -8,9 +8,17 @@ function mockClient() {
       getCommit: jest.fn(),
     },
     orgs: {
-      checkMembershipForUser: jest.fn(
-        (x) => x.org === 'Enterprise' && x.username === 'Picard'
-      ),
+      checkMembershipForUser: jest.fn(function (x) {
+        let status = 302;
+        if (x.org === 'Enterprise') {
+          if (x.username === 'Picard') {
+            status = 204;
+          } else {
+            status = 404;
+          }
+        }
+        return { status: status };
+      }),
     },
     pulls: {
       get: jest.fn(),

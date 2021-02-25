@@ -125,7 +125,7 @@ describe('github webhook', function () {
         type: 'pull_request',
         updated_at: '2019-05-15T15:20:33Z',
         user_id: 21031067,
-        user_type: 'external',
+        user_type: null,
         username: 'Codertocat',
       },
       { schema: SCHEMA }
