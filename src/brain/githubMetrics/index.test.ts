@@ -196,6 +196,32 @@ describe('github webhook', function () {
     );
   });
 
+  it('sees a bot for what it truly is, sneaky bot 👀', async function () {
+    const response = await createGitHubEvent(fastify, 'issues', {
+      sender: { login: 'human[bot]' },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(mockDataset).toHaveBeenCalledWith('open_source');
+    expect(mockTable).toHaveBeenCalledWith('github_events');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        action: 'opened',
+        created_at: '2019-05-15T15:20:18Z',
+        object_id: 1,
+        repository: 'Enterprise/Hello-World',
+        type: 'issues',
+        updated_at: '2019-05-15T15:20:18Z',
+        user_id: 21031067,
+        user_type: 'bot',
+        username: 'human[bot]',
+      },
+      { schema: SCHEMA }
+    );
+  });
+
   it('does not insert unsupported webhook events', async function () {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     const response = await createGitHubEvent(
