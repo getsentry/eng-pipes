@@ -9,6 +9,7 @@ import { getUser } from '@api/getUser';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { getSlackMessage } from '@utils/db/getSlackMessage';
 
 function getUpdatedDeployMessage({
   isUserDeploying,
@@ -81,11 +82,10 @@ export async function handler(payload: FreightPayload) {
   const commitShas = data.commits.map(({ sha }) => sha);
 
   // Look for associated slack messages based on getsentry commit sha
-  const messages = await db('slack_messages')
-    .where({
-      type: SlackMessage.PLEASE_DEPLOY,
-    })
-    .whereIn('refId', commitShas);
+  const messages = await getSlackMessage(
+    SlackMessage.PLEASE_DEPLOY,
+    commitShas
+  );
   const { status } = payload;
 
   const progressText =
