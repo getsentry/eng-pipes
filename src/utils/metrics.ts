@@ -7,6 +7,7 @@ const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 const KNOWN_BOTS = [
+  // https://www.notion.so/sentry/Bot-Accounts-beea0fc35473453ab50e05e6e4d1d02d
   'getsentry-bot',
   'getsentry-release',
   'sentry-test-fixture-nonmember',
@@ -190,7 +191,7 @@ export async function insertOss(
       const octokit = await getClient();
       if (
         // NB: Try to keep this condition in sync with getsentry/.github/.../validate-new-issue.yml.
-        octokit.orgs.checkMembershipForUser({
+        await octokit.orgs.checkMembershipForUser({
           org: owner.login,
           username: payload.sender.login,
         })

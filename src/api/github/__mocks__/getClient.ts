@@ -1,4 +1,4 @@
-function mockBoundClient() {
+function mockClient() {
   return {
     actions: {
       listWorkflowRunsForRepo: jest.fn(),
@@ -6,6 +6,11 @@ function mockBoundClient() {
     },
     git: {
       getCommit: jest.fn(),
+    },
+    orgs: {
+      checkMembershipForUser: jest.fn(
+        (x) => x.org === 'Enterprise' && x.username === 'Picard'
+      ),
     },
     pulls: {
       get: jest.fn(),
@@ -18,20 +23,10 @@ function mockBoundClient() {
   };
 }
 
-function mockUnboundClient() {
-  return {
-    orgs: {
-      checkMembershipForUser: jest.fn(
-        (x) => x.org === 'Enterprise' && x.username === 'Picard'
-      ),
-    },
-  };
-}
-
 const mocks = {
-  sentry: mockBoundClient(),
-  getsentry: mockBoundClient(),
-  undefined: mockUnboundClient(),
+  sentry: mockClient(),
+  getsentry: mockClient(),
+  undefined: mockClient(),
 };
 
 export async function getClient(owner?: string, repo?: string) {

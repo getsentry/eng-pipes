@@ -1,6 +1,18 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 
+function _getClient(installationId?: number) {
+  return new Octokit({
+    authStrategy: createAppAuth,
+    auth: {
+      // Initialize GitHub App with id:private_key pair and generate JWT which is used for
+      appId: Number(process.env.GH_APP_IDENTIFIER),
+      privateKey: process.env.GH_APP_SECRET_KEY,
+      installationId,
+    },
+  });
+}
+
 /**
  * Return an Octokit client. If owner and repo are given, the client will be bound to that repo.
  */
@@ -10,18 +22,6 @@ export async function getClient(owner?: string, repo?: string) {
   }
   if (!process.env.GH_APP_IDENTIFIER) {
     throw new Error('GH_APP_IDENTIFIER not defined');
-  }
-
-  function _getClient(installationId?: number) {
-    return new Octokit({
-      authStrategy: createAppAuth,
-      auth: {
-        // Initialize GitHub App with id:private_key pair and generate JWT which is used for
-        appId: Number(process.env.GH_APP_IDENTIFIER),
-        privateKey: process.env.GH_APP_SECRET_KEY,
-        installationId,
-      },
-    });
   }
 
   const client = _getClient();
