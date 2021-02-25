@@ -721,4 +721,140 @@ describe('requiredChecks', function () {
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
   });
+
+  it('does not continue to notify after the first test failure', async function () {
+    const postMessage = bolt.client.chat.postMessage as jest.Mock;
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ❌  failure |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ❌  failure |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  failure |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  failure |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  failure |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ❌  failure |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ❌  failure |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+
+    expect(postMessage).toHaveBeenCalledTimes(2);
+    postMessage.mockClear();
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe7',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ❌  failure |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ❌  failure |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  failure |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  failure |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  failure |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ❌  failure |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ❌  failure |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+    // Failure gets posted to the previous message as a threaded message
+    // expect(postMessage).toHaveBeenCalledTimes(1);
+
+    // Both checks should be in database
+    const results = await db('slack_messages').select('*');
+    expect(results).toHaveLength(2);
+
+    // Create a new passing check run (eg sha is different from all previous failed events)
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe8',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ✅ success |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ✅ success |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ✅ success |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ✅ success |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ✅ success |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ✅ skipped |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ✅ skipped |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ✅ skipped |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+
+    // Previously failed checks should now be considered unknown statuses
+    const nonSuccessResults = await db('slack_messages')
+      .where(db.raw(`context::json->>'status' != 'success'`))
+      .select('*');
+
+    console.log(results);
+  });
+
+  it.todo('it does nothing if a failed test en');
 });
