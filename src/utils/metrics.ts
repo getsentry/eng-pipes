@@ -186,8 +186,8 @@ export function insertOss(eventType: string, payload: Record<string, any>) {
     if (owner.type === 'Organization') {
       const octokit = getOctokitClient();
       // NB: Try to keep this test in sync with getsentry/.github/.../validate-new-issue.yml.
-      // @ts-ignore
       if (
+        // @ts-ignore
         octokit.orgs.checkMembershipForUser(owner.login, payload.sender.login)
       ) {
         user_type = 'internal';
