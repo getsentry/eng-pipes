@@ -190,8 +190,10 @@ export async function insertOss(
       const octokit = await getClient();
       if (
         // NB: Try to keep this condition in sync with getsentry/.github/.../validate-new-issue.yml.
-        // @ts-ignore
-        octokit.orgs.checkMembershipForUser(owner.login, payload.sender.login)
+        octokit.orgs.checkMembershipForUser({
+          org: owner.login,
+          username: payload.sender.login,
+        })
       ) {
         userType = 'internal';
       }

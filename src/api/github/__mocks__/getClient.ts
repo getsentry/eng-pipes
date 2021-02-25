@@ -22,7 +22,7 @@ function mockUnboundClient() {
   return {
     orgs: {
       checkMembershipForUser: jest.fn(
-        (org, user) => org === 'Enterprise' && user === 'Picard'
+        (x) => x.org === 'Enterprise' && x.username === 'Picard'
       ),
     },
   };
