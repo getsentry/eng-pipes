@@ -22,7 +22,7 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { buildServer } from '@/buildServer';
-import { getOctokitClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import * as db from '@utils/metrics';
 
 import { metrics } from '.';
@@ -84,7 +84,7 @@ describe('github webhook', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = getOctokitClient();
+    octokit = await getClient();
     metrics();
   });
 

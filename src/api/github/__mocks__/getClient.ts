@@ -1,14 +1,4 @@
-export function getOctokitClient() {
-  return {
-    orgs: {
-      checkMembershipForUser: jest.fn(
-        (org, user) => org === 'Enterprise' && user === 'Picard'
-      ),
-    },
-  };
-}
-
-function getMock() {
+function mockBoundClient() {
   return {
     actions: {
       listWorkflowRunsForRepo: jest.fn(),
@@ -28,8 +18,22 @@ function getMock() {
   };
 }
 
-const sentry = getMock();
-const getsentry = getMock();
-export async function getClient(owner: string, repo: string) {
-  return Promise.resolve(repo === 'getsentry' ? getsentry : sentry);
+function mockUnboundClient() {
+  return {
+    orgs: {
+      checkMembershipForUser: jest.fn(
+        (org, user) => org === 'Enterprise' && user === 'Picard'
+      ),
+    },
+  };
+}
+
+const mocks = {
+  sentry: mockBoundClient(),
+  getsentry: mockBoundClient(),
+  undefined: mockUnboundClient(),
+};
+
+export async function getClient(owner?: string, repo?: string) {
+  return mocks[repo || 'undefined'];
 }
