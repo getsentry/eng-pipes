@@ -196,7 +196,7 @@ export async function insertOss(
       });
 
       // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-      switch (response.status) {
+      switch (response.status as number) {
         case 204: {
           userType = 'internal';
           break;
