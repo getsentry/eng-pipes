@@ -25,7 +25,6 @@
     "start": "node --async-stack-traces ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
     "test": "GH_WEBHOOK_SECRET=webhooksecret yarn jest --runInBand",
-    "test:debug": "GH_WEBHOOK_SECRET=webhooksecret yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
