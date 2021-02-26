@@ -1,5 +1,6 @@
 import Knex from 'knex';
 
+import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 
 declare module 'knex/types/tables' {
@@ -17,7 +18,7 @@ declare module 'knex/types/tables' {
     ref: string;
     channel: string;
     ts: string;
-    status: 'success' | 'failure';
+    status: BuildStatus;
     failed_at: Date;
     passed_at: Date | null;
   }

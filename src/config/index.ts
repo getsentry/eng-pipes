@@ -15,10 +15,12 @@ export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
 export const SLACK_PROFILE_ID_GITHUB = 'XfEJ1CLM1C';
 export const SLACK_BOT_APP_ID = process.env.SLACK_BOT_APP_ID || '';
 
+// Note, these are Sentry palette colors
 export enum Color {
   DANGER = '#F55459',
   DANGER_LIGHT = '#FCC6C8',
   NEUTRAL = '#C6BECF',
+  OFF_WHITE_TOO = '#E7E1EC',
   SUCCESS = '#33BF9E',
   SUCCESS_LIGHT = '#B6ECDF',
 }
@@ -44,3 +46,20 @@ export const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || '';
  * Freight
  */
 export const FREIGHT_HOST = 'https://freight.getsentry.net';
+
+export enum BuildStatus {
+  SUCCESS = 'success',
+  NEUTRAL = 'neutral',
+  SKIPPED = 'skipped',
+
+  FAILURE = 'failure',
+  MISSING = 'missing',
+  CANCELLED = 'cancelled',
+  ACTION_REQUIRED = 'action_required',
+  STALE = 'stale',
+  TIMED_OUT = 'timed_out',
+
+  UNKNOWN = 'unknown',
+  FIXED = 'fixed',
+  FLAKE = 'flake',
+}

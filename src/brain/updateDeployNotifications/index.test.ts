@@ -205,7 +205,7 @@ describe('updateDeployNotifications', function () {
                 "type": "section",
               },
             ],
-            "color": "#C6BECF",
+            "color": "#E7E1EC",
           },
         ],
         "channel": "channel_id",
