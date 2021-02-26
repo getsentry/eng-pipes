@@ -197,7 +197,7 @@ export async function insertOss(
     const { owner } = payload.repository;
     if (owner.type === 'Organization') {
       // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
-      const octokit = await getClient();
+      const octokit = await getClient(owner.login);
       const response = await octokit.orgs.checkMembershipForUser({
         org: owner.login,
         username: payload.sender.login,
@@ -216,7 +216,7 @@ export async function insertOss(
         default: {
           userType = null;
           Sentry.captureException(
-            new Error(`Can't see org memberships (${response.status})`)
+            new Error(`Org membership check failing with ${response.status}`)
           );
           break;
         }

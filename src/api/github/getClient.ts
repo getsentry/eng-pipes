@@ -14,9 +14,11 @@ function _getClient(installationId?: number) {
 }
 
 /**
- * Return an Octokit client. If owner and repo are given, the client will be bound to that repo.
+ * Return an Octokit client. Owner is required. If repo is given, the client
+ * will use installation auth bound to the repo, otherwise owner is assumed to
+ * be an org and the client will use installation auth bound to the org.
  */
-export async function getClient(owner?: string, repo?: string) {
+export async function getClient(owner: string, repo?: string) {
   if (!process.env.GH_APP_SECRET_KEY) {
     throw new Error('GH_APP_SECRET_KEY not defined');
   }
@@ -25,10 +27,11 @@ export async function getClient(owner?: string, repo?: string) {
   }
 
   const client = _getClient();
-  if (owner && repo) {
-    const installation = await client.apps.getRepoInstallation({ owner, repo });
-    return _getClient(installation.data.id);
+  let installation;
+  if (repo) {
+    installation = await client.apps.getRepoInstallation({ owner, repo });
   } else {
-    return client;
+    installation = await client.apps.getOrgInstallation({ org: owner });
   }
+  return _getClient(installation.data.id);
 }
