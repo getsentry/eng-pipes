@@ -22,14 +22,12 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { buildServer } from '@/buildServer';
-import { getClient } from '@api/github/getClient';
 import * as db from '@utils/metrics';
 
 import { githubMetrics as metrics } from '.';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
-jest.mock('@api/github/getClient');
 
 const SCHEMA = [
   {
@@ -80,11 +78,9 @@ const SCHEMA = [
 
 describe('github webhook', function () {
   let fastify: Fastify;
-  let octokit;
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = await getClient('getsentry');
     metrics();
   });
 
@@ -92,7 +88,6 @@ describe('github webhook', function () {
     fastify.close();
     (db.insertOss as jest.Mock).mockClear();
     (db.insert as jest.Mock).mockClear();
-    octokit.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
@@ -125,7 +120,6 @@ describe('github webhook', function () {
         type: 'pull_request',
         updated_at: '2019-05-15T15:20:33Z',
         user_id: 21031067,
-        user_type: null,
         username: 'Codertocat',
       },
       { schema: SCHEMA }
@@ -133,9 +127,7 @@ describe('github webhook', function () {
   });
 
   it('correctly inserts github issue created webhook', async function () {
-    const response = await createGitHubEvent(fastify, 'issues', {
-      sender: { login: 'Gowron' },
-    });
+    const response = await createGitHubEvent(fastify, 'issues');
 
     expect(response.statusCode).toBe(200);
     expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
@@ -147,12 +139,11 @@ describe('github webhook', function () {
         action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'Codertocat/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
-        user_type: 'external',
-        username: 'Gowron',
+        username: 'Codertocat',
       },
       { schema: SCHEMA }
     );
@@ -164,7 +155,7 @@ describe('github webhook', function () {
       label: {
         id: 1362934389,
         node_id: 'MDU6TGFiZWwxMzYyOTM0Mzg5',
-        url: 'https://api.github.com/repos/Enterprise/Hello-World/labels/bug',
+        url: 'https://api.github.com/repos/Codertocat/Hello-World/labels/bug',
         name: 'bug',
         color: 'd73a4a',
         default: true,
@@ -182,41 +173,14 @@ describe('github webhook', function () {
         action: 'labeled',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'Codertocat/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
-        user_type: 'internal',
-        username: 'Picard',
+        username: 'Codertocat',
         target_type: 'label',
         target_id: 1362934389,
         target_name: 'bug',
-      },
-      { schema: SCHEMA }
-    );
-  });
-
-  it('sees a bot for what it truly is, sneaky bot 👀', async function () {
-    const response = await createGitHubEvent(fastify, 'issues', {
-      sender: { login: 'human[bot]' },
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
-    expect(mockDataset).toHaveBeenCalledWith('open_source');
-    expect(mockTable).toHaveBeenCalledWith('github_events');
-    expect(mockInsert).toHaveBeenCalledTimes(1);
-    expect(mockInsert).toHaveBeenCalledWith(
-      {
-        action: 'opened',
-        created_at: '2019-05-15T15:20:18Z',
-        object_id: 1,
-        repository: 'Enterprise/Hello-World',
-        type: 'issues',
-        updated_at: '2019-05-15T15:20:18Z',
-        user_id: 21031067,
-        user_type: 'bot',
-        username: 'human[bot]',
       },
       { schema: SCHEMA }
     );
