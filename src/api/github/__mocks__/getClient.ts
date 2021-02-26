@@ -1,4 +1,4 @@
-function mockClient() {
+function getMock() {
   return {
     actions: {
       listWorkflowRunsForRepo: jest.fn(),
@@ -6,19 +6,6 @@ function mockClient() {
     },
     git: {
       getCommit: jest.fn(),
-    },
-    orgs: {
-      checkMembershipForUser: jest.fn(function (x) {
-        let status = 302;
-        if (x.org === 'Enterprise') {
-          if (x.username === 'Picard') {
-            status = 204;
-          } else {
-            status = 404;
-          }
-        }
-        return { status: status };
-      }),
     },
     pulls: {
       get: jest.fn(),
@@ -31,12 +18,8 @@ function mockClient() {
   };
 }
 
-const mocks = {
-  sentry: mockClient(),
-  getsentry: mockClient(),
-  undefined: mockClient(),
-};
-
-export async function getClient(owner?: string, repo?: string) {
-  return mocks[repo || 'undefined'];
+const sentry = getMock();
+const getsentry = getMock();
+export async function getClient(owner: string, repo: string) {
+  return Promise.resolve(repo === 'getsentry' ? getsentry : sentry);
 }
