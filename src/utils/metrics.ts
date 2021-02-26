@@ -132,10 +132,14 @@ type TargetConfig = {
 };
 
 function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+  const tx = Sentry.startTransaction({
+    op: 'bigquery',
+    name: `insert.${targetConfig.dataset}`,
+  });
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
-  return table
+  const results = table
     .insert(data, {
       schema: objectToSchema(targetConfig.schema),
     })
@@ -157,6 +161,10 @@ function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
 
       throw err;
     });
+
+  tx.finish();
+
+  return results;
 }
 
 export function insert({ meta = {}, ...row }) {
