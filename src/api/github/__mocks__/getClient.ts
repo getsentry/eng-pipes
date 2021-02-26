@@ -8,16 +8,16 @@ function mockClient() {
       getCommit: jest.fn(),
     },
     orgs: {
-      checkMembershipForUser: jest.fn(function (x) {
+      checkMembershipForUser: jest.fn(async function (x) {
         let status = 302;
         if (x.org === 'Enterprise') {
           if (x.username === 'Picard') {
-            status = 204;
+            return { status: 204 };
           } else {
             status = 404;
           }
         }
-        return { status: status };
+        throw { status };
       }),
     },
     pulls: {

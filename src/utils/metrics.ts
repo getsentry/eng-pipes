@@ -197,14 +197,21 @@ export async function insertOss(
     const { owner } = payload.repository;
     if (owner.type === 'Organization') {
       // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
-      const octokit = await getClient(owner.login);
-      const response = await octokit.orgs.checkMembershipForUser({
-        org: owner.login,
-        username: payload.sender.login,
-      });
+      const org = owner.login;
+      const octokit = await getClient(org);
+
+      let responseStatus;
+      const capture = (r) => (responseStatus = r.status);
+      await octokit.orgs
+        .checkMembershipForUser({
+          org,
+          username: payload.sender.login,
+        })
+        .then(capture)
+        .catch(capture);
 
       // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-      switch (response.status as number) {
+      switch (responseStatus as number) {
         case 204: {
           userType = 'internal';
           break;
@@ -216,7 +223,7 @@ export async function insertOss(
         default: {
           userType = null;
           Sentry.captureException(
-            new Error(`Org membership check failing with ${response.status}`)
+            new Error(`Org membership check failing with ${responseStatus}`)
           );
           break;
         }
