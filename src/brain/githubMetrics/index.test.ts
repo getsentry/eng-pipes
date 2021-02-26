@@ -25,7 +25,7 @@ import { buildServer } from '@/buildServer';
 import { getClient } from '@api/github/getClient';
 import * as db from '@utils/metrics';
 
-import { metrics } from '.';
+import { githubMetrics as metrics } from '.';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');

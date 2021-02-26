@@ -3,7 +3,7 @@ import { githubEvents } from '@api/github';
 import { ossMetrics } from './ossMetrics';
 import { sentryMetrics } from './sentryMetrics';
 
-export async function metrics() {
+export async function githubMetrics() {
   githubEvents.removeListener('check_run', sentryMetrics);
   githubEvents.on('check_run', sentryMetrics);
 
