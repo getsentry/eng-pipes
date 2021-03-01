@@ -33,6 +33,7 @@ declare module 'knex/types/tables' {
 
   interface Deploys {
     id: number;
+    external_id: number;
     user_id: number;
     app_name: string;
     user: string;
@@ -41,11 +42,10 @@ declare module 'knex/types/tables' {
     previous_sha: string;
     status: FreightStatus;
     environment: string;
-    duration: number;
+    duration: number | null;
     created_at: string;
-    date_created;
-    started_at: string;
-    finished_at: string;
+    started_at: string | null;
+    finished_at: string | null;
   }
 
   interface Tables {
