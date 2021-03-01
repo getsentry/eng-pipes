@@ -36,6 +36,11 @@ export async function deployState() {
           finished_at: date_finished,
         })
         .onConflict(['external_id', 'environment'])
-        .merge()
+        .merge({
+          status,
+          duration,
+          started_at: date_started,
+          finished_at: date_finished,
+        })
   );
 }
