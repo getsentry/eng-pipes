@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { FreightPayload } from '@types';
+import { FreightPayload, FreightStatus } from '@types';
 
 import { freight } from '@api/freight';
 import { getSentryPullRequestsForGetsentryRange } from '@api/github/getSentryPullRequestsForGetsentryRange';
@@ -11,28 +11,32 @@ export async function handler(request: FastifyRequest) {
   let promises: Promise<any>[] = [];
 
   const { environment } = body;
-  let { status } = body;
+  const { status } = body;
+
+  let freightStatus: FreightStatus;
 
   // Need to wait for this to be deployed/merged https://github.com/getsentry/freight/pull/231
   // In the meantime we can parse title for the status
   //
   // After the PR is deployed, body.status is a string (vs a stringified int) and
   // we will have NaN !== NaN, so the below will be skipped
-  if (parseInt(body.status) === parseInt(body.status)) {
+  if (parseInt(status) === parseInt(status)) {
     if (status === '2') {
-      status = 'queued';
+      freightStatus = 'queued';
     } else if (status === '0') {
-      status = 'started';
+      freightStatus = 'started';
     } else {
-      status = body.title.includes('Successfully finished')
+      freightStatus = body.title.includes('Successfully finished')
         ? 'finished'
         : body.title.includes('Failed to finish')
         ? 'failed'
         : 'canceled';
     }
+  } else {
+    freightStatus = status as FreightStatus;
   }
 
-  freight.emit(status, { ...body, status });
+  freight.emit(freightStatus, { ...body, status: freightStatus });
 
   if (environment !== 'production') {
     return {};

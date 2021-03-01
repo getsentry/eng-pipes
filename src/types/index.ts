@@ -135,13 +135,20 @@ export type TravisPayload = {
   config: TravisConfig;
 };
 
-export type FreightPayload = {
+export type FreightStatus =
+  | 'queued'
+  | 'started'
+  | 'failed'
+  | 'canceled'
+  | 'finished';
+
+export interface FreightPayload {
   app_name: string;
   date_created: string;
-  date_started: string;
+  date_started: string | null;
   date_finished: string | null;
   deploy_number: number;
-  duration: number;
+  duration: number | null;
   environment: string;
   link: string;
   params: Record<string, any>;
@@ -152,4 +159,4 @@ export type FreightPayload = {
   title: string;
   user: string;
   user_id: number;
-};
+}
