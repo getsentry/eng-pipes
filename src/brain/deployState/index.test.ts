@@ -78,6 +78,7 @@ describe('deployState', function () {
     // I think `onConflict` is causing this
     await tick();
     await tick();
+    await tick();
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
@@ -106,6 +107,7 @@ describe('deployState', function () {
       status: 'finished',
     });
     expect(dbMock).toHaveBeenCalledTimes(1);
+    await tick();
     await tick();
     await tick();
     // @ts-ignore
