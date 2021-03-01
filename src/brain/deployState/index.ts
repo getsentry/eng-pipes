@@ -21,7 +21,7 @@ export async function deployState() {
     }) =>
       await db('deploys')
         .insert({
-          id: deploy_number,
+          external_id: deploy_number,
           user_id,
           app_name,
           user,
@@ -35,7 +35,7 @@ export async function deployState() {
           started_at: date_started,
           finished_at: date_finished,
         })
-        .onConflict('id')
+        .onConflict(['external_id', 'environment'])
         .merge()
   );
 }

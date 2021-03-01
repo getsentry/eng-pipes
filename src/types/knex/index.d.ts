@@ -31,9 +31,27 @@ declare module 'knex/types/tables' {
     context: Record<string, any>;
   }
 
+  interface Deploys {
+    id: number;
+    external_id: number;
+    user_id: number;
+    app_name: string;
+    user: string;
+    ref: string;
+    sha: string;
+    previous_sha: string;
+    status: FreightStatus;
+    environment: string;
+    duration: number | null;
+    created_at: string;
+    started_at: string | null;
+    finished_at: string | null;
+  }
+
   interface Tables {
-    users: User;
-    slack_messages: SlackMessageRow;
+    deploys: Deploys;
     required_checks_status: RequiredStatusCheck;
+    slack_messages: SlackMessageRow;
+    users: User;
   }
 }

@@ -18,6 +18,7 @@ describe('deployState', function () {
   });
 
   afterAll(async function () {
+    await utils.db.migrate.rollback();
     await utils.db.destroy();
   });
 
@@ -42,6 +43,8 @@ describe('deployState', function () {
     });
 
     expect(dbMock).toHaveBeenCalledTimes(1);
+    await tick();
+    await tick();
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
@@ -51,8 +54,9 @@ describe('deployState', function () {
         "created_at": 2020-05-13T23:43:52.000Z,
         "duration": null,
         "environment": "production",
+        "external_id": "13",
         "finished_at": null,
-        "id": "13",
+        "id": "1",
         "previous_sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
         "ref": "master",
         "sha": "c88d886ba52bd85431052abaef4916469f7db2e8",
@@ -83,8 +87,9 @@ describe('deployState', function () {
         "created_at": 2020-05-13T23:43:52.000Z,
         "duration": null,
         "environment": "production",
+        "external_id": "13",
         "finished_at": null,
-        "id": "13",
+        "id": "1",
         "previous_sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
         "ref": "master",
         "sha": "c88d886ba52bd85431052abaef4916469f7db2e8",
@@ -112,8 +117,9 @@ describe('deployState', function () {
         "created_at": 2020-05-13T23:43:52.000Z,
         "duration": 600,
         "environment": "production",
+        "external_id": "13",
         "finished_at": 2020-05-15T20:59:02.000Z,
-        "id": "13",
+        "id": "1",
         "previous_sha": "ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f",
         "ref": "master",
         "sha": "c88d886ba52bd85431052abaef4916469f7db2e8",
@@ -123,5 +129,47 @@ describe('deployState', function () {
         "user_id": "1",
       }
     `);
+  });
+
+  it('is unique across id and environment', async function () {
+    freight.emit('started', {
+      ...payload,
+      deploy_number: 1,
+      status: 'started',
+    });
+
+    await tick();
+    await tick();
+    await tick();
+    // @ts-ignore
+    expect(await dbMock('deploys').select('*')).toHaveLength(1);
+
+    // Different environment, should be ok
+    freight.emit('started', {
+      ...payload,
+      deploy_number: 1,
+      status: 'started',
+      environment: 'staging',
+    });
+    await tick();
+    await tick();
+    await tick();
+    // @ts-ignore
+    expect(await dbMock('deploys').select('*')).toHaveLength(2);
+
+    freight.emit('started', {
+      ...payload,
+      deploy_number: 1,
+      status: 'finished',
+      environment: 'staging',
+    });
+    await tick();
+    await tick();
+    await tick();
+    // @ts-ignore
+    const result = await dbMock('deploys')
+      .where({ environment: 'staging' })
+      .first('*');
+    expect(result.status).toBe('finished');
   });
 });
