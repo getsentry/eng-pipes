@@ -21,9 +21,10 @@ export function isSentrySlackUser(user: SlackUser) {
   return (
     user.profile?.email?.endsWith('@sentry.io') &&
     !(
-      // Going to temporarily remove this as our new employees are not being verified
-      // but we have SSO enabled for Slack? I think e-mail address should suffice
-      // user.is_email_confirmed === false ||
+      // Via Slack:
+      // Since you're using SSO, the email isn't actually confirmed since the login
+      // credentials are actually tied to the SSO service rather than the email address.
+      // This means that the is_email_confirmed field won't reveal any useful information for you.
       (
         user.deleted === true ||
         user.is_restricted === true ||
