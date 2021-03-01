@@ -21,12 +21,17 @@ export function isSentrySlackUser(user: SlackUser) {
   return (
     user.profile?.email?.endsWith('@sentry.io') &&
     !(
-      user.is_email_confirmed === false ||
-      user.deleted === true ||
-      user.is_restricted === true ||
-      user.is_ultra_restricted === true ||
-      user.is_bot === true ||
-      user.is_app_user === true
+      // Via Slack:
+      // Since you're using SSO, the email isn't actually confirmed since the login
+      // credentials are actually tied to the SSO service rather than the email address.
+      // This means that the is_email_confirmed field won't reveal any useful information for you.
+      (
+        user.deleted === true ||
+        user.is_restricted === true ||
+        user.is_ultra_restricted === true ||
+        user.is_bot === true ||
+        user.is_app_user === true
+      )
     )
   );
 }
