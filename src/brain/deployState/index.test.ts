@@ -6,7 +6,7 @@ import * as utils from '@utils/db';
 import { deployState } from '.';
 
 function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 1));
+  return new Promise((resolve) => setTimeout(resolve, 5));
 }
 
 describe('deployState', function () {
@@ -44,13 +44,12 @@ describe('deployState', function () {
 
     expect(dbMock).toHaveBeenCalledTimes(1);
     await tick();
-    await tick();
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
       app_name: 'getsentry',
-      created_at: '2020-05-13T23:43:52.000Z',
+      created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: null,
       environment: 'production',
       external_id: '13',
@@ -74,14 +73,12 @@ describe('deployState', function () {
     expect(dbMock).toHaveBeenCalledTimes(1);
     // I think `onConflict` is causing this
     await tick();
-    await tick();
-    await tick();
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
       app_name: 'getsentry',
-      created_at: '2020-05-13T23:43:52.000Z',
+      created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: null,
       environment: 'production',
       external_id: '13',
@@ -89,7 +86,7 @@ describe('deployState', function () {
       previous_sha: 'ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f',
       ref: 'master',
       sha: 'c88d886ba52bd85431052abaef4916469f7db2e8',
-      started_at: '2020-05-13T23:43:52.000Z',
+      started_at: new Date('2020-05-13T23:43:52.000Z'),
       status: 'started',
       user: 'billy@sentry.io',
       user_id: '1',
@@ -102,22 +99,20 @@ describe('deployState', function () {
     });
     expect(dbMock).toHaveBeenCalledTimes(1);
     await tick();
-    await tick();
-    await tick();
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
       app_name: 'getsentry',
-      created_at: '2020-05-13T23:43:52.000Z',
+      created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: 600,
       environment: 'production',
       external_id: '13',
-      finished_at: '2020-05-15T20:59:02.000Z',
+      finished_at: new Date('2020-05-15T20:59:02.000Z'),
       previous_sha: 'ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f',
       ref: 'master',
       sha: 'c88d886ba52bd85431052abaef4916469f7db2e8',
-      started_at: '2020-05-13T23:43:52.000Z',
+      started_at: new Date('2020-05-13T23:43:52.000Z'),
       status: 'finished',
       user: 'billy@sentry.io',
       user_id: '1',
@@ -132,8 +127,6 @@ describe('deployState', function () {
     });
 
     await tick();
-    await tick();
-    await tick();
     // @ts-ignore
     expect(await dbMock('deploys').select('*')).toHaveLength(1);
 
@@ -145,8 +138,6 @@ describe('deployState', function () {
       environment: 'staging',
     });
     await tick();
-    await tick();
-    await tick();
     // @ts-ignore
     expect(await dbMock('deploys').select('*')).toHaveLength(2);
 
@@ -156,8 +147,6 @@ describe('deployState', function () {
       status: 'finished',
       environment: 'staging',
     });
-    await tick();
-    await tick();
     await tick();
     // @ts-ignore
     const result = await dbMock('deploys')
