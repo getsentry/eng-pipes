@@ -84,18 +84,20 @@ async function handler({
 
   const lastDeploy = await getLastSuccessfulDeploy();
 
+  const actions = [
+    freightDeploy(commit),
+    // ...(lastDeploy
+    // ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
+    // : []),
+    muteDeployNotificationsButton(),
+  ];
+
   const blocks = [
     ...commitBlocks,
 
     {
       type: 'actions',
-      elements: [
-        freightDeploy(commit),
-        ...(lastDeploy
-          ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
-          : []),
-        muteDeployNotificationsButton(),
-      ],
+      elements: actions,
     },
   ];
 
@@ -105,6 +107,28 @@ async function handler({
       {
         color: Color.NEUTRAL,
         blocks,
+      },
+    ],
+  });
+
+  await bolt.client.chat.postMessage({
+    channel: '#z-billy',
+    text,
+    attachments: [
+      {
+        color: Color.NEUTRAL,
+        blocks: [
+          ...commitBlocks,
+          {
+            type: 'actions',
+            elements: [
+              ...actions,
+              ...(lastDeploy
+                ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
+                : []),
+            ],
+          },
+        ],
       },
     ],
   });

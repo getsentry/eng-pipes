@@ -149,7 +149,7 @@ describe('updateDeployNotifications', function () {
         },
       },
     });
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
     const slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
@@ -480,7 +480,7 @@ describe('updateDeployNotifications', function () {
     });
 
     // Each commit will cause a message
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
     const slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(2);
     expect(slackMessages[0]).toMatchObject({
@@ -542,7 +542,7 @@ describe('updateDeployNotifications', function () {
         },
       },
     });
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
     await db('slack_messages').insert({
       refId: '982345',
       channel: 'channel_id',

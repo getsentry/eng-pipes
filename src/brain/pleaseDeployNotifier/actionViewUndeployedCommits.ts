@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getClient } from '@api/github/getClient';
@@ -42,6 +44,11 @@ export async function actionViewUndeployedCommits({
         },
       ],
     },
+  });
+
+  const tx = Sentry.startTransaction({
+    op: 'brain.action',
+    name: 'viewUndeployedCommits',
   });
 
   // @ts-ignore Slack types suxx
@@ -104,5 +111,23 @@ export async function actionViewUndeployedCommits({
         { type: 'actions', elements: [deployButton] },
       ],
     },
+  });
+
+  Sentry.withScope(async (scope) => {
+    scope.setUser({
+      id: body.user.id,
+    });
+    scope.setContext('Git', {
+      base,
+      head,
+      commits: data.commits.map(({ sha }) => sha),
+      relevantCommits: relevantCommits.filter(Boolean).map((commit) => {
+        return {
+          url: commit?.html_url,
+          sha: commit?.sha,
+        };
+      }),
+    });
+    tx.finish();
   });
 }
