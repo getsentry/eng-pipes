@@ -4,7 +4,6 @@ import * as Sentry from '@sentry/node';
 import { githubEvents } from '@/api/github';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
-import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -13,12 +12,10 @@ import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
-import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
-import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
 
 async function handler({
   id,
@@ -82,20 +79,12 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-  const lastDeploy = await getLastSuccessfulDeploy();
-
   const blocks = [
     ...commitBlocks,
 
     {
       type: 'actions',
-      elements: [
-        freightDeploy(commit),
-        ...(lastDeploy
-          ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
-          : []),
-        muteDeployNotificationsButton(),
-      ],
+      elements: [freightDeploy(commit), muteDeployNotificationsButton()],
     },
   ];
 
@@ -159,11 +148,5 @@ export async function pleaseDeployNotifier() {
   bolt.action(
     /(unmute|mute)-slack-deploy/,
     wrapHandler('actionSlackDeploy', actionSlackDeploy)
-  );
-
-  // Handles viewing undeployed commits
-  bolt.action(
-    /view-undeployed-commits/,
-    wrapHandler('actionViewUndeployedCommits', actionViewUndeployedCommits)
   );
 }

@@ -26,19 +26,7 @@ function mockClient() {
     repos: {
       getCommit: jest.fn(),
       listPullRequestsAssociatedWithCommit: jest.fn(),
-      compareCommits: jest.fn(() => ({
-        data: {
-          // Incomplete
-          commits: [
-            {
-              sha: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-            },
-            {
-              sha: '1cd4f24731ceed16532c3206393f8628c6a755dd',
-            },
-          ],
-        },
-      })),
+      compareCommits: jest.fn(),
     },
   };
 }
