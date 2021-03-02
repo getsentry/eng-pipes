@@ -71,9 +71,15 @@ export function typescript() {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `• *sentry:* ${resps[0].remainingFiles} files remain ${displayProgress(resps[0].progress)}
-• *getsentry app:* ${resps[1].remainingFiles} files remain ${displayProgress(resps[1].progress)}
-• *getsentry admin:* ${resps[2].remainingFiles} files remain ${displayProgress(resps[2].progress)}`,
+              text: `• *sentry:* ${
+                resps[0].remainingFiles
+              } files remain ${displayProgress(resps[0].progress)}
+• *getsentry app:* ${resps[1].remainingFiles} files remain ${displayProgress(
+                resps[1].progress
+              )}
+• *getsentry admin:* ${resps[2].remainingFiles} files remain ${displayProgress(
+                resps[2].progress
+              )}`,
             },
           },
         ],
