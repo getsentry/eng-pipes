@@ -76,6 +76,15 @@ jest.mock('@slack/web-api', () => ({
       },
       views: {
         publish: jest.fn(() => Promise.resolve({})),
+        open: jest.fn(() =>
+          Promise.resolve({
+            view: {
+              id: 'viewId',
+              hash: 'viewHash',
+            },
+          })
+        ),
+        update: jest.fn(() => Promise.resolve({})),
       },
     };
   }),
