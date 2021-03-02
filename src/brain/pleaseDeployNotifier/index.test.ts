@@ -38,6 +38,7 @@ describe('pleaseDeployNotifier', function () {
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
+    await db('deploys').delete();
   });
 
   it('ignores check run in progress', async function () {
