@@ -133,7 +133,7 @@ describe('pleaseDeployNotifier', function () {
     });
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
 
     // First message
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
@@ -335,16 +335,6 @@ describe('pleaseDeployNotifier', function () {
                   "type": "button",
                   "url": "https://freight.getsentry.net/deploy?app=getsentry",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
-                },
-                Object {
-                  "action_id": "view-undeployed-commits",
-                  "text": Object {
-                    "emoji": true,
-                    "text": "View Undeployed Commits",
-                    "type": "plain_text",
-                  },
-                  "type": "button",
-                  "value": "999999:6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
                   "action_id": "mute-slack-deploy",
