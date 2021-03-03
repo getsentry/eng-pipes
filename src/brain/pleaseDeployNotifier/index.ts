@@ -56,6 +56,8 @@ async function handler({
     name: 'pleaseDeployNotifier',
   });
 
+  Sentry.configureScope((scope) => scope.setSpan(tx));
+
   // Message author on slack that they're commit is ready to deploy
   // and send a link to open freight
   const user = await getUser({
