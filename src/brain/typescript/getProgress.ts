@@ -17,7 +17,7 @@ export default async function getProgress({
   date?: string;
 }) {
   const owner = 'getsentry';
-  const octokit = await getClient('getsentry', repo);
+  const octokit = await getClient('getsentry');
 
   const getContentsParams: {
     owner: string;

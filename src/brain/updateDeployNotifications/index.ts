@@ -75,7 +75,7 @@ export async function handler(payload: FreightPayload) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const getsentry = await getClient('getsentry', 'getsentry');
+  const getsentry = await getClient('getsentry');
 
   const { data } = await getsentry.repos.compareCommits({
     owner: OWNER,

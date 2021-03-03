@@ -48,7 +48,7 @@ describe('updateDeployNotifications', function () {
     await updateDeployNotifications();
     await pleaseDeployNotifier();
 
-    octokit = await getClient('getsentry', 'getsentry');
+    octokit = await getClient('getsentry');
     // @ts-ignore
     octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,

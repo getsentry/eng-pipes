@@ -1,6 +1,8 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 
+const _INSTALLATION_CACHE = new Map();
+
 function _getClient(installationId?: number) {
   return new Octokit({
     authStrategy: createAppAuth,
@@ -14,11 +16,11 @@ function _getClient(installationId?: number) {
 }
 
 /**
- * Return an Octokit client. Owner is required. If repo is given, the client
- * will use installation auth bound to the repo, otherwise owner is assumed to
- * be an org and the client will use installation auth bound to the org.
+ * Return an Octokit client.
+ *
+ * Only org is required, as we can assume the GH App is installed org-wide.
  */
-export async function getClient(owner: string, repo?: string) {
+export async function getClient(org: string) {
   if (!process.env.GH_APP_SECRET_KEY) {
     throw new Error('GH_APP_SECRET_KEY not defined');
   }
@@ -26,12 +28,16 @@ export async function getClient(owner: string, repo?: string) {
     throw new Error('GH_APP_IDENTIFIER not defined');
   }
 
-  const client = _getClient();
-  let installation;
-  if (repo) {
-    installation = await client.apps.getRepoInstallation({ owner, repo });
-  } else {
-    installation = await client.apps.getOrgInstallation({ org: owner });
+  const appClient = _getClient();
+
+  // Cache the installation ID as it should never change
+  if (_INSTALLATION_CACHE.has(org)) {
+    return _getClient(_INSTALLATION_CACHE.get(org));
   }
+
+  // Not sure if we can cache the octokit instance - installation tokens expire
+  // after an hour, but octokit client may be able to handle this properly.
+  const installation = await appClient.apps.getOrgInstallation({ org });
+  _INSTALLATION_CACHE.set(org, installation.data.id);
   return _getClient(installation.data.id);
 }
