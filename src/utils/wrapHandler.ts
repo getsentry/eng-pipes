@@ -11,8 +11,8 @@ export function wrapHandler(name: string, fn: Function) {
     });
 
     const result = await fn.call(null, ...args);
-    tx.finish();
 
+    tx.finish();
     return result;
   };
 }

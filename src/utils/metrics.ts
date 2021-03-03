@@ -30,6 +30,7 @@ export const TARGETS = {
       action: 'STRING',
       username: 'STRING',
       user_id: 'INT64',
+      user_type: 'STRING',
       repository: 'STRING',
       object_id: 'INT64',
       created_at: 'TIMESTAMP',
@@ -131,40 +132,40 @@ type TargetConfig = {
   schema: Record<string, string>;
 };
 
-function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
-  const tx = Sentry.startTransaction({
+async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+  const tx = Sentry.getCurrentHub()?.getScope()?.getTransaction();
+  const span = tx?.startChild({
     op: 'bigquery',
-    name: `insert.${targetConfig.dataset}`,
+    description: `insert.${targetConfig.dataset}`,
   });
   const dataset = bigqueryClient.dataset(targetConfig.dataset);
   const table = dataset.table(targetConfig.table);
 
-  const results = table
-    .insert(data, {
+  try {
+    const results = await table.insert(data, {
       schema: objectToSchema(targetConfig.schema),
-    })
-    .catch((err) => {
-      console.error('error name', err.name);
-      console.error(err);
-      if (err.name === 'PartialFailureError') {
-        // Some rows failed to insert, while others may have succeeded.
-
-        err?.errors.forEach((error) => {
-          Sentry.setContext('errors', {
-            messages: error.errors.map((e) => e.message).join('\n'),
-            reasons: error.errors.map((e) => e.reason).join('\n'),
-          });
-          Sentry.setContext('row', error.row);
-          Sentry.captureException(new Error('Unable to insert row'));
-        });
-      }
-
-      throw err;
     });
+    span?.finish();
+    return results;
+  } catch (err) {
+    console.error('error name', err.name);
+    console.error(err);
+    if (err.name === 'PartialFailureError') {
+      // Some rows failed to insert, while others may have succeeded.
 
-  tx.finish();
+      err?.errors.forEach((error) => {
+        Sentry.setContext('errors', {
+          messages: error.errors.map((e) => e.message).join('\n'),
+          reasons: error.errors.map((e) => e.reason).join('\n'),
+        });
+        Sentry.setContext('row', error.row);
+        Sentry.captureException(new Error('Unable to insert row'));
+      });
+    }
 
-  return results;
+    span?.finish();
+    throw err;
+  }
 }
 
 export function insert({ meta = {}, ...row }) {
@@ -323,7 +324,7 @@ export async function insertOss(
     return;
   }
 
-  return _insert(data, TARGETS.oss);
+  return await _insert(data, TARGETS.oss);
 }
 
 export function mapDeployToPullRequest(

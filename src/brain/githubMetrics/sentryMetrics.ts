@@ -12,7 +12,7 @@ const CHECK_STATUS_MAP = {
 /**
  * GitHub webhook handler for sentry + getsentry repo metrics
  */
-export function sentryMetrics({
+export async function sentryMetrics({
   name: eventName,
   payload,
 }: EmitterWebhookEvent<'check_run'>) {
@@ -32,7 +32,7 @@ export function sentryMetrics({
         'https://api.github.com/repos/getsentry/getsentry/pulls'
       )
   );
-  insert({
+  return await insert({
     source: 'github',
     event: `build_${status}`,
     object_id: pullRequest?.number,

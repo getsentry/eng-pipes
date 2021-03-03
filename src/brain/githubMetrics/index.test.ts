@@ -31,52 +31,10 @@ jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
 jest.mock('@api/github/getClient');
 
-const SCHEMA = [
-  {
-    name: 'type',
-    type: 'STRING',
-  },
-  {
-    name: 'action',
-    type: 'STRING',
-  },
-  {
-    name: 'username',
-    type: 'STRING',
-  },
-  {
-    name: 'user_id',
-    type: 'INT64',
-  },
-  {
-    name: 'repository',
-    type: 'STRING',
-  },
-  {
-    name: 'object_id',
-    type: 'INT64',
-  },
-  {
-    name: 'created_at',
-    type: 'TIMESTAMP',
-  },
-  {
-    name: 'updated_at',
-    type: 'TIMESTAMP',
-  },
-  {
-    name: 'target_id',
-    type: 'INT64',
-  },
-  {
-    name: 'target_name',
-    type: 'STRING',
-  },
-  {
-    name: 'target_type',
-    type: 'STRING',
-  },
-];
+const SCHEMA = Object.entries(db.TARGETS.oss.schema).map(([name, type]) => ({
+  name,
+  type,
+}));
 
 describe('github webhook', function () {
   let fastify: Fastify;
