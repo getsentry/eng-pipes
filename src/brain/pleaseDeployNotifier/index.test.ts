@@ -634,37 +634,6 @@ describe('pleaseDeployNotifier', function () {
               "type": "divider",
             },
             Object {
-              "text": Object {
-                "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
-                "type": "mrkdwn",
-              },
-              "type": "section",
-            },
-            Object {
-              "text": Object {
-                "text": "The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.",
-                "type": "mrkdwn",
-              },
-              "type": "section",
-            },
-            Object {
-              "elements": Array [
-                Object {
-                  "alt_text": "mars",
-                  "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
-                  "type": "image",
-                },
-                Object {
-                  "text": "<https://github.com/matejminar|mars (matejminar)>",
-                  "type": "mrkdwn",
-                },
-              ],
-              "type": "context",
-            },
-            Object {
-              "type": "divider",
-            },
-            Object {
               "elements": Array [
                 Object {
                   "action_id": "freight-deploy",
@@ -684,7 +653,7 @@ describe('pleaseDeployNotifier', function () {
           ],
           "callback_id": "view-undeployed-commits-modal",
           "title": Object {
-            "text": "3 Undeployed commits",
+            "text": "2 Undeployed commits",
             "type": "plain_text",
           },
           "type": "modal",

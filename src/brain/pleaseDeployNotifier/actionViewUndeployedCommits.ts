@@ -17,9 +17,17 @@ export async function actionViewUndeployedCommits({
   payload,
 }) {
   await ack();
+  const tx = Sentry.startTransaction({
+    op: 'brain.action',
+    name: 'viewUndeployedCommits',
+  });
+
+  Sentry.configureScope((scope) => {
+    scope.setSpan(tx);
+  });
 
   // Open a "loading" modal so that we can respond as soon as possible
-  const { view } = await client.views.open({
+  const viewPromise = client.views.open({
     // Pass a valid trigger_id within 3 seconds of receiving it
     // @ts-ignore Slack types suxx
     trigger_id: body.trigger_id,
@@ -46,14 +54,14 @@ export async function actionViewUndeployedCommits({
     },
   });
 
-  const tx = Sentry.startTransaction({
-    op: 'brain.action',
-    name: 'viewUndeployedCommits',
-  });
-
   // @ts-ignore Slack types suxx
   const [base, head] = payload.value.split(':');
   const github = await getClient(OWNER, GETSENTRY_REPO);
+
+  const compareSpan = tx.startChild({
+    op: 'api.github:repos.compareCommits',
+    description: 'repos.compareCommits',
+  });
 
   // Get all getsentry commits between `base` and `head`
   const { data } = await github.repos.compareCommits({
@@ -63,10 +71,19 @@ export async function actionViewUndeployedCommits({
     head,
   });
 
+  compareSpan.finish();
+
+  const getRelevantCommitSpan = tx.startChild({
+    op: 'getRelevantCommits',
+  });
+
   // Get the "relevant" commits from either sentry or getsentry
+  // We include `base` here as `compareCommits` does not
   const relevantCommits = await Promise.all(
-    [{ sha: head }, ...data.commits].map(({ sha }) => getRelevantCommit(sha))
+    data.commits.map(({ sha }) => getRelevantCommit(sha))
   );
+
+  getRelevantCommitSpan.finish();
 
   // Generate the Slack blocks for each commit
   const commitBlocks = relevantCommits.flatMap((commit) => [
@@ -85,6 +102,20 @@ export async function actionViewUndeployedCommits({
   const deployButton = actionsBlock.elements.find(
     ({ action_id }) => action_id === 'freight-deploy'
   );
+
+  const viewOpenSpan = tx.startChild({
+    op: 'api.slack:views.open',
+    description: 'open modal',
+  });
+
+  const { view } = await viewPromise;
+
+  viewOpenSpan.finish();
+
+  const viewUpdateSpan = tx.startChild({
+    op: 'api.slack:views.update',
+    description: 'update modal',
+  });
 
   // Update loading modal with a list of commits that are undeployed.
   await client.views.update({
@@ -112,6 +143,8 @@ export async function actionViewUndeployedCommits({
       ],
     },
   });
+
+  viewUpdateSpan.finish();
 
   Sentry.withScope(async (scope) => {
     scope.setUser({
