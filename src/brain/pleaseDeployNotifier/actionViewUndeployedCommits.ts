@@ -4,6 +4,7 @@ import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
+import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 
 /**
  * Action handler for viewing undeployed commits. This should be useful for users
@@ -46,9 +47,17 @@ export async function actionViewUndeployedCommits({
     },
   });
 
-  // @ts-ignore Slack types suxx
-  const [base, head] = payload.value.split(':');
+  const lastDeploy = await getLastSuccessfulDeploy();
+  console.log(lastDeploy);
+
+  if (!lastDeploy) {
+    // Unable to find last successful deploy... can't continue
+    return;
+  }
+
   const github = await getClient(OWNER);
+  const base = lastDeploy.sha;
+  const head = payload.value;
 
   // Get all getsentry commits between `base` and `head`
   const { data } = await github.repos.compareCommits({

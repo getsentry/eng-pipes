@@ -13,7 +13,6 @@ import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
-import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { wrapHandler } from '@utils/wrapHandler';
 
@@ -84,13 +83,9 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-  const lastDeploy = await getLastSuccessfulDeploy();
-
   const actions = [
     freightDeploy(commit),
-    // ...(lastDeploy
-    // ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
-    // : []),
+    // viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];
 
@@ -123,12 +118,7 @@ async function handler({
           ...commitBlocks,
           {
             type: 'actions',
-            elements: [
-              ...actions,
-              ...(lastDeploy
-                ? [viewUndeployedCommits(`${lastDeploy.sha}:${commit}`)]
-                : []),
-            ],
+            elements: [...actions, viewUndeployedCommits(commit)],
           },
         ],
       },

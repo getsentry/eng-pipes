@@ -12,6 +12,7 @@ import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';
@@ -486,8 +487,7 @@ describe('pleaseDeployNotifier', function () {
                       text: 'View Undeployed Commits',
                       emoji: true,
                     },
-                    value:
-                      '1cd4f24731ceed16532c3206393f8628c6a755dd:455e3db9eb4fa6a1789b70e4045b194f02db0b59',
+                    value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
                   },
                   {
                     type: 'button',
@@ -542,20 +542,23 @@ describe('pleaseDeployNotifier', function () {
             text: 'View Undeployed Commits',
             emoji: true,
           },
-          value:
-            '1cd4f24731ceed16532c3206393f8628c6a755dd:455e3db9eb4fa6a1789b70e4045b194f02db0b59',
+          value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
           type: 'button',
           action_ts: '1614650317.491035',
         },
       ],
     });
     expect(actions.actionViewUndeployedCommits).toHaveBeenCalled();
+    expect(bolt.client.views.open).toHaveBeenCalled();
+    expect(await getLastSuccessfulDeploy()).toMatchObject({
+      sha: '999999',
+    });
 
     // Get list of commits
     expect(octokit.repos.compareCommits).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
-      base: '1cd4f24731ceed16532c3206393f8628c6a755dd',
+      base: '999999',
       head: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
     });
 
