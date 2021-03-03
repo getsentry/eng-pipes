@@ -27,6 +27,7 @@ function mockClient() {
       getCommit: jest.fn(),
       listPullRequestsAssociatedWithCommit: jest.fn(),
       compareCommits: jest.fn(() => ({
+        status: 200,
         data: {
           // Incomplete
           commits: [
@@ -44,11 +45,14 @@ function mockClient() {
 }
 
 const mocks = {
-  sentry: mockClient(),
   getsentry: mockClient(),
-  undefined: mockClient(),
 };
 
-export async function getClient(owner?: string, repo?: string) {
-  return mocks[repo || 'undefined'];
+export async function getClient(org?: string) {
+  if (mocks[org]) {
+    return mocks[org];
+  }
+
+  mocks[org] = mockClient();
+  return mocks[org];
 }

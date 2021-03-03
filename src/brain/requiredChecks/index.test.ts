@@ -29,7 +29,7 @@ describe('requiredChecks', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await requiredChecks();
-    octokit = await getClient('getsentry', 'getsentry');
+    octokit = await getClient('getsentry');
 
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;

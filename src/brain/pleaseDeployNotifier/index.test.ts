@@ -25,7 +25,7 @@ describe('pleaseDeployNotifier', function () {
     jest.spyOn(actions, 'actionViewUndeployedCommits');
 
     pleaseDeployNotifier();
-    octokit = await getClient('getsentry', 'getsentry');
+    octokit = await getClient('getsentry');
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {

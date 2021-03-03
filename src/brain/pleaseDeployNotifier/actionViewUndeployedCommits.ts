@@ -48,7 +48,7 @@ export async function actionViewUndeployedCommits({
 
   // @ts-ignore Slack types suxx
   const [base, head] = payload.value.split(':');
-  const github = await getClient(OWNER, GETSENTRY_REPO);
+  const github = await getClient(OWNER);
 
   // Get all getsentry commits between `base` and `head`
   const { data } = await github.repos.compareCommits({

@@ -19,7 +19,6 @@ import { db } from '@utils/db';
 import { getSentryPullRequestsForGetsentryRange } from './getSentryPullRequestsForGetsentryRange';
 
 describe('getSentryPullRequestsForGetsentryRange', function () {
-  let sentry;
   let getsentry;
 
   beforeAll(async function () {});
@@ -27,12 +26,11 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   afterAll(async function () {});
 
   beforeEach(async function () {
-    getsentry = await getClient('getsentry', 'getsentry');
-    sentry = await getClient('getsentry', 'sentry');
+    getsentry = await getClient('getsentry');
   });
 
   afterEach(function () {
-    [getsentry, sentry].forEach((c) => {
+    [getsentry].forEach((c) => {
       c.git.getCommit.mockClear();
       c.repos.listPullRequestsAssociatedWithCommit.mockClear();
       c.repos.compareCommits.mockClear();
@@ -40,10 +38,16 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('single commit, sentry', async function () {
-    sentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
-      () => ({
-        data: [{ foo: 1 }],
-      })
+    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+      ({ repo }) => {
+        if (repo === 'sentry') {
+          return {
+            status: 200,
+            data: [{ foo: 1 }],
+          };
+        }
+        return undefined;
+      }
     );
     getsentry.git.getCommit.mockImplementation(() => ({
       status: 200,
@@ -55,17 +59,15 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
         message: 'getsentry/sentry@2188f0485424da597dcca9e12093d253ddc67c0a',
       },
     }));
+
     expect(await getSentryPullRequestsForGetsentryRange('f00123')).toEqual([
       { foo: 1 },
     ]);
     expect(
       getsentry.repos.listPullRequestsAssociatedWithCommit
-    ).not.toHaveBeenCalled();
-    expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
+      getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
@@ -74,9 +76,18 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('multiple commits, sentry', async function () {
-    sentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
-      () => ({ data: [{ foo: 1 }] })
+    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+      ({ repo }) => {
+        if (repo === 'sentry') {
+          return {
+            status: 200,
+            data: [{ foo: 1 }],
+          };
+        }
+        return undefined;
+      }
     );
+
     getsentry.repos.compareCommits.mockImplementation(() => ({
       status: 200,
       data: {
@@ -94,6 +105,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
         ],
       },
     }));
+
     expect(
       await getSentryPullRequestsForGetsentryRange('f00123', 'deadbeef')
     ).toEqual([{ foo: 1 }]);
@@ -104,10 +116,10 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       head: 'f00123',
     });
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
+      getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
+      getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
@@ -117,9 +129,15 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
 
   it('single commit, getsentry', async function () {
     getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
-      () => ({
-        data: [{ foo: 1 }],
-      })
+      ({ repo }) => {
+        if (repo === 'getsentry') {
+          return {
+            status: 200,
+            data: [{ foo: 1 }],
+          };
+        }
+        return undefined;
+      }
     );
     getsentry.git.getCommit.mockImplementation(() => ({
       status: 200,
@@ -135,9 +153,6 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       await getSentryPullRequestsForGetsentryRange('f00123', null, true)
     ).toEqual([{ foo: 1 }]);
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
-    ).not.toHaveBeenCalled();
-    expect(
       getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
@@ -150,11 +165,12 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('multiple commits, getsentry', async function () {
-    sentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
-      () => ({ data: [{ foo: 1 }] })
-    );
     getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
-      () => ({ data: [{ bar: 2 }] })
+      ({ repo }) => {
+        return repo === 'getsentry'
+          ? { data: [{ bar: 2 }] }
+          : { data: [{ foo: 1 }] };
+      }
     );
     getsentry.repos.compareCommits.mockImplementation(() => ({
       status: 200,
@@ -194,14 +210,11 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       head: 'f00123',
     });
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
-    ).toHaveBeenCalledTimes(1);
-    expect(
       getsentry.repos.listPullRequestsAssociatedWithCommit
-    ).toHaveBeenCalledTimes(1);
+    ).toHaveBeenCalledTimes(2);
 
     expect(
-      sentry.repos.listPullRequestsAssociatedWithCommit
+      getsentry.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',

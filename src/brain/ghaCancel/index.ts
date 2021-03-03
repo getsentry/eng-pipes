@@ -23,7 +23,7 @@ async function handler({ event, say, client }) {
 
   const [, owner, repo, pullRequestNumber] = matches;
 
-  const octokit = await getClient(owner, repo);
+  const octokit = await getClient(owner);
 
   const initialMessagePromise = say({
     thread_ts: event.ts,
