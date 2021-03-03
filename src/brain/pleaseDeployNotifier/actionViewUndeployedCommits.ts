@@ -78,7 +78,7 @@ export async function actionViewUndeployedCommits({
   const actionsBlock = attachmentsContainer?.blocks.find(
     ({ block_id }) => block_id === action.block_id
   );
-  const deployButton = actionsBlock.elements.find(
+  const deployButton = actionsBlock?.elements.find(
     ({ action_id }) => action_id === 'freight-deploy'
   );
 
