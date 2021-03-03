@@ -1,3 +1,5 @@
+import '@sentry/tracing';
+
 import { ServerResponse } from 'http';
 import path from 'path';
 
@@ -23,14 +25,19 @@ export async function buildServer(
   });
 
   // Only enable in production
-  if (process.env.ENV === 'production') {
-    Sentry.init({
-      dsn: SENTRY_DSN,
-      release: process.env.VERSION,
-      integrations: [new RewriteFrames({ root: __dirname || process.cwd() })],
-      tracesSampleRate: 1.0,
-    });
-  }
+  // if (process.env.ENV === 'production') {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    release: process.env.VERSION,
+    environment: process.env.ENV,
+    integrations: [
+      new Sentry.Integrations.Http({ tracing: true }),
+
+      new RewriteFrames({ root: __dirname || process.cwd() }),
+    ],
+    tracesSampleRate: 1.0,
+  });
+  // }
 
   server.register(require('fastify-formbody'));
 
