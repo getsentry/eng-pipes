@@ -2,6 +2,7 @@ import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 
 const _INSTALLATION_CACHE = new Map();
+const _CLIENT_CACHE = new Map<string, Octokit>();
 
 function _getClient(installationId?: number) {
   return new Octokit({
@@ -14,6 +15,8 @@ function _getClient(installationId?: number) {
     },
   });
 }
+
+const appClient = _getClient();
 
 /**
  * Return an Octokit client.
@@ -28,16 +31,26 @@ export async function getClient(org: string) {
     throw new Error('GH_APP_IDENTIFIER not defined');
   }
 
-  const appClient = _getClient();
+  const cachedClient = _CLIENT_CACHE.get(org);
+
+  if (cachedClient) {
+    return cachedClient;
+  }
 
   // Cache the installation ID as it should never change
   if (_INSTALLATION_CACHE.has(org)) {
-    return _getClient(_INSTALLATION_CACHE.get(org));
+    const client = _getClient(_INSTALLATION_CACHE.get(org));
+    _CLIENT_CACHE.set(org, client);
+    return client;
   }
 
   // Not sure if we can cache the octokit instance - installation tokens expire
   // after an hour, but octokit client may be able to handle this properly.
   const installation = await appClient.apps.getOrgInstallation({ org });
   _INSTALLATION_CACHE.set(org, installation.data.id);
-  return _getClient(installation.data.id);
+
+  const client = _getClient(installation.data.id);
+  _CLIENT_CACHE.set(org, client);
+
+  return client;
 }
