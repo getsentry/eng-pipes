@@ -82,7 +82,7 @@ describe('getUserOssType', function () {
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
     octokit.orgs.checkMembershipForUser.mockClear();
 
-    // Time-travel a 2 weeks in the future
+    // Time-travel 2 weeks in the future
     jest.spyOn(global.Date, 'now').mockImplementation(() => now + 1210000000);
 
     // Check same user
