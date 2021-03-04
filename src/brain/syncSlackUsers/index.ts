@@ -55,7 +55,6 @@ export function syncSlackUsers() {
       if (results.response_metadata?.next_cursor) {
         await processUsers(results.response_metadata?.next_cursor);
       } else {
-        console.log('done');
         return;
       }
     }

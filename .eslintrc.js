@@ -20,6 +20,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'no-console': ["error", { allow: ["warn", "error"] }],
     'no-unused-vars': 'off',
     'simple-import-sort/imports': [
       'error',
