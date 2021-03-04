@@ -55,12 +55,12 @@ export async function actionViewUndeployedCommits({
     return;
   }
 
-  const github = await getClient(OWNER);
+  const octokit = await getClient(OWNER);
   const base = lastDeploy.sha;
   const head = payload.value;
 
   // Get all getsentry commits between `base` and `head`
-  const { data } = await github.repos.compareCommits({
+  const { data } = await octokit.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
     base,
@@ -70,7 +70,7 @@ export async function actionViewUndeployedCommits({
   // Get the "relevant" commits from either sentry or getsentry
   // We include `base` here as `compareCommits` does not
   const relevantCommits = await Promise.all(
-    data.commits.map(({ sha }) => getRelevantCommit(sha))
+    data.commits.map(({ sha }) => getRelevantCommit(sha, octokit))
   );
 
   // Generate the Slack blocks for each commit

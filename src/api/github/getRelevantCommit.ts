@@ -1,3 +1,4 @@
+import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import { getClient } from '@/api/github/getClient';
@@ -10,9 +11,10 @@ import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
  * caused a bump commit in getsentry (whose commit message references the sentry commit).
  * In this case, it will return the sentry commit.
  */
-export async function getRelevantCommit(ref: string) {
+export async function getRelevantCommit(ref: string, client?: Octokit) {
   try {
-    const octokit = await getClient(OWNER);
+    // We can save on making extra calls to get GH client
+    const octokit = client || (await getClient(OWNER));
 
     // Attempt to get the getsentry commit first
     const { data: commit } = await octokit.repos.getCommit({
