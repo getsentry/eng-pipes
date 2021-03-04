@@ -44,9 +44,7 @@ function mockClient() {
   };
 }
 
-const mocks = {
-  getsentry: mockClient(),
-};
+const mocks = {};
 
 export async function getClient(org?: string) {
   if (mocks[org]) {

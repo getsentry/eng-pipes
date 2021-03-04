@@ -1,17 +1,11 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@api/github/getClient';
+import { getOssUserType } from './getOssUserType';
 
 const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
-const KNOWN_BOTS = [
-  // https://www.notion.so/sentry/Bot-Accounts-beea0fc35473453ab50e05e6e4d1d02d
-  'getsentry-bot',
-  'getsentry-release',
-  'sentry-test-fixture-nonmember',
-];
 
 function objectToSchema(obj: Record<string, any>) {
   return Object.entries(obj).map(([name, type]) => ({
@@ -188,50 +182,7 @@ export async function insertOss(
   eventType: string,
   payload: Record<string, any>
 ) {
-  let userType: string | null = null;
-  if (
-    KNOWN_BOTS.includes(payload.sender.login) ||
-    payload.sender.login.endsWith('[bot]')
-  ) {
-    userType = 'bot';
-  } else {
-    const { owner } = payload.repository;
-    if (owner.type === 'Organization') {
-      // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
-      const org = owner.login;
-      const octokit = await getClient(org);
-
-      let responseStatus;
-      const capture = (r) => (responseStatus = r.status);
-      await octokit.orgs
-        .checkMembershipForUser({
-          org,
-          username: payload.sender.login,
-        })
-        .then(capture)
-        .catch(capture);
-
-      // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-      switch (responseStatus as number) {
-        case 204: {
-          userType = 'internal';
-          break;
-        }
-        case 404: {
-          userType = 'external';
-          break;
-        }
-        default: {
-          userType = null;
-          Sentry.captureException(
-            new Error(`Org membership check failing with ${responseStatus}`)
-          );
-          break;
-        }
-      }
-    }
-  }
-
+  const userType = await getOssUserType(payload);
   const data: Record<string, any> = {
     type: eventType,
     action: payload.action,
