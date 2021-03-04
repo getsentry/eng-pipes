@@ -36,12 +36,11 @@ export async function getSentryPullRequestsForGetsentryRange(
   previous?: string | null,
   includeGetsentry?: boolean
 ): Promise<PullRequest[number][]> {
-  // getsentry client
-  const client = await getClient(OWNER);
+  const octokit = await getClient(OWNER);
 
   // Single commit
   if (!previous) {
-    const resp = await client.git.getCommit({
+    const resp = await octokit.git.getCommit({
       owner: OWNER,
       repo: GETSENTRY_REPO,
       commit_sha: current,
@@ -57,7 +56,7 @@ export async function getSentryPullRequestsForGetsentryRange(
     }
 
     const sentryCommitSha = isBumpCommit && getSentrySha(resp.data.message);
-    const pullRequests = await client.repos.listPullRequestsAssociatedWithCommit(
+    const pullRequests = await octokit.repos.listPullRequestsAssociatedWithCommit(
       {
         owner: OWNER,
         repo: isBumpCommit ? SENTRY_REPO : GETSENTRY_REPO,
@@ -68,7 +67,7 @@ export async function getSentryPullRequestsForGetsentryRange(
   }
 
   // Multiple commits
-  const resp = await client.repos.compareCommits({
+  const resp = await octokit.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
     base: previous,
@@ -90,7 +89,7 @@ export async function getSentryPullRequestsForGetsentryRange(
   );
 
   const pullRequestPromises = sentryShas.map((commit_sha) =>
-    client.repos.listPullRequestsAssociatedWithCommit({
+    octokit.repos.listPullRequestsAssociatedWithCommit({
       owner: OWNER,
       repo: SENTRY_REPO,
       commit_sha,
@@ -99,7 +98,7 @@ export async function getSentryPullRequestsForGetsentryRange(
 
   const getSentryPullRequestPromises = nonSyncedCommits.map(
     ({ sha: commit_sha }) =>
-      client.repos.listPullRequestsAssociatedWithCommit({
+      octokit.repos.listPullRequestsAssociatedWithCommit({
         owner: OWNER,
         repo: GETSENTRY_REPO,
         commit_sha,
