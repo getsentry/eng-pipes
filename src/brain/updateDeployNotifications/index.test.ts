@@ -1,6 +1,3 @@
-jest.mock('@utils/loadBrain');
-jest.mock('@api/github/getClient');
-
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/freight.json';

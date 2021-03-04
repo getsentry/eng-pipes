@@ -7,8 +7,6 @@ import { db } from '@utils/db';
 
 import { ghaCancel } from '.';
 
-jest.mock('@api/github/getClient');
-
 describe('gha-test', function () {
   let fastify;
   let octokit;

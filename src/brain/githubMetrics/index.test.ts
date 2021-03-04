@@ -29,7 +29,6 @@ import { githubMetrics as metrics } from '.';
 
 jest.spyOn(db, 'insert');
 jest.spyOn(db, 'insertOss');
-jest.mock('@api/github/getClient');
 
 const SCHEMA = Object.entries(db.TARGETS.oss.schema).map(([name, type]) => ({
   name,
