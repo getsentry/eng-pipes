@@ -4,6 +4,12 @@ import { getOssUserType } from './getOssUserType';
 
 describe('getUserOssType', function () {
   let octokit;
+  const repository = {
+    owner: {
+      type: 'Organization',
+      login: 'Enterprise',
+    },
+  };
 
   beforeAll(async function () {
     octokit = await getClient('Enterprise');
@@ -19,12 +25,7 @@ describe('getUserOssType', function () {
       sender: {
         login: 'Picard',
       },
-      repository: {
-        owner: {
-          type: 'Organization',
-          login: 'Enterprise',
-        },
-      },
+      repository,
     });
 
     expect(result).toBe('internal');
@@ -36,12 +37,7 @@ describe('getUserOssType', function () {
       sender: {
         login: 'Picard',
       },
-      repository: {
-        owner: {
-          type: 'Organization',
-          login: 'Enterprise',
-        },
-      },
+      repository,
     });
     expect(result).toBe('internal');
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(0);
@@ -52,12 +48,7 @@ describe('getUserOssType', function () {
       sender: {
         login: 'Skywalker',
       },
-      repository: {
-        owner: {
-          type: 'Organization',
-          login: 'Enterprise',
-        },
-      },
+      repository,
     });
     expect(result).toBe('external');
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
@@ -72,12 +63,7 @@ describe('getUserOssType', function () {
       sender: {
         login: 'Picard2',
       },
-      repository: {
-        owner: {
-          type: 'Organization',
-          login: 'Enterprise',
-        },
-      },
+      repository,
     });
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
     octokit.orgs.checkMembershipForUser.mockClear();
@@ -90,12 +76,7 @@ describe('getUserOssType', function () {
       sender: {
         login: 'Picard2',
       },
-      repository: {
-        owner: {
-          type: 'Organization',
-          login: 'Enterprise',
-        },
-      },
+      repository,
     });
     expect(result).toBe('external');
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
