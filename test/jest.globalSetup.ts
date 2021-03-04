@@ -15,7 +15,7 @@ async function createDatabase() {
     await db.raw('DROP DATABASE IF EXISTS test_database');
     await db.raw('CREATE DATABASE test_database');
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     await db.destroy();
   }

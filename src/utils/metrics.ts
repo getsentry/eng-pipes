@@ -314,6 +314,7 @@ export async function insertOss(
 
   if (process.env.DRY_RUN) {
     const targetConfig = TARGETS.oss;
+    // eslint-disable-next-line
     console.log(`
 ###### Dry Run: BigQuery Insert ######
   Dataset: ${targetConfig.dataset}

@@ -48,7 +48,6 @@ export async function actionViewUndeployedCommits({
   });
 
   const lastDeploy = await getLastSuccessfulDeploy();
-  console.log(lastDeploy);
 
   if (!lastDeploy) {
     // Unable to find last successful deploy... can't continue

@@ -14,7 +14,7 @@ async function deleteDatabase() {
   try {
     await db.raw('DROP DATABASE IF EXISTS test_database');
   } catch (err) {
-    console.log(err);
+    console.error(err);
   } finally {
     await db.destroy();
   }
