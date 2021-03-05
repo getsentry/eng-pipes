@@ -46,7 +46,7 @@ export async function handler(request: FastifyRequest) {
   promises.push(
     insert({
       source: 'freight',
-      event: `deploy_${status}`,
+      event: `deploy_${freightStatus}`,
       object_id: null,
       source_id: body.deploy_number,
       start_timestamp: body.date_started,
@@ -66,7 +66,7 @@ export async function handler(request: FastifyRequest) {
   // Only do this step if deploy is successful
   //
   // TODO: figure out how rollbacks will affect this data
-  if (body.previous_sha && status === 'finished') {
+  if (body.previous_sha && freightStatus === 'finished') {
     const sentryPullRequests = await getSentryPullRequestsForGetsentryRange(
       body.sha,
       body.previous_sha
