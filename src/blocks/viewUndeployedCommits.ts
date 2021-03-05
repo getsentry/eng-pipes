@@ -1,4 +1,4 @@
-export function viewUndeployedCommits(commitRange: string) {
+export function viewUndeployedCommits(commitRange: string, id?: string) {
   return {
     type: 'button',
     text: {
@@ -7,6 +7,6 @@ export function viewUndeployedCommits(commitRange: string) {
       emoji: true,
     },
     value: commitRange,
-    action_id: 'view-undeployed-commits',
+    action_id: `view-undeployed-commits-${id}`,
   };
 }
