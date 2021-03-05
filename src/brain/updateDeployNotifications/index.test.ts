@@ -364,6 +364,16 @@ describe('updateDeployNotifications', function () {
                     "value": "982345",
                   },
                   Object {
+                    "action_id": "view-undeployed-commits",
+                    "text": Object {
+                      "emoji": true,
+                      "text": "View Undeployed Commits",
+                      "type": "plain_text",
+                    },
+                    "type": "button",
+                    "value": "982345",
+                  },
+                  Object {
                     "action_id": "mute-slack-deploy",
                     "confirm": Object {
                       "confirm": Object {

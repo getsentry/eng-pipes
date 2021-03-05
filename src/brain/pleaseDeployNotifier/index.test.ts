@@ -191,6 +191,16 @@ describe('pleaseDeployNotifier', function () {
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
+                  "action_id": "view-undeployed-commits",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "View Undeployed Commits",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                },
+                Object {
                   "action_id": "mute-slack-deploy",
                   "confirm": Object {
                     "confirm": Object {
@@ -332,6 +342,16 @@ describe('pleaseDeployNotifier', function () {
                   },
                   "type": "button",
                   "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                },
+                Object {
+                  "action_id": "view-undeployed-commits",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "View Undeployed Commits",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {

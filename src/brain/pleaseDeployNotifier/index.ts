@@ -85,7 +85,7 @@ async function handler({
 
   const actions = [
     freightDeploy(commit),
-    // viewUndeployedCommits(commit),
+    viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];
 
