@@ -1,4 +1,4 @@
-export function viewUndeployedCommits(commitRange: string, id?: string) {
+export function viewUndeployedCommits(commitRange: string, id: string = '') {
   return {
     type: 'button',
     text: {
