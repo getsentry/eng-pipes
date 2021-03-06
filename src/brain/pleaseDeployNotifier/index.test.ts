@@ -191,7 +191,7 @@ describe('pleaseDeployNotifier', function () {
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
-                  "action_id": "view-undeployed-commits",
+                  "action_id": "view-undeployed-commits-",
                   "text": Object {
                     "emoji": true,
                     "text": "View Undeployed Commits",
@@ -345,7 +345,7 @@ describe('pleaseDeployNotifier', function () {
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
-                  "action_id": "view-undeployed-commits",
+                  "action_id": "view-undeployed-commits-",
                   "text": Object {
                     "emoji": true,
                     "text": "View Undeployed Commits",
@@ -498,7 +498,7 @@ describe('pleaseDeployNotifier', function () {
                   },
                   {
                     type: 'button',
-                    action_id: 'view-undeployed-commits',
+                    action_id: 'view-undeployed-commits-',
                     text: {
                       type: 'plain_text',
                       text: 'View Undeployed Commits',
@@ -552,7 +552,7 @@ describe('pleaseDeployNotifier', function () {
         'https://hooks.slack.com/actions/T018UAQ7YRW/1809365465603/KPvO6Eijd4RDgscXV2Ro7avH',
       actions: [
         {
-          action_id: 'view-undeployed-commits',
+          action_id: 'view-undeployed-commits-',
           block_id: 'TvwVk',
           text: {
             type: 'plain_text',
