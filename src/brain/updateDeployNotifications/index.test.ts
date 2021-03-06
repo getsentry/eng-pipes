@@ -364,7 +364,7 @@ describe('updateDeployNotifications', function () {
                     "value": "982345",
                   },
                   Object {
-                    "action_id": "view-undeployed-commits",
+                    "action_id": "view-undeployed-commits-",
                     "text": Object {
                       "emoji": true,
                       "text": "View Undeployed Commits",

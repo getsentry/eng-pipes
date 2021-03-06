@@ -69,6 +69,7 @@ async function handler({
       scope.setUser({
         email: relevantCommit.commit.author?.email,
       });
+      tx.setStatus('no-user');
       tx.finish();
     });
     return;
@@ -108,22 +109,27 @@ async function handler({
     ],
   });
 
-  await bolt.client.chat.postMessage({
-    channel: '#z-billy',
-    text,
-    attachments: [
-      {
-        color: Color.NEUTRAL,
-        blocks: [
-          ...commitBlocks,
-          {
-            type: 'actions',
-            elements: [...actions, viewUndeployedCommits(commit)],
-          },
-        ],
-      },
-    ],
-  });
+  try {
+    await bolt.client.chat.postMessage({
+      channel: '#z-billy',
+      text,
+      attachments: [
+        {
+          color: Color.NEUTRAL,
+          blocks: [
+            ...commitBlocks,
+            {
+              type: 'actions',
+              elements: [...actions, viewUndeployedCommits(commit, 'billy')],
+            },
+          ],
+        },
+      ],
+    });
+  } catch (err) {
+    // Ignore exceptions here since this is just debugging
+    Sentry.captureException(err);
+  }
 
   if (message) {
     await saveSlackMessage(
@@ -179,7 +185,7 @@ export async function pleaseDeployNotifier() {
 
   // Handles viewing undeployed commits
   bolt.action(
-    /view-undeployed-commits/,
+    /view-undeployed-commits-.*/,
     wrapHandler('actionViewUndeployedCommits', actionViewUndeployedCommits)
   );
 }
