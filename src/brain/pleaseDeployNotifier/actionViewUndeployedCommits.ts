@@ -46,7 +46,7 @@ export async function actionViewUndeployedCommits({
           text: {
             type: 'mrkdwn',
             text:
-              ':warning: This is slow af (10+ seconds), <thttps://sentry.io/organizations/sentry/performance/summary/?environment=production&project=5246761&query=transaction.duration%3A%3C15m+event.type%3Atransaction+event.type%3Atransaction&showTransactions=recent&statsPeriod=7d&transaction=actionViewUndeployedCommits&unselectedSeries=p100%28%29|take a look> and let me know if you have any ideas. :6:',
+              ':warning: This is slow af (10+ seconds), <https://sentry.io/organizations/sentry/performance/summary/?environment=production&project=5246761&query=transaction.duration%3A%3C15m+event.type%3Atransaction+event.type%3Atransaction&showTransactions=recent&statsPeriod=7d&transaction=actionViewUndeployedCommits&unselectedSeries=p100%28%29|take a look> and let me know if you have any ideas. :6:',
           },
         },
       ],
