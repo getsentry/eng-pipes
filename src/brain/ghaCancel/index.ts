@@ -1,17 +1,17 @@
 import * as Sentry from '@sentry/node';
+import {
+  matchMessage,
+  Middleware,
+  SlackEventMiddlewareArgs,
+} from '@slack/bolt';
 
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 async function handler({ event, say, client }) {
-  if (!event.text?.includes('gha cancel')) {
-    return;
-  }
-
-  const matches = event.text.match(
-    // eslint-disable-next-line
-    /gha cancel.*https:\/\/github.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/
-  );
+  // eslint-disable-next-line no-useless-escape
+  const pattern = /https:\/\/github.com\/([^\/]+)\/([^\/]+)\/pull\/(\d+)/;
+  const matches = event.text.match(pattern);
 
   if (!matches) {
     await say({
@@ -93,6 +93,30 @@ async function handler({ event, say, client }) {
   }
 }
 
+/*
+ * Middleware that filters out non direct messages
+ */
+function matchDirectMessage(): Middleware<SlackEventMiddlewareArgs<'message'>> {
+  return async ({ event, next }) => {
+    // @ts-ignore
+    if (event.type !== 'message' || event.channel_type !== 'im') {
+      return;
+    }
+    await next!();
+  };
+}
+
 export function ghaCancel() {
-  bolt.event('app_mention', handler);
+  const pattern = 'gha cancel';
+
+  // TODO(billy): We should have a `createCommand` that binds app_mention + direct message,
+  // as well as help text to be used elsewhere
+  bolt.event(
+    'app_mention',
+    // @ts-ignore
+    matchMessage(pattern),
+    handler
+  );
+
+  bolt.message(pattern, matchDirectMessage(), handler);
 }
