@@ -1,9 +1,10 @@
 # sentry-ci-tooling
 
-This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight). 
+This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight).
 There is also Slack integration to provide tools through Slack.
 
 ## Development
+
 Read the README in the `src/` directory for more information
 
 ```sh
@@ -22,7 +23,7 @@ yarn test
 
 ## Setup
 
-Install the github application to relevant repos here: https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools/installations (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
+Install the github application to relevant repos here: <https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools/installations> (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
 
 ### Setup Secrets
 
@@ -31,38 +32,41 @@ You can grab GitHub and Slack secrets in their respective configuration pages: [
 
 You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
 
- * `GH_APP_IDENTIFIER` - GitHub App identifier
- * `GH_APP_SECRET_KEY` - GitHub App private key
- * `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
- * `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
- * `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
- * `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
+- `GH_APP_IDENTIFIER` - GitHub App identifier
+- `GH_APP_SECRET_KEY` - GitHub App private key
+- `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
+- `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
+- `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
+- `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
 
 Optional database configuration
 
- * `DB_USER` - Database user
- * `DB_PASSWORD` - Database password
- * `DB_NAME` - Database name
- * `DB_INSTANCE_CONNECTION_NAME` - Used for CloudSQL
+- `DB_USER` - Database user
+- `DB_PASSWORD` - Database password
+- `DB_NAME` - Database name
+- `DB_INSTANCE_CONNECTION_NAME` - Used for CloudSQL
 
 These envronment vars are used for deploying to GCP
- * `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
- * `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
+
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
+- `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
 
 And finally, for Sentry releases
- * `SENTRY_AUTH_TOKEN` - Auth token used to create releases
- * `SENTRY_ORG` - the Sentry organization
- * `SENTRY_PROJECT` - the Sentry project id
+
+- `SENTRY_AUTH_TOKEN` - Auth token used to create releases
+- `SENTRY_ORG` - the Sentry organization
+- `SENTRY_PROJECT` - the Sentry project id
 
 ### Google Cloud Platform
 
 You'll need to setup a GCP project that has access to Google Cloud Run. You should create a service account that has the following roles:
-  * `Cloud Run Admin`
-  * `Service Account User`
-  * `Cloud SQL Client`
+
+- `Cloud Run Admin`
+- `Service Account User`
+- `Cloud SQL Client`
 
 You'll also need to create a private key for the service account (it should download a JSON file). You'll want to run `base64 <path/to/json>` and set it as the `GOOGLE_APPLICATION_CREDENTIALS` secret in GitHub.
 
-
 ### Deploying
+
 All pushes to `main` will deploy to the existing GCP project.
