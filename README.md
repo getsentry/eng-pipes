@@ -3,20 +3,39 @@
 This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight).
 There is also Slack integration to provide tools through Slack.
 
+## Pre-requisites
+
+If you've installed the requirements of Sentry you will have the following in place:
+
+- Docker (via Brew)
+- Node/Yarn (via Volta)
+
+## Architecture
+
+![alt text](Isolated.png 'Title')
+
+Read the README in the `src/` directory for information on the code structure.
+
 ## Development
 
-Read the README in the `src/` directory for more information
+### Set up your environment variables
+
+TBD
+
+### Doing development
 
 ```sh
 # Start local postgres
 docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12
-
 # Install dependencies
 yarn install
-
 # Start dev
 yarn dev
+```
 
+Running tests:
+
+```sh
 # Testing
 yarn test
 ```
