@@ -65,6 +65,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:0.21.17"],
             ["lint-staged", "npm:10.5.4"],
             ["lodash.merge", "npm:4.6.2"],
+            ["markdownlint-cli", "npm:0.27.1"],
             ["module-alias", "npm:2.2.2"],
             ["nodemon", "npm:2.0.7"],
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],
@@ -2311,6 +2312,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["sprintf-js", "npm:1.0.3"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:2.0.1", {
+          "packageLocation": "./.yarn/cache/argparse-npm-2.0.1-faff7999e6-160b7a25d2.zip/node_modules/argparse/",
+          "packageDependencies": [
+            ["argparse", "npm:2.0.1"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["args", [
@@ -3208,6 +3216,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["commander", "npm:6.2.1"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:7.1.0", {
+          "packageLocation": "./.yarn/cache/commander-npm-7.1.0-632d393e57-2b6dacb11f.zip/node_modules/commander/",
+          "packageDependencies": [
+            ["commander", "npm:7.1.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["compare-versions", [
@@ -3856,6 +3871,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/ent-npm-2.2.0-97a5f0ffb8-b9d26d321b.zip/node_modules/ent/",
           "packageDependencies": [
             ["ent", "npm:2.2.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["entities", [
+        ["npm:2.1.0", {
+          "packageLocation": "./.yarn/cache/entities-npm-2.1.0-b27b8aebc6-91d5330633.zip/node_modules/entities/",
+          "packageDependencies": [
+            ["entities", "npm:2.1.0"]
           ],
           "linkType": "HARD",
         }]
@@ -5005,6 +5029,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/get-own-enumerable-property-symbols-npm-3.0.2-f143f9e8d3-23f13946c7.zip/node_modules/get-own-enumerable-property-symbols/",
           "packageDependencies": [
             ["get-own-enumerable-property-symbols", "npm:3.0.2"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["get-stdin", [
+        ["npm:8.0.0", {
+          "packageLocation": "./.yarn/cache/get-stdin-npm-8.0.0-920f876bc2-009a4c4248.zip/node_modules/get-stdin/",
+          "packageDependencies": [
+            ["get-stdin", "npm:8.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -6794,6 +6827,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["esprima", "npm:4.0.1"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:4.0.0", {
+          "packageLocation": "./.yarn/cache/js-yaml-npm-4.0.0-3ac8e950bb-ee9b16cdbb.zip/node_modules/js-yaml/",
+          "packageDependencies": [
+            ["js-yaml", "npm:4.0.0"],
+            ["argparse", "npm:2.0.1"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["jsbn", [
@@ -6939,6 +6980,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["json5", "npm:2.1.3"],
             ["minimist", "npm:1.2.5"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["jsonc-parser", [
+        ["npm:3.0.0", {
+          "packageLocation": "./.yarn/cache/jsonc-parser-npm-3.0.0-66e692e88a-36b9080a7e.zip/node_modules/jsonc-parser/",
+          "packageDependencies": [
+            ["jsonc-parser", "npm:3.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -7213,6 +7263,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["linkify-it", [
+        ["npm:3.0.2", {
+          "packageLocation": "./.yarn/cache/linkify-it-npm-3.0.2-55fc9f4a37-bbc23f16d5.zip/node_modules/linkify-it/",
+          "packageDependencies": [
+            ["linkify-it", "npm:3.0.2"],
+            ["uc.micro", "npm:1.0.6"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["lint-staged", [
         ["npm:10.5.4", {
           "packageLocation": "./.yarn/cache/lint-staged-npm-10.5.4-cd5df63f2a-dbcafe3679.zip/node_modules/lint-staged/",
@@ -7293,6 +7353,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/lodash-npm-4.17.20-c0db62021c-c62101d250.zip/node_modules/lodash/",
           "packageDependencies": [
             ["lodash", "npm:4.17.20"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["lodash.differencewith", [
+        ["npm:4.5.0", {
+          "packageLocation": "./.yarn/cache/lodash.differencewith-npm-4.5.0-0480e4d244-089b1e866f.zip/node_modules/lodash.differencewith/",
+          "packageDependencies": [
+            ["lodash.differencewith", "npm:4.5.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["lodash.flatten", [
+        ["npm:4.4.0", {
+          "packageLocation": "./.yarn/cache/lodash.flatten-npm-4.4.0-495935e617-f22a7f6f16.zip/node_modules/lodash.flatten/",
+          "packageDependencies": [
+            ["lodash.flatten", "npm:4.4.0"]
           ],
           "linkType": "HARD",
         }]
@@ -7499,6 +7577,71 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["map-visit", "npm:1.0.0"],
             ["object-visit", "npm:1.0.1"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["markdown-it", [
+        ["npm:12.0.4", {
+          "packageLocation": "./.yarn/cache/markdown-it-npm-12.0.4-f58fa54bda-6331b09e1c.zip/node_modules/markdown-it/",
+          "packageDependencies": [
+            ["markdown-it", "npm:12.0.4"],
+            ["argparse", "npm:2.0.1"],
+            ["entities", "npm:2.1.0"],
+            ["linkify-it", "npm:3.0.2"],
+            ["mdurl", "npm:1.0.1"],
+            ["uc.micro", "npm:1.0.6"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["markdownlint", [
+        ["npm:0.23.1", {
+          "packageLocation": "./.yarn/cache/markdownlint-npm-0.23.1-8de5b78dcb-b013d14fb7.zip/node_modules/markdownlint/",
+          "packageDependencies": [
+            ["markdownlint", "npm:0.23.1"],
+            ["markdown-it", "npm:12.0.4"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["markdownlint-cli", [
+        ["npm:0.27.1", {
+          "packageLocation": "./.yarn/cache/markdownlint-cli-npm-0.27.1-6bf4e192ff-f35ae61350.zip/node_modules/markdownlint-cli/",
+          "packageDependencies": [
+            ["markdownlint-cli", "npm:0.27.1"],
+            ["commander", "npm:7.1.0"],
+            ["deep-extend", "npm:0.6.0"],
+            ["get-stdin", "npm:8.0.0"],
+            ["glob", "npm:7.1.6"],
+            ["ignore", "npm:5.1.8"],
+            ["js-yaml", "npm:4.0.0"],
+            ["jsonc-parser", "npm:3.0.0"],
+            ["lodash.differencewith", "npm:4.5.0"],
+            ["lodash.flatten", "npm:4.4.0"],
+            ["markdownlint", "npm:0.23.1"],
+            ["markdownlint-rule-helpers", "npm:0.14.0"],
+            ["minimatch", "npm:3.0.4"],
+            ["minimist", "npm:1.2.5"],
+            ["rc", "npm:1.2.8"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["markdownlint-rule-helpers", [
+        ["npm:0.14.0", {
+          "packageLocation": "./.yarn/cache/markdownlint-rule-helpers-npm-0.14.0-b91ba34e45-5a565edadf.zip/node_modules/markdownlint-rule-helpers/",
+          "packageDependencies": [
+            ["markdownlint-rule-helpers", "npm:0.14.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["mdurl", [
+        ["npm:1.0.1", {
+          "packageLocation": "./.yarn/cache/mdurl-npm-1.0.1-054d974269-ed5e81efed.zip/node_modules/mdurl/",
+          "packageDependencies": [
+            ["mdurl", "npm:1.0.1"]
           ],
           "linkType": "HARD",
         }]
@@ -9560,6 +9703,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:0.21.17"],
             ["lint-staged", "npm:10.5.4"],
             ["lodash.merge", "npm:4.6.2"],
+            ["markdownlint-cli", "npm:0.27.1"],
             ["module-alias", "npm:2.2.2"],
             ["nodemon", "npm:2.0.7"],
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],
@@ -10676,6 +10820,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/typescript-patch-7a9e6321b3-017af99214.zip/node_modules/typescript/",
           "packageDependencies": [
             ["typescript", "patch:typescript@npm%3A4.1.3#builtin<compat/typescript>::version=4.1.3&hash=cc6730"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["uc.micro", [
+        ["npm:1.0.6", {
+          "packageLocation": "./.yarn/cache/uc.micro-npm-1.0.6-36f3dc2fc4-9dfe5ad0a0.zip/node_modules/uc.micro/",
+          "packageDependencies": [
+            ["uc.micro", "npm:1.0.6"]
           ],
           "linkType": "HARD",
         }]
