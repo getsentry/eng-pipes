@@ -18,9 +18,11 @@ Read the README in the `src/` directory for information on the code structure.
 
 ## Development
 
-### Set up your environment variables
+### Set up
 
-TBD
+- Make a copy of the example env file: `cp .env.example .env`
+  - direnv will load the environment variables inside of it
+- You will need to set up various services and adjust the values in the `.env` file
 
 ### Doing development
 
