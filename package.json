@@ -93,7 +93,7 @@
       "yarn test --findRelatedTests"
     ],
     "*.md": [
-      "markdownlint-cli"
+      "markdownlint '**/*.md' --fix -i node_modules"
     ]
   }
 }
