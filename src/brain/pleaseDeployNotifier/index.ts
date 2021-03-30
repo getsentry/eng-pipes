@@ -109,28 +109,6 @@ async function handler({
     ],
   });
 
-  try {
-    await bolt.client.chat.postMessage({
-      channel: '#z-billy',
-      text,
-      attachments: [
-        {
-          color: Color.NEUTRAL,
-          blocks: [
-            ...commitBlocks,
-            {
-              type: 'actions',
-              elements: [...actions, viewUndeployedCommits(commit, 'billy')],
-            },
-          ],
-        },
-      ],
-    });
-  } catch (err) {
-    // Ignore exceptions here since this is just debugging
-    Sentry.captureException(err);
-  }
-
   if (message) {
     await saveSlackMessage(
       SlackMessage.PLEASE_DEPLOY,
