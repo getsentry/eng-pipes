@@ -12,7 +12,7 @@ If you've installed the requirements of Sentry you will have the following in pl
 
 ## Architecture
 
-![Diagram representing the production](docs/production.png 'Production diagram')
+![Diagram representing the production](docs/production.svg 'Production diagram')
 
 Read the README in the `src/` directory for information on the code structure.
 
