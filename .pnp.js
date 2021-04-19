@@ -6828,10 +6828,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
-        ["npm:4.0.0", {
-          "packageLocation": "./.yarn/cache/js-yaml-npm-4.0.0-3ac8e950bb-ee9b16cdbb.zip/node_modules/js-yaml/",
+        ["npm:4.1.0", {
+          "packageLocation": "./.yarn/cache/js-yaml-npm-4.1.0-3606f32312-8973cf4296.zip/node_modules/js-yaml/",
           "packageDependencies": [
-            ["js-yaml", "npm:4.0.0"],
+            ["js-yaml", "npm:4.1.0"],
             ["argparse", "npm:2.0.1"]
           ],
           "linkType": "HARD",
@@ -7615,7 +7615,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["get-stdin", "npm:8.0.0"],
             ["glob", "npm:7.1.6"],
             ["ignore", "npm:5.1.8"],
-            ["js-yaml", "npm:4.0.0"],
+            ["js-yaml", "npm:4.1.0"],
             ["jsonc-parser", "npm:3.0.0"],
             ["lodash.differencewith", "npm:4.5.0"],
             ["lodash.flatten", "npm:4.4.0"],
