@@ -27,6 +27,12 @@ TODO: Add notes for the following:
 - What code does a service need to call to report to this app?
 - How do you build a Looker dashboard?
 
+### Slack app
+
+The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL under "Event subscriptions". This will send events to the "apps/slack/events" route.
+
+There's also "Subscribe to bot events" under "Event subscriptions". TODO: Document how this works.
+
 ## Development & tests
 
 Follow the steps in the next section before running these steps:
@@ -49,7 +55,7 @@ yarn test
 
 ## Setup
 
-`direnv` will create `.env` for you if you don't have one. Follow the instructions below and adjust the variables in the `.env` file
+`direnv` will create a `.env` file for you if you don't have one. Follow the instructions below and adjust the variables in the `.env` file.
 
 ### Setup Secrets
 
