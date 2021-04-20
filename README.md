@@ -44,23 +44,39 @@ Under Sentry's [webhooks](https://github.com/armenzg/sentry/settings/hooks) ther
 
 ## Testing your changes
 
+NOTE: This steps will cover more aspects overtime. For now it focuses on testing Slack/Github changes.
+
 You need to set up:
 
 - Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
   - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
-- Configure a Sentry fork and add webhooks
+- Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`)
+- Create a [new Slack App](https://api.slack.com/apps?new_app=1) that matches the settings of the production bot
+  - The prompt will ask you to associate to a workspace (use the new workspace)
+- Follow the steps of "Development & tests" to get the server running
+  - It will fail since you don't yet have all the env variables defined
+- Load the production Slack app side-by-side with your Slack app and make the settings match
+  - Use https:// instead of http:// when adding URL callbacks
+  - You will need to add information to your `.env` file and reload your server (for the new env vars to apply)
+  - You will have to work back and forth until you figure it out
+  - You need to make changes in:
+    - Basic Information
+    - App Home
+    - Interactivity & Shortcuts
+    - OAuth & Permissions
+      - You might not need to all the same scopes depending on what you're testing
+    - Event Subscriptions
+- On your new Slack workspace begin a conversation with the bot
+  - You should see your localhost app respond with 200 status code
+- Configure your Github Sentry fork
   - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/metrics/github/events`)
+    - Notify on every event
   - Make sure to choose `application/json` instead of `application/x-www-form-urlencoded`
-  - Place the webhook secret in your `.env`
-- Follow the steps of "Development & tests" to get the server running even if you don't
-- Grab the Slack production credentials and place them in your `.env`
-  - TODO: Maybe we should have a `(Staging) Sentry bot` to test locally
-  - TODO: Verify if the SLACK_BOT_USER_ACCESS_TOKEN is the same as "Client ID"
+  - Place the `GH_WEBHOOK_SECRET` in your `.env`
+  - Push to your fork and see events coming in
 
-NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them
+NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
 NOTE: Github let's you see web hooks events it recently delivered and even redeliver them if needed.
-
-For each service you want to test
 
 ## Development & tests
 
@@ -99,7 +115,6 @@ You will also need to set up some of these environment variables if you want to 
 - `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
 - `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
 - `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
-  - The token that was generated is tied to the identity of the user who installed the app. Reinstall the app to update the token to use your account.
 
 Optional database configuration
 
