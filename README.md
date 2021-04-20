@@ -5,12 +5,6 @@ There is also Slack integration to provide tools through Slack.
 
 Read the README in the `src/` directory for information on the code structure.
 
-## Pre-requisites
-
-- [direnv](https://direnv.net/)
-- [Docker](https://www.docker.com/)
-- [Yarn](https://yarnpkg.com)
-
 ## Architecture
 
 The services that this app is configured for, send metrics to the Sentry CI Tooling app. This app stores the data in Google's BigQuery.
@@ -27,22 +21,57 @@ TODO: Add notes for the following:
 - What code does a service need to call to report to this app?
 - How do you build a Looker dashboard?
 
-### Slack app
+### Sentry bot Slack app
 
-The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL under "Event subscriptions". This will send events to the "apps/slack/events" route.
+The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL are events sent to by going to "Event subscriptions" in the app page. Events are sent to the "apps/slack/events" route.
 
-There's also "Subscribe to bot events" under "Event subscriptions". TODO: Document how this works.
+The events sent by the bot are defined under "Subscribe to bot events" in the "Event subscriptions" page. The current set of events (which can change overtime) are:
+
+- [User clicked into your App Home](https://api.slack.com/events/app_home_opened)
+- [Subscribe to only the message events that mention your app or bot](https://api.slack.com/events/app_mention)
+- [A message was posted in a direct message channel](https://api.slack.com/events/message.im)
+- [A member's data has changed](https://api.slack.com/events/user_change).
+
+### Sentry Webhooks
+
+Under Sentry's [webhooks](https://github.com/armenzg/sentry/settings/hooks) there's also a URL to the production backend but the route is "apps/github/events" (TODO: confirm).
+
+## Pre-requisites
+
+- [direnv](https://direnv.net/)
+- [Docker](https://www.docker.com/)
+- [Yarn](https://yarnpkg.com)
+
+## Testing your changes
+
+You need to set up:
+
+- Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
+  - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
+- Configure a Sentry fork and add webhooks
+  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/metrics/github/events`)
+  - Make sure to choose `application/json` instead of `application/x-www-form-urlencoded`
+  - Place the webhook secret in your `.env`
+- Follow the steps of "Development & tests" to get the server running even if you don't
+- Grab the Slack production credentials and place them in your `.env`
+  - TODO: Maybe we should have a `(Staging) Sentry bot` to test locally
+  - TODO: Verify if the SLACK_BOT_USER_ACCESS_TOKEN is the same as "Client ID"
+
+NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them
+NOTE: Github let's you see web hooks events it recently delivered and even redeliver them if needed.
+
+For each service you want to test
 
 ## Development & tests
 
-Follow the steps in the next section before running these steps:
+Follow the steps in the '''Setup''' section before running these steps:
 
 ```sh
 # Start local postgres
 docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12
 # Install dependencies
 yarn install
-# Start dev (it won't work until you set up the variables in .env file)
+# Start dev (it won't work until you set up some of the variables in .env file)
 yarn dev
 ```
 
@@ -70,6 +99,7 @@ You will also need to set up some of these environment variables if you want to 
 - `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
 - `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
 - `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
+  - The token that was generated is tied to the identity of the user who installed the app. Reinstall the app to update the token to use your account.
 
 Optional database configuration
 
