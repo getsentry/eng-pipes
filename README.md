@@ -16,11 +16,6 @@ The app can also determine that it needs to send a message to the Slack workspac
 
 ![Diagram representing the production](docs/production.svg 'Production diagram')
 
-TODO: Add notes for the following:
-
-- What code does a service need to call to report to this app?
-- How do you build a Looker dashboard?
-
 ### Sentry bot Slack app
 
 The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL are events sent to by going to "Event subscriptions" in the app page. Events are sent to the "apps/slack/events" route.
@@ -32,13 +27,13 @@ The events sent by the bot are defined under "Subscribe to bot events" in the "E
 - [A message was posted in a direct message channel](https://api.slack.com/events/message.im)
 - [A member's data has changed](https://api.slack.com/events/user_change).
 
-### Sentry Webhooks
+### Github Sentry Webhooks
 
-Under Sentry's [webhooks](https://github.com/armenzg/sentry/settings/hooks) there's also a URL to the production backend but the route is "apps/github/events" (TODO: confirm).
+Under Sentry's [webhooks](https://github.com/getsentry/sentry/settings/hooks) there's webhooks to the production backend with the route "metrics/github/webhook".
 
 ## Pre-requisites
 
-- [direnv](https://direnv.net/)
+- [direnv](https://direnv.net/) - Recommended to load env variables
 - [Docker](https://www.docker.com/)
 - [Yarn](https://yarnpkg.com)
 
@@ -51,15 +46,14 @@ You need to set up:
 - Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
   - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
 - Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`)
-- Create a [new Slack App](https://api.slack.com/apps?new_app=1) that matches the settings of the production bot
+- Create a [new Slack App](https://api.slack.com/apps?new_app=1) that matches the settings of the production app
   - The prompt will ask you to associate to a workspace (use the new workspace)
 - Follow the steps of "Development & tests" to get the server running
   - It will fail since you don't yet have all the env variables defined
 - Load the production Slack app side-by-side with your Slack app and make the settings match
   - Use https:// instead of http:// when adding URL callbacks
-  - You will need to add information to your `.env` file and reload your server (for the new env vars to apply)
-  - You will have to work back and forth until you figure it out
-  - You need to make changes in:
+  - You will need to add information to your `.env` file and reload your server (for the new env vars to apply). You will have to this back and forth until you make it work
+  - You need the same settings in:
     - Basic Information
     - App Home
     - Interactivity & Shortcuts
@@ -68,14 +62,16 @@ You need to set up:
     - Event Subscriptions
 - On your new Slack workspace begin a conversation with the bot
   - You should see your localhost app respond with 200 status code
-- Configure your Github Sentry fork
-  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/metrics/github/events`)
+  - Congratulations!
+- Configure the webhook for your Github Sentry fork
+  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/metrics/github/webhook`)
     - Notify on every event
   - Make sure to choose `application/json` instead of `application/x-www-form-urlencoded`
   - Place the `GH_WEBHOOK_SECRET` in your `.env`
   - Push to your fork and see events coming in
 
 NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
+
 NOTE: Github let's you see web hooks events it recently delivered and even redeliver them if needed.
 
 ## Development & tests
@@ -153,3 +149,10 @@ Install [the Github application](https://github.com/organizations/getsentry/sett
 ### Deploying
 
 All pushes to `main` will deploy to the existing GCP project.
+
+## TODO
+
+Add notes for the following:
+
+- What code does a service need to call to report to this app?
+- How do you build a Looker dashboard?
