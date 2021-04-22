@@ -20,7 +20,7 @@ The app can also determine that it needs to send a message to the Slack workspac
 
 The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL are events sent to by going to "Event subscriptions" in the app page. Events are sent to the "apps/slack/events" route.
 
-The events sent by the bot are defined under "Subscribe to bot events" in the "Event subscriptions" page. The current set of events (which can change overtime) are:
+The events sent by the bot are defined under "Subscribe to bot events" in the "Event subscriptions" page. The current set of events (which can change over time) are:
 
 - [User clicked into your App Home](https://api.slack.com/events/app_home_opened)
 - [Subscribe to only the message events that mention your app or bot](https://api.slack.com/events/app_mention)
