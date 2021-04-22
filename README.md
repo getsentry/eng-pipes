@@ -39,7 +39,7 @@ Under Sentry's [webhooks](https://github.com/getsentry/sentry/settings/hooks) th
 
 ## Testing your changes
 
-NOTE: This steps will cover more aspects overtime. For now it focuses on testing Slack/Github changes.
+NOTE: This steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
 
 You need to set up:
 
