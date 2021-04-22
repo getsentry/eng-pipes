@@ -3,6 +3,7 @@
     "arcanis.vscode-zipfs",
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "davidanson.vscode-markdownlint"
+    "davidanson.vscode-markdownlint",
+    "cssho.vscode-svgviewer"
   ]
 }
