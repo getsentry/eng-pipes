@@ -50,16 +50,20 @@ You need to set up:
   - The prompt will ask you to associate to a workspace (use the new workspace)
 - Follow the steps of "Development & tests" to get the server running
   - It will fail since you don't yet have all the env variables defined
-- Load the production Slack app side-by-side with your Slack app and make the settings match
-  - Use https:// instead of http:// when adding URL callbacks
-  - You will need to add information to your `.env` file and reload your server (for the new env vars to apply). You will have to this back and forth until you make it work
-  - You need the same settings in:
+- In order for your Slack app to work, you need to match the settings to the production Slack app
+  - Load on your browser the production and personal app on two windows side-by-side
+  - You need the match the settings from the following sections:
     - Basic Information
     - App Home
     - Interactivity & Shortcuts
     - OAuth & Permissions
       - You might not need to all the same scopes depending on what you're testing
     - Event Subscriptions
+  - Make sure to use https:// URLs instead of http:// ones
+  - Some of the settings will need to be verified before they get save
+    - This means that you will need to update your `.env` file with the settings from your Slack app
+    - Reload your server for the new env vars to apply and resend the verification payloads
+    - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
 - On your new Slack workspace begin a conversation with the bot
   - You should see your localhost app respond with 200 status code
   - Congratulations!
