@@ -7,7 +7,7 @@ const IGNORED_PATHS = [/views\/events.*/, /views\/dashboards.*/];
 
 export default async function getProgress({
   repo = 'sentry',
-  basePath = 'src/sentry/static/sentry',
+  basePath = 'static',
   appDir = 'app',
   date,
 }: {
