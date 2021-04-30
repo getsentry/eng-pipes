@@ -3,20 +3,31 @@ import merge from 'lodash.merge';
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { buildServer } from '@/buildServer';
-import { REQUIRED_CHECK_CHANNEL, REQUIRED_CHECK_NAME } from '@/config';
+import {
+  BuildStatus,
+  REQUIRED_CHECK_CHANNEL,
+  REQUIRED_CHECK_NAME,
+} from '@/config';
 import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import * as getFailureMessages from '@utils/db/getFailureMessages';
+import { getTimestamp } from '@utils/db/getTimestamp';
+import * as saveSlackMessage from '@utils/db/saveSlackMessage';
 
 import { requiredChecks } from '.';
 
 describe('requiredChecks', function () {
   let fastify: Fastify;
   let octokit;
+  const postMessage = bolt.client.chat.postMessage as jest.Mock;
+  const updateMessage = bolt.client.chat.update as jest.Mock;
 
   beforeAll(async function () {
     await db.migrate.latest();
+    jest.spyOn(getFailureMessages, 'getFailureMessages');
+    jest.spyOn(saveSlackMessage, 'saveSlackMessage');
   });
 
   afterAll(async function () {
@@ -33,6 +44,7 @@ describe('requiredChecks', function () {
       if (repo === 'sentry') {
         return {
           data: merge({}, defaultPayload, {
+            sha: ref,
             commit: {
               author: {
                 name: 'Matej Minar',
@@ -53,15 +65,18 @@ describe('requiredChecks', function () {
         };
       }
 
-      return { data: defaultPayload };
+      return { data: merge({}, defaultPayload, { sha: ref }) };
     });
   });
 
   afterEach(async function () {
     fastify.close();
     octokit.repos.getCommit.mockClear();
-    (bolt.client.chat.postMessage as jest.Mock).mockClear();
+    postMessage.mockClear();
+    updateMessage.mockClear();
     await db('slack_messages').delete();
+    (getFailureMessages.getFailureMessages as jest.Mock).mockClear();
+    (saveSlackMessage.saveSlackMessage as jest.Mock).mockClear();
   });
 
   it('ignores check run in progress', async function () {
@@ -75,7 +90,7 @@ describe('requiredChecks', function () {
         name: REQUIRED_CHECK_NAME,
       },
     });
-    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalled();
   });
 
   it('ignores successful conclusions', async function () {
@@ -89,7 +104,7 @@ describe('requiredChecks', function () {
         name: REQUIRED_CHECK_NAME,
       },
     });
-    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalled();
   });
 
   it('ignores other check runs', async function () {
@@ -103,7 +118,7 @@ describe('requiredChecks', function () {
         name: 'other check run',
       },
     });
-    expect(bolt.client.chat.postMessage).not.toHaveBeenCalled();
+    expect(postMessage).not.toHaveBeenCalled();
   });
 
   it('notifies slack channel with failure due to a sentry commit (via getsentry bump commit)', async function () {
@@ -147,10 +162,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
 
     // This is called twice because we use threads to list the job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenCalledTimes(2);
 
     // First message
-    expect(bolt.client.chat.postMessage).toHaveBeenNthCalledWith(
+    expect(postMessage).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
@@ -160,8 +175,7 @@ describe('requiredChecks', function () {
     );
 
     // @ts-ignore
-    expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
-      .toMatchInlineSnapshot(`
+    expect(postMessage.mock.calls[0][0].attachments).toMatchInlineSnapshot(`
       Array [
         Object {
           "blocks": Array [
@@ -200,15 +214,14 @@ describe('requiredChecks', function () {
     `);
 
     // Threaded message with job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith(
+    expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
         channel: 'channel_id',
         thread_ts: '1234123.123',
       })
     );
     // @ts-ignore
-    expect(bolt.client.chat.postMessage.mock.calls[1][0].text)
-      .toMatchInlineSnapshot(`
+    expect(postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
       "Here are the job statuses
 
       <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 
@@ -273,10 +286,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
 
     // This is called twice because we use threads to list the job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenCalledTimes(2);
 
     octokit.repos.getCommit.mockClear();
-    (bolt.client.chat.postMessage as jest.Mock).mockClear();
+    (postMessage as jest.Mock).mockClear();
     // Signal the same check run as above, should not post again to slack
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
@@ -318,7 +331,7 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(0);
 
     // This is called twice because we use threads to list the job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+    expect(postMessage).toHaveBeenCalledTimes(0);
   });
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
@@ -390,10 +403,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
 
     // This is called twice because we use threads to list the job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenCalledTimes(2);
 
     // First message
-    expect(bolt.client.chat.postMessage).toHaveBeenNthCalledWith(
+    expect(postMessage).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
@@ -402,8 +415,7 @@ describe('requiredChecks', function () {
       })
     );
     // @ts-ignore
-    expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
-      .toMatchInlineSnapshot(`
+    expect(postMessage.mock.calls[0][0].attachments).toMatchInlineSnapshot(`
       Array [
         Object {
           "blocks": Array [
@@ -442,15 +454,14 @@ describe('requiredChecks', function () {
     `);
 
     // Threaded message with job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith(
+    expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
         channel: 'channel_id',
         thread_ts: '1234123.123',
       })
     );
     // @ts-ignore
-    expect(bolt.client.chat.postMessage.mock.calls[1][0].text)
-      .toMatchInlineSnapshot(`
+    expect(postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
       "Here are the job statuses
 
       <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 
@@ -465,7 +476,7 @@ describe('requiredChecks', function () {
     `);
   });
 
-  it('saves state of a failed check, and updates slack message when it is passing again', async function () {
+  it('saves state of a failed check, and updates slack message when it is passing again (ignoring any following failed tests)', async function () {
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
@@ -536,10 +547,10 @@ describe('requiredChecks', function () {
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
 
     // This is called twice because we use threads to list the job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenCalledTimes(2);
 
     // First message
-    expect(bolt.client.chat.postMessage).toHaveBeenNthCalledWith(
+    expect(postMessage).toHaveBeenNthCalledWith(
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
@@ -549,7 +560,7 @@ describe('requiredChecks', function () {
     );
 
     // Threaded message with job statuses
-    expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith(
+    expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
         channel: 'channel_id',
         thread_ts: '1234123.123',
@@ -564,6 +575,9 @@ describe('requiredChecks', function () {
         status: 'failure',
       },
     });
+
+    postMessage.mockClear();
+    (getFailureMessages.getFailureMessages as jest.Mock).mockClear();
 
     // Now create a successful run
     await createGitHubEvent(fastify, 'check_run', {
@@ -604,17 +618,8 @@ describe('requiredChecks', function () {
       },
     });
 
-    expect(await db('slack_messages').first('*')).toMatchObject({
-      refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
-      ts: '1234123.123',
-      context: {
-        status: 'success',
-      },
-    });
-
-    expect(await bolt.client.chat.update).toHaveBeenCalledTimes(1);
-    expect(await bolt.client.chat.update).toHaveBeenCalledWith({
+    expect(updateMessage).toHaveBeenCalledTimes(1);
+    expect(updateMessage).toHaveBeenCalledWith({
       attachments: expect.arrayContaining([
         {
           blocks: [
@@ -633,6 +638,25 @@ describe('requiredChecks', function () {
       channel: 'channel_id',
       ts: '1234123.123',
     });
+
+    expect(postMessage).toHaveBeenCalledTimes(0);
+    // Update previous failed messsages
+    expect(updateMessage).toHaveBeenCalledTimes(1);
+
+    // All three checks should be in database, with ref 111 as passing
+    const results = await db('slack_messages')
+      .select('refId')
+      .select(db.raw(`context::json->>'status' as status`))
+      .orderByRaw(`${getTimestamp(`context::json->>'failed_at'`)} desc`);
+
+    expect(results).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "refId": "6d225cb77225ac655d817a7551a26fff85090fe6",
+          "status": "flake",
+        },
+      ]
+    `);
   });
 
   it('does not post if most jobs are still missing and there are no failures', async function () {
@@ -674,7 +698,7 @@ describe('requiredChecks', function () {
       },
     });
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+    expect(postMessage).toHaveBeenCalledTimes(0);
   });
 
   it('post if most jobs are missing, but there is a single failure', async function () {
@@ -716,6 +740,182 @@ describe('requiredChecks', function () {
       },
     });
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(postMessage).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not continue to notify after the first test failure', async function () {
+    let results;
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '111',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n',
+        },
+      },
+    });
+
+    expect(postMessage).toHaveBeenCalledTimes(2);
+    postMessage.mockClear();
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '222',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n',
+        },
+      },
+    });
+
+    // Failure gets posted to the previous message as a threaded message
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage.mock.calls[0][0].text).toMatch('222');
+    expect(postMessage.mock.calls[0][0]).toMatchObject({
+      // thread_ts being defined means it is a threaded message
+      thread_ts: '1234123.123',
+    });
+
+    // Both checks should be in database
+    results = await db('slack_messages').select('*');
+    expect(results).toHaveLength(2);
+
+    postMessage.mockClear();
+
+    // Create a new passing check run (eg sha is different from all previous failed events)
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '333',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  failure |\n',
+        },
+      },
+    });
+
+    // Failure gets posted to the previous message as a threaded message
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage.mock.calls[0][0].text).toMatch('333');
+    expect(postMessage.mock.calls[0][0]).toMatchObject({
+      // thread_ts being defined means it is a threaded message
+      thread_ts: '1234123.123',
+    });
+
+    // All three checks should be in database
+    results = await db('slack_messages').select('*');
+    expect(results).toHaveLength(3);
+
+    postMessage.mockClear();
+    (saveSlackMessage.saveSlackMessage as jest.Mock).mockClear();
+
+    // Now we create a new check run that is passing, that should cause the first failing check run to pass
+    // and the others to be unknown
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'success',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '444',
+        output: {
+          title: 'All checks passed',
+          summary: 'All checks passed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+        },
+      },
+    });
+
+    // Post new success message in thread
+    expect(postMessage).toHaveBeenCalledTimes(1);
+    expect(postMessage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        thread_ts: '1234123.123',
+      })
+    );
+    // Update previous failed messsages
+    expect(updateMessage).toHaveBeenCalledTimes(3);
+    expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
+    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
+      1,
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ status: BuildStatus.UNKNOWN })
+    );
+    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
+      2,
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ status: BuildStatus.UNKNOWN })
+    );
+    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
+      3,
+      expect.anything(),
+      expect.anything(),
+      expect.objectContaining({ status: BuildStatus.FIXED })
+    );
   });
 });

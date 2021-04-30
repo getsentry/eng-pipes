@@ -240,7 +240,7 @@ describe('pleaseDeployNotifier', function () {
               "type": "actions",
             },
           ],
-          "color": "#C6BECF",
+          "color": "#E7E1EC",
         },
       ]
     `);

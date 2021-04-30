@@ -103,7 +103,7 @@ export async function handler(payload: FreightPayload) {
       : '';
   const progressColor =
     status === 'queued'
-      ? Color.NEUTRAL
+      ? Color.OFF_WHITE_TOO
       : status === 'started'
       ? Color.SUCCESS_LIGHT
       : status === 'finished'

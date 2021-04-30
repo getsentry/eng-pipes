@@ -1,7 +1,13 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { Color, GETSENTRY_REPO, OWNER, REQUIRED_CHECK_CHANNEL } from '@/config';
+import {
+  BuildStatus,
+  Color,
+  GETSENTRY_REPO,
+  OWNER,
+  REQUIRED_CHECK_CHANNEL,
+} from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { githubEvents } from '@api/github';
@@ -9,10 +15,16 @@ import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
+import { getTimestamp } from '@utils/db/getTimestamp';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
-const OK_CONCLUSIONS = ['success', 'neutral', 'skipped'];
+const OK_CONCLUSIONS = [
+  BuildStatus.SUCCESS,
+  BuildStatus.NEUTRAL,
+  BuildStatus.SKIPPED,
+] as string[];
 
 /**
  * Transform GitHub Markdown link to Slack link
@@ -68,51 +80,187 @@ async function handler({
   //
   // For "successful" conclusions, check if there was a previous failure, if so, update the existing slack message
   if (OK_CONCLUSIONS.includes(checkRun.conclusion || '')) {
-    if (!dbCheck || dbCheck.context.status !== 'failure') {
+    if (!dbCheck || dbCheck.context.status !== BuildStatus.FAILURE) {
+      // If this check passes, but the sha does not match a previously failing build, then we should
+      // check if we have any previous failures. If we do this means that a build was broken and
+      // a new commit has fixed the broken build.
+      //
+      // Assume that the oldest failing build has been fixed, but the status of the builds in between should be unknown
+      const failedMessages = await getFailureMessages(null);
+
+      if (!failedMessages.length) {
+        // Nothing to do, just a normal test passing
+        return;
+      }
+
+      const tx = Sentry.startTransaction({
+        op: 'brain',
+        name: 'requiredChecks.recovery',
+      });
+
+      const textParts = getTextParts(checkRun);
+
+      const updatedParts = [...textParts];
+      updatedParts.splice(2, 1, 'is ~failing~ now fixed!');
+      const passingText = updatedParts.join(' ');
+
+      const unknownParts = [...textParts];
+      unknownParts.splice(
+        2,
+        1,
+        'is ~failing~ unknown due to a previously broken build.'
+      );
+      const unknownText = unknownParts.join(' ');
+
+      const newPassingParts = [...textParts];
+      newPassingParts.splice(2, 1, 'is now passing again');
+      const newPassingText = newPassingParts.join(' ');
+
+      const originalFailureIndex = failedMessages.length - 1;
+      const promises: Promise<any>[] = [
+        // Update any failed builds since the original failing build.
+        // Note we update these to "unknown" as we don't know if they would have passed or not
+        ...failedMessages.flatMap(async (message, i) => [
+          saveSlackMessage(
+            SlackMessage.REQUIRED_CHECK,
+            {
+              id: message.id,
+            },
+            {
+              status:
+                i === originalFailureIndex
+                  ? BuildStatus.FIXED
+                  : BuildStatus.UNKNOWN,
+              updated_at: new Date(),
+            }
+          ),
+
+          // Text is optional
+          // @ts-ignore
+          bolt.client.chat.update({
+            channel: message.channel,
+            ts: message.ts,
+            attachments: [
+              {
+                color: Color.NEUTRAL,
+                blocks: [
+                  {
+                    type: 'section',
+                    text: {
+                      type: 'mrkdwn',
+                      text:
+                        i === originalFailureIndex ? passingText : unknownText,
+                    },
+                  },
+                ],
+              },
+            ],
+          }),
+        ]),
+
+        // Notify thread that builds are now passing again
+        // @ts-ignore
+        bolt.client.chat.postMessage({
+          channel: failedMessages[originalFailureIndex].channel,
+          thread_ts: failedMessages[originalFailureIndex].ts,
+          attachments: [
+            {
+              color: Color.SUCCESS,
+              blocks: [
+                {
+                  type: 'section',
+                  text: {
+                    type: 'mrkdwn',
+                    text: newPassingText,
+                  },
+                },
+              ],
+            },
+          ],
+        }),
+      ];
+
+      await Promise.all(promises);
+
+      Sentry.withScope((scope) => {
+        scope.setContext('Check Run', {
+          id: checkRun.id,
+          url: checkRun.html_url,
+          sha: checkRun.head_sha,
+        });
+
+        scope.setContext('Required Check Fixed', {
+          unknownStatuses: failedMessages
+            .map((message) => message.refId)
+            .join(', '),
+        });
+
+        tx.finish();
+      });
+
       return;
     }
 
-    // Update slack message
-    await saveSlackMessage(
-      SlackMessage.REQUIRED_CHECK,
-      {
-        id: dbCheck.id,
-      },
-      {
-        status: 'success',
-        passed_at: new Date(),
-      }
-    );
+    const tx = Sentry.startTransaction({
+      op: 'brain',
+      name: 'requiredChecks.fixed',
+    });
 
+    // Update original failing slack message
     const textParts = getTextParts(checkRun);
     textParts.splice(2, 1, 'is ~failing~ passing!');
     const updatedText = textParts.join(' ');
 
-    // Text is not required?
-    // @ts-ignore
-    await bolt.client.chat.update({
-      channel: dbCheck.channel,
-      ts: dbCheck.ts,
-      attachments: [
+    const promises: Promise<any>[] = [
+      // Update original failing message state
+      saveSlackMessage(
+        SlackMessage.REQUIRED_CHECK,
         {
-          color: Color.SUCCESS,
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: updatedText,
-              },
-            },
-          ],
+          id: dbCheck.id,
         },
-      ],
+        {
+          status: BuildStatus.FLAKE,
+          passed_at: new Date(),
+        }
+      ),
+      // Update original failing slack message
+      // `text` is not required
+      // @ts-ignore
+      bolt.client.chat.update({
+        channel: dbCheck.channel,
+        ts: dbCheck.ts,
+        attachments: [
+          {
+            color: Color.SUCCESS,
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: updatedText,
+                },
+              },
+            ],
+          },
+        ],
+      }),
+    ];
+
+    await Promise.all(promises);
+
+    Sentry.withScope((scope) => {
+      scope.setContext('Check Run', {
+        id: checkRun.id,
+        url: checkRun.html_url,
+        sha: checkRun.head_sha,
+      });
+      tx.finish();
     });
 
     return;
   }
 
-  if (dbCheck && dbCheck.context.status === 'failure') {
+  if (dbCheck && dbCheck.context.status === BuildStatus.FAILURE) {
     return;
   }
 
@@ -129,7 +277,7 @@ async function handler({
 
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'requiredChecks',
+    name: 'requiredChecks.failed',
     description: 'Required check failed',
   });
   // Retrieve commit information
@@ -168,15 +316,17 @@ async function handler({
     missingJobs.length >= (jobs?.length ?? 0) / 2
   ) {
     Sentry.withScope((scope) => {
-      scope.setContext('Required Checks', {
+      scope.setContext('Check Run', {
         id: checkRun.id,
         url: checkRun.html_url,
         sha: checkRun.head_sha,
+      });
+      scope.setContext('Required Checks - Missing Jobs', {
         missingJobs,
       });
       Sentry.startTransaction({
         op: 'debug',
-        name: 'requiredChecks',
+        name: 'requiredChecks.missing',
       }).finish();
     });
     return;
@@ -189,36 +339,77 @@ async function handler({
     )
     .join('\n');
 
-  const message = await bolt.client.chat.postMessage({
-    channel: REQUIRED_CHECK_CHANNEL,
-    text,
-    attachments: [
-      {
-        color: Color.DANGER,
-        blocks: [...commitBlocks],
-      },
-    ],
-  });
+  // Check if getsentry is already in a failing state, if it is then do not ping `REQUIRED_CHECK_CHANNEL` until
+  // we are green again. This can happen when either 1) getsentry is actually broken or 2) flakey tests
+  const [existingFailureMessage] = await getFailureMessages();
 
-  // Add thread for jobs list
-  bolt.client.chat.postMessage({
-    channel: `${message.channel}`,
-    thread_ts: `${message.ts}`,
-    text: `Here are the job statuses
+  const newFailureMessage =
+    !existingFailureMessage &&
+    (await bolt.client.chat.postMessage({
+      channel: REQUIRED_CHECK_CHANNEL,
+      text,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [...commitBlocks],
+        },
+      ],
+    }));
+
+  // Only thread jobs list statuses for new failures
+  if (newFailureMessage) {
+    // Add thread for jobs list
+    await bolt.client.chat.postMessage({
+      channel: `${newFailureMessage.channel}`,
+      thread_ts: `${newFailureMessage.ts}`,
+      text: `Here are the job statuses
 
 ${jobsList}`,
-  });
+    });
+  }
+  // Thread the current failure to existing failure message
+  const followupFailureMessage =
+    existingFailureMessage &&
+    (await bolt.client.chat.postMessage({
+      channel: `${existingFailureMessage.channel}`,
+      thread_ts: `${existingFailureMessage.ts}`,
+      text,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            {
+              type: 'section',
+              text: {
+                type: 'mrkdwn',
+                text: `This *may* failing only due to a previous commit`,
+              },
+            },
+            ...commitBlocks,
+          ],
+        },
+      ],
+    }));
+
+  // ts bugging out but one of these has to exist and not be falsey
+  const postedMessage = (newFailureMessage ||
+    followupFailureMessage) as Exclude<
+    typeof followupFailureMessage,
+    false | undefined
+  >;
 
   // Save failing required check run to db
   await saveSlackMessage(
     SlackMessage.REQUIRED_CHECK,
     {
       refId: checkRun.head_sha,
-      channel: `${message.channel}`,
-      ts: `${message.ts}`,
+      channel: `${postedMessage.channel}`,
+      ts: `${postedMessage.ts}`,
     },
     {
-      status: 'failure',
+      // Always record the status as failing, even though commits following a broken build is not known since it could be
+      // failing of its own accord, or due to a previous commit
+      status: BuildStatus.FAILURE,
       failed_at: new Date(),
     }
   );

@@ -103,7 +103,7 @@ async function handler({
     text,
     attachments: [
       {
-        color: Color.NEUTRAL,
+        color: Color.OFF_WHITE_TOO,
         blocks,
       },
     ],
