@@ -110,5 +110,17 @@ export async function getSentryPullRequestsForGetsentryRange(
     ...getSentryPullRequestPromises,
   ]);
 
-  return pullRequests.filter(Boolean).map(({ data }) => data?.[0]);
+  const result = pullRequests.filter(Boolean).map(({ data }) => data?.[0]);
+
+  // XXX(debug): Debugging
+  try {
+    if (result.find((pr) => typeof pr === 'undefined')) {
+      // eslint-disable-next-line
+      console.log(JSON.stringify(pullRequests, null, 2));
+    }
+  } catch {
+    // ignore
+  }
+
+  return result;
 }
