@@ -114,6 +114,8 @@ export async function getSentryPullRequestsForGetsentryRange(
 
   // XXX(debug): Debugging
   try {
+    // eslint-disable-next-line
+    console.log(JSON.stringify(pullRequests, null, 2));
     if (result.find((pr) => typeof pr === 'undefined')) {
       // eslint-disable-next-line
       console.log(JSON.stringify(pullRequests, null, 2));
