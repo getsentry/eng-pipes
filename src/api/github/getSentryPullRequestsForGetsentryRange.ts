@@ -110,19 +110,9 @@ export async function getSentryPullRequestsForGetsentryRange(
     ...getSentryPullRequestPromises,
   ]);
 
-  const result = pullRequests.filter(Boolean).map(({ data }) => data?.[0]);
-
-  // XXX(debug): Debugging
-  try {
-    // eslint-disable-next-line
-    console.log(JSON.stringify(pullRequests, null, 2));
-    if (result.find((pr) => typeof pr === 'undefined')) {
-      // eslint-disable-next-line
-      console.log(JSON.stringify(pullRequests, null, 2));
-    }
-  } catch {
-    // ignore
-  }
+  const result = pullRequests
+    .filter(({ data }) => data.length)
+    .map(({ data }) => data[0]);
 
   return result;
 }
