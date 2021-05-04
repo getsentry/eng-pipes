@@ -42,9 +42,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.1.1"],
             ["@octokit/types", "npm:6.8.5"],
             ["@octokit/webhooks", "npm:8.4.0"],
-            ["@sentry/integrations", "npm:6.2.0"],
-            ["@sentry/node", "npm:6.2.0"],
-            ["@sentry/tracing", "npm:6.2.0"],
+            ["@sentry/integrations", "npm:6.3.5"],
+            ["@sentry/node", "npm:6.3.5"],
+            ["@sentry/tracing", "npm:6.3.5"],
             ["@slack/bolt", "npm:3.1.1"],
             ["@slack/types", "npm:2.0.0"],
             ["@slack/web-api", "npm:6.0.0"],
@@ -1196,38 +1196,38 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@sentry/core", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-core-npm-6.2.0-d5a94a7e7a-77ac1f974c.zip/node_modules/@sentry/core/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-core-npm-6.3.5-50d61e8369-2f828c0e7f.zip/node_modules/@sentry/core/",
           "packageDependencies": [
-            ["@sentry/core", "npm:6.2.0"],
-            ["@sentry/hub", "npm:6.2.0"],
-            ["@sentry/minimal", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
-            ["@sentry/utils", "npm:6.2.0"],
+            ["@sentry/core", "npm:6.3.5"],
+            ["@sentry/hub", "npm:6.3.5"],
+            ["@sentry/minimal", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
+            ["@sentry/utils", "npm:6.3.5"],
             ["tslib", "npm:1.12.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@sentry/hub", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-hub-npm-6.2.0-82cb6c8ea5-437a0a7333.zip/node_modules/@sentry/hub/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-hub-npm-6.3.5-33b849d896-457511c088.zip/node_modules/@sentry/hub/",
           "packageDependencies": [
-            ["@sentry/hub", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
-            ["@sentry/utils", "npm:6.2.0"],
+            ["@sentry/hub", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
+            ["@sentry/utils", "npm:6.3.5"],
             ["tslib", "npm:1.12.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@sentry/integrations", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-integrations-npm-6.2.0-92ce0b26a2-40c59a5729.zip/node_modules/@sentry/integrations/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-integrations-npm-6.3.5-85bc993994-6585319da4.zip/node_modules/@sentry/integrations/",
           "packageDependencies": [
-            ["@sentry/integrations", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
-            ["@sentry/utils", "npm:6.2.0"],
+            ["@sentry/integrations", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
+            ["@sentry/utils", "npm:6.3.5"],
             ["localforage", "npm:1.9.0"],
             ["tslib", "npm:1.12.0"]
           ],
@@ -1235,27 +1235,27 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@sentry/minimal", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-minimal-npm-6.2.0-8002c15860-38f8a9f12d.zip/node_modules/@sentry/minimal/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-minimal-npm-6.3.5-a6e52392c5-963fa6b325.zip/node_modules/@sentry/minimal/",
           "packageDependencies": [
-            ["@sentry/minimal", "npm:6.2.0"],
-            ["@sentry/hub", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
+            ["@sentry/minimal", "npm:6.3.5"],
+            ["@sentry/hub", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
             ["tslib", "npm:1.12.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@sentry/node", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-node-npm-6.2.0-373ca65aa2-11b99efb39.zip/node_modules/@sentry/node/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-node-npm-6.3.5-dd6f80ce9e-6f0d289477.zip/node_modules/@sentry/node/",
           "packageDependencies": [
-            ["@sentry/node", "npm:6.2.0"],
-            ["@sentry/core", "npm:6.2.0"],
-            ["@sentry/hub", "npm:6.2.0"],
-            ["@sentry/tracing", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
-            ["@sentry/utils", "npm:6.2.0"],
+            ["@sentry/node", "npm:6.3.5"],
+            ["@sentry/core", "npm:6.3.5"],
+            ["@sentry/hub", "npm:6.3.5"],
+            ["@sentry/tracing", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
+            ["@sentry/utils", "npm:6.3.5"],
             ["cookie", "npm:0.4.1"],
             ["https-proxy-agent", "npm:5.0.0"],
             ["lru_map", "npm:0.3.3"],
@@ -1265,34 +1265,34 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@sentry/tracing", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-tracing-npm-6.2.0-8bbb5d3909-617d82b916.zip/node_modules/@sentry/tracing/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-tracing-npm-6.3.5-b1d254fd17-a4c594e933.zip/node_modules/@sentry/tracing/",
           "packageDependencies": [
-            ["@sentry/tracing", "npm:6.2.0"],
-            ["@sentry/hub", "npm:6.2.0"],
-            ["@sentry/minimal", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
-            ["@sentry/utils", "npm:6.2.0"],
+            ["@sentry/tracing", "npm:6.3.5"],
+            ["@sentry/hub", "npm:6.3.5"],
+            ["@sentry/minimal", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
+            ["@sentry/utils", "npm:6.3.5"],
             ["tslib", "npm:1.12.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@sentry/types", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-types-npm-6.2.0-46c7d02bc6-004dd83757.zip/node_modules/@sentry/types/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-types-npm-6.3.5-bbdd1dd711-8d2e69685c.zip/node_modules/@sentry/types/",
           "packageDependencies": [
-            ["@sentry/types", "npm:6.2.0"]
+            ["@sentry/types", "npm:6.3.5"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@sentry/utils", [
-        ["npm:6.2.0", {
-          "packageLocation": "./.yarn/cache/@sentry-utils-npm-6.2.0-57fbaddc51-5bb3cc822a.zip/node_modules/@sentry/utils/",
+        ["npm:6.3.5", {
+          "packageLocation": "./.yarn/cache/@sentry-utils-npm-6.3.5-4a4feff9a9-2ea0718353.zip/node_modules/@sentry/utils/",
           "packageDependencies": [
-            ["@sentry/utils", "npm:6.2.0"],
-            ["@sentry/types", "npm:6.2.0"],
+            ["@sentry/utils", "npm:6.3.5"],
+            ["@sentry/types", "npm:6.3.5"],
             ["tslib", "npm:1.12.0"]
           ],
           "linkType": "HARD",
@@ -9680,9 +9680,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.1.1"],
             ["@octokit/types", "npm:6.8.5"],
             ["@octokit/webhooks", "npm:8.4.0"],
-            ["@sentry/integrations", "npm:6.2.0"],
-            ["@sentry/node", "npm:6.2.0"],
-            ["@sentry/tracing", "npm:6.2.0"],
+            ["@sentry/integrations", "npm:6.3.5"],
+            ["@sentry/node", "npm:6.3.5"],
+            ["@sentry/tracing", "npm:6.3.5"],
             ["@slack/bolt", "npm:3.1.1"],
             ["@slack/types", "npm:2.0.0"],
             ["@slack/web-api", "npm:6.0.0"],
