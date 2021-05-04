@@ -142,7 +142,8 @@ async function handler({
             ts: message.ts,
             attachments: [
               {
-                color: Color.NEUTRAL,
+                color:
+                  i === originalFailureIndex ? Color.SUCCESS : Color.NEUTRAL,
                 blocks: [
                   {
                     type: 'section',
@@ -382,7 +383,7 @@ ${jobsList}`,
               type: 'section',
               text: {
                 type: 'mrkdwn',
-                text: `This *may* failing only due to a previous commit`,
+                text: `This *may* be failing only due to a previous commit`,
               },
             },
             ...commitBlocks,
