@@ -20,9 +20,11 @@ export { bolt };
 // @ts-ignore
 bolt.error((error) => {
   // Check the details of the error to handle cases where you should retry sending a message or stop the app
-  Sentry.captureException(error);
+  // @ts-ignore
+  Sentry.captureException(error.original || error);
 
   if (process.env.NODE_ENV !== 'production') {
-    console.error(error);
+    // @ts-ignore
+    console.error(error.original || error);
   }
 });
