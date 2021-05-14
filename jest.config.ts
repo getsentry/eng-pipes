@@ -20,11 +20,11 @@ module.exports = {
   // See https://kulshekhar.github.io/ts-jest/user/config/#jest-config-with-helper
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    '^@apps/(.*)$': '<rootDir>/src/apps/$1',
     '^@api/(.*)$': '<rootDir>/src/api/$1',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@test/(.*)$': '<rootDir>/test/$1',
     '^@types$': '<rootDir>/src/types',
+    '^@webhooks/(.*)$': '<rootDir>/src/webhooks/$1',
   },
 
   globalSetup: './test/jest.globalSetup.ts',

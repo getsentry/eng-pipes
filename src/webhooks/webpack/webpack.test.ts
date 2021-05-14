@@ -15,14 +15,14 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import { verifyWebhook } from '@apps/webhooks/webpack/verifyWebhook';
+import { verifyWebhook } from '@webhooks/webpack/verifyWebhook';
 
 import { buildServer } from '@/buildServer';
 import * as db from '@utils/metrics';
 
 jest.spyOn(db, 'insertAssetSize');
 
-jest.mock('@apps/webhooks/webpack/verifyWebhook', () => ({
+jest.mock('@webhooks/webpack/verifyWebhook', () => ({
   verifyWebhook: jest.fn(() => true),
 }));
 
