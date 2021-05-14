@@ -59,7 +59,6 @@ export async function buildServer(
     try {
       const handlerPath = path.join(
         __dirname,
-        'apps',
         'webhooks',
         request.params.service
       );

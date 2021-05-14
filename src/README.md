@@ -7,12 +7,12 @@ Below are descriptions for how this application is organized.
 | directory | description                                                                                                                                                                                                   |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `api`     | General APIs used across the app                                                                                                                                                                              |
-| `apps`    | Apps have an associated HTTP endpoint. Currently, these are just webhook handlers.                                                                                                                            |
 | `blocks`  | These are functions that return Slack block messages.                                                                                                                                                         |
 | `brain`   | Brain contains event handlers for Slack and GitHub events. Slack uses the [bolt](https://slack.dev/bolt-js) framework, while GitHub just uses [@octokit/webhooks.js](https://github.com/octokit/webhooks.js). |
 | `config`  | Configuration/constants                                                                                                                                                                                       |
 | `types`   | Typescript types                                                                                                                                                                                              |
 | `utils`   | Utility functions that do not interact with external APIs                                                                                                                                                     |
+| `webhooks`| Webhook handlers for various services.                                                                                                                                                                        |
 
 ## Testing
 
