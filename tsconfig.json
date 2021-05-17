@@ -23,6 +23,7 @@
     "baseUrl": ".",
     "paths": {
       "@api/*": ["src/api/*"],
+      "@webhooks": ["src/webhooks"],
       "@webhooks/*": ["src/webhooks/*"],
       "@utils/*": ["src/utils/*"],
       "@test/*": ["test/*"],
