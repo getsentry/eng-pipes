@@ -24,6 +24,7 @@ module.exports = {
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@test/(.*)$': '<rootDir>/test/$1',
     '^@types$': '<rootDir>/src/types',
+    '^@webhooks$': '<rootDir>/src/webhooks',
     '^@webhooks/(.*)$': '<rootDir>/src/webhooks/$1',
   },
 

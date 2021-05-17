@@ -1,9 +1,9 @@
 import { ServerResponse } from 'http';
-import path from 'path';
 
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
+import { WebhookRouter } from '@webhooks';
 import fastify, { FastifyReply } from 'fastify';
 
 import { Fastify } from '@types';
@@ -51,51 +51,18 @@ export async function buildServer(
     return '';
   });
 
-  // Other webhook handlers
-  server.post('/metrics/:service/webhook', {}, async (request, reply) => {
-    const rootDir = __dirname;
-    let handler;
-
-    try {
-      const handlerPath = path.join(
-        __dirname,
-        'webhooks',
-        request.params.service
-      );
-
-      // Prevent directory traversals
-      if (!handlerPath.startsWith(rootDir)) {
-        throw new Error('Invalid service');
-      }
-
-      ({ handler } = require(handlerPath));
-      if (!handler) {
-        throw new Error('Invalid service');
-      }
-    } catch (err) {
-      console.error(err);
-      Sentry.captureException(err);
-      // @ts-ignore
-      return server.notFound(request, reply);
-    }
-
-    try {
-      return await handler(request, reply);
-    } catch (err) {
-      console.error(err);
-      Sentry.captureException(err);
-      return reply.code(400).send('Bad Request');
-    }
-  });
-
-  // Initializes slack apps
+  // Install Slack and GitHub handlers. Both the Bolt and @octokit/webhooks
+  // libraries operate as middleware that emit events corresponding to webhook
+  // POSTs. Our event handlers for both are under loadBrain.
   // @ts-ignore
   server.use('/apps/slack/events', bolt.receiver.requestListener);
-  // Use the GitHub webhooks middleware
   server.use('/metrics/github/webhook', githubEvents.middleware);
-
-  // Brain = modules that listen to slack/github events
   await loadBrain();
+
+  // Other webhooks operate as regular Fastify handlers (albeit routed to
+  // filesystem/module-space based on service name) rather than through a
+  // middleware/event abstraction layer.
+  server.post('/metrics/:service/webhook', {}, WebhookRouter(server));
 
   return server;
 }
