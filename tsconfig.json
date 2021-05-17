@@ -22,13 +22,14 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
+      "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
+      "@/*": ["src/*"],
       "@api/*": ["src/api/*"],
-      "@webhooks": ["src/webhooks"],
-      "@webhooks/*": ["src/webhooks/*"],
-      "@utils/*": ["src/utils/*"],
       "@test/*": ["test/*"],
       "@types": ["src/types"],
-      "@/*": ["src/*"]
+      "@utils/*": ["src/utils/*"],
+      "@webhooks": ["src/webhooks"],
+      "@webhooks/*": ["src/webhooks/*"]
     }
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],

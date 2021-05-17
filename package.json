@@ -30,9 +30,10 @@
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
   "_moduleAliases": {
+    "_comment": "⚠️  Keep this in sync with jest.config.ts and tsconfig.json. ⚠️ ",
     "@": "lib",
-    "@apps": "lib/apps",
     "@api": "lib/api",
+    "@apps": "lib/apps",
     "@utils": "lib/utils",
     "@webhooks": "lib/webhooks"
   },
