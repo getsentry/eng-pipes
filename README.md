@@ -1,13 +1,16 @@
-# sentry-ci-tooling
+# Eng Pipes
 
-This repo allows us to provide automation across developer tools used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development, as well as collecting and aggregating tooling metrics (e.g. GitHub, Freight).
-There is also Slack integration to provide tools through Slack.
+This repo contains automation infrastructure for the engineering organization, including:
+
+- CI tooling used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development
+- metrics collection and aggregation (for e.g. GitHub, and Freight)
+- a Slack integration to provide tools through Slack
 
 Read the README in the `src/` directory for information on the code structure.
 
 ## Architecture
 
-The services that this app is configured for, send metrics to the Sentry CI Tooling app. This app stores the data in Google's BigQuery.
+The services that this app is configured for, send metrics to a web app. This app stores the data in Google's BigQuery.
 A Looker dashboard (here's an [example]) shows the data it fetches from BigQuery.
 
 The app can also determine that it needs to send a message to the Slack workspace.
