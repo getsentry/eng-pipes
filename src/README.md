@@ -1,4 +1,4 @@
-# sentry-ci-tooling Development
+# Eng Pipes Development
 
 ## Development
 
@@ -26,6 +26,6 @@ We use [knex.js](http://knexjs.org/) and the `knex` CLI should be accessed via `
 yarn migrate migrate:make <migration name>
 ```
 
-You can run production migrations via GitHub's UI: <https://github.com/getsentry/sentry-ci-tooling/actions/workflows/migration.yml>
+You can run production migrations via GitHub's UI: <https://github.com/getsentry/eng-pipes/actions/workflows/migration.yml>
 
 Click `Run workflow` and run with the default options.
