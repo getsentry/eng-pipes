@@ -196,13 +196,13 @@ export async function insertOss(
    * fold all three together for purposes of deduplication, we throw away the
    * installation key, and store a hash that we can match on later. For
    * convenience, we use GitHub's signing algorithm to generate the hash, but
-   * without the secret since we only care about payload comparison here
+   * without a real secret since we only care about payload comparison here
    * (authenticating payloads is not our job).
    */
 
   delete payload.installation;
   const payloadSignature = sign(
-    { secret: "I don't care.", algorithm: 'sha256' },
+    { secret: "Don't change me.", algorithm: 'sha256' },
     payload
   );
 

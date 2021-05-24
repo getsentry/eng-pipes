@@ -82,7 +82,7 @@ describe('github webhook', function () {
         type: 'pull_request',
         updated_at: '2019-05-15T15:20:33Z',
         payload_signature:
-          'sha256=3f95d01201ad64138791f95cc5f2324cd3be1cbbc54a290ddc5604bdef13a6a5',
+          'sha256=1e2ac672265410e95d45b6a55d45cba81cc612e5fa4a184e41b97b762d653b8d',
         user_id: 21031067,
         user_type: null,
         username: 'Codertocat',
@@ -107,7 +107,7 @@ describe('github webhook', function () {
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
         payload_signature:
-          'sha256=478e7e6f45993aff9e29fdff1c9836a98087997a7de07bf8c5cb5413edeb1d2d',
+          'sha256=25fa91e9a26d73ecdb6fb66949a6e7583adc4ec35fac2c58e8baed6f9351fb40',
         repository: 'Enterprise/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
@@ -149,7 +149,7 @@ describe('github webhook', function () {
         user_id: 21031067,
         user_type: 'internal',
         payload_signature:
-          'sha256=3c2946b76bce9aec81a40515d0b1d1f70cba915dd7c7904f4a45984848eb7940',
+          'sha256=e5601835a351e20f8a9e859896d06af5e8c1fe9717f9588774f5d91d160be4c8',
         username: 'Picard',
         target_type: 'label',
         target_id: 1362934389,
@@ -181,7 +181,7 @@ describe('github webhook', function () {
         user_type: 'bot',
         username: 'human[bot]',
         payload_signature:
-          'sha256=54ef08a2ced2b7f4c414f3939ae9c1e2bffb018dff8089bc527ed1186e217418',
+          'sha256=d4e35005e88eef3e267856dd84936113e00b48417ed15c6c7c423bbab3240492',
       },
       { schema: SCHEMA }
     );
