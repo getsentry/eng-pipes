@@ -1,4 +1,5 @@
 import { BigQuery } from '@google-cloud/bigquery';
+import { sign } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { getOssUserType } from './getOssUserType';
@@ -32,6 +33,7 @@ export const TARGETS = {
       target_id: 'INT64',
       target_name: 'STRING',
       target_type: 'STRING',
+      payload_signature: 'STRING',
     },
   },
   assetSize: {
@@ -182,6 +184,28 @@ export async function insertOss(
   eventType: string,
   payload: Record<string, any>
 ) {
+  /* Support deduplication.
+   *
+   * GitHub webhooks can be installed at App-level, org-level, or repo-level.
+   * We have been receiving events from a few repo hooks, and now we want to
+   * start receiving events from all repos via an App or org hook, in order to
+   * roll out metrics and automation to all repos. The challenge is to do this
+   * without dropping or duplicating any events. Experimentation indicates that
+   * the payloads from org and repo webhooks are identical, while App webhook
+   * payloads have an additional `installation` key. In order to be able to
+   * fold all three together for purposes of deduplication, we throw away the
+   * installation key, and store a hash that we can match on later. For
+   * convenience, we use GitHub's signing algorithm to generate the hash, but
+   * without the secret since we only care about payload comparison here
+   * (authenticating payloads is not our job).
+   */
+
+  delete payload.installation;
+  const payloadSignature = sign(
+    { secret: "I don't care.", algorithm: 'sha256' },
+    payload
+  );
+
   const userType = await getOssUserType(payload);
   const data: Record<string, any> = {
     type: eventType,
@@ -190,6 +214,7 @@ export async function insertOss(
     user_id: payload.sender.id,
     user_type: userType,
     repository: payload.repository.full_name,
+    payload_signature: payloadSignature,
   };
 
   if (eventType === 'issues') {
