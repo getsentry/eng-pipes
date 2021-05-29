@@ -35,7 +35,7 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
 
   return await fastify.inject({
     method: 'POST',
-    url: '/metrics/github/webhook',
+    url: '/webhooks/github',
     headers: {
       'x-github-delivery': 1234,
       'x-github-event': event as string,

@@ -56,7 +56,7 @@ export async function buildServer(
   // POSTs. Our event handlers for both are under loadBrain.
   // @ts-ignore
   server.use('/apps/slack/events', bolt.receiver.requestListener);
-  server.use('/metrics/github/webhook', githubEvents.middleware);
+  server.use('/webhooks/github', githubEvents.middleware);
   await loadBrain();
 
   // Other webhooks operate as regular Fastify handlers (albeit routed to

@@ -32,7 +32,7 @@ The events sent by the bot are defined under "Subscribe to bot events" in the "E
 
 ### Github Sentry Webhooks
 
-Under Sentry's [webhooks](https://github.com/getsentry/sentry/settings/hooks) there's webhooks to the production backend with the route "metrics/github/webhook".
+Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/hooks) there's webhooks to the production backend with the route "webhooks/github".
 
 ## Pre-requisites
 
@@ -71,7 +71,7 @@ You need to set up:
   - You should see your localhost app respond with 200 status code
   - Congratulations!
 - Configure the webhook for your Github Sentry fork
-  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/metrics/github/webhook`)
+  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/webhooks/github`)
     - Notify on every event
   - Make sure to choose `application/json` instead of `application/x-www-form-urlencoded`
   - Place the `GH_WEBHOOK_SECRET` in your `.env`
