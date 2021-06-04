@@ -49,7 +49,7 @@ You need to set up:
 - Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
   - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
 - Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`)
-- Create a [new Slack App](https://api.slack.com/apps?new_app=1) that matches the settings of the production app
+- Create a [new Slack App][slack_app] that matches the settings of the production app
   - The prompt will ask you to associate to a workspace (use the new workspace)
 - Follow the steps of "Development & tests" to get the server running
   - It will fail since you don't yet have all the env variables defined
@@ -70,11 +70,9 @@ You need to set up:
 - On your new Slack workspace begin a conversation with the bot
   - You should see your localhost app respond with 200 status code
   - Congratulations!
-- Configure the webhook for your Github Sentry fork
-  - Create a webhook to your ngrok tunnel with the GH route (e.g. `https://6a88fe29c5cc.ngrok.io/webhooks/github`)
-    - Notify on every event
-  - Make sure to choose `application/json` instead of `application/x-www-form-urlencoded`
-  - Place the `GH_WEBHOOK_SECRET` in your `.env`
+- Create a [new GitHub App](https://git.io/JGMbj)
+  - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
+  - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
   - Push to your fork and see events coming in
 
 NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
@@ -163,3 +161,5 @@ Add notes for the following:
 
 - What code does a service need to call to report to this app?
 - How do you build a Looker dashboard?
+
+[slack_app]: https://api.slack.com/apps?new_app=1&manifest_json=%7b%22_metadata%22%3a%7b%22major_version%22%3a1%2c%22minor_version%22%3a1%7d%2c%22display_information%22%3a%7b%22name%22%3a%22Sentry%20Bot%22%2c%22description%22%3a%22Sentry%20development%20tooling%20bot%22%2c%22background_color%22%3a%22%23362d59%22%7d%2c%22features%22%3a%7b%22app_home%22%3a%7b%22home_tab_enabled%22%3atrue%2c%22messages_tab_enabled%22%3atrue%2c%22messages_tab_read_only_enabled%22%3afalse%7d%2c%22bot_user%22%3a%7b%22display_name%22%3a%22Sentaur%22%2c%22always_online%22%3atrue%7d%7d%2c%22oauth_config%22%3a%7b%22scopes%22%3a%7b%22user%22%3a%5b%22users.profile%3aread%22%5d%2c%22bot%22%3a%5b%22app_mentions%3aread%22%2c%22calls%3aread%22%2c%22calls%3awrite%22%2c%22channels%3aread%22%2c%22chat%3awrite%22%2c%22dnd%3aread%22%2c%22files%3aread%22%2c%22groups%3aread%22%2c%22im%3ahistory%22%2c%22im%3aread%22%2c%22im%3awrite%22%2c%22mpim%3ahistory%22%2c%22mpim%3aread%22%2c%22mpim%3awrite%22%2c%22pins%3awrite%22%2c%22reactions%3aread%22%2c%22reactions%3awrite%22%2c%22remote_files%3aread%22%2c%22remote_files%3ashare%22%2c%22remote_files%3awrite%22%2c%22team%3aread%22%2c%22users.profile%3aread%22%2c%22users%3aread%22%2c%22users%3aread.email%22%2c%22users%3awrite%22%2c%22channels%3ajoin%22%5d%7d%7d%2c%22settings%22%3a%7b%22event_subscriptions%22%3a%7b%22request_url%22%3a%22https%3a%2f%2fyour.ngrok.io%2fapps%2fslack%2fevents%22%2c%22bot_events%22%3a%5b%22app_home_opened%22%2c%22app_mention%22%2c%22message.im%22%2c%22user_change%22%5d%7d%2c%22interactivity%22%3a%7b%22is_enabled%22%3atrue%2c%22request_url%22%3a%22https%3a%2f%2fyour.ngrok.io%2fapps%2fslack%2fevents%22%2c%22message_menu_options_url%22%3a%22https%3a%2f%2fyour.ngrok.io%2fapps%2fslack%2fevents%22%7d%2c%22org_deploy_enabled%22%3afalse%2c%22socket_mode_enabled%22%3afalse%2c%22is_hosted%22%3afalse%7d%7d
