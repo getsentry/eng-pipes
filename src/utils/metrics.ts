@@ -182,6 +182,10 @@ export async function insertOss(
   eventType: string,
   payload: Record<string, any>
 ) {
+  if (!payload.repository) {
+    // we are not interested in events w/o a repo
+    return;
+  }
   const userType = await getOssUserType(payload);
   const data: Record<string, any> = {
     type: eventType,
