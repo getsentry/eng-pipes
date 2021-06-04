@@ -88,6 +88,8 @@ Follow the steps in the '''Setup''' section before running these steps:
 docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12
 # Install dependencies
 yarn install
+# Update DB
+ yarn migrate migrate:latest
 # Start dev (it won't work until you set up some of the variables in .env file)
 yarn dev
 ```
