@@ -49,6 +49,7 @@ You need to set up:
 - Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
   - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
 - Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`)
+  - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
 - Create a [new Slack App][slack_app] that matches the settings of the production app
   - The prompt will ask you to associate to a workspace (use the new workspace)
 - Follow the steps of "Development & tests" to get the server running
