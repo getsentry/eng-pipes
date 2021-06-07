@@ -1,0 +1,127 @@
+import { EmitterWebhookEvent } from '@octokit/webhooks';
+
+import { githubEvents } from '@api/github';
+import { bolt } from '@api/slack';
+import { db } from '@utils/db';
+import { wrapHandler } from '@utils/wrapHandler';
+
+const TEAM_LABEL_PREFIX = 'Team: ';
+const UNTRIAGED_LABEL = 'Status: Untriaged';
+const LABELS_TABLE = () => db('label_to_channel');
+
+const labelHandler = wrapHandler(
+  'issueTriage',
+  async ({
+    name: eventType,
+    payload,
+  }: EmitterWebhookEvent<'issues.labeled'>): Promise<void> => {
+    const { issue, label } = payload;
+
+    if (!label) {
+      return undefined;
+    }
+
+    const teamLabel = label.name.startsWith(TEAM_LABEL_PREFIX)
+      ? label.name
+      : issue.labels?.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX));
+
+    const isUntriaged =
+      label.name === UNTRIAGED_LABEL ||
+      issue.labels?.some((label) => label.name === UNTRIAGED_LABEL);
+
+    if (!teamLabel || !isUntriaged) {
+      return undefined;
+    }
+
+    const channelsToNotify = (
+      await LABELS_TABLE()
+        .where({
+          label_name: teamLabel,
+        })
+        .select('channel_id')
+    ).map((row) => row.channel_id);
+
+    await Promise.all(
+      channelsToNotify.map((channel) =>
+        bolt.client.chat.postMessage({
+          text: `⏲ Issue pending triage: https://github.com/${payload.repository.full_name}/issues/${payload.issue.number}`,
+          channel,
+        })
+      )
+    );
+  }
+);
+
+export async function issueTriageNotifier() {
+  githubEvents.on('issues.labeled', labelHandler);
+
+  bolt.command('/notify-for-triage', async ({ command, ack, say, client }) => {
+    const pending: Promise<unknown>[] = [];
+    // Acknowledge command request
+    pending.push(ack());
+    const { channel_id, channel_name, text } = command;
+    const args = text.match(/^\s*(?<op>[+-]?)(?<label>.+)/)?.groups;
+
+    // List assigned labels
+    if (!args) {
+      const labels = (
+        await LABELS_TABLE().where({ channel_id }).select('label_name')
+      ).map((row) => row.label_name);
+      const response =
+        labels.length > 0
+          ? `This channel is set to receive notifications for: ${labels.join(
+              ', '
+            )}`
+          : `This channel is not subscribed to any team notifications.`;
+      pending.push(say(response));
+    } else {
+      const op = args.op || '+';
+      const label_name = `Team: ${args.label}`;
+
+      if (op === '+') {
+        const added = await LABELS_TABLE()
+          .insert(
+            {
+              label_name,
+              channel_id,
+            },
+            'label_name'
+          )
+          .onConflict(['label_name', 'channel_id'])
+          .ignore();
+
+        if (added.length > 0) {
+          pending.push(
+            client.conversations.join({ channel: channel_id }),
+            say(
+              `Set untriaged issue notifications for '${added[0]}' on the current channel (${channel_name}).`
+            )
+          );
+        } else {
+          pending.push(
+            say(
+              `This channel (${channel_name}) is already subscribed to '${label_name}'.`
+            )
+          );
+        }
+      } else {
+        const deleted = await LABELS_TABLE()
+          .where({
+            channel_id,
+            label_name,
+          })
+          .del('label_name');
+
+        pending.push(
+          say(
+            deleted.length > 0
+              ? `This channel (${channel_name}) will no longer get notifications for ${deleted[0]}`
+              : `This channel (${channel_name}) is not subscribed to ${label_name}.`
+          )
+        );
+      }
+    }
+
+    await Promise.all(pending);
+  });
+}
