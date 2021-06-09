@@ -14,10 +14,8 @@ import { githubEvents } from '@api/github';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
-import { getTimestamp } from '@utils/db/getTimestamp';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 const OK_CONCLUSIONS = [

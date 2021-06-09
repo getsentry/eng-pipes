@@ -8,7 +8,6 @@ import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
 function getUpdatedDeployMessage({
