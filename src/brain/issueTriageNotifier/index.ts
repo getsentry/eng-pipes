@@ -83,52 +83,56 @@ export async function issueTriageNotifier() {
     } else {
       const op = args.op || '+';
       const label_name = `Team: ${args.label}`;
+      let result;
 
-      if (op === '+') {
-        const added = await LABELS_TABLE()
-          .insert(
-            {
-              label_name,
+      switch (op) {
+        case '+':
+          result = await LABELS_TABLE()
+            .insert(
+              {
+                label_name,
+                channel_id,
+              },
+              'label_name'
+            )
+            .onConflict(['label_name', 'channel_id'])
+            .ignore();
+
+          if (result.length > 0) {
+            pending.push(
+              client.conversations.join({ channel: channel_id }),
+              say(
+                `Set untriaged issue notifications for '${result[0]}' on the current channel (${channel_name}).`
+              )
+            );
+          } else {
+            pending.push(
+              say(
+                `This channel (${channel_name}) is already subscribed to '${label_name}'.`
+              )
+            );
+          }
+          break;
+        case '-':
+          result = await LABELS_TABLE()
+            .where({
               channel_id,
-            },
-            'label_name'
-          )
-          .onConflict(['label_name', 'channel_id'])
-          .ignore();
+              label_name,
+            })
+            .del('label_name');
 
-        if (added.length > 0) {
-          pending.push(
-            client.conversations.join({ channel: channel_id }),
-            say(
-              `Set untriaged issue notifications for '${added[0]}' on the current channel (${channel_name}).`
-            )
-          );
-        } else {
+          // XXX(BYK): Unlike in the subscribe action, we do not leave the channel here because the
+          //           bot might have been invited to the channel for other purposes too. So making
+          //           sure we are in the channel when they subscribe to notifications makes sense
+          //           but leaving when they unsubscribe is not sure game.
           pending.push(
             say(
-              `This channel (${channel_name}) is already subscribed to '${label_name}'.`
+              result.length > 0
+                ? `This channel (${channel_name}) will no longer get notifications for ${result[0]}`
+                : `This channel (${channel_name}) is not subscribed to ${label_name}.`
             )
           );
-        }
-      } else {
-        const deleted = await LABELS_TABLE()
-          .where({
-            channel_id,
-            label_name,
-          })
-          .del('label_name');
-
-        // XXX(BYK): Unlike in the subscribe action, we do not leave the channel here because the
-        //           bot might have been invited to the channel for other purposes too. So making
-        //           sure we are in the channel when they subscribe to notifications makes sense
-        //           but leaving when they unsubscribe is not sure game.
-        pending.push(
-          say(
-            deleted.length > 0
-              ? `This channel (${channel_name}) will no longer get notifications for ${deleted[0]}`
-              : `This channel (${channel_name}) is not subscribed to ${label_name}.`
-          )
-        );
+          break;
       }
     }
 
