@@ -51,7 +51,7 @@ const labelHandler = wrapHandler(
     await Promise.all(
       channelsToNotify.map((channel) =>
         bolt.client.chat.postMessage({
-          text: `⏲ Issue pending triage: https://github.com/${payload.repository.full_name}/issues/${payload.issue.number}`,
+          text: `⏲ Issue pending triage: <https://github.com/${payload.repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
           channel,
         })
       )
@@ -72,7 +72,6 @@ export async function issueTriageNotifier() {
     const { channel_id, channel_name, text } = command;
     const args = text.match(/^\s*(?<op>[+-]?)(?<label>.+)/)?.groups;
 
-    // List assigned labels
     if (!args) {
       const labels = (
         await LABELS_TABLE().where({ channel_id }).select('label_name')
