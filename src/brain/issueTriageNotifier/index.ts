@@ -55,6 +55,9 @@ const labelHandler = wrapHandler(
 export async function issueTriageNotifier() {
   githubEvents.on('issues.labeled', labelHandler);
 
+  // /notify-for-triage`: List all team label subscriptions
+  // /notify-for-triage <name>`: Subscribe to all untriaged issues for `Team: <name>` label
+  // /notify-for-triage -<name>`: Unsubscribe from untriaged issues for `Team: <name>` label
   bolt.command('/notify-for-triage', async ({ command, ack, say, client }) => {
     const pending: Promise<unknown>[] = [];
     // Acknowledge command request
