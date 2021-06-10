@@ -33,6 +33,9 @@ const labelHandler = wrapHandler(
       return undefined;
     }
 
+    // XXX(BYK): We didn't want to artificially limit this to 1-to-N or N-to-1, as N-to-N
+    //           mapping for this makes sense. Even more, a "channel" can actually be a
+    //           group convo or a private chat with the bot.
     const channelsToNotify = (
       await LABELS_TABLE()
         .where({
@@ -115,6 +118,10 @@ export async function issueTriageNotifier() {
           })
           .del('label_name');
 
+        // XXX(BYK): Unlike in the subscribe action, we do not leave the channel here because the
+        //           bot might have been invited to the channel for other purposes too. So making
+        //           sure we are in the channel when they subscribe to notifications makes sense
+        //           but leaving when they unsubscribe is not sure game.
         pending.push(
           say(
             deleted.length > 0
