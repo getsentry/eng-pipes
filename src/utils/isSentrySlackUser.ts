@@ -19,7 +19,7 @@ type SlackUser = {
  */
 export function isSentrySlackUser(user: SlackUser) {
   return (
-    // user.profile?.email?.endsWith('@sentry.io') &&
+    user.profile?.email?.endsWith('@sentry.io') &&
     !(
       // Via Slack:
       // Since you're using SSO, the email isn't actually confirmed since the login
