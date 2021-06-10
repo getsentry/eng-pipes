@@ -21,21 +21,25 @@ const labelHandler = wrapHandler(
       return undefined;
     }
 
-    const teamLabel = label.name.startsWith(TEAM_LABEL_PREFIX)
-      ? label.name
-      : issue.labels?.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX));
+    let teamLabel: undefined | string;
+    if (
+      label.name.startsWith(TEAM_LABEL_PREFIX) &&
+      issue.labels?.some((label) => label.name === UNTRIAGED_LABEL)
+    ) {
+      teamLabel = label.name;
+    } else if (label.name === UNTRIAGED_LABEL) {
+      teamLabel = issue.labels?.find((label) =>
+        label.name.startsWith(TEAM_LABEL_PREFIX)
+      )?.name;
+    }
 
-    const isUntriaged =
-      label.name === UNTRIAGED_LABEL ||
-      issue.labels?.some((label) => label.name === UNTRIAGED_LABEL);
-
-    if (!teamLabel || !isUntriaged) {
+    if (!teamLabel) {
       return undefined;
     }
 
-    // XXX(BYK): We didn't want to artificially limit this to 1-to-N or N-to-1, as N-to-N
-    //           mapping for this makes sense. Even more, a "channel" can actually be a
-    //           group convo or a private chat with the bot.
+    // We didn't want to artificially limit this to 1-to-N or N-to-1, as N-to-N
+    // mapping for this makes sense. Even more, a "channel" can actually be a
+    // group convo or a private chat with the bot.
     const channelsToNotify = (
       await LABELS_TABLE()
         .where({
