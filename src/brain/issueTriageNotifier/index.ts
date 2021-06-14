@@ -124,10 +124,10 @@ export async function issueTriageNotifier() {
             })
             .del('label_name');
 
-          // XXX(BYK): Unlike in the subscribe action, we do not leave the channel here because the
-          //           bot might have been invited to the channel for other purposes too. So making
-          //           sure we are in the channel when they subscribe to notifications makes sense
-          //           but leaving when they unsubscribe is not sure game.
+          // Unlike in the subscribe action, we do not leave the channel here because the
+          // bot might have been invited to the channel for other purposes too. So making
+          // sure we are in the channel when they subscribe to notifications makes sense
+          // but leaving when they unsubscribe is not sure game.
           pending.push(
             say(
               result.length > 0
