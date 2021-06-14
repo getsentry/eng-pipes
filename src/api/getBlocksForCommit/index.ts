@@ -2,12 +2,19 @@ import { KnownBlock } from '@slack/types';
 
 import { ReposGetCommit } from '@types';
 
+import { getUser } from '../getUser';
+
+type Options = {
+  shouldSlackMention?: boolean;
+};
+
 /**
  * Use a GitHub commit object and turn it to a pretty slack message
  */
-export function getBlocksForCommit(
-  commit: ReposGetCommit | null
-): KnownBlock[] {
+export async function getBlocksForCommit(
+  commit: ReposGetCommit | null,
+  { shouldSlackMention }: Options = {}
+): Promise<KnownBlock[]> {
   if (!commit) {
     return [
       {
@@ -22,9 +29,18 @@ export function getBlocksForCommit(
 
   const [commitTitle, ...commitBodyLines] = commit.commit.message.split('\n');
 
-  const authorName =
-    commit.commit.author?.name || commit.commit.author?.email || 'Unknown';
   const login = commit.author?.login;
+  const user =
+    shouldSlackMention && login ? await getUser({ githubUser: login }) : null;
+  const displayName =
+    commit.commit.author?.name || commit.commit.author?.email || 'Unknown';
+
+  // If slack user was found, @-mention them, otherwise, link to GH profile
+  const authorName = user?.slackUser
+    ? `<@${user.slackUser}>`
+    : `<${commit.author?.html_url}|${displayName}${
+        login ? ` (${login})` : ''
+      }>`;
   const avatarUrl = commit.author?.avatar_url || '';
 
   // Slack API will error if this is empty, We could leave this out, but why not try
@@ -53,13 +69,11 @@ export function getBlocksForCommit(
         {
           type: 'image',
           image_url: avatarUrl,
-          alt_text: authorName,
+          alt_text: displayName,
         },
         {
           type: 'mrkdwn',
-          text: `<${commit.author?.html_url}|${authorName}${
-            login ? ` (${login})` : ''
-          }>`,
+          text: authorName,
         },
       ],
     },

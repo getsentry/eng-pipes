@@ -78,7 +78,7 @@ async function handler({
   const slackTarget = user?.slackUser;
 
   // Author of commit found
-  const commitBlocks = getBlocksForCommit(relevantCommit);
+  const commitBlocks = await getBlocksForCommit(relevantCommit);
   const commit = checkRun.head_sha;
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;

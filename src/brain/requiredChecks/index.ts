@@ -282,7 +282,9 @@ async function handler({
   // Retrieve commit information
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
 
-  const commitBlocks = getBlocksForCommit(relevantCommit);
+  const commitBlocks = await getBlocksForCommit(relevantCommit, {
+    shouldSlackMention: true,
+  });
 
   // Otherwise, there is a failed check
   // Need to notify channel that the build has failed

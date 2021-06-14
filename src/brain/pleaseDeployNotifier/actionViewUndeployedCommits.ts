@@ -78,11 +78,14 @@ export async function actionViewUndeployedCommits({
     data.commits.map(({ sha }) => getRelevantCommit(sha, octokit))
   );
 
-  // Generate the Slack blocks for each commit
-  const commitBlocks = relevantCommits.flatMap((commit) => [
-    ...getBlocksForCommit(commit),
-    { type: 'divider' },
-  ]);
+  const commitBlocks = (
+    await Promise.all(
+      relevantCommits.map(async (commit) => [
+        ...(await getBlocksForCommit(commit)),
+        { type: 'divider' },
+      ])
+    )
+  ).flatMap((i) => i);
 
   // Find the attachments where this action was triggered so that
   // we can find the deploy button that was used
