@@ -122,6 +122,11 @@ describe('requiredChecks', function () {
   });
 
   it('notifies slack channel with failure due to a sentry commit (via getsentry bump commit)', async function () {
+    await db('users').insert({
+      email: 'matej.minar@sentry.io',
+      slackUser: 'U123123',
+      githubUser: 'matejminar',
+    });
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -201,7 +206,7 @@ describe('requiredChecks', function () {
                   "type": "image",
                 },
                 Object {
-                  "text": "<https://github.com/matejminar|Matej Minar (matejminar)>",
+                  "text": "<@U123123>",
                   "type": "mrkdwn",
                 },
               ],
