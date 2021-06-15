@@ -6840,9 +6840,9 @@ __metadata:
   linkType: hard
 
 "normalize-url@npm:^4.1.0":
-  version: 4.5.0
-  resolution: "normalize-url@npm:4.5.0"
-  checksum: 09794941dbe5c7b91caf6f3cd1ae167c27f6d09793e4a03601a68b62de7e8ee9e5de21a246130cdbab98b01481de292f9556d492444a527648f9cf1220e4b0df
+  version: 4.5.1
+  resolution: "normalize-url@npm:4.5.1"
+  checksum: 31dd05ad33cc649d5c1cd390f1e494d36bdcd3c0a440fd873290ffc5d4f838e2d0c1f4e9c29c9395d4907318cd8c0aaa759af336ac04ec0bd6fecb62ef1f4556
   languageName: node
   linkType: hard
 
