@@ -3008,7 +3008,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["anymatch", "npm:3.1.1"],
             ["braces", "npm:3.0.2"],
             ["fsevents", "patch:fsevents@npm%3A2.1.3#builtin<compat/fsevents>::version=2.1.3&hash=11e9ea"],
-            ["glob-parent", "npm:5.1.1"],
+            ["glob-parent", "npm:5.1.2"],
             ["is-binary-path", "npm:2.1.0"],
             ["is-glob", "npm:4.0.1"],
             ["normalize-path", "npm:3.0.0"],
@@ -4033,7 +4033,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["esutils", "npm:2.0.3"],
             ["file-entry-cache", "npm:6.0.0"],
             ["functional-red-black-tree", "npm:1.0.1"],
-            ["glob-parent", "npm:5.1.1"],
+            ["glob-parent", "npm:5.1.2"],
             ["globals", "npm:12.4.0"],
             ["ignore", "npm:4.0.6"],
             ["import-fresh", "npm:3.2.1"],
@@ -4502,7 +4502,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["fast-glob", "npm:3.2.4"],
             ["@nodelib/fs.stat", "npm:2.0.3"],
             ["@nodelib/fs.walk", "npm:1.2.4"],
-            ["glob-parent", "npm:5.1.1"],
+            ["glob-parent", "npm:5.1.2"],
             ["merge2", "npm:1.4.1"],
             ["micromatch", "npm:4.0.2"],
             ["picomatch", "npm:2.2.2"]
@@ -5104,10 +5104,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["glob-parent", [
-        ["npm:5.1.1", {
-          "packageLocation": "./.yarn/cache/glob-parent-npm-5.1.1-57b061cd88-2af6e196fb.zip/node_modules/glob-parent/",
+        ["npm:5.1.2", {
+          "packageLocation": "./.yarn/cache/glob-parent-npm-5.1.2-021ab32634-82fcaa4ce1.zip/node_modules/glob-parent/",
           "packageDependencies": [
-            ["glob-parent", "npm:5.1.1"],
+            ["glob-parent", "npm:5.1.2"],
             ["is-glob", "npm:4.0.1"]
           ],
           "linkType": "HARD",
