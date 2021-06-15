@@ -2893,7 +2893,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["http-cache-semantics", "npm:4.1.0"],
             ["keyv", "npm:3.1.0"],
             ["lowercase-keys", "npm:2.0.0"],
-            ["normalize-url", "npm:4.5.0"],
+            ["normalize-url", "npm:4.5.1"],
             ["responselike", "npm:1.0.2"]
           ],
           "linkType": "HARD",
@@ -8072,10 +8072,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["normalize-url", [
-        ["npm:4.5.0", {
-          "packageLocation": "./.yarn/cache/normalize-url-npm-4.5.0-14a0c5430f-09794941db.zip/node_modules/normalize-url/",
+        ["npm:4.5.1", {
+          "packageLocation": "./.yarn/cache/normalize-url-npm-4.5.1-603d40bc18-31dd05ad33.zip/node_modules/normalize-url/",
           "packageDependencies": [
-            ["normalize-url", "npm:4.5.0"]
+            ["normalize-url", "npm:4.5.1"]
           ],
           "linkType": "HARD",
         }]
