@@ -6,15 +6,12 @@ import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
 const TEAM_LABEL_PREFIX = 'Team: ';
-const UNTRIAGED_LABEL = 'Status: Untriaged';
-const LABELS_TABLE = () => db('label_to_channel');
+export const UNTRIAGED_LABEL = 'Status: Untriaged';
+export const LABELS_TABLE = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
-  name: eventType,
-  payload,
+  payload: { issue, label, repository },
 }: EmitterWebhookEvent<'issues.labeled'>): Promise<void> => {
-  const { issue, label } = payload;
-
   if (!label) {
     return undefined;
   }
@@ -49,7 +46,7 @@ export const githubLabelHandler = async ({
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ Issue pending triage: <https://github.com/${payload.repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
+        text: `⏲ Issue pending triage: <https://github.com/${repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
         channel,
       })
     )
