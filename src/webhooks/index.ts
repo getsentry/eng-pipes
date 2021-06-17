@@ -13,7 +13,7 @@ export function WebhookRouter(server) {
     let handler;
 
     try {
-      const handlerPath = path.join(__dirname, request.params.service);
+      const handlerPath = path.resolve(__dirname, request.params.service);
 
       // Prevent directory traversals
       if (!handlerPath.startsWith(rootDir)) {
