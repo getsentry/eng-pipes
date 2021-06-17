@@ -1,6 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
+import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
 import {
   BuildStatus,
   Color,
@@ -9,6 +10,8 @@ import {
   REQUIRED_CHECK_CHANNEL,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { wrapHandler } from '@/utils/wrapHandler';
+import { revertCommit } from '@api/deploySyncBot/revertCommit';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { githubEvents } from '@api/github';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -17,6 +20,8 @@ import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
+
+import { actionRevertCommit } from './actionRevertCommit';
 
 const OK_CONCLUSIONS = [
   BuildStatus.SUCCESS,
@@ -274,6 +279,8 @@ async function handler({
     return;
   }
 
+  console.log('failing', checkRun.head_sha);
+
   const tx = Sentry.startTransaction({
     op: 'brain',
     name: 'requiredChecks.failed',
@@ -308,30 +315,31 @@ async function handler({
 
   // If all failed jobs are just missing, and the # of missing jobs represents > 50% of all jobs...
   // then ignore it. Due to GHA, it's difficult to tell if a job is actually missing vs it hasn't started yet
+  // @ts-ignore
   const missingJobs = failedJobs.filter(([, conclusion]) =>
     conclusion.includes('missing')
   );
 
-  if (
-    missingJobs.length === failedJobs.length &&
-    missingJobs.length >= (jobs?.length ?? 0) / 2
-  ) {
-    Sentry.withScope((scope) => {
-      scope.setContext('Check Run', {
-        id: checkRun.id,
-        url: checkRun.html_url,
-        sha: checkRun.head_sha,
-      });
-      scope.setContext('Required Checks - Missing Jobs', {
-        missingJobs,
-      });
-      Sentry.startTransaction({
-        op: 'debug',
-        name: 'requiredChecks.missing',
-      }).finish();
-    });
-    return;
-  }
+  // if (
+  // missingJobs.length === failedJobs.length &&
+  // missingJobs.length >= (jobs?.length ?? 0) / 2
+  // ) {
+  // Sentry.withScope((scope) => {
+  // scope.setContext('Check Run', {
+  // id: checkRun.id,
+  // url: checkRun.html_url,
+  // sha: checkRun.head_sha,
+  // });
+  // scope.setContext('Required Checks - Missing Jobs', {
+  // missingJobs,
+  // });
+  // Sentry.startTransaction({
+  // op: 'debug',
+  // name: 'requiredChecks.missing',
+  // }).finish();
+  // });
+  // return;
+  // }
 
   const text = getTextParts(checkRun).join(' ');
   const jobsList = jobs
@@ -352,10 +360,46 @@ async function handler({
       attachments: [
         {
           color: Color.DANGER,
-          blocks: [...commitBlocks],
+          blocks: [
+            ...commitBlocks,
+            ...(relevantCommit || true
+              ? [
+                  {
+                    type: 'actions',
+                    // @ts-ignore
+                    elements: [
+                      revertCommitBlock({
+                        sha: relevantCommit?.sha || checkRun.head_sha,
+                        repo:
+                          relevantCommit?.sha === checkRun.head_sha
+                            ? 'getsentry'
+                            : 'sentry',
+                      }),
+                    ],
+                  },
+                ]
+              : []),
+          ],
         },
       ],
     }));
+
+  console.log(newFailureMessage, {
+    blocks: [
+      ...commitBlocks,
+      ...(relevantCommit
+        ? [
+            revertCommitBlock({
+              sha: relevantCommit.sha,
+              repo:
+                relevantCommit.sha === checkRun.head_sha
+                  ? 'getsentry'
+                  : 'sentry',
+            }),
+          ]
+        : []),
+    ],
+  });
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage) {
@@ -421,4 +465,20 @@ ${jobsList}`,
 export async function requiredChecks() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
+
+  bolt.action(
+    /revert-commit/,
+    wrapHandler('actionRevertCommit', actionRevertCommit)
+  );
+
+  bolt.view('revert-commit-confirm', async ({ ack, body, view, client }) => {
+    await ack();
+    console.log(view);
+    try {
+      const data = JSON.parse(view.private_metadata);
+      await revertCommit(data);
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  });
 }

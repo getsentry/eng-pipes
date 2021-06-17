@@ -69,3 +69,10 @@ export enum BuildStatus {
  */
 export const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
+
+/**
+ * Deploy Sync Bot
+ */
+export const DEPLOY_SYNC_BOT_HOST =
+  'https://sentry-deploy-sync-hook-staging-dwunkkvj6a-uc.a.run.app:8080';
+export const DEPLOY_SYNC_BOT_SECRET = process.env.DEPLOY_SYNC_BOT_SECRET;
