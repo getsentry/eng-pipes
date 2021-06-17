@@ -4,9 +4,9 @@ import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import {
+  getLabelsTable,
   githubLabelHandler,
-  LABELS_TABLE,
-  slackHandler,
+  // slackHandler,
   UNTRIAGED_LABEL,
 } from '.';
 
@@ -18,7 +18,7 @@ describe('githubLabelHandler', function () {
   beforeAll(async function () {
     await db.migrate.latest();
     for (let i = 1; i <= NUM_CHANNELS; i++) {
-      await LABELS_TABLE().insert({
+      await getLabelsTable().insert({
         label_name: 'Team: Test',
         channel_id: channelId(i),
       });

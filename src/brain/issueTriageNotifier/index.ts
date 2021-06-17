@@ -7,7 +7,7 @@ import { wrapHandler } from '@utils/wrapHandler';
 
 const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
-export const LABELS_TABLE = () => db('label_to_channel');
+export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
   payload: { issue, label, repository },
@@ -36,7 +36,7 @@ export const githubLabelHandler = async ({
   // mapping for this makes sense. Even more, a "channel" can actually be a
   // group convo or a private chat with the bot.
   const channelsToNotify = (
-    await LABELS_TABLE()
+    await getLabelsTable()
       .where({
         label_name: teamLabel,
       })
@@ -65,7 +65,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
 
   if (!args) {
     const labels = (
-      await LABELS_TABLE().where({ channel_id }).select('label_name')
+      await getLabelsTable().where({ channel_id }).select('label_name')
     ).map((row) => row.label_name);
     const response =
       labels.length > 0
@@ -81,7 +81,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
 
     switch (op) {
       case '+':
-        result = await LABELS_TABLE()
+        result = await getLabelsTable()
           .insert(
             {
               label_name,
@@ -108,7 +108,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
         }
         break;
       case '-':
-        result = await LABELS_TABLE()
+        result = await getLabelsTable()
           .where({
             channel_id,
             label_name,
