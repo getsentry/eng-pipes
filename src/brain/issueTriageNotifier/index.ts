@@ -6,15 +6,12 @@ import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
 const TEAM_LABEL_PREFIX = 'Team: ';
-const UNTRIAGED_LABEL = 'Status: Untriaged';
-const LABELS_TABLE = () => db('label_to_channel');
+export const UNTRIAGED_LABEL = 'Status: Untriaged';
+export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
-  name: eventType,
-  payload,
+  payload: { issue, label, repository },
 }: EmitterWebhookEvent<'issues.labeled'>): Promise<void> => {
-  const { issue, label } = payload;
-
   if (!label) {
     return undefined;
   }
@@ -39,7 +36,7 @@ export const githubLabelHandler = async ({
   // mapping for this makes sense. Even more, a "channel" can actually be a
   // group convo or a private chat with the bot.
   const channelsToNotify = (
-    await LABELS_TABLE()
+    await getLabelsTable()
       .where({
         label_name: teamLabel,
       })
@@ -49,7 +46,7 @@ export const githubLabelHandler = async ({
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ Issue pending triage: <https://github.com/${payload.repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
+        text: `⏲ Issue pending triage: <https://github.com/${repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
         channel,
       })
     )
@@ -68,7 +65,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
 
   if (!args) {
     const labels = (
-      await LABELS_TABLE().where({ channel_id }).select('label_name')
+      await getLabelsTable().where({ channel_id }).select('label_name')
     ).map((row) => row.label_name);
     const response =
       labels.length > 0
@@ -84,7 +81,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
 
     switch (op) {
       case '+':
-        result = await LABELS_TABLE()
+        result = await getLabelsTable()
           .insert(
             {
               label_name,
@@ -111,7 +108,7 @@ export const slackHandler = async ({ command, ack, say, client }) => {
         }
         break;
       case '-':
-        result = await LABELS_TABLE()
+        result = await getLabelsTable()
           .where({
             channel_id,
             label_name,
