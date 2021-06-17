@@ -279,8 +279,6 @@ async function handler({
     return;
   }
 
-  console.log('failing', checkRun.head_sha);
-
   const tx = Sentry.startTransaction({
     op: 'brain',
     name: 'requiredChecks.failed',
@@ -362,7 +360,7 @@ async function handler({
           color: Color.DANGER,
           blocks: [
             ...commitBlocks,
-            ...(relevantCommit || true
+            ...(relevantCommit || checkRun.head_sha
               ? [
                   {
                     type: 'actions',
@@ -383,23 +381,6 @@ async function handler({
         },
       ],
     }));
-
-  console.log(newFailureMessage, {
-    blocks: [
-      ...commitBlocks,
-      ...(relevantCommit
-        ? [
-            revertCommitBlock({
-              sha: relevantCommit.sha,
-              repo:
-                relevantCommit.sha === checkRun.head_sha
-                  ? 'getsentry'
-                  : 'sentry',
-            }),
-          ]
-        : []),
-    ],
-  });
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage) {
@@ -471,9 +452,8 @@ export async function requiredChecks() {
     wrapHandler('actionRevertCommit', actionRevertCommit)
   );
 
-  bolt.view('revert-commit-confirm', async ({ ack, body, view, client }) => {
+  bolt.view('revert-commit-confirm', async ({ ack, view }) => {
     await ack();
-    console.log(view);
     try {
       const data = JSON.parse(view.private_metadata);
       await revertCommit(data);

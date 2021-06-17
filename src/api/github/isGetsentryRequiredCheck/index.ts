@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-// import { REQUIRED_CHECK_NAME } from '@/config';
+import { REQUIRED_CHECK_NAME } from '@/config';
 
 /**
  * Checks payload to see if:
@@ -23,7 +23,7 @@ export function isGetsentryRequiredCheck({
     return false;
   }
 
-  if (checkRun.name !== 'failing test') {
+  if (checkRun.name !== REQUIRED_CHECK_NAME) {
     return false;
   }
 

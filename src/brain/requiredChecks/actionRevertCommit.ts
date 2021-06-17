@@ -7,11 +7,10 @@ export async function actionRevertCommit({
 }) {
   await ack();
 
-  console.log(payload, body);
   const { sha, repo } = JSON.parse(payload.value);
 
   // Open a "loading" modal so that we can respond as soon as possible
-  client.views.open({
+  await client.views.open({
     // Pass a valid trigger_id within 3 seconds of receiving it
     // @ts-ignore Slack types suxx
     trigger_id: body.trigger_id,
