@@ -5,7 +5,7 @@ import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
-const TEAM_LABEL_PREFIX = 'Team: ';
+export const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const getLabelsTable = () => db('label_to_channel');
 
@@ -46,7 +46,7 @@ export const githubLabelHandler = async ({
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ Issue pending triage: <https://github.com/${repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
+        text: `⏲ Issue pending triage: <${issue.html_url}|#${issue.number} ${issue.title}>`,
         channel,
       })
     )

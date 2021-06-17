@@ -10,7 +10,7 @@ function _getClient(installationId?: number) {
       // Initialize GitHub App with id:private_key pair and generate JWT which is used for
       appId: Number(process.env.GH_APP_IDENTIFIER),
       privateKey: process.env.GH_APP_SECRET_KEY,
-      installationId,
+      installationId: 17395663,
     },
   });
 }
@@ -29,6 +29,7 @@ export async function getClient(org: string) {
   }
 
   const appClient = _getClient();
+  return appClient;
 
   // Cache the installation ID as it should never change
   if (_INSTALLATION_CACHE.has(org)) {
