@@ -11,6 +11,12 @@ const DEFAULT_REPOS = [SENTRY_REPO];
 const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 
+type PubSubPayload = {
+  name: string;
+  slo?: number;
+  repos?: string[];
+};
+
 export const opts = {
   schema: {
     body: {
@@ -32,7 +38,7 @@ export const opts = {
 };
 
 export const handler = async (request, reply) => {
-  const payload = JSON.parse(
+  const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
@@ -126,6 +132,6 @@ export const handler = async (request, reply) => {
   );
 };
 
-// Test command:
+// Test command for `sentry-docs` repo:
 // curl -X POST 'http://127.0.0.1:3000/webhooks/pubsub' -H "Content-Type: application/json" -d '{"message": {"data": "eyJuYW1lIjoic3RhbGUtdHJpYWdlLW5vdGlmaWVyIiwicmVwb3MiOlsic2VudHJ5LWRvY3MiXX0="}}'
-// Tests for sentry-docs repo
+// `message.data` is a Base64-encoded JSON string that is a `PubSubPayload` object
