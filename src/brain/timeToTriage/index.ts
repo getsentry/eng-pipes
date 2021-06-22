@@ -29,7 +29,7 @@ async function isNotFromAnExternalUser(payload) {
 }
 
 async function isNotInARepoWeCareAbout(payload) {
-  return !REPOS_TO_TRACK.has(payload.repository?.name);
+  return !REPOS_TO_TRACK.has(payload.repository.name);
 }
 
 async function isTheUntriagedLabel(payload) {
