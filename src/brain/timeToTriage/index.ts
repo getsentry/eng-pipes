@@ -21,12 +21,7 @@ async function isInvalid(payload, invalidators) {
 }
 
 async function isAlreadyTriaged(payload) {
-  for (const label of payload.issue.labels) {
-    if (label.name === UNTRIAGED_LABEL) {
-      return false;
-    }
-  }
-  return true;
+  return !payload.issue.labels.some(({ name }) => name === UNTRIAGED_LABEL);
 }
 
 async function isNotFromAnExternalUser(payload) {
@@ -63,7 +58,7 @@ async function markUntriaged({
   const octokit = await getClient(owner);
 
   await octokit.issues.addLabels({
-    owner: owner,
+    owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
     labels: [UNTRIAGED_LABEL],

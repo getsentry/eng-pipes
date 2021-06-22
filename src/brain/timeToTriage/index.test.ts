@@ -1,6 +1,7 @@
 import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 
 import { buildServer } from '@/buildServer';
+import { UNTRIAGED_LABEL } from '@/config';
 import { Fastify } from '@/types';
 import { githubEvents } from '@api/github';
 import { getClient } from '@api/github/getClient';
@@ -35,17 +36,15 @@ describe('timeToTriage', function () {
   // Helpers
 
   function untriage() {
-    octokit.issues._labels.add('Status: Untriaged');
+    octokit.issues._labels.add(UNTRIAGED_LABEL);
   }
 
   function expectUntriaged() {
-    expect(octokit.issues._labels).toStrictEqual(
-      new Set(['Status: Untriaged'])
-    );
+    expect(octokit.issues._labels).toContain(UNTRIAGED_LABEL);
   }
 
   function expectTriaged() {
-    expect(octokit.issues._labels).toStrictEqual(new Set([]));
+    expect(octokit.issues._labels).not.toContain(UNTRIAGED_LABEL);
   }
 
   function expectRemoval() {
@@ -59,18 +58,14 @@ describe('timeToTriage', function () {
   function makePayload(repo: ?string, label: ?string, sender: ?string) {
     repo = repo || 'test-ttt-simple';
 
-    const labels = [];
-    for (const name of octokit.issues._labels) {
-      labels.push({ name });
-    }
-
+    const labels = Array.from(octokit.issues._labels, (name) => ({ name }));
     const payload = {
       sender: { login: sender || 'Skywalker' }, // default to external user
       repository: {
         name: repo,
         owner: { login: 'Enterprise' },
       },
-      issue: { labels: labels }, // mix in labels stored in mock
+      issue: { labels }, // mix in labels stored in mock
     };
 
     if (label) {
@@ -105,7 +100,7 @@ describe('timeToTriage', function () {
     expectUntriaged();
   });
 
-  it('skips adding `Status: Untriaged` in unmentioned repos', async function () {
+  it('skips adding `Status: Untriaged` in untracked repos', async function () {
     await createIssue('other-repo');
     expectTriaged();
   });
@@ -132,12 +127,12 @@ describe('timeToTriage', function () {
 
   it('skips removing `Status: Untriaged` when adding `Status: Untriaged`', async function () {
     untriage();
-    await addLabel('Status: Untriaged');
+    await addLabel(UNTRIAGED_LABEL);
     expectUntriaged();
     expectNoRemoval();
   });
 
-  it('skips removing `Status: Untriaged` in unmentioned repos', async function () {
+  it('skips removing `Status: Untriaged` in untracked repos', async function () {
     untriage();
     await addLabel('Cheeseburger Pie', 'other-repo');
     expectUntriaged();
