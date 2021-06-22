@@ -18,7 +18,7 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
   event: E,
   payload?: DeepPartial<EmitterWebhookEvent<E>['payload']>
 ) {
-  const fullPayload = makeGitHubEventPayload<E>(event, payload);
+  const [baseEvent, fullPayload] = transformEventAndPayload<E>(event, payload);
 
   const signature = createSignature(
     JSON.stringify(fullPayload),
@@ -31,23 +31,34 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
     url: '/webhooks/github',
     headers: {
       'x-github-delivery': 1234,
-      'x-github-event': event as string,
+      'x-github-event': baseEvent as string,
       'x-hub-signature': signature,
     },
     payload: fullPayload,
   });
 }
 
-export function makeGitHubEventPayload<E extends EmitterWebhookEvent['name']>(
+export function transformEventAndPayload<E extends EmitterWebhookEvent['name']>(
   event: E,
   payload: DeepPartial<EmitterWebhookEvent<E>['payload']> | undefined
 ) {
   let defaultPayload;
+
+  // Support sub-events, i.e., actions.
+  event = event.split('.');
+  const baseEvent = event[0];
+  const action = event[1];
+  event = null;
+
   try {
-    defaultPayload = require(`@test/payloads/github/${event}`).default;
+    defaultPayload = require(`@test/payloads/github/${baseEvent}`).default;
   } catch (err) {
-    console.warn(`No payload found for event ${event}`);
+    console.warn(`No payload found for event ${baseEvent}`);
   }
 
-  return merge({}, defaultPayload, payload);
+  if (action) {
+    defaultPayload.action = action;
+  }
+
+  return [baseEvent, merge({}, defaultPayload, payload)];
 }

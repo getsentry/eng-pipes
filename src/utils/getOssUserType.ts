@@ -18,16 +18,21 @@ const KNOWN_BOTS = [
   'getsentry-release',
   'sentry-test-fixture-nonmember',
 ];
+
+export function isFromBot(payload) {
+  return (
+    KNOWN_BOTS.includes(payload.sender.login) ||
+    payload.sender.login.endsWith('[bot]')
+  );
+}
+
 /**
  * Given a GitHub username, get user type used for metrics
  */
 export async function getOssUserType(
   payload: Record<string, any>
 ): Promise<UserType | null> {
-  if (
-    KNOWN_BOTS.includes(payload.sender.login) ||
-    payload.sender.login.endsWith('[bot]')
-  ) {
+  if (isFromBot(payload)) {
     return 'bot';
   }
 
