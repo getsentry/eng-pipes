@@ -19,7 +19,7 @@ const KNOWN_BOTS = [
   'sentry-test-fixture-nonmember',
 ];
 
-export function isFromABot(payload) {
+export async function isFromABot(payload) {
   return (
     KNOWN_BOTS.includes(payload.sender.login) ||
     payload.sender.login.endsWith('[bot]')
@@ -32,7 +32,7 @@ export function isFromABot(payload) {
 export async function getOssUserType(
   payload: Record<string, any>
 ): Promise<UserType | null> {
-  if (isFromABot(payload)) {
+  if (await isFromABot(payload)) {
     return 'bot';
   }
 

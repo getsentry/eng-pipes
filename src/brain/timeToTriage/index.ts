@@ -11,21 +11,15 @@ import { getClient } from '@api/github/getClient';
 // Validation Helpers
 
 async function isInvalid(payload, invalidators) {
-  let invalid;
   for (const invalidate of invalidators) {
-    if (invalidate.constructor.name === 'AsyncFunction') {
-      invalid = await invalidate(payload);
-    } else {
-      invalid = invalidate(payload);
-    }
-    if (invalid) {
+    if (await invalidate(payload)) {
       return true;
     }
   }
   return false;
 }
 
-function isAlreadyTriaged(payload) {
+async function isAlreadyTriaged(payload) {
   for (const label of payload.issue.labels) {
     if (label.name === UNTRIAGED_LABEL) {
       return false;
@@ -38,11 +32,11 @@ async function isNotFromAnExternalUser(payload) {
   return (await getOssUserType(payload)) !== 'external';
 }
 
-function isNotInARepoWeCareAbout(payload) {
+async function isNotInARepoWeCareAbout(payload) {
   return !REPOS_TO_TRACK.has(payload.repository?.name);
 }
 
-function isTheUntriagedLabel(payload) {
+async function isTheUntriagedLabel(payload) {
   return payload.label?.name === UNTRIAGED_LABEL;
 }
 
@@ -109,6 +103,8 @@ async function markTriaged({
 
   tx.finish();
 }
+
+// Install.
 
 export async function timeToTriage() {
   githubEvents.removeListener('issues.opened', markUntriaged);
