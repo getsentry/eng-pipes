@@ -1,12 +1,11 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
+import { TEAM_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
-export const TEAM_LABEL_PREFIX = 'Team: ';
-export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({

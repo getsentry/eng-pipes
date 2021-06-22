@@ -65,3 +65,9 @@ export enum BuildStatus {
   FIXED = 'fixed',
   FLAKE = 'flake',
 }
+
+/**
+ * GitHub Triage
+ */
+export const TEAM_LABEL_PREFIX = 'Team: ';
+export const UNTRIAGED_LABEL = 'Status: Untriaged';

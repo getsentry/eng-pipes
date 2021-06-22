@@ -3,12 +3,14 @@ import { ServerResponse } from 'http';
 import { Octokit } from '@octokit/rest';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+import { getLabelsTable } from '@/brain/issueTriageNotifier';
 import {
-  getLabelsTable,
+  DAY_IN_MS,
+  OWNER,
+  SENTRY_REPO,
   TEAM_LABEL_PREFIX,
   UNTRIAGED_LABEL,
-} from '@/brain/issueTriageNotifier';
-import { DAY_IN_MS, OWNER, SENTRY_REPO } from '@/config';
+} from '@/config';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 

@@ -19,7 +19,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { Fastify } from '@types';
 
-import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { getClient } from '@api/github/getClient';
