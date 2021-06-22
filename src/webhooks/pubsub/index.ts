@@ -1,3 +1,4 @@
+import { OWNER, SENTRY_REPO } from '@/config';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
@@ -7,8 +8,7 @@ import {
   UNTRIAGED_LABEL,
 } from '../../brain/issueTriageNotifier';
 
-const ORG_NAME = 'getsentry';
-const DEFAULT_REPOS = ['sentry'];
+const DEFAULT_REPOS = [SENTRY_REPO];
 const DAYS = 1000 * 60 * 60 * 24; // milliseconds
 const MAX_TRIAGE_TIME = 4 * DAYS;
 const GH_API_PER_PAGE = 100;
@@ -46,7 +46,7 @@ export const handler = async (request, reply) => {
   reply.code(204);
   reply.send();
 
-  const octokit = await getClient(ORG_NAME);
+  const octokit = await getClient(OWNER);
   const repos: string[] = payload.repos || DEFAULT_REPOS;
   const SLO = payload.slo || MAX_TRIAGE_TIME;
   const now = Date.now();
@@ -56,7 +56,7 @@ export const handler = async (request, reply) => {
       repos.map(async (repo) => {
         const untriagedIssues = (
           await octokit.issues.listForRepo({
-            owner: ORG_NAME,
+            owner: OWNER,
             repo,
             state: 'open',
             labels: UNTRIAGED_LABEL,
@@ -77,7 +77,7 @@ export const handler = async (request, reply) => {
             }
 
             const { data } = await octokit.issues.listEvents({
-              owner: ORG_NAME,
+              owner: OWNER,
               repo,
               issue_number: issue.number,
               per_page: GH_API_PER_PAGE,
