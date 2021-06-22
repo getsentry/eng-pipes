@@ -1,4 +1,7 @@
+import { ServerResponse } from 'http';
+
 import { Octokit } from '@octokit/rest';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 import {
   getLabelsTable,
@@ -48,16 +51,9 @@ export const opts = {
   },
 };
 
-function getIssueTeamLabel(issue: {
-  labels: {
-    name: string;
-  }[];
-}) {
-  return (
-    issue.labels.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX))
-      ?.name || DEFAULT_TEAM_LABEL
-  );
-}
+const getIssueTeamLabel = (issue: { labels: { name: string }[] }) =>
+  issue.labels.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX))
+    ?.name || DEFAULT_TEAM_LABEL;
 
 async function getRoutingTimestamp(
   octokit: Octokit,
@@ -71,17 +67,19 @@ async function getRoutingTimestamp(
     per_page: GH_API_PER_PAGE,
   });
 
-  const untriagedLabelEvents = data.filter(
+  const routingEvents = data.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
       event.event === 'labeled' && event.label.name === UNTRIAGED_LABEL
   );
-  const lastUntriagedLabelEvent =
-    untriagedLabelEvents[untriagedLabelEvents.length - 1];
-  return Date.parse(lastUntriagedLabelEvent.created_at);
+  const lastRouteEvent = routingEvents[routingEvents.length - 1];
+  return Date.parse(lastRouteEvent.created_at);
 }
 
-export const handler = async (request, reply) => {
+export const handler = async (
+  request: FastifyRequest,
+  reply: FastifyReply<ServerResponse>
+) => {
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
@@ -91,7 +89,8 @@ export const handler = async (request, reply) => {
   // handlers into dedicated modules for clarity and isolation
   if (payload.name !== 'stale-triage-notifier') {
     reply.code(400);
-    return reply.send();
+    reply.send();
+    return;
   }
 
   // Respond early to not block the webhook sender
