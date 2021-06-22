@@ -11,13 +11,17 @@ import { getClient } from '@api/github/getClient';
 
 // Validation Helpers
 
-async function isInvalid(payload, invalidators) {
-  for (const invalidate of invalidators) {
-    if (await invalidate(payload)) {
+async function shouldSkip(payload, reasonsToSkip) {
+  for (const skipIf of reasonsToSkip) {
+    if (await skipIf(payload)) {
       return true;
     }
   }
   return false;
+}
+
+async function isAlreadyUntriaged(payload) {
+  return !(await isAlreadyTriaged(payload));
 }
 
 async function isAlreadyTriaged(payload) {
@@ -48,8 +52,12 @@ async function markUntriaged({
     name: 'timeToTriage.markUntriaged',
   });
 
-  const invalidators = [isNotInARepoWeCareAbout, isNotFromAnExternalUser];
-  if (await isInvalid(payload, invalidators)) {
+  const reasonsToSkip = [
+    isNotInARepoWeCareAbout,
+    isAlreadyUntriaged,
+    isNotFromAnExternalUser,
+  ];
+  if (await shouldSkip(payload, reasonsToSkip)) {
     return;
   }
 
@@ -77,13 +85,13 @@ async function markTriaged({
     name: 'timeToTriage.markTriaged',
   });
 
-  const invalidators = [
+  const reasonsToSkip = [
     isNotInARepoWeCareAbout,
     isFromABot,
     isTheUntriagedLabel,
     isAlreadyTriaged,
   ];
-  if (await isInvalid(payload, invalidators)) {
+  if (await shouldSkip(payload, reasonsToSkip)) {
     return;
   }
 

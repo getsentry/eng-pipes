@@ -30,6 +30,7 @@ describe('timeToTriage', function () {
   afterEach(async function () {
     fastify.close();
     octokit.issues._labels = new Set([]);
+    octokit.issues.addLabels.mockClear();
     octokit.issues.removeLabel.mockClear();
   });
 
@@ -53,6 +54,14 @@ describe('timeToTriage', function () {
 
   function expectNoRemoval() {
     expect(octokit.issues.removeLabel).not.toBeCalled();
+  }
+
+  function expectAdding() {
+    expect(octokit.issues.addLabels).toBeCalled();
+  }
+
+  function expectNoAdding() {
+    expect(octokit.issues.addLabels).not.toBeCalled();
   }
 
   function makePayload(repo: ?string, label: ?string, sender: ?string) {
@@ -98,16 +107,26 @@ describe('timeToTriage', function () {
   it('adds `Status: Untriaged` to new issues', async function () {
     await createIssue();
     expectUntriaged();
+    expectAdding();
   });
 
   it('skips adding `Status: Untriaged` in untracked repos', async function () {
     await createIssue('other-repo');
     expectTriaged();
+    expectNoAdding();
+  });
+
+  it('skips adding `Status: Untriaged` when added during creation', async function () {
+    untriage();
+    await createIssue(undefined, 'Picard');
+    expectUntriaged();
+    expectNoAdding();
   });
 
   it('skips adding `Status: Untriaged` for internal users', async function () {
     await createIssue(undefined, 'Picard');
     expectTriaged();
+    expectNoAdding();
   });
 
   // removing
