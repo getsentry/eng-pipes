@@ -2,11 +2,51 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@api/github';
-import { getOssUserType, isFromBot } from '@utils/getOssUserType';
+import { getOssUserType, isFromABot } from '@utils/getOssUserType';
 
 const REPOS_TO_TRACK = new Set(['test-ttt-simple']);
 import { UNTRIAGED_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
+
+// Validation Helpers
+
+async function isInvalid(payload, invalidators) {
+  let invalid;
+  for (const invalidate of invalidators) {
+    if (invalidate.constructor.name === 'AsyncFunction') {
+      invalid = await invalidate(payload);
+    } else {
+      invalid = invalidate(payload);
+    }
+    if (invalid) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isAlreadyTriaged(payload) {
+  for (const label of payload.issue.labels) {
+    if (label.name === UNTRIAGED_LABEL) {
+      return false;
+    }
+  }
+  return true;
+}
+
+async function isNotFromAnExternalUser(payload) {
+  return (await getOssUserType(payload)) !== 'external';
+}
+
+function isNotInARepoWeCareAbout(payload) {
+  return !REPOS_TO_TRACK.has(payload.repository?.name);
+}
+
+function isTheUntriagedLabel(payload) {
+  return payload.label?.name === UNTRIAGED_LABEL;
+}
+
+// Markers of State
 
 async function markUntriaged({
   id,
@@ -18,10 +58,8 @@ async function markUntriaged({
     name: 'timeToTriage.markUntriaged',
   });
 
-  if (!REPOS_TO_TRACK.has(payload.repository?.name)) {
-    return;
-  }
-  if ((await getOssUserType(payload)) !== 'external') {
+  const invalidators = [isNotInARepoWeCareAbout, isNotFromAnExternalUser];
+  if (await isInvalid(payload, invalidators)) {
     return;
   }
 
@@ -39,15 +77,6 @@ async function markUntriaged({
   tx.finish();
 }
 
-function isAlreadyTriaged(payload) {
-  for (const label of payload.issue.labels) {
-    if (label.name === UNTRIAGED_LABEL) {
-      return false;
-    }
-  }
-  return true;
-}
-
 async function markTriaged({
   id,
   payload,
@@ -58,16 +87,13 @@ async function markTriaged({
     name: 'timeToTriage.markTriaged',
   });
 
-  if (!REPOS_TO_TRACK.has(payload.repository?.name)) {
-    return;
-  }
-  if (isFromBot(payload)) {
-    return;
-  }
-  if (payload.label?.name === UNTRIAGED_LABEL) {
-    return;
-  }
-  if (isAlreadyTriaged(payload)) {
+  const invalidators = [
+    isNotInARepoWeCareAbout,
+    isFromABot,
+    isTheUntriagedLabel,
+    isAlreadyTriaged,
+  ];
+  if (await isInvalid(payload, invalidators)) {
     return;
   }
 
