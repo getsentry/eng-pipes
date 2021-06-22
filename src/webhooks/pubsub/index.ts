@@ -3,13 +3,12 @@ import {
   TEAM_LABEL_PREFIX,
   UNTRIAGED_LABEL,
 } from '@/brain/issueTriageNotifier';
-import { OWNER, SENTRY_REPO } from '@/config';
+import { DAY_IN_MS, OWNER, SENTRY_REPO } from '@/config';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
-const DAYS = 1000 * 60 * 60 * 24; // milliseconds
-const MAX_TRIAGE_TIME = 4 * DAYS;
+const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 
 export const opts = {

@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/node';
 
+import { DAY_IN_MS } from '@/config';
 import { getClient } from '@api/github/getClient';
 
 type UserType = 'bot' | 'internal' | 'external';
@@ -9,8 +10,6 @@ type CachedUser = {
 };
 
 const _USER_CACHE = new Map<string, CachedUser>();
-
-const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
 const KNOWN_BOTS = [
   // https://www.notion.so/sentry/Bot-Accounts-beea0fc35473453ab50e05e6e4d1d02d
@@ -59,7 +58,7 @@ export async function getOssUserType(
     .then(capture)
     .catch(capture);
 
-  const expires = Date.now() + ONE_DAY_MS;
+  const expires = Date.now() + DAY_IN_MS;
 
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   switch (responseStatus as number) {
