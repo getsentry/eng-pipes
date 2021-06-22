@@ -1,4 +1,4 @@
-import { transformEventAndPayload } from '@test/utils/createGitHubEvent';
+import { transformGitHubEventAndPayload } from '@test/utils/transformGitHubEventAndPayload';
 
 import { UNTRIAGED_LABEL } from '@/config';
 import { bolt } from '@api/slack';
@@ -71,7 +71,7 @@ describe('githubLabelHandler', function () {
       false,
     ],
   ])('%s', async (_name, payload, shouldNotify) => {
-    const eventPayload = transformEventAndPayload('issues', {
+    const eventPayload = transformGitHubEventAndPayload('issues', {
       action: 'labeled',
       ...payload,
     })[1];

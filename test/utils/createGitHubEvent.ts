@@ -3,6 +3,8 @@ import merge from 'lodash.merge';
 
 import { Fastify } from '@types';
 
+import { transformGitHubEventAndPayload } from '@test/utils/transformGitHubEventAndPayload';
+
 import { createSignature } from '@utils/createSignature';
 
 type DeepPartial<T> = {
@@ -18,7 +20,10 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
   event: E,
   payload?: DeepPartial<EmitterWebhookEvent<E>['payload']>
 ) {
-  const [baseEvent, fullPayload] = transformEventAndPayload<E>(event, payload);
+  const [baseEvent, fullPayload] = transformGitHubEventAndPayload<E>(
+    event,
+    payload
+  );
 
   const signature = createSignature(
     JSON.stringify(fullPayload),
@@ -36,29 +41,4 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
     },
     payload: fullPayload,
   });
-}
-
-export function transformEventAndPayload<E extends EmitterWebhookEvent['name']>(
-  event: E,
-  payload: DeepPartial<EmitterWebhookEvent<E>['payload']> | undefined
-) {
-  let defaultPayload;
-
-  // Support sub-events, i.e., actions.
-  event = event.split('.');
-  const baseEvent = event[0];
-  const action = event[1];
-  event = null;
-
-  try {
-    defaultPayload = require(`@test/payloads/github/${baseEvent}`).default;
-  } catch (err) {
-    console.warn(`No payload found for event ${baseEvent}`);
-  }
-
-  if (action) {
-    defaultPayload.action = action;
-  }
-
-  return [baseEvent, merge({}, defaultPayload, payload)];
 }

@@ -2,7 +2,8 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@api/github';
-import { getOssUserType, isFromABot } from '@utils/getOssUserType';
+import { getOssUserType } from '@utils/getOssUserType';
+import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK = new Set(['test-ttt-simple']);
 import { UNTRIAGED_LABEL } from '@/config';
