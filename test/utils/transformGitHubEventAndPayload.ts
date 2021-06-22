@@ -18,10 +18,7 @@ export function transformGitHubEventAndPayload<
   let defaultPayload;
 
   // Support sub-events, i.e., actions.
-  event = event.split('.');
-  const baseEvent = event[0];
-  const action = event[1];
-  event = null;
+  const [baseEvent, action] = event.split('.');
 
   try {
     defaultPayload = require(`@test/payloads/github/${baseEvent}`).default;
