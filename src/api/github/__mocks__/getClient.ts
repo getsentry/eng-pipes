@@ -7,6 +7,17 @@ function mockClient() {
     git: {
       getCommit: jest.fn(),
     },
+    issues: {
+      _labels: new Set([]),
+      addLabels: jest.fn(async function (payload) {
+        for (const name of payload.labels) {
+          this._labels.add(name);
+        }
+      }),
+      removeLabel: jest.fn(async function (payload) {
+        this._labels.delete(payload.name);
+      }),
+    },
     orgs: {
       checkMembershipForUser: jest.fn(async function (x) {
         let status = 302;

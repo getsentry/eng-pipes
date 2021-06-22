@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { getClient } from '@api/github/getClient';
+import { isFromABot } from '@utils/isFromABot';
 
 type UserType = 'bot' | 'internal' | 'external';
 type CachedUser = {
@@ -12,22 +13,13 @@ const _USER_CACHE = new Map<string, CachedUser>();
 
 const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 
-const KNOWN_BOTS = [
-  // https://www.notion.so/sentry/Bot-Accounts-beea0fc35473453ab50e05e6e4d1d02d
-  'getsentry-bot',
-  'getsentry-release',
-  'sentry-test-fixture-nonmember',
-];
 /**
  * Given a GitHub username, get user type used for metrics
  */
 export async function getOssUserType(
   payload: Record<string, any>
 ): Promise<UserType | null> {
-  if (
-    KNOWN_BOTS.includes(payload.sender.login) ||
-    payload.sender.login.endsWith('[bot]')
-  ) {
+  if (isFromABot(payload)) {
     return 'bot';
   }
 

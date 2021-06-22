@@ -1,14 +1,10 @@
-import { makeGitHubEventPayload } from '@test/utils/createGitHubEvent';
+import { hydrateGitHubEventAndPayload } from '@test/utils/github';
 
+import { UNTRIAGED_LABEL } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import {
-  getLabelsTable,
-  githubLabelHandler,
-  // slackHandler,
-  UNTRIAGED_LABEL,
-} from '.';
+import { getLabelsTable, githubLabelHandler } from '.';
 
 const NUM_CHANNELS = 2;
 
@@ -75,10 +71,10 @@ describe('githubLabelHandler', function () {
       false,
     ],
   ])('%s', async (_name, payload, shouldNotify) => {
-    const eventPayload = makeGitHubEventPayload('issues', {
+    const eventPayload = hydrateGitHubEventAndPayload('issues', {
       action: 'labeled',
       ...payload,
-    });
+    })[1];
     await githubLabelHandler({
       id: 'random-event-id',
       name: 'issues',
