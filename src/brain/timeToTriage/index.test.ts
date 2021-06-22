@@ -1,4 +1,4 @@
-import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { UNTRIAGED_LABEL } from '@/config';

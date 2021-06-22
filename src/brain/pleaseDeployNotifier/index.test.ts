@@ -1,7 +1,7 @@
 import merge from 'lodash.merge';
 
-import { createGitHubEvent } from '@test/utils/createGitHubEvent';
 import { createSlackRequest } from '@test/utils/createSlackRequest';
+import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { REQUIRED_CHECK_NAME } from '@/config';

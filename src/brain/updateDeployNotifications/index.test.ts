@@ -1,7 +1,7 @@
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/freight.json';
-import { createGitHubEvent } from '@test/utils/createGitHubEvent';
+import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_BOT_ID, REQUIRED_CHECK_NAME } from '@/config';
