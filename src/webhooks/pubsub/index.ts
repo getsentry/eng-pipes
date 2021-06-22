@@ -104,7 +104,7 @@ export const handler = async (request, reply) => {
     )
   )
     .flat(2)
-    // TODO(byk): Make this bussiness days (at least weekend-aware)
+    // TODO(byk): Make this business days (at least weekend-aware)
     .filter((data) => now - data.labelTime >= SLO);
 
   const teamsToNotify = new Set(
