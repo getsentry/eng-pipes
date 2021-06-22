@@ -39,7 +39,7 @@ async function markUntriaged({
   tx.finish();
 }
 
-function isTriaged(payload) {
+function isAlreadyTriaged(payload) {
   for (const label of payload.issue.labels) {
     if (label.name === UNTRIAGED_LABEL) {
       return false;
@@ -67,7 +67,7 @@ async function markTriaged({
   if (payload.label?.name === UNTRIAGED_LABEL) {
     return;
   }
-  if (isTriaged(payload)) {
+  if (isAlreadyTriaged(payload)) {
     return;
   }
 
