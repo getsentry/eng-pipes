@@ -5,7 +5,7 @@ const KNOWN_BOTS = [
   'sentry-test-fixture-nonmember',
 ];
 
-export async function isFromABot(payload) {
+export function isFromABot(payload) {
   return (
     KNOWN_BOTS.includes(payload.sender.login) ||
     payload.sender.login.endsWith('[bot]')

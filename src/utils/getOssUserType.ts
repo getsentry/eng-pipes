@@ -19,7 +19,7 @@ const ONE_DAY_MS = 1000 * 60 * 60 * 24;
 export async function getOssUserType(
   payload: Record<string, any>
 ): Promise<UserType | null> {
-  if (await isFromABot(payload)) {
+  if (isFromABot(payload)) {
     return 'bot';
   }
 

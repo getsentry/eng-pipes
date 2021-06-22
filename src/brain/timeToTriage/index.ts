@@ -20,11 +20,11 @@ async function shouldSkip(payload, reasonsToSkip) {
   return false;
 }
 
-async function isAlreadyUntriaged(payload) {
-  return !(await isAlreadyTriaged(payload));
+function isAlreadyUntriaged(payload) {
+  return !isAlreadyTriaged(payload);
 }
 
-async function isAlreadyTriaged(payload) {
+function isAlreadyTriaged(payload) {
   return !payload.issue.labels.some(({ name }) => name === UNTRIAGED_LABEL);
 }
 
@@ -32,11 +32,11 @@ async function isNotFromAnExternalUser(payload) {
   return (await getOssUserType(payload)) !== 'external';
 }
 
-async function isNotInARepoWeCareAbout(payload) {
+function isNotInARepoWeCareAbout(payload) {
   return !REPOS_TO_TRACK.has(payload.repository.name);
 }
 
-async function isTheUntriagedLabel(payload) {
+function isTheUntriagedLabel(payload) {
   return payload.label?.name === UNTRIAGED_LABEL;
 }
 
