@@ -13,6 +13,7 @@ import { SlackMessage } from '@/config/slackMessage';
 import { wrapHandler } from '@/utils/wrapHandler';
 import { revertCommit } from '@api/deploySyncBot/revertCommit';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
+import { getUser } from '@api/getUser';
 import { githubEvents } from '@api/github';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
@@ -452,11 +453,22 @@ export async function requiredChecks() {
     wrapHandler('actionRevertCommit', actionRevertCommit)
   );
 
-  bolt.view('revert-commit-confirm', async ({ ack, view }) => {
+  bolt.view('revert-commit-confirm', async ({ ack, view, body }) => {
     await ack();
+
+    // Attribute the revert to the Slack user that initiated it
+    const user = await getUser({
+      slackUser: body.user.id,
+    });
+
+    // TODO: Do we need to check that user has permissions?
     try {
       const data = JSON.parse(view.private_metadata);
-      await revertCommit(data);
+      await revertCommit({
+        ...data,
+        name: `${body.user.name} via Slack <${user?.email}>`,
+      });
+      // TODO: We may want to uipdate the original message to disable or remove the Revert Commit button
     } catch (err) {
       Sentry.captureException(err);
     }

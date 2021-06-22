@@ -1,18 +1,16 @@
 import * as https from 'https';
 
-import { DEPLOY_SYNC_BOT_HOST } from '@/config';
+import {createSignature} from '@utils/createSignature';
+import { DEPLOY_SYNC_BOT_SECRET, DEPLOY_SYNC_BOT_HOST } from '@/config';
 
 type RevertCommitParams = {
   sha: string;
   repo: string;
+  name: string;
 };
 
-export async function revertCommit({ sha, repo }: RevertCommitParams) {
-  const data = JSON.stringify({
-    commit: sha,
-    repo,
-    name: '',
-  });
+export async function revertCommit(params: RevertCommitParams) {
+  const data = JSON.stringify(params);
 
   const options = {
     hostname: DEPLOY_SYNC_BOT_HOST,
@@ -20,6 +18,7 @@ export async function revertCommit({ sha, repo }: RevertCommitParams) {
     path: '/api/revert',
     method: 'POST',
     headers: {
+      'X-Signature': `sha1=${createSignature(data, DEPLOY_SYNC_BOT_SECRET)}`,
       'Content-Type': 'application/json',
       'Content-Length': data.length,
     },
@@ -27,7 +26,7 @@ export async function revertCommit({ sha, repo }: RevertCommitParams) {
 
   return await new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
-      console.log(`statusCode: ${res.statusCode}`);
+      console.log(`statusCode: ${res.statusCode}`, res);
 
       res.on('data', (d) => {
         resolve(d);
