@@ -74,7 +74,7 @@ describe('githubLabelHandler', function () {
     const eventPayload = hydrateGitHubEventAndPayload('issues', {
       action: 'labeled',
       ...payload,
-    })[1];
+    }).payload;
     await githubLabelHandler({
       id: 'random-event-id',
       name: 'issues',
