@@ -314,7 +314,6 @@ async function handler({
 
   // If all failed jobs are just missing, and the # of missing jobs represents > 50% of all jobs...
   // then ignore it. Due to GHA, it's difficult to tell if a job is actually missing vs it hasn't started yet
-  // @ts-ignore
   const missingJobs = failedJobs.filter(([, conclusion]) =>
     conclusion.includes('missing')
   );
