@@ -1,6 +1,6 @@
 import * as https from 'https';
 
-import { DEPLOY_SYNC_BOT_HOST, DEPLOY_SYNC_BOT_SECRET } from '@/config';
+import { GIT_BOT_HOST, GIT_BOT_SECRET } from '@/config';
 import { createSignature } from '@utils/createSignature';
 
 type RevertCommitParams = {
@@ -13,12 +13,12 @@ export async function revertCommit(params: RevertCommitParams) {
   const data = JSON.stringify(params);
 
   const options = {
-    hostname: DEPLOY_SYNC_BOT_HOST,
+    hostname: GIT_BOT_HOST,
     port: 443,
     path: '/api/revert',
     method: 'POST',
     headers: {
-      'X-Signature': `sha1=${createSignature(data, DEPLOY_SYNC_BOT_SECRET)}`,
+      'X-Signature': `sha1=${createSignature(data, GIT_BOT_SECRET)}`,
       'Content-Type': 'application/json',
       'Content-Length': data.length,
     },

@@ -71,8 +71,8 @@ export const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
 
 /**
- * Deploy Sync Bot
+ * sentry/getsentry Git Bot
  */
-export const DEPLOY_SYNC_BOT_HOST =
+export const GIT_BOT_HOST =
   'sentry-deploy-sync-hook-staging-dwunkkvj6a-uc.a.run.app';
-export const DEPLOY_SYNC_BOT_SECRET = process.env.DEPLOY_SYNC_BOT_SECRET || '';
+export const GIT_BOT_SECRET = process.env.GIT_BOT_SECRET || '';
