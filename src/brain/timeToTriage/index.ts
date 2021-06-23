@@ -13,7 +13,7 @@ import { getClient } from '@api/github/getClient';
 
 async function shouldSkip(payload, reasonsToSkip) {
   // Could do Promise-based async here, but that was getting complicated[1] and
-  // there's not really a performance concern (famout last words).
+  // there's not really a performance concern (famous last words).
   //
   // [1] https://github.com/getsentry/eng-pipes/pull/212#discussion_r657365585
 
