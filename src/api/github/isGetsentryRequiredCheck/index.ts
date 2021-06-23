@@ -12,9 +12,9 @@ export function isGetsentryRequiredCheck({
   payload,
 }: EmitterWebhookEvent<'check_run'>) {
   // Only on `getsentry` repo
-  // if (payload.repository?.full_name !== 'getsentry/getsentry') {
-  // return false;
-  // }
+  if (payload.repository?.full_name !== 'getsentry/getsentry') {
+    return false;
+  }
 
   const { check_run: checkRun } = payload;
 
