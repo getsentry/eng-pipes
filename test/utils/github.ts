@@ -18,10 +18,10 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
   event: E,
   payload?: DeepPartial<EmitterWebhookEvent<E>['payload']>
 ) {
-  const [baseEvent, fullPayload] = hydrateGitHubEventAndPayload<E>(
-    event,
-    payload
-  );
+  const {
+    event: baseEvent,
+    payload: fullPayload,
+  } = hydrateGitHubEventAndPayload<E>(event, payload);
 
   const signature = createSignature(
     JSON.stringify(fullPayload),
@@ -62,5 +62,5 @@ export function hydrateGitHubEventAndPayload<
     defaultPayload.action = action;
   }
 
-  return [baseEvent, merge({}, defaultPayload, payload)];
+  return { event: baseEvent, payload: merge({}, defaultPayload, payload) };
 }
