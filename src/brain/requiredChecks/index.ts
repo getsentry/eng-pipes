@@ -453,6 +453,9 @@ export async function requiredChecks() {
     wrapHandler('actionRevertCommit', actionRevertCommit)
   );
 
+  /**
+   * After user confirms they want to revert a commit
+   */
   bolt.view('revert-commit-confirm', async ({ ack, view, body, client }) => {
     await ack();
 
@@ -467,9 +470,23 @@ export async function requiredChecks() {
         view.private_metadata
       );
 
+      // Notify the user in the original message thread that we are attempting to revert
+      const loadingMessage = await client.chat.postMessage({
+        channel: originalMessage.channel,
+        thread_ts: originalMessage.message.ts,
+        text: `:sentry-loading: <@${body.user.id}>, we are attempting to revert the commit...`,
+      });
+
       await revertCommit({
         ...commitData,
         name: `${body.user.name} via Slack${user ? ` <${user.email}>` : ''}`,
+      });
+
+      // Update the loading message
+      await client.chat.update({
+        channel: originalMessage.channel,
+        ts: `${loadingMessage.ts}`,
+        text: `:successkid: <@${body.user.id}>, the commit has been reverted.`,
       });
 
       // We semi-assume there is only one attachments block as we will not
