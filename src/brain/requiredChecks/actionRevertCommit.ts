@@ -7,7 +7,8 @@ export async function actionRevertCommit({
 }) {
   await ack();
 
-  const { sha, repo } = JSON.parse(payload.value);
+  const metadata = JSON.parse(payload.value);
+  const { sha, repo } = metadata;
 
   // Open a "loading" modal so that we can respond as soon as possible
   await client.views.open({
@@ -19,7 +20,17 @@ export async function actionRevertCommit({
       type: 'modal',
       // View identifier
       callback_id: 'revert-commit-confirm',
-      private_metadata: payload.value,
+      private_metadata: JSON.stringify({
+        ...metadata,
+        // Need to save reference to original message so we can remove the
+        // "Revert" button, once the commit is sucessfully reverted
+        originalMessage: {
+          message: body.message,
+          channel: body.container.channel_id,
+          attachmentId: body.container.attachment_id,
+          revertBlockId: action.block_id,
+        },
+      }),
       title: {
         type: 'plain_text',
         text: `Revert Commit`,

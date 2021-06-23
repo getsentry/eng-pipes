@@ -319,26 +319,26 @@ async function handler({
     conclusion.includes('missing')
   );
 
-  // if (
-  // missingJobs.length === failedJobs.length &&
-  // missingJobs.length >= (jobs?.length ?? 0) / 2
-  // ) {
-  // Sentry.withScope((scope) => {
-  // scope.setContext('Check Run', {
-  // id: checkRun.id,
-  // url: checkRun.html_url,
-  // sha: checkRun.head_sha,
-  // });
-  // scope.setContext('Required Checks - Missing Jobs', {
-  // missingJobs,
-  // });
-  // Sentry.startTransaction({
-  // op: 'debug',
-  // name: 'requiredChecks.missing',
-  // }).finish();
-  // });
-  // return;
-  // }
+  if (
+    missingJobs.length === failedJobs.length &&
+    missingJobs.length >= (jobs?.length ?? 0) / 2
+  ) {
+    Sentry.withScope((scope) => {
+      scope.setContext('Check Run', {
+        id: checkRun.id,
+        url: checkRun.html_url,
+        sha: checkRun.head_sha,
+      });
+      scope.setContext('Required Checks - Missing Jobs', {
+        missingJobs,
+      });
+      Sentry.startTransaction({
+        op: 'debug',
+        name: 'requiredChecks.missing',
+      }).finish();
+    });
+    return;
+  }
 
   const text = getTextParts(checkRun).join(' ');
   const jobsList = jobs
@@ -453,7 +453,7 @@ export async function requiredChecks() {
     wrapHandler('actionRevertCommit', actionRevertCommit)
   );
 
-  bolt.view('revert-commit-confirm', async ({ ack, view, body }) => {
+  bolt.view('revert-commit-confirm', async ({ ack, view, body, client }) => {
     await ack();
 
     // Attribute the revert to the Slack user that initiated it
@@ -463,13 +463,56 @@ export async function requiredChecks() {
 
     // TODO: Do we need to check that user has permissions?
     try {
-      const data = JSON.parse(view.private_metadata);
+      const { originalMessage, ...commitData } = JSON.parse(
+        view.private_metadata
+      );
+
       await revertCommit({
-        ...data,
-        name: `${body.user.name} via Slack <${user?.email}>`,
+        ...commitData,
+        name: `${body.user.name} via Slack${user ? ` <${user.email}>` : ''}`,
       });
-      // TODO: We may want to uipdate the original message to disable or remove the Revert Commit button
+
+      // We semi-assume there is only one attachments block as we will not
+      // update any other attachments.
+      //
+      // Ignore `id` and `fallback` properties
+      const {
+        id: _id,
+        fallback: _fallback,
+        ...attachment
+      } = originalMessage.message.attachments.find(
+        ({ id }) => String(id) === String(originalMessage.attachmentId)
+      );
+
+      // Remove the actions block where the Revert button is as it will be the only
+      // element there
+      const updatedBlocks = attachment.blocks.filter(
+        ({ block_id }) => block_id !== originalMessage.revertBlockId
+      );
+
+      // Find original message to remove the Revert button
+      // @ts-ignore - `text` is not actually required
+      await client.chat.update({
+        channel: originalMessage.channel,
+        ts: originalMessage.message.ts,
+        attachments: [
+          {
+            ...attachment,
+            blocks: [
+              ...updatedBlocks,
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: `**Update** Commit reverted by <@${body.user.id}>`,
+                },
+              },
+            ],
+          },
+        ],
+      });
     } catch (err) {
+      console.error(err);
       Sentry.captureException(err);
     }
   });
