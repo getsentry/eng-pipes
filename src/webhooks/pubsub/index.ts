@@ -15,7 +15,7 @@ import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
-const MAX_TRIAGE_TIME = 0.5 * DAY_IN_MS;
+const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
 
