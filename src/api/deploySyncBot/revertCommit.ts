@@ -27,12 +27,11 @@ export async function revertCommit(params: RevertCommitParams) {
   return await new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
       res.on('data', (d) => {
-        resolve(d.toString());
-      });
-      // TODO(billy): Will need to test if this happens
-      res.on('error', (error) => {
-        console.error(error);
-        reject(error);
+        if (res?.statusCode && res.statusCode < 400) {
+          resolve(d.toString());
+        } else {
+          reject(d.toString());
+        }
       });
     });
 
