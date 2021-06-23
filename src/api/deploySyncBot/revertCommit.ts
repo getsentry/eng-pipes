@@ -1,7 +1,7 @@
 import * as https from 'https';
 
-import {createSignature} from '@utils/createSignature';
-import { DEPLOY_SYNC_BOT_SECRET, DEPLOY_SYNC_BOT_HOST } from '@/config';
+import { DEPLOY_SYNC_BOT_HOST, DEPLOY_SYNC_BOT_SECRET } from '@/config';
+import { createSignature } from '@utils/createSignature';
 
 type RevertCommitParams = {
   sha: string;
@@ -26,10 +26,13 @@ export async function revertCommit(params: RevertCommitParams) {
 
   return await new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
-      console.log(`statusCode: ${res.statusCode}`, res);
-
       res.on('data', (d) => {
-        resolve(d);
+        resolve(d.toString());
+      });
+      // TODO(billy): Will need to test if this happens
+      res.on('error', (error) => {
+        console.error(error);
+        reject(error);
       });
     });
 
