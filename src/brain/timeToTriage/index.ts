@@ -5,7 +5,13 @@ import { githubEvents } from '@api/github';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK = new Set(['test-ttt-simple']);
+const REPOS_TO_TRACK = new Set([
+  'sentry-java',
+  'sentry-javascript',
+  'sentry-native',
+  'sentry-python',
+  'test-ttt-simple',
+]);
 import { UNTRIAGED_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
 
