@@ -62,14 +62,14 @@ const getRoutingTimestamp = async (
   repo: string,
   issue_number: number
 ) => {
-  const { data } = await octokit.issues.listEvents({
+  const issues = await octokit.paginate(octokit.issues.listEvents, {
     owner: OWNER,
     repo,
     issue_number,
     per_page: GH_API_PER_PAGE,
   });
 
-  const routingEvents = data.filter(
+  const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
       event.event === 'labeled' && event.label.name === UNTRIAGED_LABEL
@@ -112,7 +112,7 @@ export const handler = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    const { data: untriagedIssues } = await octokit.issues.listForRepo({
+    const untriagedIssues = await octokit.paginate(octokit.issues.listForRepo, {
       owner: OWNER,
       repo,
       state: 'open',
