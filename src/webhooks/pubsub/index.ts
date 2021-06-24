@@ -57,11 +57,11 @@ const getIssueTeamLabel = (issue: { labels: { name: string }[] }) =>
   issue.labels.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX))
     ?.name || DEFAULT_TEAM_LABEL;
 
-async function getRoutingTimestamp(
+const getRoutingTimestamp = async (
   octokit: Octokit,
   repo: string,
   issue_number: number
-) {
+) => {
   const { data } = await octokit.issues.listEvents({
     owner: OWNER,
     repo,
@@ -76,7 +76,7 @@ async function getRoutingTimestamp(
   );
   const lastRouteEvent = routingEvents[routingEvents.length - 1];
   return Date.parse(lastRouteEvent.created_at);
-}
+};
 
 export const handler = async (
   request: FastifyRequest,
