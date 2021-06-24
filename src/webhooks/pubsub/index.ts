@@ -104,7 +104,7 @@ export const handler = async (
   const SLO = payload.slo || MAX_TRIAGE_TIME;
   const now = Date.now();
 
-  // 1. Get all open & untriaged issues
+  // 1. Get all open, untriaged issues
   // 2. Get all the events for each of the remaining issues
   // 3. Find the latest `label` event for the UNTRIAGED_LABEL
   // 4. Get the time elapsed since that latest labeling event above
