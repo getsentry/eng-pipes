@@ -158,7 +158,7 @@ export const handler = async (
       notificationChannels[teamLabel].map((channel) =>
         bolt.client.chat.postMessage({
           channel,
-          text: `⚠ Issue getting close to violate triage time SLO: <${url}|#${number} ${title}>`,
+          text: `⚠ Issue about to violate time-to-triage SLO: <${url}|#${number} ${title}>`,
         })
       )
   );
