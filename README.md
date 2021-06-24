@@ -109,7 +109,7 @@ yarn test
 ### Setup Secrets
 
 The following secrets are configured in GitHub for this app to function and to deploy to Google.
-You can grab GitHub and Slack secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools) and the [Slack App](https://api.slack.com/apps/ASUD2NK2S/general?)
+You can grab GitHub and Slack secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry) and the [Slack App](https://api.slack.com/apps/ASUD2NK2S/general?)
 
 You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
 
@@ -152,7 +152,7 @@ You'll also need to create a private key for the service account (it should down
 
 This section only matters if you want to gather metrics from other projects than the ones we currently do.
 
-Install [the Github application](https://github.com/organizations/getsentry/settings/apps/sentry-internal-tools/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
+Install [the Github application](https://github.com/organizations/getsentry/settings/apps/getsantry/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
 
 ### Deploying
 
