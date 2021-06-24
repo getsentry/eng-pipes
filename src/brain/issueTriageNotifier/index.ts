@@ -45,7 +45,7 @@ export const githubLabelHandler = async ({
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ Issue pending triage: <https://github.com/${repository.full_name}/issues/${issue.number}|#${issue.number} ${issue.title}>`,
+        text: `⏲ Issue pending triage: <${issue.html_url}|#${issue.number} ${issue.title}>`,
         channel,
       })
     )

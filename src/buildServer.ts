@@ -12,6 +12,7 @@ import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { loadBrain } from '@utils/loadBrain';
 
+import * as PubSub from './webhooks/pubsub';
 import { SENTRY_DSN } from './config';
 
 export async function buildServer(
@@ -63,6 +64,10 @@ export async function buildServer(
   // filesystem/module-space based on service name) rather than through a
   // middleware/event abstraction layer.
   server.post('/metrics/:service/webhook', {}, WebhookRouter(server));
+
+  // Endpoint for Google PubSub events
+  // TODO: Unify all these webhooks URL patterns!
+  server.post('/webhooks/pubsub', PubSub.opts, PubSub.handler);
 
   return server;
 }
