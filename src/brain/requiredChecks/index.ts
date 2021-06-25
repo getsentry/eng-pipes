@@ -489,7 +489,7 @@ export async function requiredChecks() {
         }),
         client.chat.postMessage({
           channel: originalMessage.channel,
-          thread_ts: `${loadingMessage.ts}`,
+          thread_ts: `${originalMessage.message.ts}`,
           text: `<@${body.user.id}>, there was an error reverting the commit.`,
         }),
       ]);
@@ -507,7 +507,7 @@ export async function requiredChecks() {
       }),
       client.chat.postMessage({
         channel: originalMessage.channel,
-        thread_ts: `${loadingMessage.ts}`,
+        thread_ts: `${originalMessage.message.ts}`,
         text: `<@${body.user.id}>, the commit has been reverted :successkid:`,
       }),
     ]);
