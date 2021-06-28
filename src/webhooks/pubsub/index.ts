@@ -133,13 +133,15 @@ export const handler = async (
     return Promise.all(issuesWithSLOInfo);
   };
 
-  const issuesOverSLO = (await Promise.all(repos.map(getIssueSLOInfoForRepo)))
+  const issuesToNotifyAbout = (
+    await Promise.all(repos.map(getIssueSLOInfoForRepo))
+  )
     .flat()
     .filter((data) => data.waitTime >= SLO - EARLY_WARNING_TIME);
 
   // Get an N-to-N mapping of `Team: *` labels to Slack Channels
   const teamsToNotify = new Set(
-    issuesOverSLO.map((data) => data.teamLabel)
+    issuesToNotifyAbout.map((data) => data.teamLabel)
   ) as Set<string>;
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
@@ -153,7 +155,7 @@ export const handler = async (
   }, {});
 
   // Notify all channels associated with the relevant `Team: *` label per issue
-  const notifications = issuesOverSLO.flatMap(
+  const notifications = issuesToNotifyAbout.flatMap(
     ({ url, number, title, teamLabel, waitTime }) =>
       notificationChannels[teamLabel].map((channel) =>
         bolt.client.chat.postMessage({
