@@ -16,6 +16,7 @@ import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
+const EARLY_WARNING_TIME = 1 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
 
@@ -30,7 +31,7 @@ type IssueSLOInfo = {
   number: number;
   title: string;
   teamLabel: string;
-  overSLO: boolean;
+  waitTime: number;
 };
 
 export const opts = {
@@ -126,8 +127,7 @@ export const handler = async (
       title: issue.title,
       teamLabel: getIssueTeamLabel(issue),
       // TODO(byk): Make this business days (at least weekend-aware)
-      overSLO:
-        now - (await getRoutingTimestamp(octokit, repo, issue.number)) >= SLO,
+      waitTime: now - (await getRoutingTimestamp(octokit, repo, issue.number)),
     }));
 
     return Promise.all(issuesWithSLOInfo);
@@ -135,7 +135,7 @@ export const handler = async (
 
   const issuesOverSLO = (await Promise.all(repos.map(getIssueSLOInfoForRepo)))
     .flat()
-    .filter((data) => data.overSLO);
+    .filter((data) => data.waitTime >= SLO - EARLY_WARNING_TIME);
 
   // Get an N-to-N mapping of `Team: *` labels to Slack Channels
   const teamsToNotify = new Set(
@@ -154,11 +154,13 @@ export const handler = async (
 
   // Notify all channels associated with the relevant `Team: *` label per issue
   const notifications = issuesOverSLO.flatMap(
-    ({ url, number, title, teamLabel }) =>
+    ({ url, number, title, teamLabel, waitTime }) =>
       notificationChannels[teamLabel].map((channel) =>
         bolt.client.chat.postMessage({
           channel,
-          text: `⚠ Issue about to violate time-to-triage SLO: <${url}|#${number} ${title}>`,
+          text: `⚠ Issue ${
+            waitTime < SLO ? 'about to violate' : 'is violating'
+          } time-to-triage SLO: <${url}|#${number} ${title}>`,
         })
       )
   );
