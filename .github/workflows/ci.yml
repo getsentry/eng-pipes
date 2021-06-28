@@ -21,6 +21,7 @@ on:
       - 'src/**/*.ts'
       - 'tsconfig.json'
       - 'yarn.lock'
+      - 'bin/deploy.sh'
   pull_request:
     branches:
       - main
