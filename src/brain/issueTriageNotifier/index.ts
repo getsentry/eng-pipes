@@ -55,7 +55,7 @@ export const githubLabelHandler = async ({
 // /notify-for-triage`: List all team label subscriptions
 // /notify-for-triage <name>`: Subscribe to all untriaged issues for `Team: <name>` label
 // /notify-for-triage -<name>`: Unsubscribe from untriaged issues for `Team: <name>` label
-export const slackHandler = async ({ command, ack, say, client }) => {
+export const slackHandler = async ({ command, ack, say, respond, client }) => {
   const pending: Promise<unknown>[] = [];
   // Acknowledge command request
   pending.push(ack());
@@ -76,10 +76,33 @@ export const slackHandler = async ({ command, ack, say, client }) => {
   } else {
     const op = args.op || '+';
     const label_name = `Team: ${args.label}`;
+    let channelInfo;
     let result;
 
     switch (op) {
       case '+':
+        try {
+          channelInfo = await client.conversations.info({
+            channel: channel_id,
+          });
+        } catch (err) {
+          if (err.data.error === 'channel_not_found') {
+            pending.push(
+              respond({
+                response_type: 'ephemeral',
+                text: `You need to invite me to the channel as it is private.`,
+              })
+            );
+            break;
+          } else {
+            throw err;
+          }
+        }
+
+        if (!channelInfo.channel.is_member) {
+          await client.conversations.join({ channel: channel_id });
+        }
+
         result = await getLabelsTable()
           .insert(
             {
@@ -93,16 +116,16 @@ export const slackHandler = async ({ command, ack, say, client }) => {
 
         if (result.length > 0) {
           pending.push(
-            client.conversations.join({ channel: channel_id }),
             say(
-              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channel_name}).`
+              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}).`
             )
           );
         } else {
           pending.push(
-            say(
-              `This channel (${channel_name}) is already subscribed to '${label_name}'.`
-            )
+            respond({
+              response_type: 'ephemeral',
+              text: `This channel (${channel_name}) is already subscribed to '${label_name}'.`,
+            })
           );
         }
         break;
