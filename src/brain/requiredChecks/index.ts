@@ -360,46 +360,14 @@ async function handler({
           color: Color.DANGER,
           blocks: [
             ...commitBlocks,
-            // ...(relevantCommit
-            // ? [
-            // {
-            // type: 'actions',
-            // // @ts-ignore
-            // elements: [
-            // revertCommitBlock({
-            // sha: relevantCommit?.sha
-            // repo:
-            // relevantCommit?.sha === checkRun.head_sha
-            // ? 'getsentry'
-            // : 'sentry',
-            // }),
-            // ],
-            // },
-            // ]
-            // : []),
-          ],
-        },
-      ],
-    }));
-
-  // XXX: This is just temporary
-  if (!existingFailureMessage && process.env.NODE_ENV !== 'test') {
-    await bolt.client.chat.postMessage({
-      channel: '#z-billy',
-      text,
-      attachments: [
-        {
-          color: Color.DANGER,
-          blocks: [
-            ...commitBlocks,
-            ...(relevantCommit || checkRun.head_sha
+            ...(relevantCommit
               ? [
                   {
                     type: 'actions',
                     // @ts-ignore
                     elements: [
                       revertCommitBlock({
-                        sha: relevantCommit?.sha || checkRun.head_sha,
+                        sha: relevantCommit?.sha,
                         repo:
                           relevantCommit?.sha === checkRun.head_sha
                             ? 'getsentry'
@@ -412,8 +380,7 @@ async function handler({
           ],
         },
       ],
-    });
-  }
+    }));
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage) {

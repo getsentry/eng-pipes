@@ -212,6 +212,22 @@ describe('requiredChecks', function () {
               ],
               "type": "context",
             },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "revert-commit",
+                  "style": "danger",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "Revert Commit",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "{\\"sha\\":\\"88c22a29176df64cfc027637a5ccfd9da1544e9f\\",\\"repo\\":\\"sentry\\"}",
+                },
+              ],
+              "type": "actions",
+            },
           ],
           "color": "#F55459",
         },
@@ -451,6 +467,22 @@ describe('requiredChecks', function () {
                 },
               ],
               "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "revert-commit",
+                  "style": "danger",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "Revert Commit",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "{\\"sha\\":\\"6d225cb77225ac655d817a7551a26fff85090fe6\\",\\"repo\\":\\"getsentry\\"}",
+                },
+              ],
+              "type": "actions",
             },
           ],
           "color": "#F55459",
