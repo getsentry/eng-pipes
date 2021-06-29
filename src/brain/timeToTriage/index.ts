@@ -6,10 +6,14 @@ import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK = new Set([
+  'craft',
+  'onpremise',
+  'responses',
   'sentry-java',
   'sentry-javascript',
   'sentry-native',
   'sentry-python',
+  'symbolic',
   'test-ttt-simple',
 ]);
 import { UNTRIAGED_LABEL } from '@/config';
