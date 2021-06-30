@@ -40,30 +40,6 @@ describe('timeToTriage', function () {
     octokit.issues._labels.add(UNTRIAGED_LABEL);
   }
 
-  function expectUntriaged() {
-    expect(octokit.issues._labels).toContain(UNTRIAGED_LABEL);
-  }
-
-  function expectTriaged() {
-    expect(octokit.issues._labels).not.toContain(UNTRIAGED_LABEL);
-  }
-
-  function expectRemoval() {
-    expect(octokit.issues.removeLabel).toBeCalled();
-  }
-
-  function expectNoRemoval() {
-    expect(octokit.issues.removeLabel).not.toBeCalled();
-  }
-
-  function expectAdding() {
-    expect(octokit.issues.addLabels).toBeCalled();
-  }
-
-  function expectNoAdding() {
-    expect(octokit.issues.addLabels).not.toBeCalled();
-  }
-
   function makePayload(repo: ?string, label: ?string, sender: ?string) {
     repo = repo || 'test-ttt-simple';
 
@@ -98,6 +74,32 @@ describe('timeToTriage', function () {
       'issues.labeled',
       makePayload(repo, label)
     );
+  }
+
+  // Expecters
+
+  function expectUntriaged() {
+    expect(octokit.issues._labels).toContain(UNTRIAGED_LABEL);
+  }
+
+  function expectTriaged() {
+    expect(octokit.issues._labels).not.toContain(UNTRIAGED_LABEL);
+  }
+
+  function expectRemoval() {
+    expect(octokit.issues.removeLabel).toBeCalled();
+  }
+
+  function expectNoRemoval() {
+    expect(octokit.issues.removeLabel).not.toBeCalled();
+  }
+
+  function expectAdding() {
+    expect(octokit.issues.addLabels).toBeCalled();
+  }
+
+  function expectNoAdding() {
+    expect(octokit.issues.addLabels).not.toBeCalled();
   }
 
   // Test cases
