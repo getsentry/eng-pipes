@@ -5,12 +5,13 @@ const githubEvents = new Webhooks({
   secret: process.env.GH_WEBHOOK_SECRET,
 });
 
-githubEvents.onError((err) => {
+// Set up default error handling in such a way that tests can override it.
+githubEvents.defaultErrorHandler = (error) => {
   if (process.env.ENV !== 'production') {
-    console.error(err);
+    console.error(error);
   }
-
-  Sentry.captureException(err);
-});
+  Sentry.captureException(error);
+};
+githubEvents.onError(githubEvents.defaultErrorHandler);
 
 export { githubEvents };

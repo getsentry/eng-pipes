@@ -12,12 +12,16 @@ import { timeToTriage } from '.';
 describe('timeToTriage', function () {
   let fastify: Fastify;
   let octokit;
+  const errors = jest.fn();
 
   beforeAll(async function () {
     await db.migrate.latest();
+    githubEvents.removeListener('error', githubEvents.defaultErrorHandler);
+    githubEvents.onError(errors);
   });
 
   afterAll(async function () {
+    githubEvents.onError(githubEvents.defaultErrorHandler);
     await db.destroy();
   });
 
@@ -32,12 +36,26 @@ describe('timeToTriage', function () {
     octokit.issues._labels = new Set([]);
     octokit.issues.addLabels.mockClear();
     octokit.issues.removeLabel.mockClear();
+    errors.mockClear();
   });
 
   // Helpers
 
+  function triage() {
+    octokit.issues._labels.delete(UNTRIAGED_LABEL);
+  }
+
   function untriage() {
     octokit.issues._labels.add(UNTRIAGED_LABEL);
+  }
+
+  function removeThrows(status) {
+    octokit.issues.removeLabel.mockImplementationOnce(async () => {
+      if (status === 404) {
+        triage(); // pretend a previous attempt succeeded
+      }
+      throw { status };
+    });
   }
 
   function makePayload(repo: ?string, label: ?string, sender: ?string) {
@@ -102,6 +120,14 @@ describe('timeToTriage', function () {
     expect(octokit.issues.addLabels).not.toBeCalled();
   }
 
+  function expectError(status) {
+    expect(errors.mock.calls[0][0].event.status).toBe(status);
+  }
+
+  function expectNoError() {
+    expect(errors.mock.calls.length).toBe(0);
+  }
+
   // Test cases
 
   // adding
@@ -158,5 +184,23 @@ describe('timeToTriage', function () {
     await addLabel('Cheeseburger Pie', 'other-repo');
     expectUntriaged();
     expectNoRemoval();
+  });
+
+  it('gracefully handles race with other remover of `Status: Untriaged`', async function () {
+    untriage();
+    removeThrows(404);
+    await addLabel('Cheeseburger Pie');
+    expectNoError();
+    expectTriaged();
+    expectRemoval();
+  });
+
+  it("doesn't handle non-404 errors when removing `Status: Untriaged`", async function () {
+    untriage();
+    removeThrows(400);
+    await addLabel('Cheeseburger Pie');
+    expectError(400);
+    expectUntriaged();
+    expectRemoval();
   });
 });
