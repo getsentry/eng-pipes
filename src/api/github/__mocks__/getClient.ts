@@ -1,3 +1,5 @@
+import { MockOctokitError } from './mockError';
+
 function mockClient() {
   return {
     actions: {
@@ -28,7 +30,7 @@ function mockClient() {
             status = 404;
           }
         }
-        throw { status };
+        throw new MockOctokitError(status);
       }),
     },
     pulls: {
