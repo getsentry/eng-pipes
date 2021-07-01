@@ -113,25 +113,24 @@ async function markTriaged({
   // Remove Untriaged label when triaged.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(owner);
-  await octokit.issues
-    .removeLabel({
+  try {
+    await octokit.issues.removeLabel({
       owner: owner,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
       name: UNTRIAGED_LABEL,
-    })
-    .catch((error) => {
-      if (error.status === 404) {
-        // The label has already been removed. This can happen pretty easily if
-        // a user adds two labels roughly simultaneously, because then we get
-        // two labeled events and we end up with a race condition. We can
-        // safely ignore because the label has been removed and that's all we
-        // ever really wanted in life.
-
-        return;
-      }
-      throw error;
     });
+  } catch (error) {
+    if (error.status === 404) {
+      // The label has already been removed. This can happen pretty easily if
+      // a user adds two labels roughly simultaneously, because then we get
+      // two labeled events and we end up with a race condition. We can
+      // safely ignore because the label has been removed and that's all we
+      // ever really wanted in life.
+    } else {
+      throw error;
+    }
+  }
 
   tx.finish();
 }

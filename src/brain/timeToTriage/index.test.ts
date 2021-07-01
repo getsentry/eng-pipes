@@ -121,7 +121,7 @@ describe('timeToTriage', function () {
   }
 
   function expectError(status) {
-    expect(errors.mock.calls[0][0].event.status).toBe(status);
+    expect(errors.mock.calls[0][0].errors[0].status).toBe(status);
   }
 
   function expectNoError() {
