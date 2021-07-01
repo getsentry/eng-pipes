@@ -4,6 +4,7 @@ import { buildServer } from '@/buildServer';
 import { UNTRIAGED_LABEL } from '@/config';
 import { Fastify } from '@/types';
 import { githubEvents } from '@api/github';
+import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
@@ -54,7 +55,7 @@ describe('timeToTriage', function () {
       if (status === 404) {
         triage(); // pretend a previous attempt succeeded
       }
-      throw { status };
+      throw new MockOctokitError(status);
     });
   }
 
