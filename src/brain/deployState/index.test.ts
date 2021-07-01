@@ -6,7 +6,7 @@ import * as utils from '@utils/db';
 import { deployState } from '.';
 
 function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 5));
+  return new Promise((resolve) => setTimeout(resolve, 10));
 }
 
 describe('deployState', function () {
