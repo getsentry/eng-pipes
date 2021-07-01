@@ -22,6 +22,7 @@ describe('timeToTriage', function () {
   });
 
   afterAll(async function () {
+    githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
     await db.destroy();
   });
@@ -95,7 +96,7 @@ describe('timeToTriage', function () {
     );
   }
 
-  // Expecters
+  // Expectations
 
   function expectUntriaged() {
     expect(octokit.issues._labels).toContain(UNTRIAGED_LABEL);
@@ -127,7 +128,7 @@ describe('timeToTriage', function () {
   }
 
   function expectNoError() {
-    expect(errors.mock.calls.length).toBe(0);
+    expect(errors).not.toHaveBeenCalled();
   }
 
   // Test cases
