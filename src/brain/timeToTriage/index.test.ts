@@ -122,6 +122,7 @@ describe('timeToTriage', function () {
   }
 
   function expectError(status) {
+    // TODO: Refactor suite to unit test the handlers so we can use jest expect.toThrow.
     expect(errors.mock.calls[0][0].errors[0].status).toBe(status);
   }
 
