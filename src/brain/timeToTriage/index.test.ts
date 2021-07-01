@@ -3,7 +3,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import { UNTRIAGED_LABEL } from '@/config';
 import { Fastify } from '@/types';
-import { githubEvents } from '@api/github';
+import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
@@ -17,12 +17,12 @@ describe('timeToTriage', function () {
 
   beforeAll(async function () {
     await db.migrate.latest();
-    githubEvents.removeListener('error', githubEvents.defaultErrorHandler);
+    githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
   });
 
   afterAll(async function () {
-    githubEvents.onError(githubEvents.defaultErrorHandler);
+    githubEvents.onError(defaultErrorHandler);
     await db.destroy();
   });
 
