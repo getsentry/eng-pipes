@@ -10,6 +10,7 @@ const REPOS_TO_TRACK = new Set([
   'cdc',
   'craft',
   'onpremise',
+  'relay',
   'responses',
   'sentry-java',
   'sentry-javascript',
@@ -18,6 +19,7 @@ const REPOS_TO_TRACK = new Set([
   'snuba',
   'snuba-sdk',
   'symbolic',
+  'symbolicator',
   'test-ttt-simple',
   'wal2json',
 ]);
