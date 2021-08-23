@@ -161,7 +161,7 @@ export async function handler(payload: FreightPayload) {
                 message.context.target
                   ? `<@${message.context.target}>, your`
                   : 'Your'
-              } commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues.`,
+              } commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues. Specifically scroll down to New Issues to see if you introduced any.`,
               attachments: [
                 {
                   color: progressColor,
