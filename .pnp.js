@@ -2875,7 +2875,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["get-value", "npm:2.0.6"],
             ["has-value", "npm:1.0.0"],
             ["isobject", "npm:3.0.1"],
-            ["set-value", "npm:2.0.1"],
+            ["set-value", "npm:4.1.0"],
             ["to-object-path", "npm:0.3.0"],
             ["union-value", "npm:1.0.1"],
             ["unset-value", "npm:1.0.0"]
@@ -6016,6 +6016,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/is-potential-custom-element-name-npm-1.0.0-0000641861-55b1ae44cf.zip/node_modules/is-potential-custom-element-name/",
           "packageDependencies": [
             ["is-potential-custom-element-name", "npm:1.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["is-primitive", [
+        ["npm:3.0.1", {
+          "packageLocation": "./.yarn/cache/is-primitive-npm-3.0.1-fee1052bb5-401b9a0e2f.zip/node_modules/is-primitive/",
+          "packageDependencies": [
+            ["is-primitive", "npm:3.0.1"]
           ],
           "linkType": "HARD",
         }]
@@ -9748,14 +9757,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["set-value", [
-        ["npm:2.0.1", {
-          "packageLocation": "./.yarn/cache/set-value-npm-2.0.1-35da5f8180-a97a99a00c.zip/node_modules/set-value/",
+        ["npm:4.1.0", {
+          "packageLocation": "./.yarn/cache/set-value-npm-4.1.0-c7a3c25411-bdbc3a2e3d.zip/node_modules/set-value/",
           "packageDependencies": [
-            ["set-value", "npm:2.0.1"],
-            ["extend-shallow", "npm:2.0.1"],
-            ["is-extendable", "npm:0.1.1"],
+            ["set-value", "npm:4.1.0"],
             ["is-plain-object", "npm:2.0.4"],
-            ["split-string", "npm:3.1.0"]
+            ["is-primitive", "npm:3.0.1"]
           ],
           "linkType": "HARD",
         }]
@@ -10860,7 +10867,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["arr-union", "npm:3.1.0"],
             ["get-value", "npm:2.0.6"],
             ["is-extendable", "npm:0.1.1"],
-            ["set-value", "npm:2.0.1"]
+            ["set-value", "npm:4.1.0"]
           ],
           "linkType": "HARD",
         }]
