@@ -90,7 +90,7 @@ async function handler({
       // a new commit has fixed the broken build.
       //
       // Assume that the oldest failing build has been fixed, but the status of the builds in between should be unknown
-      const failedMessages = await getFailureMessages(null);
+      const failedMessages = await getFailureMessages(null, checkRun.head_sha);
 
       if (!failedMessages.length) {
         // Nothing to do, just a normal test passing
