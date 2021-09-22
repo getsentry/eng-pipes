@@ -172,5 +172,3 @@ jobs:
         with:
           environment: 'production'
           sourcemaps: './lib'
-          started_at: ${{ steps.deploy.outputs.deploy-start }}
-          version: ${{ env.VERSION }}
