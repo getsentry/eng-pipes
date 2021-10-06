@@ -274,42 +274,8 @@ describe('updateDeployNotifications', function () {
     expect(bolt.client.chat.postMessage.mock.calls[0][0])
       .toMatchInlineSnapshot(`
       Object {
-        "attachments": Array [
-          Object {
-            "blocks": Array [
-              Object {
-                "elements": Array [
-                  Object {
-                    "action_id": "open-sentry-release-js",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "javascript",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "url": "https://sentry.io/organizations/sentry/releases/c88d886ba52bd85431052abaef4916469f7db2e8/?project=11276",
-                    "value": "js-release",
-                  },
-                  Object {
-                    "action_id": "open-sentry-release-py",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "sentry",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "url": "https://sentry.io/organizations/sentry/releases/c88d886ba52bd85431052abaef4916469f7db2e8/?project=1",
-                    "value": "py-release",
-                  },
-                ],
-                "type": "actions",
-              },
-            ],
-            "color": "#33BF9E",
-          },
-        ],
         "channel": "channel_id",
-        "text": "<@U789123>, your commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues. Specifically scroll down to New Issues to see if you introduced any.",
+        "text": "<@U789123>, your commit has been deployed. **Note** This message is now deprecated as this feature is now native to Sentry. <https://sentry.io/settings/account/notifications/|Configure your Sentry deploy notifications here>",
         "thread_ts": "1234123.123",
       }
     `);
