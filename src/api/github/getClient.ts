@@ -1,10 +1,13 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
+import { retry } from '@octokit/plugin-retry';
 
 const _INSTALLATION_CACHE = new Map();
 
 function _getClient(installationId?: number) {
-  return new Octokit({
+  const OctokitWithRetries = Octokit.plugin(retry);
+
+  return new OctokitWithRetries({
     authStrategy: createAppAuth,
     auth: {
       // Initialize GitHub App with id:private_key pair and generate JWT which is used for

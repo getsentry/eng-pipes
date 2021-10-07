@@ -804,6 +804,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/plugin-retry@npm:^3.0.9":
+  version: 3.0.9
+  resolution: "@octokit/plugin-retry@npm:3.0.9"
+  dependencies:
+    "@octokit/types": ^6.0.3
+    bottleneck: ^2.15.3
+  checksum: 8b171267b9929d0dc103dce146de86baffd397362c8a40434e94f30aaa400394645d53f712f2c7433fc9ab36f60a852a6bc3717784d30a45241b2688d4ba163c
+  languageName: node
+  linkType: hard
+
 "@octokit/request-error@npm:^2.0.0, @octokit/request-error@npm:^2.0.2":
   version: 2.0.5
   resolution: "@octokit/request-error@npm:2.0.5"
@@ -2154,6 +2164,13 @@ __metadata:
     raw-body: 2.4.0
     type-is: ~1.6.17
   checksum: 18c2a81df5eabc7e3541bc9ace394b88e6fbd390989b5e764ff34c3f9dbd097e19986c31baa9b855ec5c2cff2b79157449afb0cdfb97bb99c11d6239b2c47a34
+  languageName: node
+  linkType: hard
+
+"bottleneck@npm:^2.15.3":
+  version: 2.19.5
+  resolution: "bottleneck@npm:2.19.5"
+  checksum: 712d8cf9edabdc0ed02ac03c45f0fc1f033b9e57855584d86b64510adabee7ceb18658d712e2bb6f8c11facda85bfcba01e8df3d05b01dfbbe8f81ca4ab610d5
   languageName: node
   linkType: hard
 
@@ -8239,6 +8256,7 @@ __metadata:
   dependencies:
     "@google-cloud/bigquery": ^5.3.0
     "@octokit/auth-app": ^2.11.0
+    "@octokit/plugin-retry": ^3.0.9
     "@octokit/rest": ^18.1.1
     "@octokit/types": ^6.8.5
     "@octokit/webhooks": ^8.4.0

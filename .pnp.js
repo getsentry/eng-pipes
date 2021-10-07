@@ -39,6 +39,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@google-cloud/bigquery", "npm:5.3.0"],
             ["@octokit/auth-app", "npm:2.11.0"],
+            ["@octokit/plugin-retry", "npm:3.0.9"],
             ["@octokit/rest", "npm:18.1.1"],
             ["@octokit/types", "npm:6.8.5"],
             ["@octokit/webhooks", "npm:8.4.0"],
@@ -1109,6 +1110,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packagePeers": [
             "@octokit/core",
             "@types/octokit__core"
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@octokit/plugin-retry", [
+        ["npm:3.0.9", {
+          "packageLocation": "./.yarn/cache/@octokit-plugin-retry-npm-3.0.9-e9404388ef-8b171267b9.zip/node_modules/@octokit/plugin-retry/",
+          "packageDependencies": [
+            ["@octokit/plugin-retry", "npm:3.0.9"],
+            ["@octokit/types", "npm:6.8.5"],
+            ["bottleneck", "npm:2.19.5"]
           ],
           "linkType": "HARD",
         }]
@@ -2741,6 +2753,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["qs", "npm:6.7.0"],
             ["raw-body", "npm:2.4.0"],
             ["type-is", "npm:1.6.18"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["bottleneck", [
+        ["npm:2.19.5", {
+          "packageLocation": "./.yarn/cache/bottleneck-npm-2.19.5-2c6092aa17-712d8cf9ed.zip/node_modules/bottleneck/",
+          "packageDependencies": [
+            ["bottleneck", "npm:2.19.5"]
           ],
           "linkType": "HARD",
         }]
@@ -9686,6 +9707,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["sentry-development-metrics", "workspace:."],
             ["@google-cloud/bigquery", "npm:5.3.0"],
             ["@octokit/auth-app", "npm:2.11.0"],
+            ["@octokit/plugin-retry", "npm:3.0.9"],
             ["@octokit/rest", "npm:18.1.1"],
             ["@octokit/types", "npm:6.8.5"],
             ["@octokit/webhooks", "npm:8.4.0"],
