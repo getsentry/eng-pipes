@@ -161,41 +161,7 @@ export async function handler(payload: FreightPayload) {
                 message.context.target
                   ? `<@${message.context.target}>, your`
                   : 'Your'
-              } commit has been deployed. Please check the Sentry Releases linked below to make sure there are no issues. Specifically scroll down to New Issues to see if you introduced any.`,
-              attachments: [
-                {
-                  color: progressColor,
-                  blocks: [
-                    {
-                      type: 'actions',
-                      elements: [
-                        {
-                          type: 'button',
-                          text: {
-                            type: 'plain_text',
-                            text: 'javascript',
-                            emoji: true,
-                          },
-                          url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=11276`,
-                          value: 'js-release',
-                          action_id: 'open-sentry-release-js',
-                        },
-                        {
-                          type: 'button',
-                          text: {
-                            type: 'plain_text',
-                            text: 'sentry',
-                            emoji: true,
-                          },
-                          url: `https://sentry.io/organizations/sentry/releases/${payload.sha}/?project=1`,
-                          value: 'py-release',
-                          action_id: 'open-sentry-release-py',
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
+              } commit has been deployed. **Note** This message is now deprecated as this feature is now native to Sentry. <https://sentry.io/settings/account/notifications/|Configure your Sentry deploy notifications here>`,
             }),
           ]
         : []),
