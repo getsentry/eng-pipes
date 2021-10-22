@@ -318,7 +318,7 @@ describe('updateDeployNotifications', function () {
               Object {
                 "elements": Array [
                   Object {
-                    "action_id": "freight-deploy",
+                    "action_id": "freight-deploy: getsentry",
                     "style": "primary",
                     "text": Object {
                       "emoji": true,

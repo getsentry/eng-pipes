@@ -2,10 +2,11 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@/api/github';
+import { getChangedStack } from '@/api/github/getChangedStack';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
-import { Color, GETSENTRY_REPO, OWNER } from '@/config';
+import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
@@ -84,8 +85,20 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
+  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
+  // sha differs, it means that the relevantCommit is on the sentry repo
+  const relevantCommitRepo =
+    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
+
+  // If the commit contains only frontend changes, link user to deploy the
+  // `getsentry-frontend` Freight app
+  const { isFrontendOnly } = await getChangedStack(
+    relevantCommit.sha,
+    relevantCommitRepo
+  );
+
   const actions = [
-    freightDeploy(commit),
+    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry'),
     viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];
@@ -140,7 +153,7 @@ export async function pleaseDeployNotifier() {
   githubEvents.on('check_run', handler);
 
   // We need to respond to button clicks, otherwise it will display a warning message
-  bolt.action('freight-deploy', async ({ ack, body }) => {
+  bolt.action(/freight-deploy:(.*)/, async ({ ack, body, context }) => {
     await ack();
     Sentry.withScope(async (scope) => {
       scope.setUser({
@@ -148,7 +161,7 @@ export async function pleaseDeployNotifier() {
       });
       const tx = Sentry.startTransaction({
         op: 'slack.action',
-        name: 'freight-deploy',
+        name: `freight-deploy: ${context.actionIdMatches[1]}`,
       });
       tx.finish();
     });
