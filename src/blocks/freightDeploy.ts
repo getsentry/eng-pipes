@@ -1,4 +1,7 @@
-export function freightDeploy(commit: string) {
+export function freightDeploy(
+  commit: string,
+  app: 'getsentry' | 'getsentry-frontend' = 'getsentry'
+) {
   return {
     type: 'button',
     style: 'primary',
@@ -8,7 +11,7 @@ export function freightDeploy(commit: string) {
       emoji: true,
     },
     value: commit,
-    url: 'https://freight.getsentry.net/deploy?app=getsentry',
-    action_id: 'freight-deploy',
+    url: `https://freight.getsentry.net/deploy?app=${app}`,
+    action_id: `freight-deploy: ${app}`,
   };
 }

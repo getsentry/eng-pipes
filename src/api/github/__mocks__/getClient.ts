@@ -6,6 +6,9 @@ function mockClient() {
       listWorkflowRunsForRepo: jest.fn(),
       cancelWorkflowRun: jest.fn(),
     },
+    checks: {
+      listForRef: jest.fn(),
+    },
     git: {
       getCommit: jest.fn(),
     },
