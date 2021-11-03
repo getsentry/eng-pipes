@@ -22,6 +22,7 @@ export async function buildServer(
 ) {
   const server: Fastify = fastify({
     logger,
+    disableRequestLogging: true,
   });
 
   Sentry.init({
