@@ -393,6 +393,7 @@ async function handler({
 ${jobsList}`,
     });
   }
+
   // Thread the current failure to existing failure message
   const followupFailureMessage =
     existingFailureMessage &&
@@ -416,6 +417,11 @@ ${jobsList}`,
         },
       ],
     }));
+
+  // DEBUG: Not sure why this messages sometimes does not get threaded.
+  // The Slack API should make this threaded because existingFailureMessage exists
+  // eslint-disable-next-line no-console
+  console.log({ existingFailureMessage, followupFailureMessage });
 
   // ts bugging out but one of these has to exist and not be falsey
   const postedMessage = (newFailureMessage ||
