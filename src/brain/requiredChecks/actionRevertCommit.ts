@@ -1,10 +1,16 @@
+import {
+  AllMiddlewareArgs,
+  BlockButtonAction,
+  SlackActionMiddlewareArgs,
+} from '@slack/bolt';
+
 export async function actionRevertCommit({
   ack,
   action,
   body,
   client,
   payload,
-}) {
+}: AllMiddlewareArgs & SlackActionMiddlewareArgs<BlockButtonAction>) {
   await ack();
 
   const metadata = JSON.parse(payload.value);
