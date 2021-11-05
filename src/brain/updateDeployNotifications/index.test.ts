@@ -12,6 +12,7 @@ import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import * as metrics from '@utils/metrics';
 
+import { handler as deployStateHandler } from '../deployState';
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
 // Was having issues integration testing this (e.g. via fastify) due to async issues,
@@ -112,6 +113,8 @@ describe('updateDeployNotifications', function () {
     (bolt.client.chat.update as jest.Mock).mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
+    await db('deploys').delete();
+    await db('queued_commits').delete();
   });
 
   it('notifies slack user when check run is successful', async function () {
@@ -316,74 +319,21 @@ describe('updateDeployNotifications', function () {
                 "type": "context",
               },
               Object {
-                "elements": Array [
-                  Object {
-                    "action_id": "freight-deploy: getsentry",
-                    "style": "primary",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "Deploy",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "url": "https://freight.getsentry.net/deploy?app=getsentry",
-                    "value": "982345",
-                  },
-                  Object {
-                    "action_id": "view-undeployed-commits-",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "View Undeployed Commits",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "value": "982345",
-                  },
-                  Object {
-                    "action_id": "mute-slack-deploy",
-                    "confirm": Object {
-                      "confirm": Object {
-                        "text": "Mute",
-                        "type": "plain_text",
-                      },
-                      "deny": Object {
-                        "text": "Cancel",
-                        "type": "plain_text",
-                      },
-                      "text": Object {
-                        "text": "Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
+                "text": Object {
+                  "text": "You have failed to deploy this commit (</deploys/getsentry/production/13/|#13>)
 
-      \`\`\`
-      deploy notifications on
-      \`\`\`
-
-      Or you can visit the App's \\"Home\\" tab in Slack.
+      > [freight/production] Freight started deploy </deploys/freight/production/18|#18> (f3d0c2e)
       ",
-                        "type": "mrkdwn",
-                      },
-                      "title": Object {
-                        "text": "Mute deploy notifications?",
-                        "type": "plain_text",
-                      },
-                    },
-                    "style": "danger",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "Mute",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "value": "mute",
-                  },
-                ],
-                "type": "actions",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
               },
             ],
             "color": "#F55459",
           },
         ],
         "channel": "channel_id",
-        "text": "",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> failed to deploy",
         "ts": "1234123.123",
       }
     `);
@@ -529,5 +479,266 @@ describe('updateDeployNotifications', function () {
 
     await handler({ ...payload, status: 'queued', date_finished: null });
     expect(updateMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('notifies user commit is already queued for deploy', async function () {
+    const postMock = bolt.client.chat.postMessage as jest.Mock;
+    const updateMock = bolt.client.chat.update as jest.Mock;
+    const freightHandlers = [deployStateHandler, handler];
+    const callFreightHandlers = async (payload) =>
+      await Promise.all(freightHandlers.map((h) => h(payload)));
+
+    // head: c88d886ba52bd85431052abaef4916469f7db2e8
+    // base (previous deploy): ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f
+
+    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+      const defaultPayload = require('@test/payloads/github/commit').default;
+      if (repo === 'sentry') {
+        return {
+          data: merge({}, defaultPayload, {
+            commit: {
+              author: {
+                name: 'billy',
+                email: 'billy@sentry.io',
+                date: '2021-02-03T11:06:46Z',
+              },
+              committer: {
+                name: 'GitHub',
+                email: 'noreply@github.com',
+                date: '2021-02-03T11:06:46Z',
+              },
+              message:
+                'feat(ui): Change default period for fresh releases (#23572)\n' +
+                '\n' +
+                'The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.',
+            },
+          }),
+        };
+      }
+
+      return { data: defaultPayload };
+    });
+    octokit.repos.compareCommits.mockClear();
+    octokit.repos.compareCommits.mockImplementation(() => ({
+      status: 200,
+      data: {
+        commits: [
+          {
+            sha: '99999999',
+            committer: {
+              id: '123',
+              email: 'billy@sentry.io',
+            },
+            commit: {
+              message: 'feat: lands on mars',
+            },
+          },
+          {
+            sha: '982345',
+            committer: {
+              id: '5783',
+              email: 'foo@sentry.io',
+            },
+            commit: {
+              message: 'feat: my deploy',
+            },
+          },
+          {
+            sha: 'c88d886ba52bd85431052abaef4916469f7db2e8',
+            committer: {
+              id: GETSENTRY_BOT_ID,
+              email: 'bot@getsentry.com',
+            },
+            commit: {
+              message:
+                'getsentry/sentry@2188f0485424da597dcca9e12093d253ddc67c0a',
+            },
+          },
+        ],
+      },
+    }));
+
+    // Need to save deploy in db
+    await callFreightHandlers({
+      ...payload,
+      status: 'queued',
+      date_finished: null,
+    });
+
+    // We should have 3 commits queued up
+    expect(await db('queued_commits').select('*')).toHaveLength(3);
+
+    // This is to test that the correct commits are removed when deploy finishes
+    await db('queued_commits').insert({
+      head_sha: 'irrelevant',
+      sha: 'irrelevant',
+    });
+
+    // Checks pass
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'success',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '982345',
+        output: {
+          title: 'All checks passed',
+          summary: 'All checks passed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+
+    const slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(1);
+    expect(slackMessages[0]).toMatchObject({
+      refId: '982345',
+      channel: 'channel_id',
+      ts: '1234123.123',
+      context: {
+        target: 'U789123',
+        status: 'undeployed',
+      },
+    });
+
+    // No message to update
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(0);
+
+    // Message to user that their commit is already queued
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(postMock.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "attachments": Array [
+          Object {
+            "blocks": Array [
+              Object {
+                "text": Object {
+                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "text": Object {
+                  "text": "The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "elements": Array [
+                  Object {
+                    "alt_text": "billy",
+                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                    "type": "image",
+                  },
+                  Object {
+                    "text": "<https://github.com/matejminar|billy (matejminar)>",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              "You have queued this commit for deployment (</deploys/getsentry/production/13/|#13>)",
+            ],
+            "color": "#E7E1EC",
+          },
+        ],
+        "channel": "U789123",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is ready to deploy",
+      }
+    `);
+
+    updateMock.mockClear();
+    await callFreightHandlers({
+      ...payload,
+      status: 'started',
+      date_finished: null,
+    });
+
+    expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "attachments": Array [
+          Object {
+            "blocks": Array [
+              Object {
+                "text": Object {
+                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "text": Object {
+                  "text": "The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "elements": Array [
+                  Object {
+                    "alt_text": "billy",
+                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                    "type": "image",
+                  },
+                  Object {
+                    "text": "<https://github.com/matejminar|billy (matejminar)>",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
+                "text": Object {
+                  "text": "You are deploying this commit (</deploys/getsentry/production/13/|#13>)",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+            ],
+            "color": "#B6ECDF",
+          },
+        ],
+        "channel": "channel_id",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
+        "ts": "1234123.123",
+      }
+    `);
+
+    updateMock.mockClear();
+    // @ts-ignore
+    bolt.client.chat.postMessage.mockClear();
+
+    // Post message is called when finished
+    await callFreightHandlers({ ...payload, status: 'finished' });
+    expect(updateMock).toHaveBeenCalledTimes(1);
+    // @ts-ignore
+    expect(bolt.client.chat.postMessage.mock.calls[0][0])
+      .toMatchInlineSnapshot(`
+      Object {
+        "channel": "channel_id",
+        "text": "<@U789123>, your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
+        "thread_ts": "1234123.123",
+      }
+    `);
+
+    expect(await db('queued_commits').select('*')).toHaveLength(1);
   });
 });

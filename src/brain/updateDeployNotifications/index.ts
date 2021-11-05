@@ -2,63 +2,25 @@ import * as Sentry from '@sentry/node';
 
 import { FreightPayload } from '@types';
 
+import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
+import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
-function getUpdatedDeployMessage({
-  isUserDeploying,
-  payload,
-}: {
-  isUserDeploying: boolean;
-  payload: FreightPayload;
-}) {
-  const { deploy_number, status, user, duration, link, title } = payload;
-  // You have, user has
-  const verbByStatus = {
-    true: {
-      queued: 'You have',
-      started: 'You are',
-      finished: 'You have',
-    },
-    false: {
-      queued: `${user} has`,
-      started: `${user} is`,
-      finished: `${user} has`,
-    },
-  };
-
-  const subject =
-    verbByStatus[`${!!isUserDeploying}`][status] ??
-    // Otherwise it has failed
-    (isUserDeploying ? `You have` : `${user} has`);
-
-  const slackLink = `<${link}|#${deploy_number}>`;
-
-  if (status === 'queued') {
-    return `${subject} queued this commit for deployment (${slackLink})`;
-  }
-
-  if (status === 'started') {
-    return `${subject} deploying this commit (${slackLink})`;
-  }
-
-  if (status === 'finished') {
-    return `${subject} finished deploying this commit (${slackLink}) after ${duration} seconds`;
-  }
-
-  // Otherwise it failed to deploy, show the Freight summary
-  return `${subject} failed to deploy this commit (${slackLink})
-
-> ${title}
-`;
-}
-
-// Exported for tests
+/**
+ * This handler listens to Freight for deploys of `getsentry` to production.
+ * Users receive a Slack notification when their commit passes CI and is ready
+ * to deploy.  This will update those Slack messages telling them that their
+ * commit has been queued to be deployed (if applicable).
+ *
+ * (Exported for tests)
+ */
 export async function handler(payload: FreightPayload) {
   if (
     payload.environment !== 'production' &&
@@ -76,6 +38,10 @@ export async function handler(payload: FreightPayload) {
   // Get the range of commits for this payload
   const getsentry = await getClient('getsentry');
 
+  /**
+   * Note this will not include `base`, but *does* include `head`.
+   * Also `commits` is empty if `status` == 'behind'
+   */
   const { data } = await getsentry.repos.compareCommits({
     owner: OWNER,
     repo: GETSENTRY_REPO,
@@ -99,7 +65,7 @@ export async function handler(payload: FreightPayload) {
       ? 'is being deployed'
       : status === 'finished'
       ? 'was deployed'
-      : '';
+      : 'failed to deploy';
   const progressColor =
     status === 'queued'
       ? Color.OFF_WHITE_TOO
@@ -109,7 +75,14 @@ export async function handler(payload: FreightPayload) {
       ? Color.SUCCESS
       : Color.DANGER;
 
-  const promises = messages.map(async (message) => {
+  const queuePromise =
+    status === 'queued'
+      ? queueCommitsForDeploy(data.commits)
+      : status === 'finished'
+      ? clearQueuedCommits(payload.sha)
+      : null;
+
+  const promises: Promise<any>[] = messages.map(async (message) => {
     const updatedBlocks = message.context.blocks.slice(0, -1);
     const payloadUser = await getUser({ email: payload.user });
     const isUserDeploying =
@@ -169,7 +142,7 @@ export async function handler(payload: FreightPayload) {
   });
 
   try {
-    await Promise.all(promises);
+    await Promise.all([...promises, queuePromise]);
   } catch (err) {
     Sentry.captureException(err);
     console.error(err);
@@ -189,7 +162,6 @@ export async function handler(payload: FreightPayload) {
 }
 
 export async function updateDeployNotifications() {
-  freight.off('*', handler);
   freight.on('*', handler);
 
   bolt.action(/open-sentry-release-(.*)/, async ({ ack, body, context }) => {
