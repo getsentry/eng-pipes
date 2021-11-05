@@ -10,7 +10,6 @@ import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
-import { getQueuedDeploys } from '@/utils/db/getQueuedDeploys';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
