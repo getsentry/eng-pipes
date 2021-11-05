@@ -54,7 +54,7 @@
     "@types/node": "12",
     "fastify": "^2.15.1",
     "fastify-formbody": "^3.1.0",
-    "knex": "^0.21.17",
+    "knex": "^0.95.12",
     "module-alias": "^2.2.2",
     "pg": "^8.5.1",
     "typescript": "^4.1.3"
