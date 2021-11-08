@@ -65,7 +65,9 @@ export async function handler(payload: FreightPayload) {
       ? 'is being deployed'
       : status === 'finished'
       ? 'was deployed'
-      : 'failed to deploy';
+      : status === 'failed'
+      ? 'failed to deploy'
+      : '';
   const progressColor =
     status === 'queued'
       ? Color.OFF_WHITE_TOO
