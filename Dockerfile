@@ -8,7 +8,6 @@ WORKDIR /usr/src/app
 # Copy application dependency manifests to the container image.
 # Copying this separately prevents re-running npm install on every code change.
 COPY package.json yarn.lock .yarnrc.yml .pnp.js ./
-COPY .yarn/cache ./.yarn/cache
 COPY .yarn/releases ./.yarn/releases
 
 # Install production dependencies.

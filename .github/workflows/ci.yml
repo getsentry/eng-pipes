@@ -39,6 +39,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
+          cache: 'yarn'
           node-version: '14'
 
       - name: yarn install
@@ -58,6 +59,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
+          cache: 'yarn'
           node-version: '14'
 
       - name: yarn install
@@ -93,6 +95,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
+          cache: 'yarn'
           node-version: '14'
 
       - name: yarn install
@@ -132,6 +135,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v2
         with:
+          cache: 'yarn'
           node-version: '14'
 
       - name: yarn install
