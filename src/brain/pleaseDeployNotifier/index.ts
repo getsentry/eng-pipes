@@ -4,10 +4,12 @@ import * as Sentry from '@sentry/node';
 import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { freightDeploy } from '@/blocks/freightDeploy';
+import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -85,6 +87,9 @@ async function handler({
   const commitLinkText = `${commit.slice(0, 7)}`;
   const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
+  // Look for queued commits and see if current commit is queued
+  const queuedCommit = await getDeployForQueuedCommit(commit);
+
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's
   // sha differs, it means that the relevantCommit is on the sentry repo
   const relevantCommitRepo =
@@ -106,10 +111,15 @@ async function handler({
   const blocks = [
     ...commitBlocks,
 
-    {
-      type: 'actions',
-      elements: actions,
-    },
+    queuedCommit
+      ? getUpdatedDeployMessage({
+          isUserDeploying: queuedCommit.user == user.email,
+          payload: { ...queuedCommit, deploy_number: queuedCommit.external_id },
+        })
+      : {
+          type: 'actions',
+          elements: actions,
+        },
   ];
 
   const message = await slackMessageUser(slackTarget, {
