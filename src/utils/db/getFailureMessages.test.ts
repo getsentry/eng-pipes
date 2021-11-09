@@ -84,7 +84,7 @@ describe('getFailureMessages', function () {
     await saveSlackMessage(
       SlackMessage.REQUIRED_CHECK,
       {
-        refId: 'aaa',
+        refId: '111',
         channel: 'channel',
         ts: '123.123',
       },
@@ -94,30 +94,25 @@ describe('getFailureMessages', function () {
       }
     );
 
-    octokit.repos.compareCommits.mockImplementation(() => ({
-      status: 200,
-      data: {
-        status: 'behind',
-      },
-    }));
+    // octokit.repos.compareCommits.mockImplementation(() => ({
+    //   status: 200,
+    //   data: {
+    //     status: 'behind',
+    //   },
+    // }));
 
-    expect(await getFailureMessages(null, 'bbb')).toHaveLength(1);
+    // `222` represents newer commit
+    expect(await getFailureMessages(null, '222')).toHaveLength(1);
 
-    octokit.repos.compareCommits.mockImplementation(() => ({
-      status: 200,
-      data: {
-        status: 'identical',
-      },
-    }));
-
-    expect(await getFailureMessages(null, 'bbb')).toHaveLength(1);
+    // Same commit as exists in slack messages
+    expect(await getFailureMessages(null, '111')).toHaveLength(1);
   });
 
   it('does not return messages for commits newer input commit sha', async function () {
     await saveSlackMessage(
       SlackMessage.REQUIRED_CHECK,
       {
-        refId: 'aaa',
+        refId: '222',
         channel: 'channel',
         ts: '123.123',
       },
@@ -127,13 +122,7 @@ describe('getFailureMessages', function () {
       }
     );
 
-    octokit.repos.compareCommits.mockImplementation(() => ({
-      status: 200,
-      data: {
-        status: 'ahead',
-      },
-    }));
-
-    expect(await getFailureMessages(null, 'bbb')).toHaveLength(0);
+    // `111` is a commit that is older than `222`
+    expect(await getFailureMessages(null, '111')).toHaveLength(0);
   });
 });

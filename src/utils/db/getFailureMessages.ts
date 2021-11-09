@@ -40,6 +40,12 @@ export async function getFailureMessages(
   const onlyOlderFailedMessages = await Promise.all(
     messages.map(async (message) => {
       const octokit = await getClient(OWNER);
+      // We *ONLY* want failed builds before `headSha` - when calling GH's
+      // `compareCommits`, we use `headSha` as the head commit, so we only want
+      // the messages for failed builds that came before `headSha`.
+
+      // This happens when say build A starts, and then after build B starts
+      // and fails before A completes. In this case, build A should not mark B as being fixed
       const { data } = await octokit.repos.compareCommits({
         owner: OWNER,
         repo: GETSENTRY_REPO,
@@ -47,13 +53,9 @@ export async function getFailureMessages(
         head: headSha,
       });
 
-      // We *ONLY* want failed builds before `headSha` - when calling GH's
-      // `compareCommits`, we use `headSha` as the base commit, so we only want
-      // the messages for failed builds that came before `headSha`
-      //
-      // This happens when say build A starts, and then after build B starts
-      // and fails before A completes. In this case, build A should not mark B as being fixed
-      if (data.status === 'ahead') {
+      // If `base` is older than `head`, then we will have a `status == "ahead"`
+      // Otherwise, if `base` commit comes after `head` commit, the `head` commit is considered "behind"
+      if (data.status === 'behind') {
         return null;
       }
       return message;

@@ -263,7 +263,7 @@ describe('pleaseDeployNotifier', function () {
       app_name: 'getsentry',
       user: 'test@sentry.io',
       ref: 'master',
-      sha: '999999',
+      sha: '333333',
       previous_sha: '888888',
       environment: 'production',
       status: 'finished',
@@ -569,14 +569,14 @@ describe('pleaseDeployNotifier', function () {
     expect(actions.actionViewUndeployedCommits).toHaveBeenCalled();
     expect(bolt.client.views.open).toHaveBeenCalled();
     expect(await getLastSuccessfulDeploy()).toMatchObject({
-      sha: '999999',
+      sha: '333333',
     });
 
     // Get list of commits
     expect(octokit.repos.compareCommits).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
-      base: '999999',
+      base: '333333',
       head: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
     });
 

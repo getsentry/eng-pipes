@@ -780,7 +780,7 @@ describe('requiredChecks', function () {
     expect(postMessage).toHaveBeenCalledTimes(2);
   });
 
-  it('does not continue to notify after the first test failure', async function () {
+  it.only('does not continue to notify after the first test failure', async function () {
     let results;
 
     await createGitHubEvent(fastify, 'check_run', {
