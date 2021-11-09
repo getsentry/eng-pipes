@@ -55,6 +55,9 @@ export async function getFailureMessages(
 
       // If `base` is older than `head`, then we will have a `status == "ahead"`
       // Otherwise, if `base` commit comes after `head` commit, the `head` commit is considered "behind"
+      // Because we are only looking for failures that come *before* the
+      // `headSha` commit, we ignore messages where `status == "behind"` as
+      // that means `head` is older than the commit that is referenced in the slack message
       if (data.status === 'behind') {
         return null;
       }
