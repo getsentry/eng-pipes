@@ -41,6 +41,8 @@ declare module 'knex/types/tables' {
     ref: string;
     sha: string;
     previous_sha: string;
+    link: string;
+    title: string;
     status: FreightStatus;
     environment: string;
     duration: number | null;
@@ -49,7 +51,31 @@ declare module 'knex/types/tables' {
     finished_at: string | null;
   }
 
+  /**
+   * Keeps track of commits that are queued to be deployed
+   */
+  interface QueuedCommits {
+    id: number;
+    head_sha: string; // The commit that is being deployed
+    sha: string; // sha of commit included in deploy
+    data: string; // Commit object from GitHub API
+  }
+
+  /**
+   * TODO: GitHub's `compareCommits` can be quite slow, so we're going to cache the results
+   * Ideally we would model this as a graph so that we query for commits within base/head.
+   */
+  interface Commits {
+    id: number;
+    head: string;
+    base: string;
+    data: string; // Commit object from GitHub API
+    created_at: string;
+    last_accessed_at: string;
+  }
+
   interface Tables {
+    queued_commits: QueuedCommits;
     deploys: Deploys;
     required_checks_status: RequiredStatusCheck;
     slack_messages: SlackMessageRow;
