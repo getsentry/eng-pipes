@@ -94,13 +94,6 @@ describe('getFailureMessages', function () {
       }
     );
 
-    // octokit.repos.compareCommits.mockImplementation(() => ({
-    //   status: 200,
-    //   data: {
-    //     status: 'behind',
-    //   },
-    // }));
-
     // `222` represents newer commit
     expect(await getFailureMessages(null, '222')).toHaveLength(1);
 
