@@ -69,7 +69,7 @@ function mockClient() {
           data: {
             // If behind, there will be no commits in response
             commits: mockCommits,
-            status: isAhead ? 'ahead' : 'behind',
+            status: isAhead ? 'ahead' : base === head ? 'identical' : 'behind',
             ahead_by: numCommits,
             behindBy: isAhead ? 0 : 2,
             total_commits: numCommits,
