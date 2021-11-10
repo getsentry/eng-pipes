@@ -112,7 +112,7 @@ async function handler({
     latestDeploy = await getLatestDeployBetweenProjects();
   } catch (err) {
     Sentry.captureException(err);
-    console.error(error);
+    console.error(err);
   }
 
   const isFrontendOnly = !latestDeploy
