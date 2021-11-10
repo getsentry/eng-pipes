@@ -1,3 +1,5 @@
+import MockCompareCommits from '@test/compareCommits.json';
+
 import { MockOctokitError } from './mockError';
 
 function mockClient() {
@@ -41,21 +43,39 @@ function mockClient() {
     },
     repos: {
       getCommit: jest.fn(),
+
       listPullRequestsAssociatedWithCommit: jest.fn(),
-      compareCommits: jest.fn(() => ({
-        status: 200,
-        data: {
-          // Incomplete
-          commits: [
-            {
-              sha: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-            },
-            {
-              sha: '1cd4f24731ceed16532c3206393f8628c6a755dd',
-            },
-          ],
-        },
-      })),
+
+      compareCommits: jest.fn(({ base, head }) => {
+        // If base is older than head, then status will be ahead
+        // For tests it might be easier to think of base/head as incrementing
+        // ints (representing age) instead of a hash
+        const isAhead = !base && !head ? true : base < head ? true : false;
+        const commits = MockCompareCommits.data.commits;
+        const oldestCommit = {
+          ...commits[0],
+          sha: isAhead ? base ?? commits[0].sha : null,
+        };
+        const newestCommit = {
+          ...commits[1],
+          sha: isAhead ? head ?? commits[1].sha : null,
+        };
+        const mockCommits = isAhead ? [oldestCommit, newestCommit] : [];
+        const numCommits = mockCommits.length;
+
+        return {
+          ...MockCompareCommits,
+          status: 200,
+          data: {
+            // If behind, there will be no commits in response
+            commits: mockCommits,
+            status: isAhead ? 'ahead' : base === head ? 'identical' : 'behind',
+            ahead_by: numCommits,
+            behindBy: isAhead ? 0 : 2,
+            total_commits: numCommits,
+          },
+        };
+      }),
     },
   };
 }
