@@ -947,7 +947,7 @@ Remove "always()" from GHA workflows`,
     // Called three times to check frontend only deploys on last deployed commit and current commit
     // As well as the initial check to see if the head commit allows for frontend-only deploys
     // This can be optimized to be down to 2 calls
-    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(3);
+    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(2);
     expect(octokit.checks.listForRef).toHaveBeenCalledWith(
       expect.objectContaining({ ref: '333333' })
     );
@@ -1173,24 +1173,6 @@ Remove "always()" from GHA workflows`,
         },
       },
     });
-
-    // Only once because this is a commit on getsentry
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
-
-    // Called three times to check frontend only deploys on last deployed commit and current commit
-    // As well as the initial check to see if the head commit allows for frontend-only deploys
-    // This can be optimized to be down to 2 calls
-    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(3);
-    expect(octokit.checks.listForRef).toHaveBeenCalledWith(
-      expect.objectContaining({ ref: '333333' })
-    );
-    expect(octokit.checks.listForRef).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      })
-    );
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
     // First message
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(

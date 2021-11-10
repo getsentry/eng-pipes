@@ -192,19 +192,22 @@ async function canFrontendDeploy(base: string, head: string) {
     // Find the list of commits with base being the most recently deployed
     // commit and the supplied commit (e.g. the commit that just finished its
     // check runs)
-    const { data: compareCommits } = await octokit.repos.compareCommits({
+    const { data } = await octokit.repos.compareCommits({
       owner: OWNER,
       repo: GETSENTRY_REPO,
       base,
       head,
     });
 
+    // We should be able to assume that the `head` commit already allows
+    // frontend only deploys, as this function should not be called otherwise.
+    // The head commit will be the last element in `data.commits`.
+    const commits = data.commits.slice(0, -1);
+
     // Call `getChangedStack` and every commit, which queries GH API for a GH
     // check run status.
-    // TODO: We should be able to assume that the `head` commit already allows
-    // frontend only deploys as this function shouldn't be called if it didn't.
     const changedStacks = await Promise.all(
-      compareCommits.commits.map(
+      commits.map(
         async (commit) => await getChangedStack(commit.sha, GETSENTRY_REPO)
       )
     );
