@@ -1,5 +1,3 @@
-import { Deploys } from 'knex/types/tables';
-
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getClient } from '@api/github/getClient';
 
@@ -11,6 +9,7 @@ async function getLatestDeploy(app_name: string) {
     .from('deploys')
     .where({
       status: 'finished',
+      environment: 'production',
       app_name,
     })
     .orderBy('finished_at', 'desc')
@@ -26,13 +25,18 @@ async function getLatestDeploy(app_name: string) {
 export async function getLatestDeployBetweenProjects(
   projectA: string = 'getsentry',
   projectB: string = 'getsentry-frontend'
-): Promise<Deploys> {
+) {
   const [deployA, deployB] = await Promise.all(
     [projectA, projectB].map(getLatestDeploy)
   );
 
+  if (!deployA && !deployB) {
+    return null;
+  }
+
   if (!deployA || !deployB) {
-    throw new Error('One or more projects are missing a deploy');
+    // If exactly one project does not have a deploy, return any deploys we have
+    return deployA ?? deployB;
   }
 
   const octokit = await getClient(OWNER);
@@ -57,5 +61,6 @@ export async function getLatestDeployBetweenProjects(
     return deployA;
   }
 
+  // This shouldn't happen
   throw new Error('Commits are diverged from each other.');
 }
