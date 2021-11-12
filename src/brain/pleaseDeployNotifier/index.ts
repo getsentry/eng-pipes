@@ -24,6 +24,65 @@ import { wrapHandler } from '@utils/wrapHandler';
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
 
+/**
+ * Get the latest deployed commit between "getsentry" and "getsentry-frontend"
+ * and then get the list of commits from the `head` and the latest deployed
+ * commit.
+ *
+ * For each commit that will be deployed, check if they only contain frontend
+ * changes. It can be a frontend deploy only if this is true.
+ *
+ * Requiring only frontend changes will reduce the changes of deploying a
+ * frontend change that is dependent on a backend change.
+ */
+async function canFrontendDeploy(base: string, head: string) {
+  try {
+    const octokit = await getClient(OWNER);
+    // Find the list of commits with base being the most recently deployed
+    // commit and the supplied commit (e.g. the commit that just finished its
+    // check runs)
+    const { data } = await octokit.repos.compareCommits({
+      owner: OWNER,
+      repo: GETSENTRY_REPO,
+      base,
+      head,
+    });
+
+    // We should be able to assume that the `head` commit already allows
+    // frontend only deploys, as this function should not be called otherwise.
+    // The head commit will be the last element in `data.commits`.
+    const commits = data.commits.slice(0, -1);
+
+    // Call `getChangedStack` and every commit, which queries GH API for a GH
+    // check run status.
+    const changedStacks = await Promise.all(
+      commits.map(
+        async (commit) => await getChangedStack(commit.sha, GETSENTRY_REPO)
+      )
+    );
+
+    // eslint-disable-next-line no-console
+    console.debug(`
+    --> canFrontendDeploy
+      ${JSON.stringify(commits, null, 2)}
+
+
+********
+* --> ${changedStacks.every(({ isFrontendOnly }) => isFrontendOnly)}
+********
+    `);
+
+    return changedStacks.every(({ isFrontendOnly }) => isFrontendOnly);
+  } catch (err) {
+    // Capture to Sentry, but we can ignore errors, and assume it is not valid
+    // for frontend-only deploy
+    Sentry.captureException(err);
+    console.error(err);
+
+    return false;
+  }
+}
+
 async function handler({
   id,
   payload,
@@ -173,54 +232,6 @@ async function handler({
     });
     tx.finish();
   });
-}
-
-/**
- * Get the latest deployed commit between "getsentry" and "getsentry-frontend"
- * and then get the list of commits from the `head` and the latest deployed
- * commit.
- *
- * For each commit that will be deployed, check if they only contain frontend
- * changes. It can be a frontend deploy only if this is true.
- *
- * Requiring only frontend changes will reduce the changes of deploying a
- * frontend change that is dependent on a backend change.
- */
-async function canFrontendDeploy(base: string, head: string) {
-  try {
-    const octokit = await getClient(OWNER);
-    // Find the list of commits with base being the most recently deployed
-    // commit and the supplied commit (e.g. the commit that just finished its
-    // check runs)
-    const { data } = await octokit.repos.compareCommits({
-      owner: OWNER,
-      repo: GETSENTRY_REPO,
-      base,
-      head,
-    });
-
-    // We should be able to assume that the `head` commit already allows
-    // frontend only deploys, as this function should not be called otherwise.
-    // The head commit will be the last element in `data.commits`.
-    const commits = data.commits.slice(0, -1);
-
-    // Call `getChangedStack` and every commit, which queries GH API for a GH
-    // check run status.
-    const changedStacks = await Promise.all(
-      commits.map(
-        async (commit) => await getChangedStack(commit.sha, GETSENTRY_REPO)
-      )
-    );
-
-    return changedStacks.every(({ isFrontendOnly }) => isFrontendOnly);
-  } catch (err) {
-    // Capture to Sentry, but we can ignore errors, and assume it is not valid
-    // for frontend-only deploy
-    Sentry.captureException(err);
-    console.error(err);
-
-    return false;
-  }
 }
 
 export async function pleaseDeployNotifier() {
