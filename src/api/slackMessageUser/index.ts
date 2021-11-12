@@ -27,5 +27,6 @@ export async function slackMessageUser(
   } catch (err) {
     Sentry.setContext('message', message);
     Sentry.captureException(err);
+    return;
   }
 }
