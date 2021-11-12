@@ -63,13 +63,9 @@ async function canFrontendDeploy(base: string, head: string) {
 
     // eslint-disable-next-line no-console
     console.debug(`
-    --> canFrontendDeploy
-      ${JSON.stringify(commits, null, 2)}
-
-
-********
-* --> ${changedStacks.every(({ isFrontendOnly }) => isFrontendOnly)}
-********
+* canFrontendDeploy --> ${changedStacks.every(
+      ({ isFrontendOnly }) => isFrontendOnly
+    )} (${data.commits.map(({ sha }) => sha).join(', ')})
     `);
 
     return changedStacks.every(({ isFrontendOnly }) => isFrontendOnly);
@@ -190,10 +186,19 @@ async function handler({
     ...commitBlocks,
 
     queuedCommit
-      ? getUpdatedDeployMessage({
-          isUserDeploying: queuedCommit.user == user.email,
-          payload: { ...queuedCommit, deploy_number: queuedCommit.external_id },
-        })
+      ? {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: getUpdatedDeployMessage({
+              isUserDeploying: queuedCommit.user == user.email,
+              payload: {
+                ...queuedCommit,
+                deploy_number: queuedCommit.external_id,
+              },
+            }),
+          },
+        }
       : {
           type: 'actions',
           elements: actions,
