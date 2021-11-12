@@ -176,7 +176,9 @@ async function handler({
 
   const isFrontendOnly = !latestDeploy
     ? isHeadCommitFrontendOnly
-    : await canFrontendDeploy(latestDeploy.sha, checkRun.head_sha);
+    : isHeadCommitFrontendOnly
+    ? await canFrontendDeploy(latestDeploy.sha, checkRun.head_sha)
+    : false;
 
   const actions = [
     freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry'),
