@@ -1,5 +1,3 @@
-import { ServerResponse } from 'http';
-
 import { Octokit } from '@octokit/rest';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
@@ -80,8 +78,8 @@ const getRoutingTimestamp = async (
 };
 
 export const handler = async (
-  request: FastifyRequest,
-  reply: FastifyReply<ServerResponse>
+  request: FastifyRequest<{ Body: { message: { data: string } } }>,
+  reply: FastifyReply
 ) => {
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()

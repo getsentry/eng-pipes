@@ -27,8 +27,8 @@ export function WebhookRouter(server) {
     } catch (err) {
       console.error(err);
       Sentry.captureException(err);
-      // @ts-ignore
-      return server.notFound(request, reply);
+      reply.callNotFound();
+      return;
     }
 
     try {
