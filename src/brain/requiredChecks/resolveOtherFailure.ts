@@ -1,8 +1,8 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { BuildStatus, Color } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { CheckRun } from '@/types';
 import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
@@ -10,10 +10,10 @@ import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { getTextParts } from './getTextParts';
 
 interface ResolveOtherFailureParams {
-  checkRun: EmitterWebhookEvent<'check_run'>['payload']['check_run'];
+  checkRun: CheckRun;
 }
 /**
- * This is called when our build passes *and* builds and currently
+ * This is called when our build passes *and* builds are currently
  * in a broken state.
  */
 export async function resolveOtherFailure({
@@ -69,7 +69,7 @@ export async function resolveOtherFailure({
             i === originalFailureIndex
               ? BuildStatus.FIXED
               : BuildStatus.UNKNOWN,
-          updated_at: new Date(),
+          updated_at: new Date(checkRun.completed_at ?? ''),
         }
       ),
 

@@ -139,7 +139,6 @@ async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
     const results = await table.insert(data, {
       schema: objectToSchema(targetConfig.schema),
     });
-    span?.finish();
     return results;
   } catch (err) {
     console.error('error name', err.name);
@@ -147,6 +146,8 @@ async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
     if (err.name === 'PartialFailureError') {
       // Some rows failed to insert, while others may have succeeded.
 
+      // This error pops up when our automations close an old issue:
+      // Value 1458881574000000 for field created_at of the destination table super-big-data:open_source.github_events is outside the allowed bounds. You can only stream to date range within 1825 days in the past and 366 days in the future relative to the current date.
       err?.errors.forEach((error) => {
         Sentry.setContext('errors', {
           messages: error.errors.map((e) => e.message).join('\n'),
@@ -155,10 +156,12 @@ async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
         Sentry.setContext('row', error.row);
         Sentry.captureException(new Error('Unable to insert row'));
       });
+      return;
     }
 
-    span?.finish();
     throw err;
+  } finally {
+    span?.finish();
   }
 }
 

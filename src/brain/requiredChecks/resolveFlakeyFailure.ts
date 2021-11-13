@@ -1,16 +1,16 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
 import { BuildStatus, Color } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { CheckRun } from '@/types';
 import { bolt } from '@api/slack';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 import { getTextParts } from './getTextParts';
 
 interface ResolveFlakeyFailureParams {
-  checkRun: EmitterWebhookEvent<'check_run'>['payload']['check_run'];
+  checkRun: CheckRun;
   dbCheck: SlackMessageRow;
 }
 
@@ -35,6 +35,7 @@ export async function resolveFlakeyFailure({
   textParts.splice(2, 1, 'is ~failing~ passing!');
   const updatedText = textParts.join(' ');
 
+  const updatedTimestamp = new Date(checkRun.completed_at ?? '');
   const promises: Promise<any>[] = [
     // Update original failing message state
     saveSlackMessage(
@@ -44,7 +45,8 @@ export async function resolveFlakeyFailure({
       },
       {
         status: BuildStatus.FLAKE,
-        passed_at: new Date(),
+        passed_at: updatedTimestamp,
+        updated_at: updatedTimestamp,
       }
     ),
     // Update original failing slack message

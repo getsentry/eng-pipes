@@ -1,9 +1,9 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
 import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { bolt } from '@api/slack';
@@ -14,7 +14,7 @@ import { OK_CONCLUSIONS } from './constants';
 import { getTextParts } from './getTextParts';
 
 interface HandleNewFailedBuildParams {
-  checkRun: EmitterWebhookEvent<'check_run'>['payload']['check_run'];
+  checkRun: CheckRun;
 }
 
 /**
@@ -28,6 +28,13 @@ function githubMdToSlack(str: string) {
   }
 
   return str;
+}
+
+type AllowedCheckRunPropertyTuple = [CheckRunProperty, any];
+function isAllowedCheckRunProperty(
+  tuple: [any, any]
+): tuple is AllowedCheckRunPropertyTuple {
+  return CHECK_RUN_PROPERTIES.includes(tuple[0]);
 }
 
 export async function handleNewFailedBuild({
@@ -183,6 +190,11 @@ ${jobsList}`,
     false | undefined
   >;
 
+  // Save only the properties needed for `getTextParts()`
+  const partialCheckRun = Object.fromEntries(
+    Object.entries(checkRun).filter(isAllowedCheckRunProperty)
+  );
+
   // Save failing required check run to db
   await saveSlackMessage(
     SlackMessage.REQUIRED_CHECK,
@@ -192,9 +204,16 @@ ${jobsList}`,
       ts: `${postedMessage.ts}`,
     },
     {
-      // Always record the status as failing, even though commits following a broken build is not known since it could be
-      // failing of its own accord, or due to a previous commit
+      // Always record the status as failing, even though commits following a
+      // broken build is not known since it could be failing of its own accord,
+      // or due to a previous commit
       status: BuildStatus.FAILURE,
+
+      // TODO: The messages when we resolve a failing build is a bit goofy right
+      // now, It edits the message with the checkRun that *fixed* the broken
+      // build, so you lose context Of what build originally failed. We can
+      // create a proper message edit with saving this check run
+      checkRun: partialCheckRun,
       failed_at: new Date(),
     }
   );
