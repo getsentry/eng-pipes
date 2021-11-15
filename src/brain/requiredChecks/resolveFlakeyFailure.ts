@@ -2,10 +2,9 @@ import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
 import { BuildStatus, Color } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
 import { CheckRun } from '@/types';
+import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
 import { bolt } from '@api/slack';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 import { getTextParts } from './getTextParts';
 
@@ -35,23 +34,17 @@ export async function resolveFlakeyFailure({
   textParts.splice(2, 1, 'is ~failing~ passing!');
   const updatedText = textParts.join(' ');
 
-  const updatedTimestamp = new Date(checkRun.completed_at ?? '');
   const promises: Promise<any>[] = [
     // Update original failing message state
-    saveSlackMessage(
-      SlackMessage.REQUIRED_CHECK,
-      {
-        id: dbCheck.id,
-      },
-      {
-        status: BuildStatus.FLAKE,
-        passed_at: updatedTimestamp,
-        updated_at: updatedTimestamp,
-      }
-    ),
+    updateRequiredCheck({
+      messageId: dbCheck.id,
+      status: BuildStatus.FLAKE,
+      checkRun,
+    }),
+
     // Update original failing slack message
     // `text` is not required
-    // @ts-ignore
+    // @ts-expect-error
     bolt.client.chat.update({
       channel: dbCheck.channel,
       ts: dbCheck.ts,
