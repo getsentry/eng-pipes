@@ -6,7 +6,9 @@ import { freight } from '@api/freight';
 import { getSentryPullRequestsForGetsentryRange } from '@api/github/getSentryPullRequestsForGetsentryRange';
 import { insert, mapDeployToPullRequest } from '@utils/metrics';
 
-export async function handler(request: FastifyRequest) {
+export async function handler(
+  request: FastifyRequest<{ Body: FreightPayload }>
+) {
   const { body }: { body: FreightPayload } = request;
   let promises: Promise<any>[] = [];
 

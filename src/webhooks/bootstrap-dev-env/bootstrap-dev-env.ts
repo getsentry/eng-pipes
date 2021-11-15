@@ -2,7 +2,9 @@ import { FastifyRequest } from 'fastify';
 
 import { insert } from '@utils/metrics';
 
-export async function handler(request: FastifyRequest) {
+export async function handler(
+  request: FastifyRequest<{ Body: { event: string; name: string } }>
+) {
   const { body: payload } = request;
 
   const now = new Date();

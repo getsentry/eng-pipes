@@ -1,10 +1,10 @@
-import { ServerResponse } from 'http';
-
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
 import { WebhookRouter } from '@webhooks';
-import fastify, { FastifyReply } from 'fastify';
+import fastify from 'fastify';
+import fastifyFormBody from 'fastify-formbody';
+import middie from 'middie';
 
 import { Fastify } from '@types';
 
@@ -37,17 +37,32 @@ export async function buildServer(
     tracesSampleRate: 1.0,
   });
 
-  server.register(require('fastify-formbody'));
+  await server.register(middie);
+  await server.register(fastifyFormBody);
 
-  server.decorate(
-    'notFound',
-    (_request: fastify.FastifyRequest, reply: FastifyReply<ServerResponse>) => {
+  server.setErrorHandler((error, request, reply) => {
+    Sentry.captureException(error);
+    reply.code(500).send({});
+  });
+
+  server.setNotFoundHandler(
+    // Note: The preValidation hook registered using this method will run for a
+    // route that Fastify does not recognize and not when a route handler
+    // manually calls reply.callNotFound. In which case, only preHandler will be
+    // run.
+    {
+      preValidation: (req, reply, done) => {
+        done();
+      },
+      preHandler: (req, reply, done) => {
+        done();
+      },
+    },
+    function (request, reply) {
+      // Default not found handler with preValidation and preHandler hooks
       reply.code(404).type('text/html').send('Not Found');
     }
   );
-
-  // @ts-ignore
-  server.setNotFoundHandler(server.notFound);
 
   server.get('/', {}, async (request, reply) => {
     return '';
@@ -56,7 +71,7 @@ export async function buildServer(
   // Install Slack and GitHub handlers. Both the Bolt and @octokit/webhooks
   // libraries operate as middleware that emit events corresponding to webhook
   // POSTs. Our event handlers for both are under loadBrain.
-  // @ts-ignore
+  // @ts-expect-error
   server.use('/apps/slack/events', bolt.receiver.requestListener);
   server.use('/webhooks/github', githubEvents.middleware);
   await loadBrain();
@@ -64,7 +79,11 @@ export async function buildServer(
   // Other webhooks operate as regular Fastify handlers (albeit routed to
   // filesystem/module-space based on service name) rather than through a
   // middleware/event abstraction layer.
-  server.post('/metrics/:service/webhook', {}, WebhookRouter(server));
+  server.post<{ Params: { service: string } }>(
+    '/metrics/:service/webhook',
+    {},
+    WebhookRouter(server)
+  );
 
   // Endpoint for Google PubSub events
   // TODO: Unify all these webhooks URL patterns!

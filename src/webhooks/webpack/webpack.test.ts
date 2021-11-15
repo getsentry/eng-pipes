@@ -41,10 +41,8 @@ describe('webpack webhook', function () {
   });
 
   it('returns 400 if signature verification fails', async function () {
-    // @ts-ignore
+    // @ts-expect-error
     verifyWebhook.mockImplementationOnce(() => false);
-    // To keep logs clean since this is expected
-    jest.spyOn(console, 'error').mockImplementation(() => {});
 
     const response = await fastify.inject({
       method: 'POST',
@@ -53,10 +51,6 @@ describe('webpack webhook', function () {
     });
     expect(response.statusCode).toBe(400);
     expect(db.insertAssetSize).not.toHaveBeenCalled();
-    expect(console.error).toHaveBeenCalled();
-
-    // @ts-ignore
-    console.error.mockRestore();
   });
 
   it('correctly inserts asset sizes from webhook', async function () {
@@ -75,7 +69,7 @@ describe('webpack webhook', function () {
       payload,
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(204);
     expect(db.insertAssetSize).toHaveBeenCalled();
     expect(mockDataset).toHaveBeenCalledWith('product_eng');
     expect(mockTable).toHaveBeenCalledWith('asset_sizes');
@@ -134,7 +128,7 @@ describe('webpack webhook', function () {
       payload,
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(204);
     expect(db.insertAssetSize).toHaveBeenCalled();
     expect(mockDataset).toHaveBeenCalledWith('product_eng');
     expect(mockTable).toHaveBeenCalledWith('asset_sizes');
