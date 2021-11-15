@@ -655,7 +655,13 @@ describe('updateDeployNotifications', function () {
                 ],
                 "type": "context",
               },
-              "You have queued this commit for deployment (</deploys/getsentry/production/13/|#13>)",
+              Object {
+                "text": Object {
+                  "text": "You have queued this commit for deployment (</deploys/getsentry/production/13/|#13>)",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
             ],
             "color": "#E7E1EC",
           },

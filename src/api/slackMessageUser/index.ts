@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { ChatPostMessageArguments } from '@slack/web-api';
 
 import { getUser } from '@api/getUser';
@@ -17,9 +18,15 @@ export async function slackMessageUser(
     return;
   }
 
-  // @ts-ignore
-  return await bolt.client.chat.postMessage({
-    ...message,
-    channel: slackUser,
-  });
+  try {
+    // @ts-ignore
+    return await bolt.client.chat.postMessage({
+      ...message,
+      channel: slackUser,
+    });
+  } catch (err) {
+    Sentry.setContext('message', message);
+    Sentry.captureException(err);
+    return;
+  }
 }
