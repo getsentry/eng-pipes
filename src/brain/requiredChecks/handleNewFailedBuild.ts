@@ -214,7 +214,9 @@ ${jobsList}`,
       // build, so you lose context Of what build originally failed. We can
       // create a proper message edit with saving this check run
       checkRun: partialCheckRun,
-      failed_at: new Date(),
+      failed_at: checkRun.completed_at
+        ? new Date(checkRun.completed_at)
+        : new Date(),
     }
   );
 

@@ -87,9 +87,7 @@ export async function handler(payload: FreightPayload) {
   const promises: Promise<any>[] = messages.map(async (message) => {
     const updatedBlocks = message.context.blocks.slice(0, -1);
     const payloadUser = await getUser({ email: payload.user });
-    const isUserDeploying =
-      message.context.target &&
-      message.context.target === payloadUser?.slackUser;
+    const isUserDeploying = message.context.target === payloadUser?.slackUser;
 
     const updatedDeployMessage = getUpdatedDeployMessage({
       isUserDeploying,

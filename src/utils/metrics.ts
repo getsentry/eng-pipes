@@ -34,6 +34,7 @@ export const TARGETS = {
       target_type: 'STRING',
     },
   },
+
   assetSize: {
     dataset: 'product_eng',
     table: 'asset_sizes',
@@ -64,6 +65,7 @@ export const TARGETS = {
       created_at: 'timestamp',
     },
   },
+
   product: {
     dataset: 'product_eng',
     table: 'development_metrics',
@@ -109,6 +111,33 @@ export const TARGETS = {
       meta: 'string',
     },
   },
+
+  brokenBuilds: {
+    dataset: 'product_eng',
+    table: 'broken_builds',
+    schema: {
+      /**
+       * unique id to identify the build
+       */
+      build_id: 'string',
+
+      /**
+       * the repository where the build was broken
+       */
+      repo: 'string',
+
+      /**
+       * timestamp when builds started failing
+       */
+      start_timestamp: 'timestamp',
+
+      /**
+       * timestamp when build failures are resolved
+       */
+      end_timestamp: 'timestamp',
+    },
+  },
+
   freight_to_pr: {
     dataset: 'product_eng',
     table: 'freight_to_pull_request',
@@ -298,5 +327,29 @@ export function mapDeployToPullRequest(
       commit_sha,
     },
     TARGETS.freight_to_pr
+  );
+}
+
+interface BuildFailureParams {
+  id: string;
+  repo: string;
+  start_timestamp: Date;
+  end_timestamp: Date;
+}
+
+export function insertBuildFailure({
+  id,
+  repo,
+  start_timestamp,
+  end_timestamp,
+}: BuildFailureParams) {
+  return _insert(
+    {
+      id,
+      repo,
+      start_timestamp,
+      end_timestamp,
+    },
+    TARGETS.brokenBuilds
   );
 }
