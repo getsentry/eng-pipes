@@ -41,8 +41,12 @@ export async function buildServer(
   await server.register(fastifyFormBody);
 
   server.setErrorHandler((error, request, reply) => {
+    // Log to console when not in production environment
+    if (process.env.ENV !== 'production') {
+      console.error(error);
+    }
     Sentry.captureException(error);
-    reply.code(500).send({});
+    reply.code(500).send();
   });
 
   server.setNotFoundHandler(
