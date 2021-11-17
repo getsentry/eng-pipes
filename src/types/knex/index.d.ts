@@ -1,7 +1,11 @@
+import { MessageAttachment } from '@slack/bolt';
+import { ChatPostMessageArguments } from '@slack/web-api';
 import Knex from 'knex';
 
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+
+import { CheckRunForRequiredChecksText } from '..';
 
 declare module 'knex/types/tables' {
   interface User {
@@ -23,14 +27,40 @@ declare module 'knex/types/tables' {
     passed_at: Date | null;
   }
 
-  interface SlackMessageRow {
+  interface RequiredCheckContext {
+    status: BuildStatus;
+    checkRun: CheckRunForRequiredChecksText;
+    failed_at: Date;
+    updated_at?: Date;
+  }
+
+  interface PleaseDeployContext {
+    /**
+     * Slack user or channel id
+     */
+    target: string;
+    /**
+     * Slack lmessage content
+     */
+    text: string;
+
+    /**
+     * Slack's message attachment blocks
+     */
+    blocks: Exclude<MessageAttachment['blocks'], undefined>;
+  }
+
+  type SlackMessageRowContext =
+    | { type: SlackMessage.REQUIRED_CHECK; context: RequiredCheckContext }
+    | { type: SlackMessage.PLEASE_DEPLOY; context: PleaseDeployContext };
+
+  type SlackMessageRow<T> = {
     id: string;
     refId: string;
     channel: string;
     ts: string;
-    type: SlackMessage;
-    context: Record<string, any>;
-  }
+    type: T;
+  } & SlackMessageRowContext;
 
   interface Deploys {
     id: number;

@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
 import { BuildStatus, Color } from '@/config';
+import { SlackMessage } from '@/config/slackMessage';
 import { CheckRun } from '@/types';
 import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
 import { bolt } from '@api/slack';
@@ -10,7 +11,7 @@ import { getTextParts } from './getTextParts';
 
 interface ResolveFlakeyFailureParams {
   checkRun: CheckRun;
-  dbCheck: SlackMessageRow;
+  dbCheck: SlackMessageRow<SlackMessage.REQUIRED_CHECK>;
 }
 
 /**

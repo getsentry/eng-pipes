@@ -3,18 +3,18 @@ import { SlackMessageRow } from 'knex/types/tables';
 import { SlackMessage } from '@/config/slackMessage';
 import { db } from '@utils/db';
 
-export async function getSlackMessage(
-  type: SlackMessage,
+export async function getSlackMessage<T extends SlackMessage>(
+  type: T,
   refIds: string
-): Promise<SlackMessageRow>;
-export async function getSlackMessage(
-  type: SlackMessage,
+): Promise<SlackMessageRow<T>>;
+export async function getSlackMessage<T extends SlackMessage>(
+  type: T,
   refIds: string[]
-): Promise<SlackMessageRow[]>;
-export async function getSlackMessage(
-  type: SlackMessage,
+): Promise<SlackMessageRow<T>[]>;
+export async function getSlackMessage<T extends SlackMessage>(
+  type: T,
   refIds: string | string[]
-): Promise<SlackMessageRow | SlackMessageRow[]> {
+): Promise<SlackMessageRow<T> | SlackMessageRow<T>[]> {
   if (typeof refIds === 'string') {
     return await db('slack_messages').where({ type, refId: refIds }).first('*');
   } else {

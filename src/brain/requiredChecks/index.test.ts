@@ -1,3 +1,20 @@
+const mockInsert = jest.fn(() => Promise.resolve());
+const mockTable = jest.fn(() => ({
+  insert: mockInsert,
+}));
+const mockDataset = jest.fn(() => ({
+  table: mockTable,
+}));
+
+// Needs to be mocked before `@utils/metrics`
+jest.mock('@google-cloud/bigquery', () => ({
+  BigQuery: function () {
+    return {
+      dataset: mockDataset,
+    };
+  },
+}));
+
 import merge from 'lodash.merge';
 
 import { createGitHubEvent } from '@test/utils/github';
@@ -9,12 +26,13 @@ import {
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
+import { db } from '@/utils/db';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
 import { getTimestamp } from '@utils/db/getTimestamp';
 import * as saveSlackMessage from '@utils/db/saveSlackMessage';
+import { TARGETS } from '@utils/metrics';
 
 import { requiredChecks } from '.';
 
@@ -23,6 +41,12 @@ describe('requiredChecks', function () {
   let octokit;
   const postMessage = bolt.client.chat.postMessage as jest.Mock;
   const updateMessage = bolt.client.chat.update as jest.Mock;
+  const SCHEMA = Object.entries(TARGETS.brokenBuilds.schema).map(
+    ([name, type]) => ({
+      name,
+      type,
+    })
+  );
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -74,6 +98,9 @@ describe('requiredChecks', function () {
     octokit.repos.getCommit.mockClear();
     postMessage.mockClear();
     updateMessage.mockClear();
+    mockDataset.mockClear();
+    mockTable.mockClear();
+    mockInsert.mockClear();
     await db('slack_messages').delete();
     (getFailureMessages.getFailureMessages as jest.Mock).mockClear();
     (saveSlackMessage.saveSlackMessage as jest.Mock).mockClear();
@@ -551,6 +578,7 @@ describe('requiredChecks', function () {
         conclusion: 'failure',
         name: REQUIRED_CHECK_NAME,
         head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        completed_at: '2018-10-18T20:11:20.823Z',
         output: {
           title: '5 checks failed',
           summary: '5 checks failed',
@@ -626,6 +654,7 @@ describe('requiredChecks', function () {
         conclusion: 'success',
         name: REQUIRED_CHECK_NAME,
         head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        completed_at: '2018-10-18T23:14:30.707Z',
         output: {
           title: 'All checks passed',
           summary: 'All checks passed',
@@ -694,6 +723,20 @@ describe('requiredChecks', function () {
         },
       ]
     `);
+
+    // This also gets inserted into big query
+    expect(mockDataset).toHaveBeenCalledWith('product_eng');
+    expect(mockTable).toHaveBeenCalledWith('broken_builds');
+    expect(mockInsert).toHaveBeenCalledTimes(1);
+    expect(mockInsert).toHaveBeenCalledWith(
+      {
+        id: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        repo: 'getsentry/getsentry',
+        start_timestamp: new Date('2018-10-18T20:11:20.823Z'),
+        end_timestamp: new Date('2018-10-18T23:14:30.707Z'),
+      },
+      { schema: SCHEMA }
+    );
   });
 
   it('does not post if most jobs are still missing and there are no failures', async function () {
