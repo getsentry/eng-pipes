@@ -27,18 +27,41 @@ declare module 'knex/types/tables' {
     passed_at: Date | null;
   }
 
+  /**
+   * This interface describes the `context` field of `SlackMessageRow<REQUIRED_CHECK>`
+   */
   interface RequiredCheckContext {
+    /**
+     * The build status of commit
+     */
     status: BuildStatus;
+
+    /**
+     * Partial fields from GitHub's Check Run payload
+     */
     checkRun: CheckRunForRequiredChecksText;
+
+    /**
+     * Timestamp when the build failed
+     */
     failed_at: Date;
+
+    /**
+     * Timestamp when the build is no longer failing (not necessarily "passing"
+     * as it can be unknown)
+     */
     updated_at?: Date;
   }
 
+  /**
+   * This interface describes the `context` field of `SlackMessageRow<PLEASE_DEPLOY>`
+   */
   interface PleaseDeployContext {
     /**
      * Slack user or channel id
      */
     target: string;
+
     /**
      * Slack lmessage content
      */
@@ -55,10 +78,29 @@ declare module 'knex/types/tables' {
     | { type: SlackMessage.PLEASE_DEPLOY; context: PleaseDeployContext };
 
   type SlackMessageRow<T> = {
+    /**
+     * Database id
+     */
     id: string;
+
+    /**
+     * An external identifier for the message (e.g. a commit SHA)
+     */
     refId: string;
+
+    /**
+     * The Slack channel/target where the message was sent
+     */
     channel: string;
+
+    /**
+     * This is the `ts` field from Slack, it looks like a timestamp, but is not
+     */
     ts: string;
+
+    /**
+     * Type of the message
+     */
     type: T;
   } & SlackMessageRowContext;
 
