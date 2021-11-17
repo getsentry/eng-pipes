@@ -32,7 +32,7 @@ export async function buildServer(
     integrations: [
       new Sentry.Integrations.Http({ tracing: true }),
       new Tracing.Integrations.Postgres(),
-      new RewriteFrames({ root: __dirname || process.cwd() }),
+      new RewriteFrames({ root: process.cwd() }),
     ],
     tracesSampleRate: 1.0,
   });
