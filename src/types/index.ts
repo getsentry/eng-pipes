@@ -2,6 +2,7 @@ import { IncomingMessage, Server, ServerResponse } from 'http';
 
 import { Octokit } from '@octokit/rest';
 import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
+import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { FastifyInstance } from 'fastify';
 
 // e.g. the return type of `buildServer`
@@ -18,6 +19,17 @@ export type CompareCommits = GetResponseDataTypeFromEndpointMethod<
 export type ReposGetCommit = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.repos.getCommit
 >;
+
+export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
+
+// Note we intentionally only pick the pieces of checkRun that is needed to
+// construct a message in "requiredChecks", as we want to minimize the
+// properties to save to database
+//
+// Need to do this as we can't convert a string literal union to an array of literals
+export const CHECK_RUN_PROPERTIES = ['id', 'head_sha', 'html_url'] as const;
+export type CheckRunProperty = typeof CHECK_RUN_PROPERTIES[number];
+export type CheckRunForRequiredChecksText = Pick<CheckRun, CheckRunProperty>;
 
 type TravisRepository = {
   id: number;
