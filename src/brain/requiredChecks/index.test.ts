@@ -985,7 +985,7 @@ describe('requiredChecks', function () {
 
     // This is now required because of `updateRequiredCheck()` and its async db query
     // Alternatively, we'd have to do a more complex mock of the db query
-    // await tick();
+    await tick();
 
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
