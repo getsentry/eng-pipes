@@ -18,10 +18,6 @@ export async function updateRequiredCheck({
   messageId,
   checkRun,
 }: UpdateRequiredCheckParams) {
-  // TODO: Insert into big query the duration where master is down
-  // Only applies when status is FIXED or FLAKE
-  // we want repo, head_sha, start, finish, duration
-
   const updated_at = checkRun.completed_at
     ? new Date(checkRun.completed_at)
     : new Date();
@@ -34,14 +30,17 @@ export async function updateRequiredCheck({
     .select('*')
     .first();
 
-  // Update the slack message entry in db
   return await Promise.all([
+    // Insert into big query the duration where master is down
+    // Only applies when status is FIXED or FLAKE
     insertBuildFailure({
       id: checkRun.head_sha,
       repo: 'getsentry/getsentry',
       start_timestamp: new Date(previousBuild.context.failed_at),
       end_timestamp: updated_at,
     }),
+
+    // Update the slack message entry in db
     saveSlackMessage(
       SlackMessage.REQUIRED_CHECK,
       { id: messageId },
