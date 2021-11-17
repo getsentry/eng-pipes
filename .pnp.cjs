@@ -58,7 +58,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],
             ["fastify", "npm:3.24.0"],
             ["fastify-formbody", "npm:5.2.0"],
-            ["husky", "npm:7.0.4"],
+            ["husky", "npm:4.3.8"],
             ["jest", "npm:26.6.3"],
             ["jest-circus", "npm:26.6.3"],
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:0.95.14"],
@@ -3358,6 +3358,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["compare-versions", [
+        ["npm:3.6.0", {
+          "packageLocation": "./.yarn/cache/compare-versions-npm-3.6.0-0bb57ed638-7492a50cda.zip/node_modules/compare-versions/",
+          "packageDependencies": [
+            ["compare-versions", "npm:3.6.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["component-emitter", [
         ["npm:1.3.0", {
           "packageLocation": "./.yarn/cache/component-emitter-npm-1.3.0-4b848565b9-b3c46de38f.zip/node_modules/component-emitter/",
@@ -4897,6 +4906,25 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["path-exists", "npm:4.0.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:5.0.0", {
+          "packageLocation": "./.yarn/cache/find-up-npm-5.0.0-e03e9b796d-07955e3573.zip/node_modules/find-up/",
+          "packageDependencies": [
+            ["find-up", "npm:5.0.0"],
+            ["locate-path", "npm:6.0.0"],
+            ["path-exists", "npm:4.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["find-versions", [
+        ["npm:4.0.0", {
+          "packageLocation": "./.yarn/cache/find-versions-npm-4.0.0-e4bd62bace-2b4c749dc3.zip/node_modules/find-versions/",
+          "packageDependencies": [
+            ["find-versions", "npm:4.0.0"],
+            ["semver-regex", "npm:3.1.3"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["finity", [
@@ -5623,10 +5651,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["husky", [
-        ["npm:7.0.4", {
-          "packageLocation": "./.yarn/cache/husky-npm-7.0.4-917ba035c6-c6ec4af63d.zip/node_modules/husky/",
+        ["npm:4.3.8", {
+          "packageLocation": "./.yarn/unplugged/husky-npm-4.3.8-f7cd00e56d/node_modules/husky/",
           "packageDependencies": [
-            ["husky", "npm:7.0.4"]
+            ["husky", "npm:4.3.8"],
+            ["chalk", "npm:4.1.2"],
+            ["ci-info", "npm:2.0.0"],
+            ["compare-versions", "npm:3.6.0"],
+            ["cosmiconfig", "npm:7.0.1"],
+            ["find-versions", "npm:4.0.0"],
+            ["opencollective-postinstall", "npm:2.0.3"],
+            ["pkg-dir", "npm:5.0.0"],
+            ["please-upgrade-node", "npm:3.2.0"],
+            ["slash", "npm:3.0.0"],
+            ["which-pm-runs", "npm:1.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -7461,6 +7499,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["p-locate", "npm:4.1.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:6.0.0", {
+          "packageLocation": "./.yarn/cache/locate-path-npm-6.0.0-06a1e4c528-72eb661788.zip/node_modules/locate-path/",
+          "packageDependencies": [
+            ["locate-path", "npm:6.0.0"],
+            ["p-locate", "npm:5.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["lodash", [
@@ -8406,6 +8452,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["opencollective-postinstall", [
+        ["npm:2.0.3", {
+          "packageLocation": "./.yarn/cache/opencollective-postinstall-npm-2.0.3-954643c36b-0a68c5cef1.zip/node_modules/opencollective-postinstall/",
+          "packageDependencies": [
+            ["opencollective-postinstall", "npm:2.0.3"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["optionator", [
         ["npm:0.8.3", {
           "packageLocation": "./.yarn/cache/optionator-npm-0.8.3-bc555bc5b7-b8695ddf3d.zip/node_modules/optionator/",
@@ -8479,6 +8534,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["p-try", "npm:2.2.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:3.1.0", {
+          "packageLocation": "./.yarn/cache/p-limit-npm-3.1.0-05d2ede37f-7c3690c4db.zip/node_modules/p-limit/",
+          "packageDependencies": [
+            ["p-limit", "npm:3.1.0"],
+            ["yocto-queue", "npm:0.1.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["p-locate", [
@@ -8487,6 +8550,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["p-locate", "npm:4.1.0"],
             ["p-limit", "npm:2.3.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:5.0.0", {
+          "packageLocation": "./.yarn/cache/p-locate-npm-5.0.0-92cc7c7a3e-1623088f36.zip/node_modules/p-locate/",
+          "packageDependencies": [
+            ["p-locate", "npm:5.0.0"],
+            ["p-limit", "npm:3.1.0"]
           ],
           "linkType": "HARD",
         }]
@@ -8871,6 +8942,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["pkg-dir", "npm:4.2.0"],
             ["find-up", "npm:4.1.0"]
+          ],
+          "linkType": "HARD",
+        }],
+        ["npm:5.0.0", {
+          "packageLocation": "./.yarn/cache/pkg-dir-npm-5.0.0-3ba6768b42-b167bb8dac.zip/node_modules/pkg-dir/",
+          "packageDependencies": [
+            ["pkg-dir", "npm:5.0.0"],
+            ["find-up", "npm:5.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -9663,6 +9742,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["semver-regex", [
+        ["npm:3.1.3", {
+          "packageLocation": "./.yarn/cache/semver-regex-npm-3.1.3-2d32face69-a40c177166.zip/node_modules/semver-regex/",
+          "packageDependencies": [
+            ["semver-regex", "npm:3.1.3"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["semver-store", [
         ["npm:0.3.0", {
           "packageLocation": "./.yarn/cache/semver-store-npm-0.3.0-0fc88fd5b9-b38f747123.zip/node_modules/semver-store/",
@@ -9722,7 +9810,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],
             ["fastify", "npm:3.24.0"],
             ["fastify-formbody", "npm:5.2.0"],
-            ["husky", "npm:7.0.4"],
+            ["husky", "npm:4.3.8"],
             ["jest", "npm:26.6.3"],
             ["jest-circus", "npm:26.6.3"],
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:0.95.14"],
@@ -11248,6 +11336,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["which-pm-runs", [
+        ["npm:1.0.0", {
+          "packageLocation": "./.yarn/cache/which-pm-runs-npm-1.0.0-c3252bc9d6-30cf7aee31.zip/node_modules/which-pm-runs/",
+          "packageDependencies": [
+            ["which-pm-runs", "npm:1.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["wide-align", [
         ["npm:1.1.5", {
           "packageLocation": "./.yarn/cache/wide-align-npm-1.1.5-889d77e592-d5fc37cd56.zip/node_modules/wide-align/",
@@ -11453,6 +11550,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/yn-npm-3.1.1-8ad4259784-2c487b0e14.zip/node_modules/yn/",
           "packageDependencies": [
             ["yn", "npm:3.1.1"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["yocto-queue", [
+        ["npm:0.1.0", {
+          "packageLocation": "./.yarn/cache/yocto-queue-npm-0.1.0-c6c9a7db29-f77b3d8d00.zip/node_modules/yocto-queue/",
+          "packageDependencies": [
+            ["yocto-queue", "npm:0.1.0"]
           ],
           "linkType": "HARD",
         }]
