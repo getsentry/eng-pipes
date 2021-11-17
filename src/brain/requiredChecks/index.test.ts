@@ -36,6 +36,10 @@ import { TARGETS } from '@utils/metrics';
 
 import { requiredChecks } from '.';
 
+function tick() {
+  return new Promise((resolve) => setTimeout(resolve, 10));
+}
+
 describe('requiredChecks', function () {
   let fastify: Fastify;
   let octokit;
@@ -978,6 +982,11 @@ describe('requiredChecks', function () {
     );
     // Update previous failed messsages
     expect(updateMessage).toHaveBeenCalledTimes(3);
+
+    // This is now required because of `updateRequiredCheck()` and its async db query
+    // Alternatively, we'd have to do a more complex mock of the db query
+    // await tick();
+
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
       1,
