@@ -150,11 +150,7 @@ export async function handler(payload: FreightPayload) {
             bolt.client.chat.postMessage({
               thread_ts: message.ts,
               channel: message.channel,
-              text: `${
-                message.context.target
-                  ? `<@${message.context.target}>, your`
-                  : 'Your'
-              } commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications`,
+              text: `Your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications`,
             }),
           ]
         : []),

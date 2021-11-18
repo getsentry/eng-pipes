@@ -278,7 +278,7 @@ describe('updateDeployNotifications', function () {
       .toMatchInlineSnapshot(`
       Object {
         "channel": "channel_id",
-        "text": "<@U789123>, your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
+        "text": "Your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
         "thread_ts": "1234123.123",
       }
     `);
@@ -809,7 +809,7 @@ describe('updateDeployNotifications', function () {
       .toMatchInlineSnapshot(`
       Object {
         "channel": "channel_id",
-        "text": "<@U789123>, your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
+        "text": "Your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
         "thread_ts": "1234123.123",
       }
     `);
