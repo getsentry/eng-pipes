@@ -331,21 +331,21 @@ export function mapDeployToPullRequest(
 }
 
 interface BuildFailureParams {
-  id: string;
+  build_id: string;
   repo: string;
   start_timestamp: Date;
   end_timestamp: Date;
 }
 
 export function insertBuildFailure({
-  id,
+  build_id,
   repo,
   start_timestamp,
   end_timestamp,
 }: BuildFailureParams) {
   return _insert(
     {
-      id,
+      build_id,
       repo,
       start_timestamp,
       end_timestamp,
