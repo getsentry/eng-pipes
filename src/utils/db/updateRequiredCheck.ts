@@ -34,7 +34,7 @@ export async function updateRequiredCheck({
     // Insert into big query the duration where master is down
     // Only applies when status is FIXED or FLAKE
     insertBuildFailure({
-      id: checkRun.head_sha,
+      build_id: checkRun.head_sha,
       repo: 'getsentry/getsentry',
       start_timestamp: new Date(previousBuild.context.failed_at),
       end_timestamp: updated_at,
