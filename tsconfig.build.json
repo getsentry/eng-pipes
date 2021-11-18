@@ -2,5 +2,10 @@
   "extends": "./tsconfig.json",
   "include": ["src/**/*"],
   "exclude": ["**/*.test.ts", "**/__mocks__/**"],
-  "compileOnSave": false
+  "compileOnSave": false,
+  "compilerOptions": {
+    "sourceMap": true,
+    "inlineSources": true,
+    "sourceRoot": "/"
+  }
 }
