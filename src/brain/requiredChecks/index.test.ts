@@ -734,7 +734,7 @@ describe('requiredChecks', function () {
     expect(mockInsert).toHaveBeenCalledTimes(1);
     expect(mockInsert).toHaveBeenCalledWith(
       {
-        id: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        build_id: '6d225cb77225ac655d817a7551a26fff85090fe6',
         repo: 'getsentry/getsentry',
         start_timestamp: new Date('2018-10-18T20:11:20.823Z'),
         end_timestamp: new Date('2018-10-18T23:14:30.707Z'),
