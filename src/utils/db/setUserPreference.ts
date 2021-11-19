@@ -30,7 +30,7 @@ export async function setUserPreference(
     return true;
   } catch (err) {
     Sentry.captureException(err);
-    console.error(err); // eslint-disable-line no-console
+    console.error(err);
     return false;
   }
 }

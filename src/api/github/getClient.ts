@@ -1,6 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
-import { Octokit } from '@octokit/rest';
 import { retry } from '@octokit/plugin-retry';
+import { Octokit } from '@octokit/rest';
 
 const _INSTALLATION_CACHE = new Map();
 

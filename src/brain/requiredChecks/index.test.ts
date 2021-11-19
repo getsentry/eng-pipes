@@ -205,8 +205,7 @@ describe('requiredChecks', function () {
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
-        text:
-          'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
+        text: 'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
       })
     );
 
@@ -462,8 +461,7 @@ describe('requiredChecks', function () {
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
-        text:
-          'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
+        text: 'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
       })
     );
     // @ts-ignore
@@ -623,8 +621,7 @@ describe('requiredChecks', function () {
       1,
       expect.objectContaining({
         channel: REQUIRED_CHECK_CHANNEL,
-        text:
-          'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
+        text: 'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is failing (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
       })
     );
 
@@ -695,8 +692,7 @@ describe('requiredChecks', function () {
           blocks: [
             {
               text: {
-                text:
-                  'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ~failing~ passing! (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
+                text: 'getsentry@master <https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ~failing~ passing! (<https://github.com/Codertocat/Hello-World/runs/128620228|View Build>)',
                 type: 'mrkdwn',
               },
               type: 'section',

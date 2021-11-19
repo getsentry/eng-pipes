@@ -85,8 +85,7 @@ describe('githubLabelHandler', function () {
       expect(bolt.client.chat.postMessage).toBeCalledTimes(NUM_CHANNELS);
       for (let i = 1; i <= NUM_CHANNELS; i++) {
         expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
-          text:
-            '⏲ Issue pending triage: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+          text: '⏲ Issue pending triage: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
           channel: channelId(i),
         });
       }

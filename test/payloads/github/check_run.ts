@@ -5,8 +5,7 @@ const payload = {
     node_id: 'MDg6Q2hlY2tSdW4xMjg2MjAyMjg=',
     head_sha: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
     external_id: '',
-    url:
-      'https://api.github.com/repos/Codertocat/Hello-World/check-runs/128620228',
+    url: 'https://api.github.com/repos/Codertocat/Hello-World/check-runs/128620228',
     html_url: 'https://github.com/Codertocat/Hello-World/runs/128620228',
     details_url: 'https://octocoders.io',
     status: 'queued',
@@ -29,8 +28,7 @@ const payload = {
       head_sha: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       status: 'queued',
       conclusion: null,
-      url:
-        'https://api.github.com/repos/Codertocat/Hello-World/check-suites/118578147',
+      url: 'https://api.github.com/repos/Codertocat/Hello-World/check-suites/118578147',
       before: '6113728f27ae82c7b1a177c8d03f9e96e0adf246',
       after: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       pull_requests: [

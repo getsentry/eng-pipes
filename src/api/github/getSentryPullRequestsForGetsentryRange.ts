@@ -56,13 +56,12 @@ export async function getSentryPullRequestsForGetsentryRange(
     }
 
     const sentryCommitSha = isBumpCommit && getSentrySha(resp.data.message);
-    const pullRequests = await octokit.repos.listPullRequestsAssociatedWithCommit(
-      {
+    const pullRequests =
+      await octokit.repos.listPullRequestsAssociatedWithCommit({
         owner: OWNER,
         repo: isBumpCommit ? SENTRY_REPO : GETSENTRY_REPO,
         commit_sha: sentryCommitSha || current,
-      }
-    );
+      });
     return pullRequests.data;
   }
 

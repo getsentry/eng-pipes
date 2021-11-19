@@ -17,11 +17,9 @@ const payload = {
       'getsentry/sentry@88c22a29176df64cfc027637a5ccfd9da1544e9f\n\n#skipsentry',
     tree: {
       sha: '1b958b1e3c38113f0e9c5e33e45fb911fce41338',
-      url:
-        'https://api.github.com/repos/getsentry/getsentry/git/trees/1b958b1e3c38113f0e9c5e33e45fb911fce41338',
+      url: 'https://api.github.com/repos/getsentry/getsentry/git/trees/1b958b1e3c38113f0e9c5e33e45fb911fce41338',
     },
-    url:
-      'https://api.github.com/repos/getsentry/getsentry/git/commits/6d225cb77225ac655d817a7551a26fff85090fe6',
+    url: 'https://api.github.com/repos/getsentry/getsentry/git/commits/6d225cb77225ac655d817a7551a26fff85090fe6',
     comment_count: 0,
     verification: {
       verified: false,
@@ -30,8 +28,7 @@ const payload = {
       payload: null,
     },
   },
-  url:
-    'https://api.github.com/repos/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6',
+  url: 'https://api.github.com/repos/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6',
   html_url:
     'https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6',
   comments_url:
@@ -86,8 +83,7 @@ const payload = {
   parents: [
     {
       sha: '1af4671a0b4ebba7814161f412354e8eab0eeb39',
-      url:
-        'https://api.github.com/repos/getsentry/getsentry/commits/1af4671a0b4ebba7814161f412354e8eab0eeb39',
+      url: 'https://api.github.com/repos/getsentry/getsentry/commits/1af4671a0b4ebba7814161f412354e8eab0eeb39',
       html_url:
         'https://github.com/getsentry/getsentry/commit/1af4671a0b4ebba7814161f412354e8eab0eeb39',
     },
