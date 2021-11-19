@@ -249,13 +249,8 @@ export async function insertOss(
     data.target_id = issue.number;
     data.target_type = 'issue';
   } else if (eventType === 'pull_request') {
-    const {
-      action,
-      pull_request,
-      requested_reviewer,
-      requested_team,
-      label,
-    } = payload;
+    const { action, pull_request, requested_reviewer, requested_team, label } =
+      payload;
 
     data.object_id = pull_request.number;
     data.created_at = pull_request.created_at;

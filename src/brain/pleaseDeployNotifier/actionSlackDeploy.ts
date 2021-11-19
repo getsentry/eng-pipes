@@ -54,7 +54,7 @@ export async function actionSlackDeploy({ ack, body, client, context }) {
       { disableSlackNotifications: shouldMute }
     );
   } catch (err) {
-    console.error(err); // eslint-disable-line no-console
+    console.error(err);
     Sentry.captureException(err);
     await client.chat.postEphemeral({
       channel: body.channel?.id || '',

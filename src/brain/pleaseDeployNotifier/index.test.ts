@@ -139,8 +139,7 @@ describe('pleaseDeployNotifier', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
@@ -436,8 +435,7 @@ describe('pleaseDeployNotifier', function () {
       message: {
         bot_id: 'B01834PAJDT',
         type: 'message',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/455e3db9eb4fa6a1789b70e4045b194f02db0b59|455e3db> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/455e3db9eb4fa6a1789b70e4045b194f02db0b59|455e3db> is ready to deploy',
         user: 'U018UAXJVG8',
         ts: '1614650305.001000',
         team: 'T018UAQ7YRW',
@@ -450,8 +448,7 @@ describe('pleaseDeployNotifier', function () {
                 block_id: '37v',
                 text: {
                   type: 'mrkdwn',
-                  text:
-                    '<https://github.com/getsentry/getsentry/commit/455e3db9eb4fa6a1789b70e4045b194f02db0b59|*fix(workflow): Fix inbox experiment test orgs (#5179)*>',
+                  text: '<https://github.com/getsentry/getsentry/commit/455e3db9eb4fa6a1789b70e4045b194f02db0b59|*fix(workflow): Fix inbox experiment test orgs (#5179)*>',
                   verbatim: false,
                 },
               },
@@ -476,8 +473,7 @@ describe('pleaseDeployNotifier', function () {
                   },
                   {
                     type: 'mrkdwn',
-                    text:
-                      '<https://github.com/scttcper|Scott Cooper (scttcper)>',
+                    text: '<https://github.com/scttcper|Scott Cooper (scttcper)>',
                     verbatim: false,
                   },
                 ],
@@ -526,8 +522,7 @@ describe('pleaseDeployNotifier', function () {
                       },
                       text: {
                         type: 'mrkdwn',
-                        text:
-                          'Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me\n\n```\ndeploy notifications on\n```\n\nOr you can visit the App\'s "Home" tab in Slack.\n',
+                        text: 'Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me\n\n```\ndeploy notifications on\n```\n\nOr you can visit the App\'s "Home" tab in Slack.\n',
                         verbatim: false,
                       },
                       confirm: {
@@ -741,8 +736,7 @@ describe('pleaseDeployNotifier', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
@@ -963,8 +957,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
@@ -1177,8 +1170,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
@@ -1391,8 +1383,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
@@ -1587,8 +1578,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text:
-          'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
       })
     );
 
