@@ -16,5 +16,5 @@ Dockerfile
 !.yarn/releases
 !yarn.lock
 !.yarnrc.yml
-!.pnp.js
+!.pnp.cjs
 !package.json
