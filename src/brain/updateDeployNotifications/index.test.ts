@@ -339,6 +339,75 @@ describe('updateDeployNotifications', function () {
     `);
   });
 
+  /**
+   * This happens because we have `getsentry` deploying frontend and backend
+   * changes while `getsentry-frontend` only deploys frontend. Because of this
+   * relationship, we need to calculate the queued commits for deploy based on
+   * the latest deployed commit between the two Freight apps
+   */
+  it('only notifies slack user once when previous deploy of a Freight project is not the latest deploy on production', async function () {
+    // Add existing deploy to frontend project, this commit should be "more recent" than the `previous_sha` from payload
+    await db('deploys').insert({
+      external_id: 1,
+      user_id: 1,
+      app_name: 'getsentry-frontend',
+      user: 'test@sentry.io',
+      ref: 'master',
+      sha: '555555',
+      previous_sha: '444444',
+      environment: 'production',
+      status: 'finished',
+    });
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'success',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '982345',
+        output: {
+          title: 'All checks passed',
+          summary: 'All checks passed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+
+    // @ts-ignore
+    bolt.client.chat.postMessage.mockClear();
+
+    // Post message is called when finished
+    await handler({
+      ...payload,
+      sha: '888888',
+      previous_sha: '222222',
+      status: 'finished',
+    });
+
+    expect(octokit.repos.compareCommits).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        base: '555555',
+        head: '888888',
+      })
+    );
+  });
+
   it('updates all slack messages when deploying a range of commits', async function () {
     const updateMock = bolt.client.chat.update as jest.Mock;
 

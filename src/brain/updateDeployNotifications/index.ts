@@ -6,6 +6,7 @@ import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
+import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetweenProjects';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
@@ -38,6 +39,24 @@ export async function handler(payload: FreightPayload) {
   // Get the range of commits for this payload
   const getsentry = await getClient('getsentry');
 
+  let latestDeploy;
+
+  try {
+    // Retrieves the latest deploy between `getsentry` *AND*
+    // `getsentry-frontend`, so that the list of commits that were deployed is
+    // accurate. Otherwise one project could lag the other, and we will have
+    // overlapping "deployed" commits.
+    //
+    // e.g. `getsentry` deploys commit "A" then `getsentry-frontend` deploys
+    // "B", "C, "D", when we try to deploy `getsentry@G`, only commits "E", "F",
+    // and "G" get deployed (because "DEF" were frontend-only, we know there
+    // were no backend commits)
+    latestDeploy = await getLatestDeployBetweenProjects();
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(err);
+  }
+
   /**
    * Note this will not include `base`, but *does* include `head`.
    * Also `commits` is empty if `status` == 'behind'
@@ -46,7 +65,8 @@ export async function handler(payload: FreightPayload) {
     owner: OWNER,
     repo: GETSENTRY_REPO,
     head: payload.sha,
-    base: payload.previous_sha,
+    // latestDeploy should always exist
+    base: latestDeploy?.sha ?? payload.previous_sha,
   });
 
   const commitShas = data.commits.map(({ sha }) => sha);
