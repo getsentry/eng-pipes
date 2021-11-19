@@ -12,7 +12,7 @@ const ROOT = path.join(__dirname, '../brain');
  * this is because we sometimes export functions only for testing.
  */
 export async function loadBrain() {
-  const modules = getExportedFunctions(await getBrainModules()) as Function[];
+  const modules = getExportedFunctions(await getBrainModules());
   modules.forEach((m) => m());
 }
 
@@ -45,5 +45,5 @@ export function getExportedFunctions(fileNames: string[]) {
       console.error(err);
       return [];
     }
-  });
+  }) as Function[];
 }

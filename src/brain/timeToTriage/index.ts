@@ -128,6 +128,7 @@ async function markTriaged({
       name: UNTRIAGED_LABEL,
     });
   } catch (error) {
+    // @ts-expect-error
     if (error.status === 404) {
       // The label has already been removed. This can happen pretty easily if
       // a user adds two labels roughly simultaneously, because then we get

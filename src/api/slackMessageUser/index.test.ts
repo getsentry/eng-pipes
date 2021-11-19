@@ -1,4 +1,3 @@
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -38,7 +37,7 @@ describe('slackMessageUser', function () {
     };
     const [userId] = await db('users').returning('id').insert(user);
 
-    const result = await db('users')
+    await db('users')
       .where({
         id: userId,
       })
