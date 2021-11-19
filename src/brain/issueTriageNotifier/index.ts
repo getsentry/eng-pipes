@@ -86,7 +86,8 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
             channel: channel_id,
           });
         } catch (err) {
-          if (err.data.error === 'channel_not_found') {
+          // @ts-expect-error
+          if (err instanceof Error && err.data.error === 'channel_not_found') {
             pending.push(
               respond({
                 response_type: 'ephemeral',

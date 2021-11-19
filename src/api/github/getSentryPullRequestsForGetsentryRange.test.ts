@@ -1,17 +1,7 @@
-import merge from 'lodash.merge';
-
-import { createGitHubEvent } from '@test/utils/github';
-
-import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_BOT_ID,
-  REQUIRED_CHECK_CHANNEL,
-  REQUIRED_CHECK_NAME,
 } from '@/config';
-import { Fastify } from '@/types';
 import { getClient } from '@api/github/getClient';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 
 import { getSentryPullRequestsForGetsentryRange } from './getSentryPullRequestsForGetsentryRange';
 

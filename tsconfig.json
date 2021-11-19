@@ -9,6 +9,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
+    "noEmit": true,
     "pretty": true,
     "strict": true,
     "outDir": "./lib",
@@ -30,6 +31,6 @@
     }
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],
-  "exclude": ["*.test.ts", "**/__mocks__/**"],
+  "exclude": ["**/*.test.ts", "**/__mocks__/**"],
   "compileOnSave": false
 }

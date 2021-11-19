@@ -224,8 +224,7 @@ describe('github webhook', function () {
       {
         end_timestamp: null,
         event: 'build_queued',
-        meta:
-          '{"type":"check_run","name":"Octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821","base_commit":"f95f852bd8fca8fcc58a9a2d6c842781e32a215f","repo":"Codertocat/Hello-World","branch":"changes"}',
+        meta: '{"type":"check_run","name":"Octocoders-linter","head_commit":"ec26c3e57ca3a959ca5aad62de7213c562f8c821","base_commit":"f95f852bd8fca8fcc58a9a2d6c842781e32a215f","repo":"Codertocat/Hello-World","branch":"changes"}',
         object_id: 3,
         source: 'github',
         source_id: 128620228,

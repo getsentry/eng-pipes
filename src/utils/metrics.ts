@@ -170,14 +170,15 @@ async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
     });
     return results;
   } catch (err) {
-    console.error('error name', err.name);
-    console.error(err);
-    if (err.name === 'PartialFailureError') {
+    if (err instanceof Error && err.name === 'PartialFailureError') {
       // Some rows failed to insert, while others may have succeeded.
 
       // This error pops up when our automations close an old issue:
       // Value 1458881574000000 for field created_at of the destination table super-big-data:open_source.github_events is outside the allowed bounds. You can only stream to date range within 1825 days in the past and 366 days in the future relative to the current date.
-      err?.errors.forEach((error) => {
+      // 
+      // Special error from google sdk I think?
+      // @ts-expect-error
+      err.errors?.forEach((error) => {
         Sentry.setContext('errors', {
           messages: error.errors.map((e) => e.message).join('\n'),
           reasons: error.errors.map((e) => e.reason).join('\n'),
@@ -248,13 +249,8 @@ export async function insertOss(
     data.target_id = issue.number;
     data.target_type = 'issue';
   } else if (eventType === 'pull_request') {
-    const {
-      action,
-      pull_request,
-      requested_reviewer,
-      requested_team,
-      label,
-    } = payload;
+    const { action, pull_request, requested_reviewer, requested_team, label } =
+      payload;
 
     data.object_id = pull_request.number;
     data.created_at = pull_request.created_at;

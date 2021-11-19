@@ -26,8 +26,7 @@ export async function updateAppHome(slackUser: string) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text:
-          'Here you will find information about what I am capable of, as well as adjusting some of your options',
+        text: 'Here you will find information about what I am capable of, as well as adjusting some of your options',
       },
     },
   ];
@@ -58,8 +57,7 @@ export async function updateAppHome(slackUser: string) {
         type: 'section',
         text: {
           type: 'mrkdwn',
-          text:
-            'Enter your GitHub username below to get notifications when your changes are ready to deploy.',
+          text: 'Enter your GitHub username below to get notifications when your changes are ready to deploy.',
         },
       },
       {

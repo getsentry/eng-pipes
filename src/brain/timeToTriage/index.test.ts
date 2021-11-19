@@ -22,6 +22,7 @@ describe('timeToTriage', function () {
   });
 
   afterAll(async function () {
+    // @ts-expect-error
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
     await db.destroy();
@@ -60,11 +61,11 @@ describe('timeToTriage', function () {
     });
   }
 
-  function makePayload(repo: ?string, label: ?string, sender: ?string) {
+  function makePayload(repo?: string, label?: string, sender?: string) {
     repo = repo || 'test-ttt-simple';
 
     const labels = Array.from(octokit.issues._labels, (name) => ({ name }));
-    const payload = {
+    const payload: Record<string, any> = {
       sender: { login: sender || 'Skywalker' }, // default to external user
       repository: {
         name: repo,
@@ -80,17 +81,19 @@ describe('timeToTriage', function () {
     return payload;
   }
 
-  async function createIssue(repo: ?string, username: ?string) {
+  async function createIssue(repo?: string, username?: string) {
     await createGitHubEvent(
       fastify,
+        // @ts-expect-error
       'issues.opened',
       makePayload(repo, undefined, username)
     );
   }
 
-  async function addLabel(label: string, repo: ?string) {
+  async function addLabel(label: string, repo?: string) {
     await createGitHubEvent(
       fastify,
+      // @ts-expect-error
       'issues.labeled',
       makePayload(repo, label)
     );
