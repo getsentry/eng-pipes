@@ -14,7 +14,8 @@ Dockerfile
 !README*.md
 !.yarn/cache
 !.yarn/releases
+!.yarn/plugins
 !yarn.lock
 !.yarnrc.yml
-!.pnp.js
+!.pnp.cjs
 !package.json
