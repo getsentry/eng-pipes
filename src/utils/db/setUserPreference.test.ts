@@ -1,4 +1,3 @@
-import { getUser } from '@api/getUser';
 import { db } from '@utils/db';
 
 import { setUserPreference } from './setUserPreference';
