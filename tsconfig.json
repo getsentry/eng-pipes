@@ -9,6 +9,7 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
+    "noEmit": true,
     "pretty": true,
     "strict": true,
     "outDir": "./lib",
