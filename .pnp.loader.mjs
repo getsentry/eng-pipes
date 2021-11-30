@@ -123,7 +123,6 @@ function getFileFormat(filepath) {
     case `.json`: {
       throw new Error(`Unknown file extension ".json" for ${filepath}`);
     }
-    case ``:
     case `.js`: {
       const pkg = readPackageScope(filepath);
       if (pkg) {

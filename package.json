@@ -104,5 +104,5 @@
       "markdownlint"
     ]
   },
-  "packageManager": "yarn@3.2.0-rc.5"
+  "packageManager": "yarn@3.1.1"
 }
