@@ -272,19 +272,9 @@ describe('requiredChecks', function () {
       })
     );
     // @ts-ignore
-    expect(postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
-      "Here are the job statuses
-
-      <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821956965|backend test (1)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821952498|lint backend> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821957645|sentry cli test (0)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821955194|typescript and lint> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821960976|acceptance> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821960888|frontend tests> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821955073|sentry backend test> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821955151|webpack> -  ✅  success "
-    `);
+    expect(postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(
+      `"Here are the job statuses"`
+    );
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
@@ -527,18 +517,208 @@ describe('requiredChecks', function () {
       })
     );
     // @ts-ignore
-    expect(postMessage.mock.calls[1][0].text).toMatchInlineSnapshot(`
-      "Here are the job statuses
+    expect(postMessage.mock.calls[1][0].blocks).toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "text": Object {
+            "emoji": true,
+            "text": "Job Statuses",
+            "type": "plain_text",
+          },
+          "type": "header",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py|tests/snuba/rules/conditions/test_event_frequency.py#L570>
+          EventFrequencyPercentConditionTestCase.test_one_hour_with_events
 
-      <https://github.com/getsentry/getsentry/runs/1821956940|backend test (0)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821956965|backend test (1)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821952498|lint backend> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821957645|sentry cli test (0)> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821955194|typescript and lint> -  ❌  failure 
-      <https://github.com/getsentry/getsentry/runs/1821960976|acceptance> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821960888|frontend tests> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821955073|sentry backend test> -  ❌  skipped 
-      <https://github.com/getsentry/getsentry/runs/1821955151|webpack> -  ✅  success "
+      AssertionError
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
+          Process completed with exit code 2.
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821956965|backend test (1)> -  ❌  failure ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py|tests/snuba/rules/conditions/test_event_frequency.py#L570>
+          EventFrequencyPercentConditionTestCase.test_one_hour_with_events
+
+      AssertionError
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
+          Process completed with exit code 2.
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821952498|lint backend> -  ❌  failure ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py|tests/snuba/rules/conditions/test_event_frequency.py#L570>
+          EventFrequencyPercentConditionTestCase.test_one_hour_with_events
+
+      AssertionError
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
+          Process completed with exit code 2.
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821957645|sentry cli test (0)> -  ❌  failure ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py|tests/snuba/rules/conditions/test_event_frequency.py#L570>
+          EventFrequencyPercentConditionTestCase.test_one_hour_with_events
+
+      AssertionError
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
+          Process completed with exit code 2.
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821955194|typescript and lint> -  ❌  failure ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py|tests/snuba/rules/conditions/test_event_frequency.py#L570>
+          EventFrequencyPercentConditionTestCase.test_one_hour_with_events
+
+      AssertionError
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "text": Object {
+            "text": "\`\`\`
+          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
+          Process completed with exit code 2.
+          \`\`\`",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821960976|acceptance> -  ❌  skipped ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821960888|frontend tests> -  ❌  skipped ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821955073|sentry backend test> -  ❌  skipped ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+        Object {
+          "elements": Array [
+            Object {
+              "text": "<https://github.com/getsentry/getsentry/runs/1821955151|webpack> -  ✅  success ",
+              "type": "mrkdwn",
+            },
+          ],
+          "type": "context",
+        },
+      ]
     `);
   });
 
