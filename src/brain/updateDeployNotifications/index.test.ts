@@ -473,7 +473,9 @@ describe('updateDeployNotifications', function () {
 
     // Each commit will cause a message
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
-    const slackMessages = await db('slack_messages').select('*');
+    const slackMessages = await db('slack_messages')
+      .select('*')
+      .orderBy('refId');
     expect(slackMessages).toHaveLength(2);
     expect(slackMessages[0]).toMatchObject({
       refId: '982345',
