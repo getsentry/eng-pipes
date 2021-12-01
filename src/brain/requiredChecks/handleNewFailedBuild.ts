@@ -1,8 +1,15 @@
 import * as Sentry from '@sentry/node';
 
+import { getClient } from '@/api/github/getClient';
 import { jobStatuses } from '@/blocks/jobStatuses';
 import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
-import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
+import {
+  BuildStatus,
+  Color,
+  GETSENTRY_REPO,
+  OWNER,
+  REQUIRED_CHECK_CHANNEL,
+} from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -106,6 +113,34 @@ export async function handleNewFailedBuild({
   const failedJobs = failedOrMissingJobs.filter(
     ([, conclusion]) => !conclusion.includes('missing')
   );
+
+  /**
+   * Examine failed jobs and try to determine if it was an intermittent issue or not. If so, we can restart the workflow and ignore this ever happened.
+   */
+  function isIntermittentIssue(failedJobs) {
+    return false;
+  }
+
+  const shouldRestart = isIntermittentIssue(failedJobs);
+
+  if (shouldRestart) {
+    const restartTx = Sentry.startTransaction({
+      op: 'brain',
+      name: 'requiredChecks.restarting',
+    });
+
+    const octokit = await getClient(OWNER);
+
+    // Restart the workflow
+    octokit.rest.checks.rerequestRun({
+      owner: OWNER,
+      repo: GETSENTRY_REPO,
+      check_run_id: checkRun.id,
+    });
+
+    restartTx.finish();
+    return;
+  }
 
   // TODO: For each failed job, extract the check run id and then grab and parse the annotations from GH.
   // Depending on the annotations we may need to:
