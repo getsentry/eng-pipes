@@ -13,9 +13,14 @@ export type Fastify = FastifyInstance<Server, IncomingMessage, ServerResponse>;
  */
 const octokit = new Octokit();
 
+export type Issue = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.issues.get
+>;
+
 export type CompareCommits = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.repos.compareCommits
 >;
+
 export type ReposGetCommit = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.repos.getCommit
 >;
