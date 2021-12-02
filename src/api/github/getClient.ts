@@ -7,14 +7,21 @@ const _INSTALLATION_CACHE = new Map();
 function _getClient(installationId?: number) {
   const OctokitWithRetries = Octokit.plugin(retry);
 
+  const auth = {
+    // Initialize GitHub App with id:private_key pair and generate JWT which is used for
+    appId: Number(process.env.GH_APP_IDENTIFIER),
+    privateKey: process.env.GH_APP_SECRET_KEY,
+
+    // We are doing this convoluted spread because `createAppAuth` will throw if
+    // `installationId` is a key in `auth` object. Functionally, nothing
+    // changes, but now throws if `installationId` is undefined (and present in
+    // `auth` object)
+    ...(installationId ? { installationId } : {}),
+  };
+
   return new OctokitWithRetries({
     authStrategy: createAppAuth,
-    auth: {
-      // Initialize GitHub App with id:private_key pair and generate JWT which is used for
-      appId: Number(process.env.GH_APP_IDENTIFIER),
-      privateKey: process.env.GH_APP_SECRET_KEY,
-      installationId,
-    },
+    auth,
   });
 }
 
