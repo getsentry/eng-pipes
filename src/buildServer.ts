@@ -1,4 +1,3 @@
-import { createNodeMiddleware } from '@octokit/webhooks';
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
@@ -78,10 +77,7 @@ export async function buildServer(
   // POSTs. Our event handlers for both are under loadBrain.
   // @ts-expect-error
   server.use('/apps/slack/events', bolt.receiver.requestListener);
-  server.use(
-    '/webhooks/github',
-    createNodeMiddleware(githubEvents, { path: '/' })
-  );
+  server.use('/webhooks/github', githubEvents.middleware);
   await loadBrain();
 
   // Other webhooks operate as regular Fastify handlers (albeit routed to

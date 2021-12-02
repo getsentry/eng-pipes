@@ -11,7 +11,6 @@ import {
 } from '@/config';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { Issue } from '@/types';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
@@ -53,15 +52,9 @@ export const opts = {
   },
 };
 
-const getLabelName = (label?: Issue['labels'][number]) =>
-  typeof label === 'string' ? label : label?.name || '';
-
-const getIssueTeamLabel = (issue: Issue) => {
-  const label = issue.labels.find((label) =>
-    getLabelName(label).startsWith(TEAM_LABEL_PREFIX)
-  );
-  return getLabelName(label) || DEFAULT_TEAM_LABEL;
-};
+const getIssueTeamLabel = (issue: { labels: { name: string }[] }) =>
+  issue.labels.find((label) => label.name.startsWith(TEAM_LABEL_PREFIX))
+    ?.name || DEFAULT_TEAM_LABEL;
 
 const getRoutingTimestamp = async (
   octokit: Octokit,
@@ -81,8 +74,7 @@ const getRoutingTimestamp = async (
       event.event === 'labeled' && event.label.name === UNTRIAGED_LABEL
   );
   const lastRouteEvent = routingEvents[routingEvents.length - 1];
-  // Due to @octokit/webhooks upgrade, created_at is now string|undefined
-  return Date.parse(lastRouteEvent.created_at || '');
+  return Date.parse(lastRouteEvent.created_at);
 };
 
 export const handler = async (
