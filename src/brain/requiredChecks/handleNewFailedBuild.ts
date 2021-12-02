@@ -107,25 +107,6 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  /**
-   * Examine failed jobs and try to determine if it was an intermittent issue or not. If so, we can restart the workflow and ignore this ever happened.
-   */
-  function isIntermittentIssue(failedJobs) {
-    return false;
-  }
-
-  const shouldRestart = isIntermittentIssue(failedJobs);
-
-  if (shouldRestart) {
-    // Restart the workflow
-
-    Sentry.startTransaction({
-      op: 'debug',
-      name: 'requiredChecks.restarting',
-    }).finish();
-    return;
-  }
-
   // TODO: For each failed job, extract the check run id and then grab and parse the annotations from GH.
   // Depending on the annotations we may need to:
   // 2) restart the job if we encountered flakey errors
