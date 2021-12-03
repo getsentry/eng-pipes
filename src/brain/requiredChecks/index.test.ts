@@ -549,16 +549,6 @@ describe('requiredChecks', function () {
           "type": "section",
         },
         Object {
-          "text": Object {
-            "text": "\`\`\`
-          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
-          Process completed with exit code 2.
-          \`\`\`",
-            "type": "mrkdwn",
-          },
-          "type": "section",
-        },
-        Object {
           "elements": Array [
             Object {
               "text": "<https://github.com/getsentry/getsentry/runs/1821956965|backend test (1)> -  ❌  failure ",
@@ -574,16 +564,6 @@ describe('requiredChecks', function () {
           EventFrequencyPercentConditionTestCase.test_one_hour_with_events
 
       AssertionError
-          \`\`\`",
-            "type": "mrkdwn",
-          },
-          "type": "section",
-        },
-        Object {
-          "text": Object {
-            "text": "\`\`\`
-          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
-          Process completed with exit code 2.
           \`\`\`",
             "type": "mrkdwn",
           },
@@ -611,16 +591,6 @@ describe('requiredChecks', function () {
           "type": "section",
         },
         Object {
-          "text": Object {
-            "text": "\`\`\`
-          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
-          Process completed with exit code 2.
-          \`\`\`",
-            "type": "mrkdwn",
-          },
-          "type": "section",
-        },
-        Object {
           "elements": Array [
             Object {
               "text": "<https://github.com/getsentry/getsentry/runs/1821957645|sentry cli test (0)> -  ❌  failure ",
@@ -642,16 +612,6 @@ describe('requiredChecks', function () {
           "type": "section",
         },
         Object {
-          "text": Object {
-            "text": "\`\`\`
-          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
-          Process completed with exit code 2.
-          \`\`\`",
-            "type": "mrkdwn",
-          },
-          "type": "section",
-        },
-        Object {
           "elements": Array [
             Object {
               "text": "<https://github.com/getsentry/getsentry/runs/1821955194|typescript and lint> -  ❌  failure ",
@@ -667,16 +627,6 @@ describe('requiredChecks', function () {
           EventFrequencyPercentConditionTestCase.test_one_hour_with_events
 
       AssertionError
-          \`\`\`",
-            "type": "mrkdwn",
-          },
-          "type": "section",
-        },
-        Object {
-          "text": Object {
-            "text": "\`\`\`
-          <https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github|.github#L1>
-          Process completed with exit code 2.
           \`\`\`",
             "type": "mrkdwn",
           },
