@@ -1,4 +1,5 @@
 import MockCompareCommits from '@test/compareCommits.json';
+import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 
 import { MockOctokitError } from './mockError';
 
@@ -7,6 +8,9 @@ function mockClient() {
     actions: {
       listWorkflowRunsForRepo: jest.fn(),
       cancelWorkflowRun: jest.fn(),
+      getJobForWorkflowRun: jest.fn(async ({ job_id }) => {
+        return { data: workflow_run_job({ job_id }) };
+      }),
     },
     checks: {
       listForRef: jest.fn(),
@@ -113,6 +117,10 @@ function mockClient() {
         };
       }),
     },
+
+    request: jest.fn(async () => {
+      return {};
+    }),
   };
 }
 

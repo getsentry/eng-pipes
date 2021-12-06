@@ -1,15 +1,8 @@
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@/api/github/getClient';
 import { jobStatuses } from '@/blocks/jobStatuses';
 import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
-import {
-  BuildStatus,
-  Color,
-  GETSENTRY_REPO,
-  OWNER,
-  REQUIRED_CHECK_CHANNEL,
-} from '@/config';
+import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -18,7 +11,9 @@ import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
+import { checkForFlakes } from './checkForFlakes';
 import { OK_CONCLUSIONS } from './constants';
+import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
 
@@ -51,6 +46,12 @@ export async function handleNewFailedBuild({
     name: 'requiredChecks.failed',
     description: 'Required check failed',
   });
+
+  const restartTx = Sentry.startTransaction({
+    op: 'brain',
+    name: 'requiredChecks.restarting',
+  });
+
   // Retrieve commit information
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
 
@@ -114,40 +115,19 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  /**
-   * Examine failed jobs and try to determine if it was an intermittent issue or not. If so, we can restart the workflow and ignore this ever happened.
-   */
-  function isIntermittentIssue(failedJobs) {
-    return false;
-  }
+  const { isRestarting } = await checkForFlakes(
+    // TODO, extractRunId is a bit misleading, the id in these URLs are job ids
+    // *AND* check run id (they are the same)
+    failedJobs.map(([jobUrl]) => Number(extractRunId(jobUrl) ?? 0))
+  );
 
-  const shouldRestart = isIntermittentIssue(failedJobs);
-
-  if (shouldRestart) {
-    const restartTx = Sentry.startTransaction({
-      op: 'brain',
-      name: 'requiredChecks.restarting',
-    });
-
-    const octokit = await getClient(OWNER);
-
-    // Restart the workflow
-    octokit.rest.checks.rerequestRun({
-      owner: OWNER,
-      repo: GETSENTRY_REPO,
-      check_run_id: checkRun.id,
-    });
-
+  // Workflow(s) are being restarted, do not post in Slack channel about
+  // failures *yet* since we only auto restart if the first run attempt fails,
+  // so that we do not constantly restart without being able to fail.
+  if (isRestarting) {
     restartTx.finish();
     return;
   }
-
-  // TODO: For each failed job, extract the check run id and then grab and parse the annotations from GH.
-  // Depending on the annotations we may need to:
-  // 2) restart the job if we encountered flakey errors
-  // x) post annotations for failed job
-  //  xx) ignore annotations for canceled job due to a failure
-  const annotationsByJob = await getAnnotations(failedJobs);
 
   const newFailureMessage =
     !existingFailureMessage &&
@@ -183,6 +163,10 @@ export async function handleNewFailedBuild({
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage && !!jobs?.length) {
+    // For each failed job, extract the check run id and then grab and parse the annotations from GH.
+    // Depending on the annotations we may need to:
+    const annotationsByJob = await getAnnotations(failedJobs);
+
     // Add thread for jobs list
     await bolt.client.chat.postMessage({
       channel: `${newFailureMessage.channel}`,
