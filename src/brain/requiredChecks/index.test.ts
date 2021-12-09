@@ -34,15 +34,15 @@ import { getTimestamp } from '@utils/db/getTimestamp';
 import * as saveSlackMessage from '@utils/db/saveSlackMessage';
 import { TARGETS } from '@utils/metrics';
 
-import { restartFlakeyJobs } from './restartFlakeyJobs';
+import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 import { requiredChecks } from '.';
 
 function tick() {
   return new Promise((resolve) => setTimeout(resolve, 10));
 }
 
-jest.mock('./restartFlakeyJobs', () => ({
-  restartFlakeyJobs: jest.fn(async () => ({ isRestarting: false })),
+jest.mock('./rerunFlakeyJobs', () => ({
+  rerunFlakeyJobs: jest.fn(async () => ({ isRestarting: false })),
 }));
 
 describe('requiredChecks', function () {
@@ -1142,7 +1142,7 @@ describe('requiredChecks', function () {
 
   it('does not notify slack channel when restarting due to intermittent CI issue', async function () {
     // @ts-expect-error
-    restartFlakeyJobs.mockImplementation(async () => ({ isRestarting: true }));
+    rerunFlakeyJobs.mockImplementation(async () => ({ isRestarting: true }));
 
     await db('users').insert({
       email: 'matej.minar@sentry.io',

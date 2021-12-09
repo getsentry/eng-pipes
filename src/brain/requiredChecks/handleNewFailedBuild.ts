@@ -15,7 +15,7 @@ import { OK_CONCLUSIONS } from './constants';
 import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
-import { restartFlakeyJobs } from './restartFlakeyJobs';
+import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 
 interface HandleNewFailedBuildParams {
   checkRun: CheckRun;
@@ -47,9 +47,9 @@ export async function handleNewFailedBuild({
     description: 'Required check failed',
   });
 
-  const restartTx = Sentry.startTransaction({
+  const rerunTx = Sentry.startTransaction({
     op: 'brain',
-    name: 'requiredChecks.restarting',
+    name: 'requiredChecks.rerunning',
   });
 
   // Retrieve commit information
@@ -115,17 +115,17 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  const { hasRestarts } = await restartFlakeyJobs(
+  const { hasReruns } = await rerunFlakeyJobs(
     // TODO, extractRunId is a bit misleading, the id in these URLs are job ids
     // *AND* check run id (they are the same)
     failedJobs.map(([jobUrl]) => Number(extractRunId(jobUrl) ?? 0))
   );
 
-  // Workflow(s) are being restarted, do not post in Slack channel about
-  // failures *yet* since we only auto restart if the first run attempt fails,
-  // so that we do not constantly restart without being able to fail.
-  if (hasRestarts) {
-    restartTx.finish();
+  // Workflow(s) are being re-run, do not post in Slack channel about
+  // failures *yet* since we only auto re-run if the first run attempt fails,
+  // so that we do not constantly re-run without being able to fail.
+  if (hasReruns) {
+    rerunTx.finish();
     return;
   }
 

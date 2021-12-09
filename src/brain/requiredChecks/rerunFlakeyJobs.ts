@@ -7,11 +7,11 @@ import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
  * Examine failed jobs and try to determine if it was an intermittent issue
  * or not. If so, we can restart the workflow and ignore this ever happened.
  */
-export async function restartFlakeyJobs(failedJobIds: number[]) {
+export async function rerunFlakeyJobs(failedJobIds: number[]) {
   const octokit = await getClient(OWNER);
 
-  // Results will hold a map of <workflowRunId, true>
-  const results = new Map<number, true>();
+  // An entry will exist if it has been re-run
+  const reruns = new Map<number, true>();
 
   for (const job_id of failedJobIds) {
     // We first need to get the job from GH API
@@ -29,7 +29,7 @@ export async function restartFlakeyJobs(failedJobIds: number[]) {
     }
 
     // The job's workflow has already been restarted, check next failed job.
-    if (results.has(job.run_id)) {
+    if (reruns.has(job.run_id)) {
       continue;
     }
 
@@ -58,11 +58,11 @@ export async function restartFlakeyJobs(failedJobIds: number[]) {
           run_id: job.run_id,
         }
       );
-      results.set(job.run_id, true);
+      reruns.set(job.run_id, true);
     }
   }
 
   return {
-    hasRestarts: results.size > 1,
+    hasReruns: reruns.size > 1,
   };
 }
