@@ -21,7 +21,7 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
       job_id,
     });
 
-    const attempt_number = Number(job.run_attempt ?? 0);
+    const attempt_number = Number(job.run_attempt ?? 1);
 
     // This has already been run once, do not attempt to retry. Check next failed job.
     if (attempt_number > 1) {
