@@ -115,7 +115,7 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  const { isRestarting } = await restartFlakeyJobs(
+  const { hasRestarts } = await restartFlakeyJobs(
     // TODO, extractRunId is a bit misleading, the id in these URLs are job ids
     // *AND* check run id (they are the same)
     failedJobs.map(([jobUrl]) => Number(extractRunId(jobUrl) ?? 0))
@@ -124,7 +124,7 @@ export async function handleNewFailedBuild({
   // Workflow(s) are being restarted, do not post in Slack channel about
   // failures *yet* since we only auto restart if the first run attempt fails,
   // so that we do not constantly restart without being able to fail.
-  if (isRestarting) {
+  if (hasRestarts) {
     restartTx.finish();
     return;
   }

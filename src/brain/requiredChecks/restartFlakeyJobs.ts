@@ -10,8 +10,8 @@ import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
 export async function restartFlakeyJobs(failedJobIds: number[]) {
   const octokit = await getClient(OWNER);
 
-  // Results will hold a map of <workflowRunId, <data>>
-  const results = {};
+  // Results will hold a map of <workflowRunId, true>
+  const results = new Map<number, true>();
 
   for (const job_id of failedJobIds) {
     // We first need to get the job from GH API
@@ -29,7 +29,7 @@ export async function restartFlakeyJobs(failedJobIds: number[]) {
     }
 
     // The job's workflow has already been restarted, check next failed job.
-    if (results[job.run_id]) {
+    if (results.has(job.run_id)) {
       continue;
     }
 
@@ -48,8 +48,8 @@ export async function restartFlakeyJobs(failedJobIds: number[]) {
 
     // Restart the workflow
     // https://docs.github.com/en/rest/reference/actions#re-run-a-workflow
-    const reRunPromise =
-      restartableFailedStep &&
+
+    if (restartableFailedStep) {
       octokit.request(
         'POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun',
         {
@@ -58,12 +58,11 @@ export async function restartFlakeyJobs(failedJobIds: number[]) {
           run_id: job.run_id,
         }
       );
-
-    results[job.run_id] = reRunPromise;
+      results.set(job.run_id, true);
+    }
   }
 
   return {
-    isRestarting: Object.keys(results).length > 1,
-    results,
+    hasRestarts: results.size > 1,
   };
 }
