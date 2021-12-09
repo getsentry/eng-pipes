@@ -10,6 +10,42 @@ function mockClient() {
     },
     checks: {
       listForRef: jest.fn(),
+      listAnnotations: jest.fn(async () => {
+        return {
+          data: [
+            {
+              path: 'tests/snuba/rules/conditions/test_event_frequency.py',
+              blob_href:
+                'https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/tests/snuba/rules/conditions/test_event_frequency.py',
+              start_line: 570,
+              start_column: null,
+              end_line: 570,
+              end_column: null,
+              annotation_level: 'failure',
+              title:
+                'tests/snuba/rules/conditions/test_event_frequency.py#L570',
+              message:
+                'EventFrequencyPercentConditionTestCase.test_one_hour_with_events\n' +
+                '\n' +
+                'AssertionError',
+              raw_details: null,
+            },
+            {
+              path: '.github',
+              blob_href:
+                'https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github',
+              start_line: 1,
+              start_column: null,
+              end_line: 1,
+              end_column: null,
+              annotation_level: 'failure',
+              title: '.github#L1',
+              message: 'Process completed with exit code 2.',
+              raw_details: null,
+            },
+          ],
+        };
+      }),
     },
     git: {
       getCommit: jest.fn(),

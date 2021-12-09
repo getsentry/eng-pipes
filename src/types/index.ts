@@ -24,6 +24,9 @@ export type CompareCommits = GetResponseDataTypeFromEndpointMethod<
 export type ReposGetCommit = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.repos.getCommit
 >;
+export type Annotation = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.checks.listAnnotations
+>[number];
 
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 

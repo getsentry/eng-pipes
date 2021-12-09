@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/node';
 
+import { jobStatuses } from '@/blocks/jobStatuses';
 import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
 import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -11,6 +12,7 @@ import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 import { OK_CONCLUSIONS } from './constants';
+import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
 
 interface HandleNewFailedBuildParams {
@@ -18,16 +20,13 @@ interface HandleNewFailedBuildParams {
 }
 
 /**
- * Transform GitHub Markdown link to Slack link
+ * The conclusion from the GH Required Checks check has an emoji as a prefix,
+ * strip it and return a trimmed string
+ *
+ * @param str Conclusion string from the GitHub Required Checks check
  */
-function githubMdToSlack(str: string) {
-  const pattern = /\[([^\]]+)\]\(([^)]+)\)/;
-  const matches = str.match(pattern);
-  if (matches) {
-    return `<${matches[2]}|${matches[1]}>`;
-  }
-
-  return str;
+function getConclusionString(str: string) {
+  return str.trim().split(' ').slice(-1)[0];
 }
 
 type AllowedCheckRunPropertyTuple = [CheckRunProperty, any];
@@ -66,20 +65,20 @@ export async function handleNewFailedBuild({
     .slice(2) // First 2 rows are table headers + spacer
     .map((text) => text.split('|').filter(Boolean)); // Split and filter out empty els
 
-  const failedJobs =
+  const failedOrMissingJobs =
     jobs?.filter(
       ([, conclusion]) =>
-        !OK_CONCLUSIONS.includes(conclusion.trim().split(' ').slice(-1)[0])
+        !OK_CONCLUSIONS.includes(getConclusionString(conclusion))
     ) ?? [];
 
   // If all failed jobs are just missing, and the # of missing jobs represents > 50% of all jobs...
   // then ignore it. Due to GHA, it's difficult to tell if a job is actually missing vs it hasn't started yet
-  const missingJobs = failedJobs.filter(([, conclusion]) =>
+  const missingJobs = failedOrMissingJobs.filter(([, conclusion]) =>
     conclusion.includes('missing')
   );
 
   if (
-    missingJobs.length === failedJobs.length &&
+    missingJobs.length === failedOrMissingJobs.length &&
     missingJobs.length >= (jobs?.length ?? 0) / 2
   ) {
     Sentry.withScope((scope) => {
@@ -100,15 +99,20 @@ export async function handleNewFailedBuild({
   }
 
   const text = getTextParts(checkRun).join(' ');
-  const jobsList = jobs
-    ?.map(
-      ([jobName, conclusion]) => `${githubMdToSlack(jobName)} - ${conclusion}`
-    )
-    .join('\n');
-
   // Check if getsentry is already in a failing state, if it is then do not ping `REQUIRED_CHECK_CHANNEL` until
   // we are green again. This can happen when either 1) getsentry is actually broken or 2) flakey tests
   const [existingFailureMessage] = await getFailureMessages();
+
+  const failedJobs = failedOrMissingJobs.filter(
+    ([, conclusion]) => !conclusion.includes('missing')
+  );
+
+  // TODO: For each failed job, extract the check run id and then grab and parse the annotations from GH.
+  // Depending on the annotations we may need to:
+  // 2) restart the job if we encountered flakey errors
+  // x) post annotations for failed job
+  //  xx) ignore annotations for canceled job due to a failure
+  const annotationsByJob = await getAnnotations(failedJobs);
 
   const newFailureMessage =
     !existingFailureMessage &&
@@ -143,14 +147,13 @@ export async function handleNewFailedBuild({
     }));
 
   // Only thread jobs list statuses for new failures
-  if (newFailureMessage) {
+  if (newFailureMessage && !!jobs?.length) {
     // Add thread for jobs list
     await bolt.client.chat.postMessage({
       channel: `${newFailureMessage.channel}`,
       thread_ts: `${newFailureMessage.ts}`,
-      text: `Here are the job statuses
-
-${jobsList}`,
+      text: `Here are the job statuses`,
+      blocks: jobStatuses(jobs, annotationsByJob),
     });
   }
 
