@@ -163,8 +163,9 @@ export async function handleNewFailedBuild({
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage && !!jobs?.length) {
-    // For each failed job, extract the check run id and then grab and parse the annotations from GH.
-    // Depending on the annotations we may need to:
+    // For each failed job, extract the check run id and then grab and parse the
+    // annotations from GH.  These annotations will be sent in a thread to Slack
+    // for the failing build.
     const annotationsByJob = await getAnnotations(failedJobs);
 
     // Add thread for jobs list
