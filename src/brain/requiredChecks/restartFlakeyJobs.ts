@@ -7,7 +7,7 @@ import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
  * Examine failed jobs and try to determine if it was an intermittent issue
  * or not. If so, we can restart the workflow and ignore this ever happened.
  */
-export async function checkForFlakes(failedJobIds: number[]) {
+export async function restartFlakeyJobs(failedJobIds: number[]) {
   const octokit = await getClient(OWNER);
 
   // Results will hold a map of <workflowRunId, <data>>

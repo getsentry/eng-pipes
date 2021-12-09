@@ -3,9 +3,9 @@ import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getClient } from '@api/github/getClient';
 
-import { checkForFlakes } from './checkForFlakes';
+import { restartFlakeyJobs } from './restartFlakeyJobs';
 
-describe('requiredChecks.checkForFlakes', function () {
+describe('requiredChecks.restartFlakeyJobs', function () {
   let octokit;
 
   beforeAll(async function () {
@@ -33,7 +33,7 @@ describe('requiredChecks.checkForFlakes', function () {
       }
     );
     // Both of these jobs will have same workflow id
-    await checkForFlakes([1, 2]);
+    await restartFlakeyJobs([1, 2]);
 
     expect(octokit.request).toHaveBeenCalled();
   });
@@ -61,7 +61,7 @@ describe('requiredChecks.checkForFlakes', function () {
       }
     );
 
-    await checkForFlakes([1, 2]);
+    await restartFlakeyJobs([1, 2]);
 
     expect(octokit.request).toHaveBeenCalledTimes(2);
     expect(octokit.request).toHaveBeenCalledWith(
@@ -89,7 +89,7 @@ describe('requiredChecks.checkForFlakes', function () {
       }
     );
 
-    await checkForFlakes([1, 2]);
+    await restartFlakeyJobs([1, 2]);
 
     expect(octokit.request).not.toHaveBeenCalled();
   });
@@ -146,7 +146,7 @@ describe('requiredChecks.checkForFlakes', function () {
       }
     );
 
-    await checkForFlakes([1, 2, 3, 4]);
+    await restartFlakeyJobs([1, 2, 3, 4]);
 
     // Only called when "Set up job" and "Setup Sentry" fails
     expect(octokit.request).toHaveBeenCalledTimes(2);

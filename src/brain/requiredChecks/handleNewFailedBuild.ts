@@ -11,11 +11,11 @@ import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
-import { checkForFlakes } from './checkForFlakes';
 import { OK_CONCLUSIONS } from './constants';
 import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
+import { restartFlakeyJobs } from './restartFlakeyJobs';
 
 interface HandleNewFailedBuildParams {
   checkRun: CheckRun;
@@ -115,7 +115,7 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  const { isRestarting } = await checkForFlakes(
+  const { isRestarting } = await restartFlakeyJobs(
     // TODO, extractRunId is a bit misleading, the id in these URLs are job ids
     // *AND* check run id (they are the same)
     failedJobs.map(([jobUrl]) => Number(extractRunId(jobUrl) ?? 0))
