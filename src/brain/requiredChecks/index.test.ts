@@ -1142,7 +1142,7 @@ describe('requiredChecks', function () {
 
   it('does not notify slack channel when restarting due to intermittent CI issue', async function () {
     // @ts-expect-error
-    rerunFlakeyJobs.mockImplementation(async () => ({ isRestarting: true }));
+    rerunFlakeyJobs.mockImplementation(async () => ({ hasReruns: true }));
 
     await db('users').insert({
       email: 'matej.minar@sentry.io',
@@ -1188,10 +1188,7 @@ describe('requiredChecks', function () {
       },
     });
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
-
-    // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(0);
-
     expect(await db('slack_messages').first('*')).toBeUndefined();
   });
 });
