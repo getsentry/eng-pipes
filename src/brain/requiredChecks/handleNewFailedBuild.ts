@@ -12,8 +12,10 @@ import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 import { OK_CONCLUSIONS } from './constants';
+import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
+import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 
 interface HandleNewFailedBuildParams {
   checkRun: CheckRun;
@@ -44,6 +46,12 @@ export async function handleNewFailedBuild({
     name: 'requiredChecks.failed',
     description: 'Required check failed',
   });
+
+  const rerunTx = Sentry.startTransaction({
+    op: 'brain',
+    name: 'requiredChecks.rerunning',
+  });
+
   // Retrieve commit information
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
 
@@ -107,12 +115,19 @@ export async function handleNewFailedBuild({
     ([, conclusion]) => !conclusion.includes('missing')
   );
 
-  // TODO: For each failed job, extract the check run id and then grab and parse the annotations from GH.
-  // Depending on the annotations we may need to:
-  // 2) restart the job if we encountered flakey errors
-  // x) post annotations for failed job
-  //  xx) ignore annotations for canceled job due to a failure
-  const annotationsByJob = await getAnnotations(failedJobs);
+  const { hasReruns } = await rerunFlakeyJobs(
+    // TODO, extractRunId is a bit misleading, the id in these URLs are job ids
+    // *AND* check run id (they are the same)
+    failedJobs.map(([jobUrl]) => Number(extractRunId(jobUrl) ?? 0))
+  );
+
+  // Workflow(s) are being re-run, do not post in Slack channel about
+  // failures *yet* since we only auto re-run if the first run attempt fails,
+  // so that we do not constantly re-run without being able to fail.
+  if (hasReruns) {
+    rerunTx.finish();
+    return;
+  }
 
   const newFailureMessage =
     !existingFailureMessage &&
@@ -148,6 +163,11 @@ export async function handleNewFailedBuild({
 
   // Only thread jobs list statuses for new failures
   if (newFailureMessage && !!jobs?.length) {
+    // For each failed job, extract the check run id and then grab and parse the
+    // annotations from GH.  These annotations will be sent in a thread to Slack
+    // for the failing build.
+    const annotationsByJob = await getAnnotations(failedJobs);
+
     // Add thread for jobs list
     await bolt.client.chat.postMessage({
       channel: `${newFailureMessage.channel}`,
