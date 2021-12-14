@@ -153,4 +153,14 @@ declare module 'knex/types/tables' {
     slack_messages: SlackMessageRow;
     users: User;
   }
+
+  interface BuildFailures {
+    id: number;
+    sha: string;
+    job_name?: string;
+    annotation?: string;
+    annotation_title?: string;
+    annotation_path?: string;
+    failed_at: Date;
+  }
 }

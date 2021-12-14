@@ -60,7 +60,9 @@ function filterAnnotations(annotations: Annotation[]) {
 /**
  * Given a list of [job link text, conclusion], return a map of <job link text, annotations>
  */
-export async function getAnnotations(jobs: string[][]) {
+export async function getAnnotations(
+  jobs: string[][]
+): Promise<Record<string, Annotation[]>> {
   const octokit = await getClient(OWNER);
 
   const annotations = await Promise.all(

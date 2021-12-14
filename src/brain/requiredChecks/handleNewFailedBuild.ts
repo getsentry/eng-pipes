@@ -15,6 +15,7 @@ import { OK_CONCLUSIONS } from './constants';
 import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
+import { recordFailures } from './recordFailure';
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 
 interface HandleNewFailedBuildParams {
@@ -175,6 +176,9 @@ export async function handleNewFailedBuild({
       text: `Here are the job statuses`,
       blocks: jobStatuses(jobs, annotationsByJob),
     });
+
+    // Save to bot database (i.e. not BigQuery)
+    recordFailures({ checkRun, jobs, annotationsByJob });
   }
 
   // Thread the current failure to existing failure message
