@@ -15,7 +15,10 @@ const FILTER_ALL_PRESENT: Array<RegExp[]> = [
 
 const PROCESS_CODE_PATTERN = /Process completed with exit code/;
 
-// Filter all annotations that match, but only when ALL patterns are present
+/**
+ * Filter out annotations that match ALL patterns in each row
+ * that are defined in `FILTER_ALL_PRESENT`
+ */
 function filterAllPresent(annotations: Annotation[]) {
   const annotationMessages = annotations.map(({ message }) => message || '');
 
@@ -33,24 +36,39 @@ function filterAllPresent(annotations: Annotation[]) {
   );
 }
 
-// Filters out annotations that match any patterns
+/**
+ * Filters out annotations that match any patterns defined in `FILTER_SINGLE`
+ */
 function filterSingle(annotation: Annotation) {
   return !FILTER_SINGLE.find((pattern) =>
     pattern.test(annotation.message || '')
   );
 }
 
+/**
+ * Filter annotations from patterns that we have defined as well as `Process
+ * completed with exit code <...>` message when there are other error-level
+ * annotations available as they are not as helpful because they do not provide
+ * much context.
+ */
 function filterAnnotations(annotations: Annotation[]) {
   // Filter out annotations that have ALL of these patterns
   const filteredAnnotations =
     filterAllPresent(annotations).filter(filterSingle);
 
+  // Do not consider warnings when trying to filter out "Process completed with
+  // exit code <...>" message
+  const failureAnnotations = filteredAnnotations.filter(
+    (annotation) => annotation.annotation_level == 'failure'
+  );
+
   // Now we can filter out any "Process completed with exit code <...>."
-  // messages *ONLY* if we have other annotations.  Otherwise they are quite
-  // useless messages. We should ideally *always* have an annotation as they
-  // generally give better context of what went wrong, but that currently isn't
-  // always the case.
-  return filteredAnnotations.length > 1
+  // messages *ONLY* if we have other error-level annotations.  We should
+  // ideally *always* have an annotation as they generally give better context
+  // of what went wrong, but that currently isn't always the case.
+  //
+  // We still want to return non-failure annotations.
+  return failureAnnotations.length > 1
     ? filteredAnnotations.filter(
         (annotation) => !PROCESS_CODE_PATTERN.test(annotation.message || '')
       )
