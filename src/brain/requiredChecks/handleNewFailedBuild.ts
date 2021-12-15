@@ -125,6 +125,16 @@ export async function handleNewFailedBuild({
   // failures *yet* since we only auto re-run if the first run attempt fails,
   // so that we do not constantly re-run without being able to fail.
   if (hasReruns) {
+    Sentry.withScope((scope) => {
+      scope.setContext('Check Run', {
+        id: checkRun.id,
+        url: checkRun.html_url,
+        sha: checkRun.head_sha,
+      });
+      scope.setContext('Required Checks - Failed Jobs', {
+        failedJobs,
+      });
+    });
     rerunTx.finish();
     return;
   }
