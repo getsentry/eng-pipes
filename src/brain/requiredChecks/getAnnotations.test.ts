@@ -88,6 +88,77 @@ describe('getAnnotations', function () {
     `);
   });
 
+  it('returns annotation with "Process completed with exit code...", when there are only warning annotations', async function () {
+    octokit.checks.listAnnotations.mockImplementation(() => ({
+      data: [
+        {
+          path: '.github',
+          blob_href:
+            'https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github',
+          start_line: 1,
+          start_column: null,
+          end_line: 1,
+          end_column: null,
+          annotation_level: 'failure',
+          title: '.github#L1',
+          message: 'Process completed with exit code 2.',
+          raw_details: null,
+        },
+        {
+          path: '.github',
+          blob_href:
+            'https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github',
+          start_line: 1,
+          start_column: null,
+          end_line: 1,
+          end_column: null,
+          annotation_level: 'warning',
+          title: '.github#L1',
+          message: '"service_account_key" has been deprecated',
+          raw_details: null,
+        },
+      ],
+    }));
+
+    expect(
+      await getAnnotations([
+        [
+          'https://github.com/getsentry/getsentry/runs/4328085683?check_suite_focus=true',
+          'failed',
+        ],
+      ])
+    ).toMatchInlineSnapshot(`
+      Object {
+        "https://github.com/getsentry/getsentry/runs/4328085683?check_suite_focus=true": Array [
+          Object {
+            "annotation_level": "failure",
+            "blob_href": "https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github",
+            "end_column": null,
+            "end_line": 1,
+            "message": "Process completed with exit code 2.",
+            "path": ".github",
+            "raw_details": null,
+            "start_column": null,
+            "start_line": 1,
+            "title": ".github#L1",
+          },
+          Object {
+            "annotation_level": "warning",
+            "blob_href": "https://github.com/getsentry/sentry/blob/83ef9b927cbb822febbdf75e5e05dd40afb187cf/.github",
+            "end_column": null,
+            "end_line": 1,
+            "message": "\\"service_account_key\\" has been deprecated",
+            "path": ".github",
+            "raw_details": null,
+            "start_column": null,
+            "start_line": 1,
+            "title": ".github#L1",
+          },
+        ],
+      }
+    `);
+  });
+
   it('does not ignore annotations from a manually canceled job', async function () {
     octokit.checks.listAnnotations.mockImplementation(() => ({
       data: [
