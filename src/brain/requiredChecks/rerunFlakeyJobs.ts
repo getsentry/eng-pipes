@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { getClient } from '@/api/github/getClient';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 
@@ -48,17 +50,28 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
 
     // Restart the workflow
     // https://docs.github.com/en/rest/reference/actions#re-run-a-workflow
-
     if (restartableFailedStep) {
-      octokit.request(
-        'POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun',
-        {
+      try {
+        // Need to cancel the workflow before we can re-run it
+        await octokit.actions.cancelWorkflowRun({
           owner: OWNER,
           repo: GETSENTRY_REPO,
           run_id: job.run_id,
-        }
-      );
-      reruns.set(job.run_id, true);
+        });
+
+        await octokit.request(
+          'POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun',
+          {
+            owner: OWNER,
+            repo: GETSENTRY_REPO,
+            run_id: job.run_id,
+          }
+        );
+        reruns.set(job.run_id, true);
+      } catch (err) {
+        // Capture this to Sentry but don't throw as we don't want to block our failure messages
+        Sentry.captureException(err);
+      }
     }
   }
 

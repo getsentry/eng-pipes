@@ -13,6 +13,18 @@ function githubMdToSlack(str: string) {
   return str;
 }
 
+function getIcon(annotation: Annotation) {
+  const { annotation_level: level } = annotation;
+
+  if (level === 'warning') {
+    return '⚠️';
+  } else if (level === 'failure') {
+    return '🚫';
+  }
+
+  return '';
+}
+
 export function jobStatuses(
   jobs: string[][],
   annotations: Record<string, Annotation[]>
@@ -20,27 +32,34 @@ export function jobStatuses(
   // Create slack block for each job (and for each job, an annotation if it
   // exists). This returns an array of arrays so we will need to concat + spread
   // to get the proper data structure
-  const jobsList = jobs.map(([jobName, conclusion]) => [
+  const jobsList = jobs.flatMap(([jobName, conclusion]) => [
     {
-      type: 'context',
-      elements: [
-        {
-          type: 'mrkdwn',
-          text: `${githubMdToSlack(jobName)} - ${conclusion}`,
-        },
-      ],
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `${githubMdToSlack(jobName)} - ${conclusion}`,
+      },
     },
     ...(annotations[jobName]
-      ? annotations[jobName].map((annotation) => ({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `\`\`\`
-    <${annotation.blob_href}|${annotation.title}>
+      ? annotations[jobName].flatMap((annotation) => [
+          {
+            type: 'context',
+            elements: [
+              {
+                type: 'mrkdwn',
+                text: `${getIcon(annotation)} ${
+                  annotation.annotation_level
+                } - <${annotation.blob_href}|${annotation.title}>`,
+              },
+              {
+                type: 'mrkdwn',
+                text: `\`\`\`
     ${annotation.message}
     \`\`\``,
+              },
+            ],
           },
-        }))
+        ])
       : []),
   ]);
 
@@ -53,7 +72,6 @@ export function jobStatuses(
         emoji: true,
       },
     },
-
-    ...Array.prototype.concat(...jobsList),
+    ...jobsList,
   ];
 }
