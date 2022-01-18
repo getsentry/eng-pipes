@@ -130,7 +130,8 @@ describe('requiredChecks.rerunFlakeyJobs', function () {
         } else if (job_id === 4) {
           data.steps = data.steps.map((step) => ({
             ...step,
-            conclusion: 'success',
+            status: 'in_progress',
+            conclusion: null,
           }));
           data.steps.push({
             name: 'A new step',
