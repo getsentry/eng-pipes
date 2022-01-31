@@ -26,6 +26,9 @@ export async function buildServer(
     disableRequestLogging: true,
   });
 
+  await server.register(middie);
+  await server.register(fastifyFormBody);
+
   Sentry.init({
     dsn: SENTRY_DSN,
     release: process.env.VERSION,
@@ -38,8 +41,9 @@ export async function buildServer(
     tracesSampleRate: 1.0,
   });
 
-  await server.register(middie);
-  await server.register(fastifyFormBody);
+  // For Sentry Release Health
+  // https://docs.sentry.io/platforms/node/configuration/releases/
+  server.use(Sentry.Handlers.requestHandler());
 
   server.setErrorHandler((error, request, reply) => {
     // Log to console when not in production environment
