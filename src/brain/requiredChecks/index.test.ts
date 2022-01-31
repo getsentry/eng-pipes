@@ -112,6 +112,7 @@ describe('requiredChecks', function () {
     mockInsert.mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
+    await db('build_failures').delete();
     (getFailureMessages.getFailureMessages as jest.Mock).mockClear();
     (saveSlackMessage.saveSlackMessage as jest.Mock).mockClear();
   });
@@ -522,6 +523,10 @@ describe('requiredChecks', function () {
         thread_ts: '1234123.123',
       })
     );
+
+    // all failures should have been saved in db
+    expect(await db('build_failures').select('*')).toHaveLength(5);
+
     // @ts-ignore
     expect(postMessage.mock.calls[1][0].blocks).toMatchInlineSnapshot(`
       Array [
