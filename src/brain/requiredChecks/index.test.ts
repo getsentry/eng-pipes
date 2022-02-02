@@ -929,7 +929,7 @@ describe('requiredChecks', function () {
     expect(postMessage).toHaveBeenCalledTimes(0);
   });
 
-  it.only('post if more than half of jobs are missing, but rest are successful', async function () {
+  it('post if more than half of jobs are missing, but rest are successful', async function () {
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
