@@ -10,6 +10,7 @@ import { getSlackMessage } from '@utils/db/getSlackMessage';
 
 import { actionRevertCommit } from './actionRevertCommit';
 import { OK_CONCLUSIONS } from './constants';
+import { handleEnsureDockerImage } from './handleEnsureDockerImage';
 import { handleNewFailedBuild } from './handleNewFailedBuild';
 import { resolveFlakeyFailure } from './resolveFlakeyFailure';
 import { resolveOtherFailure } from './resolveOtherFailure';
@@ -20,7 +21,8 @@ async function handler({
   payload,
   ...rest
 }: EmitterWebhookEvent<'check_run'>) {
-  // Make sure this is on `getsentry` and we are examining the aggregate "required check" run
+  // Make sure this is on `getsentry` and we are examining the aggregate
+  // "required check" run
   if (!isGetsentryRequiredCheck({ id, payload, ...rest })) {
     return;
   }
@@ -83,6 +85,7 @@ async function handler({
 export async function requiredChecks() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
+  githubEvents.on('check_run', handleEnsureDockerImage);
 
   /**
    * User clicks on "Revert" button, opens a confirmation dialog

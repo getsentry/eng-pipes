@@ -929,6 +929,48 @@ describe('requiredChecks', function () {
     expect(postMessage).toHaveBeenCalledTimes(0);
   });
 
+  it.only('post if more than half of jobs are missing, but rest are successful', async function () {
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'failure',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+        output: {
+          title: '5 checks failed',
+          summary: '5 checks failed',
+          text:
+            '\n' +
+            '# Required Checks\n' +
+            '\n' +
+            'These are the jobs that must pass before this commit can be deployed. Try re-running a failed job in case it is flakey.\n' +
+            '\n' +
+            '## Status of required checks\n' +
+            '\n' +
+            '| Job | Conclusion |\n' +
+            '| --- | ---------- |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ✅  success |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ✅  success |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ✅  success |\n' +
+            '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  missing |\n' +
+            '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  missing |\n' +
+            '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  missing |\n' +
+            '| [frontend tests](https://github.com/getsentry/getsentry/runs/1821960888) | ❌  missing |\n' +
+            '| [sentry backend test](https://github.com/getsentry/getsentry/runs/1821955073) | ❌  missing |\n' +
+            '| [webpack](https://github.com/getsentry/getsentry/runs/1821955151) | ✅  success |\n',
+          annotations_count: 0,
+          annotations_url:
+            'https://api.github.com/repos/getsentry/getsentry/check-runs/1821995033/annotations',
+        },
+      },
+    });
+
+    expect(postMessage).toHaveBeenCalledTimes(2);
+  });
+
   it('post if most jobs are missing, but there is a single failure', async function () {
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
