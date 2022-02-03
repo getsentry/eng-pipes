@@ -15,7 +15,7 @@ import { OK_CONCLUSIONS } from './constants';
 import { extractRunId } from './extractRunId';
 import { getAnnotations } from './getAnnotations';
 import { getTextParts } from './getTextParts';
-import { recordFailures } from './recordFailure';
+import { recordFailures } from './recordFailures';
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 
 interface HandleNewFailedBuildParams {
@@ -97,14 +97,18 @@ export async function handleNewFailedBuild({
         sha: checkRun.head_sha,
       });
       scope.setContext('Required Checks - Missing Jobs', {
-        missingJobs,
+        missingJobs: missingJobs.map(
+          ([str, conclusion]) => `${str} -> ${conclusion}`
+        ),
       });
       Sentry.startTransaction({
         op: 'debug',
         name: 'requiredChecks.missing',
       }).finish();
     });
-    return;
+    // continue with the rest of the script as we still need to message Slack as
+    // this state can mean that `ensure docker image` failed to run (e.g. due to
+    // intermittent CI issues), thus never starting the required checks at all.
   }
 
   const text = getTextParts(checkRun).join(' ');

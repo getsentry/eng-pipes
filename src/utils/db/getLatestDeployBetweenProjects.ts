@@ -48,18 +48,6 @@ export async function getLatestDeployBetweenProjects(
     head: deployB.sha,
   });
 
-  // DEBUG
-  // eslint-disable-next-line no-console
-  console.debug(`
-    --> getLatestDeployBetweenProjects
-      --> ${deployA.app_name} @ ${deployA.sha}
-      --> ${deployB.app_name} @ ${deployB.sha}
-      ******
-      ${data.status}
-      ******
-      ${data.status === 'behind' ? deployA.app_name : deployB.app_name}
-  `);
-
   // Can be ahead, behind, identical, diverged
   if (data.status === 'behind') {
     // base is newer than head

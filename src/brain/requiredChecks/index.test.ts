@@ -887,7 +887,7 @@ describe('requiredChecks', function () {
     );
   });
 
-  it('does not post if most jobs are still missing and there are no failures', async function () {
+  it('post if non-successful jobs are all explicitly missing (no failures)', async function () {
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -910,9 +910,9 @@ describe('requiredChecks', function () {
             '\n' +
             '| Job | Conclusion |\n' +
             '| --- | ---------- |\n' +
-            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ❌  missing |\n' +
-            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ❌  missing |\n' +
-            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ❌  missing |\n' +
+            '| [backend test (0)](https://github.com/getsentry/getsentry/runs/1821956940) | ✅  success |\n' +
+            '| [backend test (1)](https://github.com/getsentry/getsentry/runs/1821956965) | ✅  success |\n' +
+            '| [lint backend](https://github.com/getsentry/getsentry/runs/1821952498) | ✅  success |\n' +
             '| [sentry cli test (0)](https://github.com/getsentry/getsentry/runs/1821957645) | ❌  missing |\n' +
             '| [typescript and lint](https://github.com/getsentry/getsentry/runs/1821955194) | ❌  missing |\n' +
             '| [acceptance](https://github.com/getsentry/getsentry/runs/1821960976) | ❌  missing |\n' +
@@ -926,7 +926,7 @@ describe('requiredChecks', function () {
       },
     });
 
-    expect(postMessage).toHaveBeenCalledTimes(0);
+    expect(postMessage).toHaveBeenCalledTimes(2);
   });
 
   it('post if most jobs are missing, but there is a single failure', async function () {
@@ -1000,6 +1000,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     expect(postMessage).toHaveBeenCalledTimes(2);
     postMessage.mockClear();
@@ -1030,6 +1031,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     // Failure gets posted to the previous message as a threaded message
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1072,6 +1074,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     // Failure gets posted to the previous message as a threaded message
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1116,6 +1119,11 @@ describe('requiredChecks', function () {
         },
       },
     });
+    // This is now required because of `updateRequiredCheck()` and its async db query
+    // Alternatively, we'd have to do a more complex mock of the db query
+    await tick();
+    await tick();
+    await tick();
 
     // Post new success message in thread
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1126,12 +1134,6 @@ describe('requiredChecks', function () {
     );
     // Update previous failed messsages
     expect(updateMessage).toHaveBeenCalledTimes(3);
-
-    // This is now required because of `updateRequiredCheck()` and its async db query
-    // Alternatively, we'd have to do a more complex mock of the db query
-    await tick();
-    await tick();
-    await tick();
 
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(

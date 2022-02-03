@@ -36,5 +36,9 @@ export async function recordFailures({
       }));
   });
 
+  if (!recordsToInsert.length) {
+    return;
+  }
+
   return await db('build_failures').insert(recordsToInsert);
 }
