@@ -97,7 +97,9 @@ export async function handleNewFailedBuild({
         sha: checkRun.head_sha,
       });
       scope.setContext('Required Checks - Missing Jobs', {
-        missingJobs,
+        missingJobs: missingJobs.map(
+          ([str, conclusion]) => `${str} -> ${conclusion}`
+        ),
       });
       Sentry.startTransaction({
         op: 'debug',
