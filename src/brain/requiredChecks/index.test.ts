@@ -1000,6 +1000,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     expect(postMessage).toHaveBeenCalledTimes(2);
     postMessage.mockClear();
@@ -1030,6 +1031,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     // Failure gets posted to the previous message as a threaded message
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1072,6 +1074,7 @@ describe('requiredChecks', function () {
         },
       },
     });
+    await tick();
 
     // Failure gets posted to the previous message as a threaded message
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1116,6 +1119,11 @@ describe('requiredChecks', function () {
         },
       },
     });
+    // This is now required because of `updateRequiredCheck()` and its async db query
+    // Alternatively, we'd have to do a more complex mock of the db query
+    await tick();
+    await tick();
+    await tick();
 
     // Post new success message in thread
     expect(postMessage).toHaveBeenCalledTimes(1);
@@ -1126,12 +1134,6 @@ describe('requiredChecks', function () {
     );
     // Update previous failed messsages
     expect(updateMessage).toHaveBeenCalledTimes(3);
-
-    // This is now required because of `updateRequiredCheck()` and its async db query
-    // Alternatively, we'd have to do a more complex mock of the db query
-    await tick();
-    await tick();
-    await tick();
 
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
