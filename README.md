@@ -71,7 +71,7 @@ You need to set up:
 - On your new Slack workspace begin a conversation with the bot
   - You should see your localhost app respond with 200 status code
   - Congratulations!
-- Create a [new GitHub App](https://git.io/JGMbj)
+- Create a [new GitHub App](https://github.com/settings/apps/new)
   - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
   - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
   - Push to your fork and see events coming in
