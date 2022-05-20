@@ -101,10 +101,6 @@ describe('bootstrap-dev-env webhook', function () {
             name: 'meta',
             type: 'string',
           },
-          {
-            name: 'sha',
-            type: 'string',
-          },
         ],
       }
     );
