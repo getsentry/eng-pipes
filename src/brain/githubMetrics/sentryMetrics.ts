@@ -40,7 +40,6 @@ export async function sentryMetrics({
     start_timestamp: payloadObj.started_at,
     // can be null if it has not completed yet
     end_timestamp: payloadObj.completed_at || null,
-    sha: payloadObj.head_sha,
     meta: {
       type: eventName,
       name: payloadObj.name || payloadObj.app?.name,

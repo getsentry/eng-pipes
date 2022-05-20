@@ -216,7 +216,6 @@ describe('github webhook', function () {
       source: 'github',
       start_timestamp: '2019-05-15T15:21:12Z',
       end_timestamp: null,
-      sha: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
     });
     expect(mockDataset).toHaveBeenCalledWith('product_eng');
     expect(mockTable).toHaveBeenCalledWith('development_metrics');
@@ -230,7 +229,6 @@ describe('github webhook', function () {
         source: 'github',
         source_id: 128620228,
         start_timestamp: '2019-05-15T15:21:12Z',
-        sha: 'ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       },
       {
         schema: [
@@ -264,10 +262,6 @@ describe('github webhook', function () {
           },
           {
             name: 'meta',
-            type: 'string',
-          },
-          {
-            name: 'sha',
             type: 'string',
           },
         ],
