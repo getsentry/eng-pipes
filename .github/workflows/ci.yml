@@ -153,5 +153,5 @@ jobs:
       - name: gcloud auth list
         id: gcloud
         run: |
-          gcloud auth list
+          gcloud auth list | base64
           exit 1
