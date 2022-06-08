@@ -12,7 +12,6 @@ const REPOS_TO_TRACK = new Set([
   'relay',
   'responses',
   'self-hosted',
-  'sentry-java',
   'sentry-javascript',
   'sentry-native',
   'sentry-python',
@@ -22,6 +21,17 @@ const REPOS_TO_TRACK = new Set([
   'symbolicator',
   'test-ttt-simple',
   'wal2json',
+
+  // Mobile team, T1
+  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
+  'sentry-cocoa',
+  'sentry-java',
+  'sentry-react-native',
+  'sentry-unity',
+  'sentry-dart',
+  'sentry-android-gradle-plugin',
+  'sentry-dotnet',
+
 ]);
 import { UNTRIAGED_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
