@@ -44,14 +44,16 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
 
     // TODO(billy): Eventually we may want to look at annotations and/or logs
     // to decide if we want to restart
-    const restartableFailedStep = job.steps
-      ?.filter(
+    const failedSteps =
+      job.steps?.filter(
         ({ status, conclusion }) =>
           // conclusion is `null` if status is not "completed" (e.g. in progress)
           // in which case, we do not want to cancel and restart
           status === 'completed' && !OK_CONCLUSIONS.includes(conclusion ?? '')
-      )
-      .find(({ name }) => RESTARTABLE_JOB_STEPS.includes(name));
+      ) || [];
+    const restartableFailedStep = failedSteps.find(({ name }) =>
+      RESTARTABLE_JOB_STEPS.includes(name)
+    );
 
     // Restart the workflow
     // https://docs.github.com/en/rest/reference/actions#re-run-a-workflow
@@ -77,6 +79,16 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
         // Capture this to Sentry but don't throw as we don't want to block our failure messages
         Sentry.captureException(err);
       }
+    }
+
+    if (failedSteps.length > 0) {
+      Sentry.withScope(async (scope) => {
+        const stepName = failedSteps[0].name;
+        scope.setTag('stepName', stepName);
+        Sentry.startTransaction({
+          name: 'requiredChecks.failedStep',
+        }).finish();
+      });
     }
   }
 
