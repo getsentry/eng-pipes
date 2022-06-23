@@ -44,14 +44,16 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
 
     // TODO(billy): Eventually we may want to look at annotations and/or logs
     // to decide if we want to restart
-    const failedSteps = job.steps
-      ?.filter(
+    const failedSteps =
+      job.steps?.filter(
         ({ status, conclusion }) =>
           // conclusion is `null` if status is not "completed" (e.g. in progress)
           // in which case, we do not want to cancel and restart
           status === 'completed' && !OK_CONCLUSIONS.includes(conclusion ?? '')
-      );
-    const restartableFailedStep = failedSteps.find(({ name }) => RESTARTABLE_JOB_STEPS.includes(name));
+      ) || [];
+    const restartableFailedStep = failedSteps.find(({ name }) =>
+      RESTARTABLE_JOB_STEPS.includes(name)
+    );
 
     // Restart the workflow
     // https://docs.github.com/en/rest/reference/actions#re-run-a-workflow
@@ -86,7 +88,6 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
           name: 'requiredChecks.failedStep',
         }).finish();
       });
-
     }
   }
 
