@@ -162,6 +162,12 @@ describe('requiredChecks.rerunFlakeyJobs', function () {
         finish: jest.fn(),
       }))
     );
+    const setTagMock = jest.fn();
+    jest.spyOn(Sentry, 'withScope').mockImplementation((fn) => {
+      fn({
+        setTag: setTagMock,
+      });
+    });
 
     octokit.actions.getJobForWorkflowRun.mockImplementation(
       async ({ job_id }) => {
@@ -209,7 +215,9 @@ describe('requiredChecks.rerunFlakeyJobs', function () {
     expect(Sentry.startTransaction).toHaveBeenCalledWith({
       name: 'requiredChecks.failedStep',
     });
+    expect(setTagMock).toHaveBeenCalledWith('stepName', 'Set up job');
 
     Sentry.startTransaction.mockRestore();
+    Sentry.withScope.mockRestore();
   });
 });

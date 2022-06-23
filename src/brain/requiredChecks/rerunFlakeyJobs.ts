@@ -83,7 +83,8 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
 
     if (failedSteps.length > 0) {
       Sentry.withScope(async (scope) => {
-        scope.setTag('stepName', failedSteps[0].name);
+        const stepName = failedSteps[0].name;
+        scope.setTag('stepName', stepName);
         Sentry.startTransaction({
           name: 'requiredChecks.failedStep',
         }).finish();
