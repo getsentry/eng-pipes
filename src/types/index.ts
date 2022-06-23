@@ -28,6 +28,11 @@ export type Annotation = GetResponseDataTypeFromEndpointMethod<
   typeof octokit.checks.listAnnotations
 >[number];
 
+export type Job = GetResponseDataTypeFromEndpointMethod<
+  typeof octokit.actions.getJobForWorkflowRun
+>;
+export type Step = Exclude<Job['steps'], undefined>[number];
+
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 
 // Note we intentionally only pick the pieces of checkRun that is needed to

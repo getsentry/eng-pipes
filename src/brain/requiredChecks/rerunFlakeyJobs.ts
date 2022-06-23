@@ -3,7 +3,8 @@ import * as Sentry from '@sentry/node';
 import { getClient } from '@/api/github/getClient';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 
-import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
+import { OK_CONCLUSIONS } from './constants';
+import { isRestartableStep } from './isRestartableStep';
 
 /**
  * Examine failed jobs and try to determine if it was an intermittent issue
@@ -51,9 +52,8 @@ export async function rerunFlakeyJobs(failedJobIds: number[]) {
           // in which case, we do not want to cancel and restart
           status === 'completed' && !OK_CONCLUSIONS.includes(conclusion ?? '')
       ) || [];
-    const restartableFailedStep = failedSteps.find(({ name }) =>
-      RESTARTABLE_JOB_STEPS.includes(name)
-    );
+
+    const restartableFailedStep = failedSteps.find(isRestartableStep);
 
     // Restart the workflow
     // https://docs.github.com/en/rest/reference/actions#re-run-a-workflow
