@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 
 import { GETSENTRY_REPO, OWNER } from '@/config';
@@ -151,5 +152,59 @@ describe('requiredChecks.rerunFlakeyJobs', function () {
 
     // Only called when "Set up job" and "Setup Sentry" fails
     expect(octokit.request).toHaveBeenCalledTimes(2);
+  });
+
+  it('records the failed step name to Sentry', async function () {
+    jest.spyOn(Sentry, 'startTransaction');
+    Sentry.startTransaction.mockImplementation(jest.fn(() => ({
+    finish: jest.fn(),
+    })))
+
+    octokit.actions.getJobForWorkflowRun.mockImplementation(
+      async ({ job_id }) => {
+        const data = workflow_run_job(
+          { job_id },
+          {
+            run_id: job_id * 10,
+          }
+        );
+
+        data.steps = [{
+            name: 'Initial step',
+            status: 'completed',
+            conclusion: 'success',
+            number: 1,
+            started_at: '2021-12-01T18:24:55.000Z',
+            completed_at: '2021-12-01T18:24:58.000Z',
+          },
+          {name: 'Set up job',
+            status: 'completed',
+            conclusion: 'failed',
+            number: 2,
+            started_at: '2021-12-01T18:24:55.000Z',
+            completed_at: '2021-12-01T18:24:58.000Z',
+          },
+{
+            name: 'Setup Sentry',
+            status: 'completed',
+            conclusion: 'failed',
+            number: 3,
+            started_at: '2021-12-01T18:24:55.000Z',
+            completed_at: '2021-12-01T18:24:58.000Z',
+          }
+        ];
+
+        return { data };
+      }
+    );
+
+    await rerunFlakeyJobs([1]);
+
+    expect(Sentry.startTransaction).toHaveBeenCalledTimes(1);
+    expect(Sentry.startTransaction).toHaveBeenCalledWith({
+      name: 'requiredChecks.failedStep'
+    })
+
+    Sentry.startTransaction.mockReset();
   });
 });
