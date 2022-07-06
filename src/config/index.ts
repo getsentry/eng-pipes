@@ -80,3 +80,8 @@ export const UNTRIAGED_LABEL = 'Status: Untriaged';
  */
 export const GIT_BOT_HOST = 'sentry-deploy-sync-hook-dwunkkvj6a-uc.a.run.app';
 export const GIT_BOT_SECRET = process.env.GIT_BOT_SECRET || '';
+
+/**
+ * Personal Access Token for the Sentry bot used to query org membership
+ */
+export const GH_RELEASE_BOT_TOKEN = process.env.GH_RELEASE_BOT_TOKEN || '';
