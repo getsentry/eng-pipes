@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/node';
 
 import { DAY_IN_MS } from '@/config';
-import { getClient } from '@api/github/getClient';
 import { Octokit } from '@octokit/rest';
 import { isFromABot } from '@utils/isFromABot';
 import { GH_RELEASE_BOT_TOKEN } from '@/config';
