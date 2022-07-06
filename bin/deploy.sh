@@ -17,7 +17,7 @@ env_vars="${env_vars}DB_NAME=${DB_NAME},"
 env_vars="${env_vars}DB_PASSWORD=${DB_PASSWORD},"
 env_vars="${env_vars}DB_INSTANCE_CONNECTION_NAME=${DB_INSTANCE_CONNECTION_NAME},"
 env_vars="${env_vars}GIT_BOT_SECRET=${GIT_BOT_SECRET},"
-env_vars="${env_vars}GH_RELEASE_BOT_TOKEN=${GH_RELEASE_BOT_TOKEN},"
+env_vars="${env_vars}GH_ORG_MEMBERSHIP_TOKEN=${GH_ORG_MEMBERSHIP_TOKEN},"
 
 
 gcloud builds submit --tag $IMAGE --project=$PROJECT --gcs-log-dir=gs://${PROJECT}_cloudbuild/logs && \

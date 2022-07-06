@@ -84,4 +84,4 @@ export const GIT_BOT_SECRET = process.env.GIT_BOT_SECRET || '';
 /**
  * Personal Access Token for the Sentry bot used to query org membership
  */
-export const GH_RELEASE_BOT_TOKEN = process.env.GH_RELEASE_BOT_TOKEN || '';
+export const GH_ORG_MEMBERSHIP_TOKEN = process.env.GH_ORG_MEMBERSHIP_TOKEN || '';

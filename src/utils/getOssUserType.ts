@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/node';
 import { DAY_IN_MS } from '@/config';
 import { Octokit } from '@octokit/rest';
 import { isFromABot } from '@utils/isFromABot';
-import { GH_RELEASE_BOT_TOKEN } from '@/config';
+import { GH_ORG_MEMBERSHIP_TOKEN } from '@/config';
 
 type UserType = 'bot' | 'internal' | 'external';
 type CachedUser = {
@@ -41,7 +41,7 @@ export async function getOssUserType(
   }
 
   const org_member_octokit = new Octokit({
-    auth: GH_RELEASE_BOT_TOKEN,
+    auth: GH_ORG_MEMBERSHIP_TOKEN,
   });
   let responseStatus: number | undefined;
   const capture = (r) => (responseStatus = r.status);
