@@ -3,6 +3,7 @@ const KNOWN_BOTS = [
   'getsentry-bot',
   'getsentry-release',
   'sentry-test-fixture-nonmember',
+  'codecov-commenter',
 ];
 
 export function isFromABot(payload) {
