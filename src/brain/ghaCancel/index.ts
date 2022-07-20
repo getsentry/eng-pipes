@@ -5,7 +5,7 @@ import {
   SlackEventMiddlewareArgs,
 } from '@slack/bolt';
 
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 async function handler({ event, say, client }) {
@@ -23,7 +23,7 @@ async function handler({ event, say, client }) {
 
   const [, owner, repo, pullRequestNumber] = matches;
 
-  const octokit = await getClient(owner);
+  const octokit = await getClient(ClientType.App, owner);
 
   const initialMessagePromise = say({
     thread_ts: event.ts,

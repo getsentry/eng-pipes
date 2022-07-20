@@ -6,7 +6,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import { REQUIRED_CHECK_NAME } from '@/config';
 import { Fastify } from '@/types';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
@@ -23,7 +23,7 @@ describe('pleaseDeployNotifier', function () {
     jest.spyOn(actions, 'actionViewUndeployedCommits');
 
     pleaseDeployNotifier();
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {

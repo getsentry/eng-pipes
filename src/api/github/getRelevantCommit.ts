@@ -1,8 +1,8 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@/api/github/getClient';
 import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
+import { ClientType, getClient } from '@api/github/getClient';
 
 /**
  * Attempts to find the relevant commit for a SHA
@@ -14,7 +14,7 @@ import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 export async function getRelevantCommit(ref: string, client?: Octokit) {
   try {
     // We can save on making extra calls to get GH client
-    const octokit = client || (await getClient(OWNER));
+    const octokit = client || (await getClient(ClientType.App, OWNER));
 
     // Attempt to get the getsentry commit first
     const { data: commit } = await octokit.repos.getCommit({

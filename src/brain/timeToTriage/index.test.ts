@@ -5,7 +5,7 @@ import { UNTRIAGED_LABEL } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
 import { timeToTriage } from '.';
@@ -31,7 +31,7 @@ describe('timeToTriage', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await timeToTriage();
-    octokit = await getClient('Enterprise');
+    octokit = await getClient(ClientType.App, 'Enterprise');
   });
 
   afterEach(async function () {
@@ -84,7 +84,7 @@ describe('timeToTriage', function () {
   async function createIssue(repo?: string, username?: string) {
     await createGitHubEvent(
       fastify,
-        // @ts-expect-error
+      // @ts-expect-error
       'issues.opened',
       makePayload(repo, undefined, username)
     );

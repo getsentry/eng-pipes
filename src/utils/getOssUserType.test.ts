@@ -1,4 +1,4 @@
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 
 import { getOssUserType } from './getOssUserType';
 
@@ -12,7 +12,7 @@ describe('getUserOssType', function () {
   };
 
   beforeAll(async function () {
-    octokit = await getClient('Enterprise');
+    octokit = await getClient(ClientType.App, 'Enterprise');
   });
   beforeEach(function () {
     octokit.orgs.checkMembershipForUser.mockClear();

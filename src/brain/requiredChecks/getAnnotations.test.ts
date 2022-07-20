@@ -1,4 +1,4 @@
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 
 import { getAnnotations } from './getAnnotations';
 
@@ -6,7 +6,7 @@ describe('getAnnotations', function () {
   let octokit;
 
   beforeAll(async function () {
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
   });
 
   beforeEach(function () {

@@ -1,9 +1,8 @@
 import * as Sentry from '@sentry/node';
 
 import { DAY_IN_MS } from '@/config';
-import { Octokit } from '@octokit/rest';
+import { ClientType, getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
-import { GH_ORG_MEMBERSHIP_TOKEN } from '@/config';
 
 type UserType = 'bot' | 'internal' | 'external';
 type CachedUser = {
@@ -30,6 +29,7 @@ export async function getOssUserType(
 
   // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
   const org = owner.login;
+  const octokit = await getClient(ClientType.OrgMember, org);
   const username = payload.sender.login;
 
   const cachedResult = _USER_CACHE.get(username);
@@ -40,12 +40,9 @@ export async function getOssUserType(
     }
   }
 
-  const org_member_octokit = new Octokit({
-    auth: GH_ORG_MEMBERSHIP_TOKEN,
-  });
   let responseStatus: number | undefined;
   const capture = (r) => (responseStatus = r.status);
-  await org_member_octokit.orgs
+  await octokit.orgs
     .checkMembershipForUser({
       org,
       username: payload.sender.login,

@@ -1,4 +1,4 @@
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 
 /**
  * Paths that we do not intend to convert to ts
@@ -17,7 +17,7 @@ export default async function getProgress({
   date?: string;
 }) {
   const owner = 'getsentry';
-  const octokit = await getClient('getsentry');
+  const octokit = await getClient(ClientType.App, 'getsentry');
 
   const getContentsParams: {
     owner: string;

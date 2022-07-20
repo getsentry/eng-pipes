@@ -1,5 +1,5 @@
 import { GETSENTRY_REPO, OWNER } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 
 import { db } from '.';
 
@@ -39,7 +39,7 @@ export async function getLatestDeployBetweenProjects(
     return deployA ?? deployB;
   }
 
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
 
   const { data } = await octokit.repos.compareCommits({
     owner: OWNER,

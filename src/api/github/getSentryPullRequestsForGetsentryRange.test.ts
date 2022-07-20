@@ -1,7 +1,5 @@
-import {
-  GETSENTRY_BOT_ID,
-} from '@/config';
-import { getClient } from '@api/github/getClient';
+import { GETSENTRY_BOT_ID } from '@/config';
+import { ClientType, getClient } from '@api/github/getClient';
 
 import { getSentryPullRequestsForGetsentryRange } from './getSentryPullRequestsForGetsentryRange';
 
@@ -13,7 +11,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   afterAll(async function () {});
 
   beforeEach(async function () {
-    getsentry = await getClient('getsentry');
+    getsentry = await getClient(ClientType.App, 'getsentry');
   });
 
   afterEach(function () {

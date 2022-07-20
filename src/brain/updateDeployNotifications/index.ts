@@ -10,7 +10,7 @@ import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetwee
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
@@ -37,7 +37,7 @@ export async function handler(payload: FreightPayload) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const getsentry = await getClient('getsentry');
+  const getsentry = await getClient(ClientType.App, 'getsentry');
 
   let latestDeploy;
 

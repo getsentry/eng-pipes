@@ -2,7 +2,7 @@ import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { Fastify } from '@/types';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';
@@ -20,7 +20,7 @@ describe('requiredChecks', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await requiredChecks();
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
   });
 
   afterEach(async function () {

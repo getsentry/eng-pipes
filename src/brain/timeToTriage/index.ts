@@ -31,10 +31,9 @@ const REPOS_TO_TRACK = new Set([
   'sentry-dart',
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
-
 ]);
 import { UNTRIAGED_LABEL } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { ClientType, getClient } from '@api/github/getClient';
 
 // Validation Helpers
 
@@ -95,7 +94,7 @@ async function markUntriaged({
 
   // New issues get an Untriaged label.
   const owner = payload.repository.owner.login;
-  const octokit = await getClient(owner);
+  const octokit = await getClient(ClientType.App, owner);
 
   await octokit.issues.addLabels({
     owner,
@@ -129,7 +128,7 @@ async function markTriaged({
 
   // Remove Untriaged label when triaged.
   const owner = payload.repository.owner.login;
-  const octokit = await getClient(owner);
+  const octokit = await getClient(ClientType.App, owner);
   try {
     await octokit.issues.removeLabel({
       owner: owner,
