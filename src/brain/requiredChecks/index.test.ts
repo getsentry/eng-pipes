@@ -27,7 +27,8 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { db } from '@/utils/db';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
 import { getTimestamp } from '@utils/db/getTimestamp';

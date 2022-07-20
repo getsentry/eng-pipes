@@ -1,7 +1,8 @@
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 import { getTimestamp } from '@utils/db/getTimestamp';
 

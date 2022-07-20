@@ -2,7 +2,8 @@ import payload from '@test/payloads/freight.json';
 
 import { deployState } from '@/brain/deployState';
 import { freight } from '@api/freight';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
 import { getLatestDeployBetweenProjects } from './getLatestDeployBetweenProjects';

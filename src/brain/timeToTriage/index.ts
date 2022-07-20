@@ -32,8 +32,9 @@ const REPOS_TO_TRACK = new Set([
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
 ]);
+import { ClientType } from '@/api/github/clientType';
 import { UNTRIAGED_LABEL } from '@/config';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 
 // Validation Helpers
 

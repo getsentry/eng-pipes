@@ -1,7 +1,8 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 

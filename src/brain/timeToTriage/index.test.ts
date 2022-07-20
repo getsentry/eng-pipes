@@ -5,7 +5,8 @@ import { UNTRIAGED_LABEL } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
 import { timeToTriage } from '.';

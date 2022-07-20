@@ -2,6 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@/api/github';
+import { ClientType } from '@/api/github/clientType';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
@@ -13,7 +14,7 @@ import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetweenProjects';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';

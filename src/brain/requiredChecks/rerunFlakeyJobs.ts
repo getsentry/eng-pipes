@@ -1,7 +1,8 @@
 import * as Sentry from '@sentry/node';
 
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 
 import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
 

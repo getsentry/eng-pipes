@@ -2,7 +2,8 @@ import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { Fastify } from '@/types';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';

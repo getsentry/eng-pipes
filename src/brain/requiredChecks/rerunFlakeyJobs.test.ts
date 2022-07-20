@@ -3,7 +3,8 @@ import * as Sentry from '@sentry/node';
 import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 
 import { GETSENTRY_REPO, OWNER } from '@/config';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';
 

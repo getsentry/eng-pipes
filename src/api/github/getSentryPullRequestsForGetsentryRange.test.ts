@@ -1,5 +1,6 @@
 import { GETSENTRY_BOT_ID } from '@/config';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 
 import { getSentryPullRequestsForGetsentryRange } from './getSentryPullRequestsForGetsentryRange';
 

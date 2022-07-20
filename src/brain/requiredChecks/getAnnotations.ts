@@ -1,6 +1,7 @@
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { Annotation } from '@/types';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 
 import { extractRunId } from './extractRunId';
 

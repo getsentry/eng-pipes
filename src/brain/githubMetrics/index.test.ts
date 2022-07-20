@@ -22,7 +22,8 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import * as db from '@utils/metrics';
 
 import { githubMetrics as metrics } from '.';

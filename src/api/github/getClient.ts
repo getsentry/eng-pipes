@@ -1,14 +1,12 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { retry } from '@octokit/plugin-retry';
 import { Octokit } from '@octokit/rest';
+
 import { GH_ORG_MEMBERSHIP_TOKEN } from '@/config/index';
 
-const _INSTALLATION_CACHE = new Map();
+import { ClientType } from './clientType';
 
-export enum ClientType {
-  OrgMember = 1,
-  App = 2,
-}
+const _INSTALLATION_CACHE = new Map();
 
 function _getAppClient(installationId?: number) {
   const OctokitWithRetries = Octokit.plugin(retry);
@@ -36,7 +34,7 @@ function _getOrgMemberClient() {
 
   return new OctokitWithRetries({
     auth: GH_ORG_MEMBERSHIP_TOKEN,
-  })
+  });
 }
 
 /**
@@ -45,7 +43,7 @@ function _getOrgMemberClient() {
  * Only org is required, as we can assume the GH App is installed org-wide.
  */
 export async function getClient(type: ClientType, org: string | null) {
-  if (type === ClientType.OrgMember) {
+  if (type === ClientType.User) {
     return _getOrgMemberClient();
   } else {
     if (!process.env.GH_APP_SECRET_KEY) {
@@ -55,7 +53,9 @@ export async function getClient(type: ClientType, org: string | null) {
       throw new Error('GH_APP_IDENTIFIER not defined');
     }
     if (org == null) {
-      throw new Error('Must pass org to `getClient` if getting an app scoped client.')
+      throw new Error(
+        'Must pass org to `getClient` if getting an app scoped client.'
+      );
     }
 
     const appClient = _getAppClient();

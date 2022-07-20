@@ -1,5 +1,6 @@
 import { SlackMessage } from '@/config/slackMessage';
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 

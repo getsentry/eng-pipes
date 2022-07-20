@@ -1,4 +1,5 @@
-import { ClientType, getClient } from '@api/github/getClient';
+import { ClientType } from '@/api/github/clientType';
+import { getClient } from '@api/github/getClient';
 
 /**
  * Paths that we do not intend to convert to ts

@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueTriageNotifier';
 import {
   DAY_IN_MS,
@@ -10,7 +11,7 @@ import {
   UNTRIAGED_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];

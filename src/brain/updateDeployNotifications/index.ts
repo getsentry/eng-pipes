@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 
 import { FreightPayload } from '@types';
 
+import { ClientType } from '@/api/github/clientType';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -10,7 +11,7 @@ import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetwee
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 

@@ -1,8 +1,9 @@
 import * as Sentry from '@sentry/node';
 
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { ClientType, getClient } from '@api/github/getClient';
+import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 
