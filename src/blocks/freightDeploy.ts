@@ -1,6 +1,6 @@
 export function freightDeploy(
   commit: string,
-  app: 'getsentry' | 'getsentry-frontend' = 'getsentry'
+  app: 'z-getsentry-deprecated' | 'getsentry-frontend' = 'z-getsentry-deprecated'
 ) {
   return {
     type: 'button',

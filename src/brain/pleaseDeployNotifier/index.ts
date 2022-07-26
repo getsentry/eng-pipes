@@ -177,7 +177,7 @@ async function handler({
     : false;
 
   const actions = [
-    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry'),
+    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'z-getsentry-deprecated'),
     viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];
