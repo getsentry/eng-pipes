@@ -2,7 +2,7 @@ import { createAppAuth } from '@octokit/auth-app';
 import { retry } from '@octokit/plugin-retry';
 import { Octokit } from '@octokit/rest';
 
-import { GH_ORG_MEMBERSHIP_TOKEN } from '@/config/index';
+import { GH_USER_TOKEN } from '@/config/index';
 
 import { ClientType } from './clientType';
 
@@ -29,11 +29,11 @@ function _getAppClient(installationId?: number) {
   });
 }
 
-function _getOrgMemberClient() {
+function _getUserClient() {
   const OctokitWithRetries = Octokit.plugin(retry);
 
   return new OctokitWithRetries({
-    auth: GH_ORG_MEMBERSHIP_TOKEN,
+    auth: GH_USER_TOKEN,
   });
 }
 
@@ -44,7 +44,11 @@ function _getOrgMemberClient() {
  */
 export async function getClient(type: ClientType, org: string | null) {
   if (type === ClientType.User) {
-    return _getOrgMemberClient();
+    if (!GH_USER_TOKEN) {
+      throw new Error('GH_USER_TOKEN not defined');
+    }
+
+    return _getUserClient();
   } else {
     if (!process.env.GH_APP_SECRET_KEY) {
       throw new Error('GH_APP_SECRET_KEY not defined');
