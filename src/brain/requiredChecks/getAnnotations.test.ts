@@ -1,5 +1,4 @@
 import { ClientType } from '@api/github/clientType';
-import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
 import { getAnnotations } from './getAnnotations';
