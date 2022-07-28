@@ -166,7 +166,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
           GIT_BOT_SECRET: ${{ secrets.GIT_BOT_SECRET }}
-          GH_ORG_MEMBERSHIP_TOKEN: ${{ secrets.GH_ORG_MEMBERSHIP_TOKEN }}
+          GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
         run: |
           echo "::set-output name=deploy-start::$(date +%s)"
           bin/deploy.sh
