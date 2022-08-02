@@ -7,6 +7,7 @@ import { buildServer } from '@/buildServer';
 import { GETSENTRY_BOT_ID, REQUIRED_CHECK_NAME } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { Fastify } from '@/types';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -46,7 +47,7 @@ describe('updateDeployNotifications', function () {
     await updateDeployNotifications();
     await pleaseDeployNotifier();
 
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
     // @ts-ignore
     octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,

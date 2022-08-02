@@ -2,8 +2,8 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@/api/github';
+import { ClientType } from '@/api/github/clientType';
 import { getChangedStack } from '@/api/github/getChangedStack';
-import { getClient } from '@/api/github/getClient';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
@@ -14,6 +14,7 @@ import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetweenProjects';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
+import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
@@ -37,7 +38,7 @@ import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
  */
 async function canFrontendDeploy(base: string, head: string) {
   try {
-    const octokit = await getClient(OWNER);
+    const octokit = await getClient(ClientType.App, OWNER);
     // Find the list of commits with base being the most recently deployed
     // commit and the supplied commit (e.g. the commit that just finished its
     // check runs)

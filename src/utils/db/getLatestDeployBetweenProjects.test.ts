@@ -2,6 +2,7 @@ import payload from '@test/payloads/freight.json';
 
 import { deployState } from '@/brain/deployState';
 import { freight } from '@api/freight';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
@@ -16,7 +17,7 @@ describe('getLatestDeployBetweenProjects', function () {
 
   beforeAll(async function () {
     await db.migrate.latest();
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
     deployState();
   });
 

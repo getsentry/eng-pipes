@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 
 import { GETSENTRY_REPO, OWNER } from '@/config';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
 import { rerunFlakeyJobs } from './rerunFlakeyJobs';
@@ -11,7 +12,7 @@ describe('requiredChecks.rerunFlakeyJobs', function () {
   let octokit;
 
   beforeAll(async function () {
-    octokit = await getClient(OWNER);
+    octokit = await getClient(ClientType.App, OWNER);
   });
   beforeEach(function () {
     octokit.actions.getJobForWorkflowRun.mockClear();

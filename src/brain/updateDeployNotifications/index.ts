@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 
 import { FreightPayload } from '@types';
 
+import { ClientType } from '@/api/github/clientType';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -37,7 +38,7 @@ export async function handler(payload: FreightPayload) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const getsentry = await getClient('getsentry');
+  const getsentry = await getClient(ClientType.App, 'getsentry');
 
   let latestDeploy;
 

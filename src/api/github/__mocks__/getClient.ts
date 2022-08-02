@@ -68,7 +68,7 @@ function mockClient() {
     orgs: {
       checkMembershipForUser: jest.fn(async function (x) {
         let status = 302;
-        if (x.org === 'Enterprise') {
+        if (x.org === 'Enterprise' || x.org === null) {
           if (x.username === 'Picard') {
             return { status: 204 };
           } else {

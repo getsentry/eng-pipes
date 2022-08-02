@@ -1,6 +1,7 @@
-import { getClient } from '@/api/github/getClient';
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { Annotation } from '@/types';
+import { getClient } from '@api/github/getClient';
 
 import { extractRunId } from './extractRunId';
 
@@ -81,7 +82,7 @@ function filterAnnotations(annotations: Annotation[]) {
 export async function getAnnotations(
   jobs: string[][]
 ): Promise<Record<string, Annotation[]>> {
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
 
   const annotations = await Promise.all(
     jobs

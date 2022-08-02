@@ -3,6 +3,7 @@ import { GetResponseDataTypeFromEndpointMethod } from '@octokit/types';
 
 import { GETSENTRY_BOT_ID, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 
+import { ClientType } from './clientType';
 import { getClient } from './getClient';
 
 const octokit = new Octokit();
@@ -36,7 +37,7 @@ export async function getSentryPullRequestsForGetsentryRange(
   previous?: string | null,
   includeGetsentry?: boolean
 ): Promise<PullRequest[number][]> {
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
 
   // Single commit
   if (!previous) {

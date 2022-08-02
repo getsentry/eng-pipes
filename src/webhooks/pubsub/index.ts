@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
+import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueTriageNotifier';
 import {
   DAY_IN_MS,
@@ -9,9 +10,9 @@ import {
   TEAM_LABEL_PREFIX,
   UNTRIAGED_LABEL,
 } from '@/config';
+import { Issue } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { Issue } from '@/types';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
@@ -106,7 +107,7 @@ export const handler = async (
   reply.code(204);
   reply.send();
 
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
   const repos: string[] = payload.repos || DEFAULT_REPOS;
   const SLO = payload.slo || MAX_TRIAGE_TIME;
   const now = Date.now();

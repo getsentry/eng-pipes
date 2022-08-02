@@ -27,6 +27,7 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { db } from '@/utils/db';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
@@ -70,7 +71,7 @@ describe('requiredChecks', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await requiredChecks();
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
 
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;

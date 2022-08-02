@@ -1,7 +1,8 @@
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@/api/github/getClient';
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
+import { getClient } from '@api/github/getClient';
 
 import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
 
@@ -10,7 +11,7 @@ import { OK_CONCLUSIONS, RESTARTABLE_JOB_STEPS } from './constants';
  * or not. If so, we can restart the workflow and ignore this ever happened.
  */
 export async function rerunFlakeyJobs(failedJobIds: number[]) {
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
 
   // An entry will exist if it has been re-run
   const reruns = new Map<number, true>();

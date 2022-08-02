@@ -22,6 +22,7 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import * as db from '@utils/metrics';
 
@@ -41,7 +42,7 @@ describe('github webhook', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
     metrics();
   });
 
