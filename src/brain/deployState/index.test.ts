@@ -48,7 +48,7 @@ describe('deployState', function () {
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: null,
       environment: 'production',
@@ -77,7 +77,7 @@ describe('deployState', function () {
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: null,
       environment: 'production',
@@ -103,7 +103,7 @@ describe('deployState', function () {
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       created_at: new Date('2020-05-13T23:43:52.000Z'),
       duration: 600,
       environment: 'production',

@@ -43,12 +43,12 @@ export async function handler(payload: FreightPayload) {
   let latestDeploy;
 
   try {
-    // Retrieves the latest deploy between `getsentry` *AND*
+    // Retrieves the latest deploy between `getsentry-backend` *AND*
     // `getsentry-frontend`, so that the list of commits that were deployed is
     // accurate. Otherwise one project could lag the other, and we will have
     // overlapping "deployed" commits.
     //
-    // e.g. `getsentry` deploys commit "A" then `getsentry-frontend` deploys
+    // e.g. `getsentry-backend` deploys commit "A" then `getsentry-frontend` deploys
     // "B", "C, "D", when we try to deploy `getsentry@G`, only commits "E", "F",
     // and "G" get deployed (because "DEF" were frontend-only, we know there
     // were no backend commits)

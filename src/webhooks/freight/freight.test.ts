@@ -60,7 +60,7 @@ describe('freight webhook', function () {
       {
         event: 'deploy_started',
         meta: JSON.stringify({
-          app: 'getsentry',
+          app: 'getsentry-backend',
           head_commit: 'c88d886ba52bd85431052abaef4916469f7db2e8',
           base_commit: 'ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f',
         }),
@@ -102,7 +102,7 @@ describe('freight webhook', function () {
       {
         event: 'deploy_finished',
         meta: JSON.stringify({
-          app: 'getsentry',
+          app: 'getsentry-backend',
           head_commit: 'c88d886ba52bd85431052abaef4916469f7db2e8',
           base_commit: 'ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f',
         }),
@@ -155,7 +155,7 @@ describe('freight webhook', function () {
       {
         event: 'deploy_failed',
         meta: JSON.stringify({
-          app: 'getsentry',
+          app: 'getsentry-backend',
           head_commit: 'c88d886ba52bd85431052abaef4916469f7db2e8',
           base_commit: 'ab2e85f1e52c38cf138bbc60f8a72b7ab282b02f',
         }),
