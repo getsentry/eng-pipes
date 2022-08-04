@@ -24,7 +24,7 @@ async function getLatestDeploy(app_name: string) {
  * GitHub API to compare the two SHAs to determine the most *recent* commit SHA.
  */
 export async function getLatestDeployBetweenProjects(
-  projectA: string = 'getsentry',
+  projectA: string = 'getsentry-backend',
   projectB: string = 'getsentry-frontend'
 ) {
   const [deployA, deployB] = await Promise.all(

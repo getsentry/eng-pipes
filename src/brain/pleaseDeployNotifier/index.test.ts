@@ -181,7 +181,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry",
+                  "action_id": "freight-deploy: getsentry-backend",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -189,7 +189,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -261,7 +261,7 @@ describe('pleaseDeployNotifier', function () {
     await db('deploys').insert({
       external_id: 1,
       user_id: 1,
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       user: 'test@sentry.io',
       ref: 'master',
       sha: '333333',
@@ -335,7 +335,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry",
+                  "action_id": "freight-deploy: getsentry-backend",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -343,7 +343,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -493,7 +493,7 @@ describe('pleaseDeployNotifier', function () {
                     },
                     style: 'primary',
                     value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-                    url: 'https://freight.getsentry.net/deploy?app=getsentry',
+                    url: 'https://freight.getsentry.net/deploy?app=getsentry-backend',
                   },
                   {
                     type: 'button',
@@ -662,7 +662,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
                   "value": "455e3db9eb4fa6a1789b70e4045b194f02db0b59",
                 },
               ],
@@ -859,7 +859,7 @@ describe('pleaseDeployNotifier', function () {
     await db('deploys').insert({
       external_id: 1,
       user_id: 1,
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       user: 'test@sentry.io',
       ref: 'master',
       sha: '333333',
@@ -1079,7 +1079,7 @@ Remove "always()" from GHA workflows`,
     await db('deploys').insert({
       external_id: 1,
       user_id: 1,
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       user: 'test@sentry.io',
       ref: 'master',
       sha: '333333',
@@ -1212,7 +1212,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry",
+                  "action_id": "freight-deploy: getsentry-backend",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1220,7 +1220,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -1292,7 +1292,7 @@ Remove "always()" from GHA workflows`,
     await db('deploys').insert({
       external_id: 1,
       user_id: 1,
-      app_name: 'getsentry',
+      app_name: 'getsentry-backend',
       user: 'test@sentry.io',
       ref: 'master',
       sha: '333333',
@@ -1425,7 +1425,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry",
+                  "action_id": "freight-deploy: getsentry-backend",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1433,7 +1433,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {

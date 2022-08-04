@@ -163,7 +163,7 @@ async function handler({
   let latestDeploy;
 
   try {
-    // Retrieves the latest deploy between `getsentry` and `getsentry-frontend`,
+    // Retrieves the latest deploy between `getsentry-backend` and `getsentry-frontend`,
     // which shares the same repo
     latestDeploy = await getLatestDeployBetweenProjects();
   } catch (err) {
@@ -178,7 +178,7 @@ async function handler({
     : false;
 
   const actions = [
-    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry'),
+    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'),
     viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];
