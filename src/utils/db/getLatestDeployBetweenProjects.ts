@@ -4,7 +4,7 @@ import { getClient } from '@api/github/getClient';
 
 import { db } from '.';
 
-async function getLatestDeploy(app_name: string) {
+export async function getLatestDeploy(app_name: string) {
   return await db
     .select('*')
     .from('deploys')

@@ -3,11 +3,13 @@ import * as Sentry from '@sentry/node';
 import { FreightPayload } from '@types';
 
 import { ClientType } from '@/api/github/clientType';
+import { getChangedStack } from '@/api/github/getChangedStack';
+import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetweenProjects';
+import { getLatestDeploy } from '@/utils/db/getLatestDeployBetweenProjects';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
@@ -26,7 +28,8 @@ import { getSlackMessage } from '@utils/db/getSlackMessage';
 export async function handler(payload: FreightPayload) {
   if (
     payload.environment !== 'production' &&
-    payload.app_name === 'getsentry'
+    (payload.app_name === 'getsentry-frontend' ||
+      payload.app_name === 'getsentry-backend')
   ) {
     return;
   }
@@ -43,16 +46,10 @@ export async function handler(payload: FreightPayload) {
   let latestDeploy;
 
   try {
-    // Retrieves the latest deploy between `getsentry-backend` *AND*
-    // `getsentry-frontend`, so that the list of commits that were deployed is
-    // accurate. Otherwise one project could lag the other, and we will have
-    // overlapping "deployed" commits.
-    //
-    // e.g. `getsentry-backend` deploys commit "A" then `getsentry-frontend` deploys
-    // "B", "C, "D", when we try to deploy `getsentry@G`, only commits "E", "F",
-    // and "G" get deployed (because "DEF" were frontend-only, we know there
-    // were no backend commits)
-    latestDeploy = await getLatestDeployBetweenProjects();
+    // Retrieves the latest/previous deploy for either
+    // `getsentry-backend` or `getsentry-frontend` to see which
+    // commits are going out.
+    latestDeploy = await getLatestDeploy(payload.app_name);
   } catch (err) {
     Sentry.captureException(err);
     console.error(err);
@@ -72,10 +69,40 @@ export async function handler(payload: FreightPayload) {
 
   const commitShas = data.commits.map(({ sha }) => sha);
 
+  // Depending on whether `getsentry-frontend` or `getsentry-backend`
+  // is being deployed, only certain commits (FE/BE) will be
+  // affected. Filter the sha list to just FE or BE commits.
+  const relevantCommitShas: string[] = [];
+  for (const sha of commitShas) {
+    const relevantCommit = await getRelevantCommit(sha, getsentry);
+
+    // Commit should exist, but if not log and move on
+    if (!relevantCommit) {
+      Sentry.setContext('commit', {
+        commit_sha: sha,
+      });
+      Sentry.captureException(new Error('Unable to find commit'));
+      continue;
+    }
+
+    const relevantRepo = relevantCommit.sha === sha ? 'getsentry' : 'sentry';
+    const { isFrontendOnly, isBackendOnly } = await getChangedStack(
+      relevantCommit.sha,
+      relevantRepo
+    );
+
+    if (
+      (isFrontendOnly && payload.app_name === 'getsentry-frontend') ||
+      (isBackendOnly && payload.app_name === 'getsentry-backend')
+    ) {
+      relevantCommitShas.push(sha);
+    }
+  }
+
   // Look for associated slack messages based on getsentry commit sha
   const messages = await getSlackMessage(
     SlackMessage.PLEASE_DEPLOY,
-    commitShas
+    relevantCommitShas
   );
   const { status } = payload;
 

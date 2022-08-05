@@ -939,13 +939,8 @@ Remove "always()" from GHA workflows`,
     // Only once because this is a commit on getsentry
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
 
-    // Called three times to check frontend only deploys on last deployed commit and current commit
-    // As well as the initial check to see if the head commit allows for frontend-only deploys
-    // This can be optimized to be down to 2 calls
-    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(2);
-    expect(octokit.checks.listForRef).toHaveBeenCalledWith(
-      expect.objectContaining({ ref: '333333' })
-    );
+    // Called once to check if commit is frontend or backend
+    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(1);
     expect(octokit.checks.listForRef).toHaveBeenCalledWith(
       expect.objectContaining({
         ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
@@ -1425,7 +1420,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "freight-deploy: getsentry-frontend",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1433,7 +1428,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-frontend",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
