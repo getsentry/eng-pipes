@@ -3,8 +3,8 @@ import path from 'path';
 import child_process from 'child_process';
 
 // temporary sentry cloned respository path
-const dirPath = './tmp';
-const testsPath = './tmp/tests/js/spec';
+const dirPath = '/tmp';
+const testsPath = '/tmp/tests/js/spec';
 
 const getTestFiles = function (
   dirPath: string,
