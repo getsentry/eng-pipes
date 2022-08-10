@@ -10,6 +10,11 @@ WORKDIR /usr/src/app
 COPY package.json yarn.lock .yarnrc.yml .pnp.cjs ./
 COPY .yarn ./.yarn
 
+# Install git for commands that require us to inspect code contents
+RUN apt-get update && \
+    apt-get upgrade -y && \
+    apt-get install -y git
+
 # Install production dependencies.
 RUN yarn install --immutable
 
