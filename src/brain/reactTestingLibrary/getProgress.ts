@@ -1,10 +1,10 @@
+import child_process from 'child_process';
 import fs from 'fs';
 import path from 'path';
-import child_process from 'child_process';
 
 // temporary sentry cloned respository path
-const dirPath = '/tmp';
-const testsPath = '/tmp/tests/js/spec';
+const dirPath = '/tmp/sentry';
+const testsPath = '/tmp/sentry/tests/js/spec';
 
 const getTestFiles = function (
   dirPath: string,
@@ -33,7 +33,7 @@ export default async function getProgress(data?: string) {
 
   // clone sentry repository
   child_process.execSync(
-    `git clone git@github.com:getsentry/sentry.git ${dirPath}`
+    `git clone --depth 1 -b master https://github.com/getsentry/sentry.git ${dirPath}`
   );
 
   const testFiles = getTestFiles(testsPath);
