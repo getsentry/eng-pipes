@@ -9,7 +9,7 @@ import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { Color, GETSENTRY_REPO, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLatestDeploy } from '@/utils/db/getLatestDeployBetweenProjects';
+import { getLatestDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { freight } from '@api/freight';
 import { getUser } from '@api/getUser';
@@ -75,7 +75,6 @@ export async function handler(payload: FreightPayload) {
   const relevantCommitShas: string[] = [];
   for (const sha of commitShas) {
     const relevantCommit = await getRelevantCommit(sha, getsentry);
-
     // Commit should exist, but if not log and move on
     if (!relevantCommit) {
       Sentry.setContext('commit', {
