@@ -33,7 +33,7 @@ export default async function getProgress(data?: string) {
 
   // clone sentry repository
   child_process.execSync(
-    `git clone --depth 1 -b master https://github.com/getsentry/sentry.git ${dirPath}`
+    `git clone --depth 1 -b master https://github.com/getsentry/sentry ${dirPath}`
   );
 
   const testFiles = getTestFiles(testsPath);
