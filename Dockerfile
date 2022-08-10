@@ -12,7 +12,7 @@ COPY .yarn ./.yarn
 
 # Install git for commands that require us to inspect code contents
 RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends ca-certificates git && \
     rm -rf /var/lib/apt/lists/*
 
 # Install production dependencies.
