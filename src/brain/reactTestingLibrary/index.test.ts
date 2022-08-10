@@ -31,7 +31,7 @@ describe('slack app', function () {
     const response = await createSlackAppMention(fastify, '<@U018UAXJVG8> rtl');
     expect(response.statusCode).toBe(200);
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(getProgress).toHaveBeenCalledWith(undefined);
+    expect(getProgress).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
     // @ts-ignore
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchInlineSnapshot(`
