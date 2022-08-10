@@ -1,7 +1,7 @@
 import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
-import { getProgress } from './getProgress';
+import getProgress from './getProgress';
 
 export function reactTestingLibrary() {
   bolt.event(

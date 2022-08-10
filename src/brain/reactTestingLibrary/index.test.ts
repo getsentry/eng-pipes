@@ -3,7 +3,7 @@ import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 import { buildServer } from '@/buildServer';
 import { bolt } from '@api/slack';
 
-import { getProgress } from './getProgress';
+import getProgress from './getProgress';
 import { reactTestingLibrary } from '.';
 
 jest.mock('@api/slack');

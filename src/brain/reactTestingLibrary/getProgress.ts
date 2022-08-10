@@ -25,7 +25,7 @@ const getTestFiles = function (
   return arrayOfFiles;
 };
 
-export async function getProgress(data?: string) {
+export default async function getProgress(data?: string) {
   //delete cloned sentry repository
   if (fs.existsSync(dirPath)) {
     fs.rmdirSync(dirPath, { recursive: true });
