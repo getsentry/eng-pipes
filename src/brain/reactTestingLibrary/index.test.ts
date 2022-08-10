@@ -33,5 +33,22 @@ describe('slack app', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(getProgress).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
+    // @ts-ignore
+    expect(bolt.client.chat.update.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "blocks": Array [
+          Object {
+            "text": Object {
+              "text": ":rtl: progress: *50%* completed, *2* files remaining",
+              "type": "mrkdwn",
+            },
+            "type": "section",
+          },
+        ],
+        "channel": "channel_id",
+        "text": "RTL progress: 50% completed, 2 files remaining",
+        "ts": "1234123.123",
+      }
+    `);
   });
 });
