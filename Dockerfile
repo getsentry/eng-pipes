@@ -12,8 +12,8 @@ COPY .yarn ./.yarn
 
 # Install git for commands that require us to inspect code contents
 RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y git
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends git && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install production dependencies.
 RUN yarn install --immutable
