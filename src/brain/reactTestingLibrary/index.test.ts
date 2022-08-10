@@ -47,7 +47,7 @@ describe('slack app', function () {
         ],
         "channel": "channel_id",
         "text": "RTL progress: 50% completed, 2 files remaining",
-        "rtl": "1234123.123",
+        "ts": "1234123.123",
       }
     `);
   });

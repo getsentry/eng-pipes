@@ -11,7 +11,7 @@ export function reactTestingLibrary() {
         return;
       }
 
-      const { message } = await say({
+      const message = await say({
         text: ':sentry-loading: fetching status ...',
         blocks: [
           {
