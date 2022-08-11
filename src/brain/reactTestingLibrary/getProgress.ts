@@ -49,11 +49,11 @@ export default async function getProgress() {
 
   // Delete existing files
   if (fs.existsSync(testsPath)) {
-    fs.rmSync(testsPath, { recursive: true });
+    fs.rmdirSync(testsPath, { recursive: true });
   }
 
   if (fs.existsSync('spec.tar.gz')) {
-    fs.rmSync('spec.tar.gz', { recursive: true });
+    fs.rmdirSync('spec.tar.gz', { recursive: true });
   }
 
   // Download the archive
