@@ -49,12 +49,10 @@ export default async function getProgress() {
 
   // Delete existing files
   if (fs.existsSync(testsPath)) {
-    // @ts-ignore
     fs.rmSync(testsPath, { recursive: true });
   }
 
   if (fs.existsSync('spec.tar.gz')) {
-    // @ts-ignore
     fs.rmSync('spec.tar.gz', { recursive: true });
   }
 
