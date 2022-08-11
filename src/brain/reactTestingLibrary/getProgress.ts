@@ -26,7 +26,7 @@ const getTestFiles = function (
   return arrayOfFiles;
 };
 
-export default async function getProgress() {
+export async function getProgress() {
   const octokit = new Octokit();
 
   const content = await octokit.repos.getContent({

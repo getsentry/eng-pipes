@@ -3,17 +3,17 @@ import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 import { buildServer } from '@/buildServer';
 import { bolt } from '@api/slack';
 
-import getProgress from './getProgress';
+import {getProgress} from './getProgress';
 import { reactTestingLibrary } from '.';
 
 jest.mock('@api/slack');
 
-jest.mock('./getProgress', () =>
-  jest.fn(() => ({
-    progress: 50,
+jest.mock('./getProgress', () => {
+  getProgress.mockImplementation(() => ({
     remainingFiles: 2,
-  }))
-);
+    progress: 50,
+  };
+});
 
 describe('slack app', function () {
   let fastify;
