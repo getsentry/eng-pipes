@@ -51,7 +51,6 @@
     "@slack/types": "^2.0.0",
     "@slack/web-api": "^6.0.0",
     "@types/lodash.merge": "^4.6.6",
-    "@types/node": "12",
     "fastify": "^3.23.1",
     "fastify-formbody": "^5.2.0",
     "knex": "^0.95.12",
@@ -64,6 +63,7 @@
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
+    "@types/node": "^18.7.1",
     "@types/tar": "^6.1.2",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",

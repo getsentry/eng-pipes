@@ -1,7 +1,8 @@
-import { Octokit } from '@octokit/rest';
 import fs from 'fs';
-import tar from 'tar';
 import path from 'path';
+
+import { Octokit } from '@octokit/rest';
+import tar from 'tar';
 
 const owner = 'getsentry';
 const repo = 'sentry';
@@ -48,11 +49,13 @@ export default async function getProgress() {
 
   // Delete existing files
   if (fs.existsSync(testsPath)) {
-    fs.rm(testsPath, { recursive: true });
+    // @ts-ignore
+    fs.rmSync(testsPath, { recursive: true });
   }
 
   if (fs.existsSync('spec.tar.gz')) {
-    fs.rm('spec.tar.gz', { recursive: true });
+    // @ts-ignore
+    fs.rmSync('spec.tar.gz', { recursive: true });
   }
 
   // Download the archive
