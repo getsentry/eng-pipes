@@ -49,7 +49,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:27.0.3"],
             ["@types/lodash.merge", "npm:4.6.6"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
             ["@types/tar", "npm:6.1.2"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
@@ -2398,10 +2398,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/node", [
-        ["npm:12.12.39", {
-          "packageLocation": "./.yarn/cache/@types-node-npm-12.12.39-30dc77e717-688cb61355.zip/node_modules/@types/node/",
+        ["npm:12.20.55", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-12.20.55-88487587a4-e4f86785f4.zip/node_modules/@types/node/",
           "packageDependencies": [
-            ["@types/node", "npm:12.12.39"]
+            ["@types/node", "npm:12.20.55"]
           ],
           "linkType": "HARD",
         }],
@@ -9736,7 +9736,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:27.0.3"],
             ["@types/lodash.merge", "npm:4.6.6"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
             ["@types/tar", "npm:6.1.2"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
@@ -10573,7 +10573,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@tsconfig/node12", "npm:1.0.9"],
             ["@tsconfig/node14", "npm:1.0.1"],
             ["@tsconfig/node16", "npm:1.0.2"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
             ["@types/swc__core", null],
             ["@types/swc__wasm", null],
             ["@types/typescript", null],
