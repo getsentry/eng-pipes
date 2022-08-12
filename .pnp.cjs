@@ -49,7 +49,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:27.0.3"],
             ["@types/lodash.merge", "npm:4.6.6"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
+            ["@types/tar", "npm:6.1.2"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["eslint", "npm:8.2.0"],
@@ -72,6 +73,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pino-pretty", "npm:4.5.0"],
             ["prettier", "npm:2.4.1"],
             ["source-map-support", "npm:0.5.21"],
+            ["tar", "npm:6.1.11"],
             ["ts-jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.0.7"],
             ["ts-node", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:10.4.0"],
             ["typescript", "patch:typescript@npm%3A4.5.2#~builtin<compat/typescript>::version=4.5.2&hash=493e53"]
@@ -2396,10 +2398,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["@types/node", [
-        ["npm:12.12.39", {
-          "packageLocation": "./.yarn/cache/@types-node-npm-12.12.39-30dc77e717-688cb61355.zip/node_modules/@types/node/",
+        ["npm:12.20.55", {
+          "packageLocation": "./.yarn/cache/@types-node-npm-12.20.55-88487587a4-e4f86785f4.zip/node_modules/@types/node/",
           "packageDependencies": [
-            ["@types/node", "npm:12.12.39"]
+            ["@types/node", "npm:12.20.55"]
           ],
           "linkType": "HARD",
         }],
@@ -2500,6 +2502,17 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@types-stack-utils-npm-2.0.0-8ded8461bc-b3fbae25b0.zip/node_modules/@types/stack-utils/",
           "packageDependencies": [
             ["@types/stack-utils", "npm:2.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@types/tar", [
+        ["npm:6.1.2", {
+          "packageLocation": "./.yarn/cache/@types-tar-npm-6.1.2-bbc0a14404-57e625e2db.zip/node_modules/@types/tar/",
+          "packageDependencies": [
+            ["@types/tar", "npm:6.1.2"],
+            ["@types/node", "npm:14.14.22"],
+            ["minipass", "npm:3.3.5"]
           ],
           "linkType": "HARD",
         }]
@@ -8135,6 +8148,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["yallist", "npm:4.0.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:3.3.5", {
+          "packageLocation": "./.yarn/cache/minipass-npm-3.3.5-a555b091e7-f89f02bcaa.zip/node_modules/minipass/",
+          "packageDependencies": [
+            ["minipass", "npm:3.3.5"],
+            ["yallist", "npm:4.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["minizlib", [
@@ -9715,7 +9736,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@slack/web-api", "npm:6.0.0"],
             ["@types/jest", "npm:27.0.3"],
             ["@types/lodash.merge", "npm:4.6.6"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
+            ["@types/tar", "npm:6.1.2"],
             ["@typescript-eslint/eslint-plugin", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["@typescript-eslint/parser", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.4.0"],
             ["eslint", "npm:8.2.0"],
@@ -9738,6 +9760,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["pino-pretty", "npm:4.5.0"],
             ["prettier", "npm:2.4.1"],
             ["source-map-support", "npm:0.5.21"],
+            ["tar", "npm:6.1.11"],
             ["ts-jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.0.7"],
             ["ts-node", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:10.4.0"],
             ["typescript", "patch:typescript@npm%3A4.5.2#~builtin<compat/typescript>::version=4.5.2&hash=493e53"]
@@ -10279,6 +10302,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["yallist", "npm:4.0.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:6.1.11", {
+          "packageLocation": "./.yarn/cache/tar-npm-6.1.11-e6ac3cba9c-a04c07bb9e.zip/node_modules/tar/",
+          "packageDependencies": [
+            ["tar", "npm:6.1.11"],
+            ["chownr", "npm:2.0.0"],
+            ["fs-minipass", "npm:2.1.0"],
+            ["minipass", "npm:3.1.3"],
+            ["minizlib", "npm:2.1.2"],
+            ["mkdirp", "npm:1.0.4"],
+            ["yallist", "npm:4.0.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["tarn", [
@@ -10537,7 +10573,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@tsconfig/node12", "npm:1.0.9"],
             ["@tsconfig/node14", "npm:1.0.1"],
             ["@tsconfig/node16", "npm:1.0.2"],
-            ["@types/node", "npm:12.12.39"],
+            ["@types/node", "npm:12.20.55"],
             ["@types/swc__core", null],
             ["@types/swc__wasm", null],
             ["@types/typescript", null],
