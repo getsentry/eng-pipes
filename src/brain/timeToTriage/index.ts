@@ -12,15 +12,21 @@ const REPOS_TO_TRACK = new Set([
   'relay',
   'responses',
   'self-hosted',
-  'sentry-javascript',
   'sentry-native',
-  'sentry-python',
   'snuba',
   'snuba-sdk',
   'symbolic',
   'symbolicator',
   'test-ttt-simple',
   'wal2json',
+  
+  // Web team, T1
+  'sentry-javascript',
+  'sentry-python',
+  'sentry-php',
+  'sentry-laravel',
+  'sentry-symfony',
+  'sentry-ruby',
 
   // Mobile team, T1
   // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
