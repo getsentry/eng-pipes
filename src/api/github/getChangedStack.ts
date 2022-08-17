@@ -1,8 +1,9 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { getClient } from '@/api/github/getClient';
+import { ClientType } from '@/api/github/clientType';
 import { OWNER } from '@/config';
+import { getClient } from '@api/github/getClient';
 
 const FRONTEND_CHANGE_CHECK_NAME = 'only frontend changes';
 const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';
@@ -18,7 +19,7 @@ export async function getChangedStack(
 ) {
   try {
     // We can save on making extra calls to get GH client
-    const octokit = client || (await getClient(OWNER));
+    const octokit = client || (await getClient(ClientType.App, OWNER));
 
     const { data } = await octokit.checks.listForRef({
       owner: OWNER,

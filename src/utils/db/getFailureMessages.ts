@@ -1,3 +1,4 @@
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -39,7 +40,7 @@ export async function getFailureMessages(
 
   const onlyOlderFailedMessages = await Promise.all(
     messages.map(async (message) => {
-      const octokit = await getClient(OWNER);
+      const octokit = await getClient(ClientType.App, OWNER);
       // We *ONLY* want failed builds before `headSha` - when calling GH's
       // `compareCommits`, we use `headSha` as the head commit, so we only want
       // the messages for failed builds that came before `headSha`.

@@ -2,9 +2,13 @@ import { createAppAuth } from '@octokit/auth-app';
 import { retry } from '@octokit/plugin-retry';
 import { Octokit } from '@octokit/rest';
 
+import { GH_USER_TOKEN } from '@/config/index';
+
+import { ClientType } from './clientType';
+
 const _INSTALLATION_CACHE = new Map();
 
-function _getClient(installationId?: number) {
+function _getAppClient(installationId?: number) {
   const OctokitWithRetries = Octokit.plugin(retry);
 
   const auth = {
@@ -25,29 +29,50 @@ function _getClient(installationId?: number) {
   });
 }
 
+function _getUserClient() {
+  const OctokitWithRetries = Octokit.plugin(retry);
+
+  return new OctokitWithRetries({
+    auth: GH_USER_TOKEN,
+  });
+}
+
 /**
  * Return an Octokit client.
  *
  * Only org is required, as we can assume the GH App is installed org-wide.
  */
-export async function getClient(org: string) {
-  if (!process.env.GH_APP_SECRET_KEY) {
-    throw new Error('GH_APP_SECRET_KEY not defined');
-  }
-  if (!process.env.GH_APP_IDENTIFIER) {
-    throw new Error('GH_APP_IDENTIFIER not defined');
-  }
+export async function getClient(type: ClientType, org: string | null) {
+  if (type === ClientType.User) {
+    if (!GH_USER_TOKEN) {
+      throw new Error('GH_USER_TOKEN not defined');
+    }
 
-  const appClient = _getClient();
+    return _getUserClient();
+  } else {
+    if (!process.env.GH_APP_SECRET_KEY) {
+      throw new Error('GH_APP_SECRET_KEY not defined');
+    }
+    if (!process.env.GH_APP_IDENTIFIER) {
+      throw new Error('GH_APP_IDENTIFIER not defined');
+    }
+    if (org == null) {
+      throw new Error(
+        'Must pass org to `getClient` if getting an app scoped client.'
+      );
+    }
 
-  // Cache the installation ID as it should never change
-  if (_INSTALLATION_CACHE.has(org)) {
-    return _getClient(_INSTALLATION_CACHE.get(org));
+    const appClient = _getAppClient();
+
+    // Cache the installation ID as it should never change
+    if (_INSTALLATION_CACHE.has(org)) {
+      return _getAppClient(_INSTALLATION_CACHE.get(org));
+    }
+
+    // Not sure if we can cache the octokit instance - installation tokens expire
+    // after an hour, but octokit client may be able to handle this properly.
+    const installation = await appClient.apps.getOrgInstallation({ org });
+    _INSTALLATION_CACHE.set(org, installation.data.id);
+    return _getAppClient(installation.data.id);
   }
-
-  // Not sure if we can cache the octokit instance - installation tokens expire
-  // after an hour, but octokit client may be able to handle this properly.
-  const installation = await appClient.apps.getOrgInstallation({ org });
-  _INSTALLATION_CACHE.set(org, installation.data.id);
-  return _getClient(installation.data.id);
 }

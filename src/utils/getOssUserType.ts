@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/node';
 
+import { ClientType } from '@/api/github/clientType';
 import { DAY_IN_MS } from '@/config';
 import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
@@ -29,7 +30,7 @@ export async function getOssUserType(
 
   // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
   const org = owner.login;
-  const octokit = await getClient(org);
+  const octokit = await getClient(ClientType.User, org);
   const username = payload.sender.login;
 
   const cachedResult = _USER_CACHE.get(username);

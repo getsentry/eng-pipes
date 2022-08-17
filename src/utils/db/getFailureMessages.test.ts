@@ -1,4 +1,5 @@
 import { SlackMessage } from '@/config/slackMessage';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
@@ -12,7 +13,7 @@ describe('getFailureMessages', function () {
   });
 
   beforeEach(async function () {
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
   });
 
   afterAll(async function () {

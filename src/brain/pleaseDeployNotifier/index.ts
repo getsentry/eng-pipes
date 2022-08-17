@@ -3,7 +3,6 @@ import * as Sentry from '@sentry/node';
 
 import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
-import { getClient } from '@/api/github/getClient';
 import { freightDeploy } from '@/blocks/freightDeploy';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
@@ -11,7 +10,6 @@ import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
-import { getLatestDeployBetweenProjects } from '@/utils/db/getLatestDeployBetweenProjects';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -23,61 +21,6 @@ import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
-
-/**
- * Get the latest deployed commit between "getsentry" and "getsentry-frontend"
- * and then get the list of commits from the `head` and the latest deployed
- * commit.
- *
- * For each commit that will be deployed, check if they only contain frontend
- * changes. It can be a frontend deploy only if this is true.
- *
- * Requiring only frontend changes will reduce the changes of deploying a
- * frontend change that is dependent on a backend change.
- */
-async function canFrontendDeploy(base: string, head: string) {
-  try {
-    const octokit = await getClient(OWNER);
-    // Find the list of commits with base being the most recently deployed
-    // commit and the supplied commit (e.g. the commit that just finished its
-    // check runs)
-    const { data } = await octokit.repos.compareCommits({
-      owner: OWNER,
-      repo: GETSENTRY_REPO,
-      base,
-      head,
-    });
-
-    // We should be able to assume that the `head` commit already allows
-    // frontend only deploys, as this function should not be called otherwise.
-    // The head commit will be the last element in `data.commits`.
-    const commits = data.commits.slice(0, -1);
-
-    // Call `getChangedStack` and every commit, which queries GH API for a GH
-    // check run status.
-    const changedStacks = await Promise.all(
-      commits.map(
-        async (commit) => await getChangedStack(commit.sha, GETSENTRY_REPO)
-      )
-    );
-
-    // eslint-disable-next-line no-console
-    console.debug(`
-* canFrontendDeploy --> ${changedStacks.every(
-      ({ isFrontendOnly }) => isFrontendOnly
-    )} (${data.commits.map(({ sha }) => sha).join(', ')})
-    `);
-
-    return changedStacks.every(({ isFrontendOnly }) => isFrontendOnly);
-  } catch (err) {
-    // Capture to Sentry, but we can ignore errors, and assume it is not valid
-    // for frontend-only deploy
-    Sentry.captureException(err);
-    console.error(err);
-
-    return false;
-  }
-}
 
 async function handler({
   id,
@@ -117,7 +60,7 @@ async function handler({
 
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
-  // Message author on slack that they're commit is ready to deploy
+  // Message author on slack that their commit is ready to deploy
   // and send a link to open freight
   const user = await getUser({
     githubUser: relevantCommit.author?.login,
@@ -154,30 +97,16 @@ async function handler({
 
   // If the commit contains only frontend changes, link user to deploy the
   // `getsentry-frontend` Freight app
-  const { isFrontendOnly: isHeadCommitFrontendOnly } = await getChangedStack(
+  const { isFrontendOnly } = await getChangedStack(
     relevantCommit.sha,
     relevantCommitRepo
   );
 
-  let latestDeploy;
-
-  try {
-    // Retrieves the latest deploy between `getsentry` and `getsentry-frontend`,
-    // which shares the same repo
-    latestDeploy = await getLatestDeployBetweenProjects();
-  } catch (err) {
-    Sentry.captureException(err);
-    console.error(err);
-  }
-
-  const isFrontendOnly = !latestDeploy
-    ? isHeadCommitFrontendOnly
-    : isHeadCommitFrontendOnly
-    ? await canFrontendDeploy(latestDeploy.sha, checkRun.head_sha)
-    : false;
-
   const actions = [
-    freightDeploy(commit, isFrontendOnly ? 'getsentry-frontend' : 'getsentry'),
+    freightDeploy(
+      commit,
+      isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
+    ),
     viewUndeployedCommits(commit),
     muteDeployNotificationsButton(),
   ];

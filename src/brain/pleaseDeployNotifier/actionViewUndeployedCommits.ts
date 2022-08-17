@@ -1,5 +1,6 @@
 import * as Sentry from '@sentry/node';
 
+import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_REPO, OWNER } from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getClient } from '@api/github/getClient';
@@ -59,7 +60,7 @@ export async function actionViewUndeployedCommits({
     return;
   }
 
-  const octokit = await getClient(OWNER);
+  const octokit = await getClient(ClientType.App, OWNER);
   const base = lastDeploy.sha;
   const head = payload.value;
 

@@ -1,6 +1,6 @@
 export function freightDeploy(
   commit: string,
-  app: 'getsentry' | 'getsentry-frontend' = 'getsentry'
+  app: 'getsentry-backend' | 'getsentry-frontend' = 'getsentry-backend'
 ) {
   return {
     type: 'button',

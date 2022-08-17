@@ -1,3 +1,4 @@
+import { ClientType } from '@/api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
 /**
@@ -17,7 +18,7 @@ export default async function getProgress({
   date?: string;
 }) {
   const owner = 'getsentry';
-  const octokit = await getClient('getsentry');
+  const octokit = await getClient(ClientType.App, 'getsentry');
 
   const getContentsParams: {
     owner: string;

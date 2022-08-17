@@ -1,6 +1,7 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -19,7 +20,7 @@ describe('gha-test', function () {
   });
   beforeEach(async function () {
     await db('users').delete();
-    octokit = await getClient('getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
     fastify = await buildServer(false);
     ghaCancel();
     // @ts-ignore

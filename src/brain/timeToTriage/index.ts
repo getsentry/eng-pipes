@@ -12,15 +12,21 @@ const REPOS_TO_TRACK = new Set([
   'relay',
   'responses',
   'self-hosted',
-  'sentry-javascript',
   'sentry-native',
-  'sentry-python',
   'snuba',
   'snuba-sdk',
   'symbolic',
   'symbolicator',
   'test-ttt-simple',
   'wal2json',
+  
+  // Web team, T1
+  'sentry-javascript',
+  'sentry-python',
+  'sentry-php',
+  'sentry-laravel',
+  'sentry-symfony',
+  'sentry-ruby',
 
   // Mobile team, T1
   // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
@@ -31,8 +37,8 @@ const REPOS_TO_TRACK = new Set([
   'sentry-dart',
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
-
 ]);
+import { ClientType } from '@/api/github/clientType';
 import { UNTRIAGED_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
 
@@ -95,7 +101,7 @@ async function markUntriaged({
 
   // New issues get an Untriaged label.
   const owner = payload.repository.owner.login;
-  const octokit = await getClient(owner);
+  const octokit = await getClient(ClientType.App, owner);
 
   await octokit.issues.addLabels({
     owner,
@@ -129,7 +135,7 @@ async function markTriaged({
 
   // Remove Untriaged label when triaged.
   const owner = payload.repository.owner.login;
-  const octokit = await getClient(owner);
+  const octokit = await getClient(ClientType.App, owner);
   try {
     await octokit.issues.removeLabel({
       owner: owner,
