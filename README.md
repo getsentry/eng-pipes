@@ -40,41 +40,89 @@ Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/ho
 - [Docker](https://www.docker.com/)
 - [Yarn](https://yarnpkg.com)
 
+## Setup
+
+`direnv` will create a `.env` file for you if you don't have one. Follow the instructions below and adjust the variables in the `.env` file.
+
+### Setup Secrets
+
+The following secrets are configured in GitHub for this app to function and to deploy to Google.
+You can grab GitHub and Slack secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry) and the [Slack App](https://api.slack.com/apps/ASUD2NK2S/general?)
+
+#### Local Secrets
+
+You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
+
+- `GH_APP_IDENTIFIER` - GitHub App identifier
+- `GH_APP_SECRET_KEY` - GitHub App private key
+- `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
+- `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
+- `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
+- `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
+
+Optional database configuration
+
+- `DB_USER` - Database user
+- `DB_PASSWORD` - Database password
+- `DB_NAME` - Database name
+- `DB_INSTANCE_CONNECTION_NAME` - Used for CloudSQL
+
+#### Production Secrets
+
+These envronment vars are used for deploying to GCP
+
+- `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
+- `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
+
+And finally, for Sentry releases
+
+- `SENTRY_AUTH_TOKEN` - Auth token used to create releases
+- `SENTRY_ORG` - the Sentry organization
+- `SENTRY_PROJECT` - the Sentry project id
+
+### Google Cloud Platform
+
+You'll need to setup a GCP project that has access to Google Cloud Run. You should create a service account that has the following roles:
+
+- `Cloud Run Admin`
+- `Service Account User`
+- `Cloud SQL Client`
+
+You'll also need to create a private key for the service account (it should download a JSON file). You'll want to run `base64 <path/to/json>` and set it as the `GOOGLE_APPLICATION_CREDENTIALS` secret in GitHub.
+
 ## Testing your changes
 
 NOTE: This steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
 
-You need to set up:
-
-- Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
-  - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`)
-- Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`)
-  - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
-- Create a [new Slack App][slack_app] that matches the settings of the production app
-  - The prompt will ask you to associate to a workspace (use the new workspace)
-- Follow the steps of "Development & tests" to get the server running
-  - It will fail since you don't yet have all the env variables defined
-- In order for your Slack app to work, you need to match the settings to the production Slack app
-  - Load on your browser the production and personal app on two windows side-by-side
-  - You need the match the settings from the following sections:
-    - Basic Information
-    - App Home
-    - Interactivity & Shortcuts
-    - OAuth & Permissions
-      - You might not need to all the same scopes depending on what you're testing
-    - Event Subscriptions
-  - Make sure to use https:// URLs instead of http:// ones
-  - Some of the settings will need to be verified before they get save
-    - This means that you will need to update your `.env` file with the settings from your Slack app
-    - Reload your server for the new env vars to apply and resend the verification payloads
-    - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
-- On your new Slack workspace begin a conversation with the bot
-  - You should see your localhost app respond with 200 status code
-  - Congratulations!
-- Create a [new GitHub App](https://github.com/settings/apps/new)
-  - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
-  - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
-  - Push to your fork and see events coming in
+1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
+    - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`) and save it for step 6
+2. Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
+    - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
+3. Create a [new Slack App][slack_app] that matches the settings of the production app
+    - The prompt will ask you to associate to a workspace (use the new workspace)
+4. Follow the steps of "Development & tests" to get the server running
+    - It will fail if you don't have all the env variables defined
+5. In order for your Slack app to work, you need to match the settings to the production Slack app
+    - Load on your browser the production and personal app on two windows side-by-side
+    - You need the match the settings from the following sections:
+      - Basic Information
+      - App Home
+      - Interactivity & Shortcuts
+      - OAuth & Permissions
+        - You might not need to all the same scopes depending on what you're testing
+      - Event Subscriptions
+    - Make sure to use https:// URLs instead of http:// ones
+    - Some of the settings will need to be verified before they get save
+      - This means that you will need to update your `.env` file with the settings from your Slack app
+      - Reload your server for the new env vars to apply and resend the verification payloads
+      - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
+    - On your new Slack workspace begin a conversation with the bot
+    - You should see your localhost app respond with 200 status code
+    - Congratulations!
+6. Create a [new GitHub App](https://github.com/settings/apps/new)
+    - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
+    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
+    - Push to your fork and see events coming in
 
 NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
 
@@ -101,52 +149,6 @@ Running tests:
 # Testing
 yarn test
 ```
-
-## Setup
-
-`direnv` will create a `.env` file for you if you don't have one. Follow the instructions below and adjust the variables in the `.env` file.
-
-### Setup Secrets
-
-The following secrets are configured in GitHub for this app to function and to deploy to Google.
-You can grab GitHub and Slack secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry) and the [Slack App](https://api.slack.com/apps/ASUD2NK2S/general?)
-
-You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
-
-- `GH_APP_IDENTIFIER` - GitHub App identifier
-- `GH_APP_SECRET_KEY` - GitHub App private key
-- `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
-- `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
-- `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
-- `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
-
-Optional database configuration
-
-- `DB_USER` - Database user
-- `DB_PASSWORD` - Database password
-- `DB_NAME` - Database name
-- `DB_INSTANCE_CONNECTION_NAME` - Used for CloudSQL
-
-These envronment vars are used for deploying to GCP
-
-- `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
-- `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
-
-And finally, for Sentry releases
-
-- `SENTRY_AUTH_TOKEN` - Auth token used to create releases
-- `SENTRY_ORG` - the Sentry organization
-- `SENTRY_PROJECT` - the Sentry project id
-
-### Google Cloud Platform
-
-You'll need to setup a GCP project that has access to Google Cloud Run. You should create a service account that has the following roles:
-
-- `Cloud Run Admin`
-- `Service Account User`
-- `Cloud SQL Client`
-
-You'll also need to create a private key for the service account (it should download a JSON file). You'll want to run `base64 <path/to/json>` and set it as the `GOOGLE_APPLICATION_CREDENTIALS` secret in GitHub.
 
 ### Setting up new projects
 
