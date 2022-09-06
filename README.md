@@ -100,9 +100,13 @@ NOTE: This steps will cover more aspects over time. For now it focuses on testin
     - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
 3. Create a [new Slack App][slack_app] that matches the settings of the production app
     - The prompt will ask you to associate to a workspace (use the new workspace)
-4. Follow the steps of "Development & tests" to get the server running
+4. Create a [new GitHub App](https://github.com/settings/apps/new)
+    - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
+    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
+    - Push to your fork and see events coming in
+5. Follow the steps of "Development & tests" to get the server running
     - It will fail if you don't have all the env variables defined
-5. In order for your Slack app to work, you need to match the settings to the production Slack app
+6. In order for your Slack app to work, you need to match the settings to the production Slack app
 
     ```code
     Dispay Information
@@ -181,14 +185,10 @@ NOTE: This steps will cover more aspects over time. For now it focuses on testin
     - On your new Slack workspace begin a conversation with the bot
     - You should see your localhost app respond with 200 status code
     - Congratulations!
-6. Create a [new GitHub App](https://github.com/settings/apps/new)
-    - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
-    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
-    - Push to your fork and see events coming in
 
 NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
 
-NOTE: Github let's you see web hooks events it recently delivered and even redeliver them if needed.
+NOTE: Github lets you see web hooks events it recently delivered and even redeliver them if needed.
 
 ## Development & tests
 
