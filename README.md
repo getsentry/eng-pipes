@@ -21,7 +21,7 @@ The app can also determine that it needs to send a message to the Slack workspac
 
 ### Sentry bot Slack app
 
-The [Sentry bot](https://api.slack.com/apps/ASUD2NK2S) Slack app sends events to the production backend. You can find what URL are events sent to by going to "Event subscriptions" in the app page. Events are sent to the "apps/slack/events" route.
+The Sentry bot Slack app sends events to the production backend. You can find what URL are events sent to by going to "Event subscriptions" in the app page. Events are sent to the "apps/slack/events" route.
 
 The events sent by the bot are defined under "Subscribe to bot events" in the "Event subscriptions" page. The current set of events (which can change over time) are:
 
@@ -47,9 +47,9 @@ Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/ho
 ### Setup Secrets
 
 The following secrets are configured in GitHub for this app to function and to deploy to Google.
-You can grab GitHub and Slack secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry) and the [Slack App](https://api.slack.com/apps/ASUD2NK2S/general?)
+You can grab GitHub secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry)
 
-#### Local Secrets
+#### Local Secrets (required to run yarn dev)
 
 You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
 
@@ -103,14 +103,76 @@ NOTE: This steps will cover more aspects over time. For now it focuses on testin
 4. Follow the steps of "Development & tests" to get the server running
     - It will fail if you don't have all the env variables defined
 5. In order for your Slack app to work, you need to match the settings to the production Slack app
-    - Load on your browser the production and personal app on two windows side-by-side
-    - You need the match the settings from the following sections:
-      - Basic Information
-      - App Home
-      - Interactivity & Shortcuts
-      - OAuth & Permissions
-        - You might not need to all the same scopes depending on what you're testing
-      - Event Subscriptions
+
+    ```code
+    Dispay Information
+      App Name: Sentry Bot
+      Short Description: Sentry development tooling bot
+      Background Color: "#362d59"
+    Features
+      App Home:
+        Show Tabs:
+          Home Tab: enabled
+          Messages Tab: disabled
+          Messages Tab Read Only: false
+        Your App’s Presence in Slack:
+          Display Name: Sentaur
+          Always Online: true
+      Slash Commands:
+        - command: /notify-for-triage
+          url: https://your.ngrok.io/apps/slack/events
+          description: Team/channel notification settings for untriaged issues
+          Usage Hint: "Team label name: ie. Workflow"
+          Should Escape: false
+    OAuth Config:
+      scopes:
+        user:
+          - users.profile:read
+        bot:
+          - app_mentions:read
+          - calls:read
+          - calls:write
+          - channels:read
+          - chat:write
+          - dnd:read
+          - files:read
+          - groups:read
+          - im:history
+          - im:read
+          - im:write
+          - mpim:history
+          - mpim:read
+          - mpim:write
+          - pins:write
+          - reactions:read
+          - reactions:write
+          - remote_files:read
+          - remote_files:share
+          - remote_files:write
+          - team:read
+          - users.profile:read
+          - users:read
+          - users:read.email
+          - users:write
+          - channels:join
+          - commands
+    Settings:
+      Event Subscriptions:
+        Request URL: https://your.ngrok.io/apps/slack/events
+        Bot Events:
+          - app_home_opened
+          - app_mention
+          - message.im
+          - user_change
+      Interactivity:
+        Is Enabled: true
+        request_url: https://your.ngrok.io/apps/slack/events
+        message_menu_options_url: https://your.ngrok.io/apps/slack/events
+      Org Deploy Enabled: false
+      Socket Mode Enabled: false
+      Token Rotation Enabled: false
+    ```
+
     - Make sure to use https:// URLs instead of http:// ones
     - Some of the settings will need to be verified before they get save
       - This means that you will need to update your `.env` file with the settings from your Slack app
