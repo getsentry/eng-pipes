@@ -12,16 +12,16 @@ export async function getProgress() {
   const testContent = await octokit.repos.getContent({
     owner,
     repo,
-    path: 'tests/js',
+    path: 'static',
   });
 
   if (!Array.isArray(testContent.data)) {
     throw new Error('Invalid directory');
   }
 
-  const spec = testContent.data.find(({ name }) => name === 'spec');
+  const app = testContent.data.find(({ name }) => name === 'app');
 
-  if (!spec) {
+  if (!app) {
     throw new Error('Invalid directory');
   }
 
@@ -29,7 +29,7 @@ export async function getProgress() {
   const response = await octokit.rest.repos.downloadTarballArchive({
     owner,
     repo,
-    ref: spec.sha,
+    ref: app.sha,
   });
 
   // @ts-expect-error https://github.com/octokit/types.ts/issues/211
