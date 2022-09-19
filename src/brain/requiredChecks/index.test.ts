@@ -1157,7 +1157,7 @@ describe('requiredChecks', function () {
     );
   });
 
-  it('does not notify slack channel when restarting due to intermittent CI issue', async function () {
+  it.skip('does not notify slack channel when restarting due to intermittent CI issue', async function () {
     // @ts-expect-error
     rerunFlakeyJobs.mockImplementation(async () => ({ hasReruns: true }));
 
