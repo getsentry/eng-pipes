@@ -95,6 +95,7 @@ You'll also need to create a private key for the service account (it should down
 NOTE: This steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
 
 1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
+    - `ngrok config add-authtoken <Your Ngrok Auth Token>`
     - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`) and save it for step 6
 2. Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
     - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
@@ -106,75 +107,11 @@ NOTE: This steps will cover more aspects over time. For now it focuses on testin
     - Push to your fork and see events coming in
 5. Follow the steps of "Development & tests" to get the server running
     - It will fail if you don't have all the env variables defined
-6. In order for your Slack app to work, you need to match the settings to the production Slack app
+6. In order for your Slack app to work, you need to match the settings to the production Slack app. Run the following command and copy the output into the
+slack apps App Manifest.
 
-    ```code
-    Dispay Information
-      App Name: Sentry Bot
-      Short Description: Sentry development tooling bot
-      Background Color: "#362d59"
-    Features
-      App Home:
-        Show Tabs:
-          Home Tab: enabled
-          Messages Tab: disabled
-          Messages Tab Read Only: false
-        Your App’s Presence in Slack:
-          Display Name: Sentaur
-          Always Online: true
-      Slash Commands:
-        - command: /notify-for-triage
-          url: https://your.ngrok.io/apps/slack/events
-          description: Team/channel notification settings for untriaged issues
-          Usage Hint: "Team label name: ie. Workflow"
-          Should Escape: false
-    OAuth Config:
-      scopes:
-        user:
-          - users.profile:read
-        bot:
-          - app_mentions:read
-          - calls:read
-          - calls:write
-          - channels:read
-          - chat:write
-          - dnd:read
-          - files:read
-          - groups:read
-          - im:history
-          - im:read
-          - im:write
-          - mpim:history
-          - mpim:read
-          - mpim:write
-          - pins:write
-          - reactions:read
-          - reactions:write
-          - remote_files:read
-          - remote_files:share
-          - remote_files:write
-          - team:read
-          - users.profile:read
-          - users:read
-          - users:read.email
-          - users:write
-          - channels:join
-          - commands
-    Settings:
-      Event Subscriptions:
-        Request URL: https://your.ngrok.io/apps/slack/events
-        Bot Events:
-          - app_home_opened
-          - app_mention
-          - message.im
-          - user_change
-      Interactivity:
-        Is Enabled: true
-        request_url: https://your.ngrok.io/apps/slack/events
-        message_menu_options_url: https://your.ngrok.io/apps/slack/events
-      Org Deploy Enabled: false
-      Socket Mode Enabled: false
-      Token Rotation Enabled: false
+    ```shell
+    sed 's|<NGROK_URL>|https://<Your Ngrok URL ID>.ngrok.io|g' ./.slack-manifest.example
     ```
 
     - Make sure to use https:// URLs instead of http:// ones

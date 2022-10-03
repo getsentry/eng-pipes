@@ -1,0 +1,65 @@
+display_information:
+  name: Sentry Bot
+  description: Sentry development tooling bot
+  background_color: "#362d59"
+features:
+  app_home:
+    home_tab_enabled: true
+    messages_tab_enabled: false
+    messages_tab_read_only_enabled: false
+  bot_user:
+    display_name: Sentaur
+    always_online: true
+  slash_commands:
+    - command: /notify-for-triage
+      url: <NGROK_URL>/apps/slack/events
+      description: Team/channel notification settings for untriaged issues
+      usage_hint: "Team label name: ie. Workflow"
+      should_escape: false
+oauth_config:
+  scopes:
+    user:
+      - users.profile:read
+    bot:
+      - app_mentions:read
+      - calls:read
+      - calls:write
+      - channels:read
+      - chat:write
+      - dnd:read
+      - files:read
+      - groups:read
+      - im:history
+      - im:read
+      - im:write
+      - mpim:history
+      - mpim:read
+      - mpim:write
+      - pins:write
+      - reactions:read
+      - reactions:write
+      - remote_files:read
+      - remote_files:share
+      - remote_files:write
+      - team:read
+      - users.profile:read
+      - users:read
+      - users:read.email
+      - users:write
+      - channels:join
+      - commands
+settings:
+  event_subscriptions:
+    request_url: <NGROK_URL>/apps/slack/events
+    bot_events:
+      - app_home_opened
+      - app_mention
+      - message.im
+      - user_change
+  interactivity:
+    is_enabled: true
+    request_url: <NGROK_URL>/apps/slack/events
+    message_menu_options_url: <NGROK_URL>/apps/slack/events
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
