@@ -111,7 +111,7 @@ NOTE: This steps will cover more aspects over time. For now it focuses on testin
 slack apps App Manifest.
 
     ```shell
-    sed 's/<NGROK_URL>/https:\/\/<Your Ngrok URL ID>.ngrok.io/g' ./.slack-manifest.example
+    sed 's|<NGROK_URL>|https://<Your Ngrok URL ID>.ngrok.io|g' ./.slack-manifest.example
     ```
 
     - Make sure to use https:// URLs instead of http:// ones
