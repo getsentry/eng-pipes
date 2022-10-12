@@ -168,7 +168,7 @@ jobs:
           GIT_BOT_SECRET: ${{ secrets.GIT_BOT_SECRET }}
           GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
         run: |
-          echo "::set-output name=deploy-start::$(date +%s)"
+          echo "deploy-start=$(date +%s)" >> "$GITHUB_OUTPUT"
           bin/deploy.sh
 
       - name: Sentry Release
