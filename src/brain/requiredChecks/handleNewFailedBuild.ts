@@ -2,7 +2,13 @@ import * as Sentry from '@sentry/node';
 
 import { jobStatuses } from '@/blocks/jobStatuses';
 import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
-import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
+import {
+  BuildStatus,
+  Color,
+  GETSENTRY_REPO,
+  REQUIRED_CHECK_CHANNEL,
+  SENTRY_REPO,
+} from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -133,8 +139,8 @@ export async function handleNewFailedBuild({
                         sha: relevantCommit?.sha,
                         repo:
                           relevantCommit?.sha === checkRun.head_sha
-                            ? 'getsentry'
-                            : 'sentry',
+                            ? GETSENTRY_REPO
+                            : SENTRY_REPO,
                       }),
                     ],
                   },
