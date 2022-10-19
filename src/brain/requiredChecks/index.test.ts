@@ -37,8 +37,8 @@ import { TARGETS } from '@utils/metrics';
 
 import { requiredChecks } from '.';
 
-function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 10));
+function tick(timeout = 10) {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
 describe('requiredChecks', function () {
@@ -1117,9 +1117,7 @@ describe('requiredChecks', function () {
     });
     // This is now required because of `updateRequiredCheck()` and its async db query
     // Alternatively, we'd have to do a more complex mock of the db query
-    await tick();
-    await tick();
-    await tick();
+    await tick(50);
 
     // Post new success message in thread
     expect(postMessage).toHaveBeenCalledTimes(1);
