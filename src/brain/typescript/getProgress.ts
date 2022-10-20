@@ -1,4 +1,5 @@
 import { ClientType } from '@/api/github/clientType';
+import { OWNER, SENTRY_REPO } from '@/config';
 import { getClient } from '@api/github/getClient';
 
 /**
@@ -7,7 +8,7 @@ import { getClient } from '@api/github/getClient';
 const IGNORED_PATHS = [/views\/events.*/, /views\/dashboards.*/];
 
 export default async function getProgress({
-  repo = 'sentry',
+  repo = SENTRY_REPO,
   basePath = 'static',
   appDir = 'app',
   date,
@@ -17,8 +18,7 @@ export default async function getProgress({
   appDir?: string;
   date?: string;
 }) {
-  const owner = 'getsentry';
-  const octokit = await getClient(ClientType.App, 'getsentry');
+  const octokit = await getClient(ClientType.App, OWNER);
 
   const getContentsParams: {
     owner: string;
@@ -26,14 +26,14 @@ export default async function getProgress({
     path: string;
     ref?: string;
   } = {
-    owner,
+    owner: OWNER,
     repo,
     path: basePath,
   };
 
   if (date) {
     const commits = await octokit.repos.listCommits({
-      owner,
+      owner: OWNER,
       repo,
       until: date,
       per_page: 1,
@@ -57,7 +57,7 @@ export default async function getProgress({
   }
 
   const tree = await octokit.git.getTree({
-    owner,
+    owner: OWNER,
     repo,
     tree_sha: app.sha,
     recursive: '1',
