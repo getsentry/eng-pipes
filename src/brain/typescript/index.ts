@@ -1,3 +1,4 @@
+import { GETSENTRY_REPO } from '@/config';
 import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
@@ -36,12 +37,12 @@ export function typescript() {
         }),
         getProgress({}),
         getProgress({
-          repo: 'getsentry',
+          repo: GETSENTRY_REPO,
           basePath: 'static/getsentry',
           appDir: 'gsApp',
         }),
         getProgress({
-          repo: 'getsentry',
+          repo: GETSENTRY_REPO,
           basePath: 'static/getsentry',
           appDir: 'gsAdmin',
         }),

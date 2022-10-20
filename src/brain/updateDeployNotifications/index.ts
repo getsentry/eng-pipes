@@ -6,7 +6,7 @@ import { ClientType } from '@/api/github/clientType';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
-import { Color, GETSENTRY_REPO, OWNER } from '@/config';
+import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLatestDeploy } from '@/utils/db/getLatestDeploy';
@@ -41,7 +41,7 @@ export async function handler(payload: FreightPayload) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const getsentry = await getClient(ClientType.App, 'getsentry');
+  const getsentry = await getClient(ClientType.App, OWNER);
 
   let latestDeploy;
 
@@ -84,7 +84,8 @@ export async function handler(payload: FreightPayload) {
       continue;
     }
 
-    const relevantRepo = relevantCommit.sha === sha ? 'getsentry' : 'sentry';
+    const relevantRepo =
+      relevantCommit.sha === sha ? GETSENTRY_REPO : SENTRY_REPO;
     const { isFrontendOnly, isBackendOnly } = await getChangedStack(
       relevantCommit.sha,
       relevantRepo
