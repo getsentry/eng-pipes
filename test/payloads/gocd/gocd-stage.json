@@ -1,0 +1,47 @@
+{
+  "data": {
+    "pipeline": {
+      "name": "atlas",
+      "counter": "7",
+      "group": "atlas",
+      "build-cause": [
+        {
+          "material": {
+            "git-configuration": {
+              "shallow-clone": false,
+              "branch": "master",
+              "url": "git@github.com:getsentry/atlas.git"
+            },
+            "type": "git"
+          },
+          "changed": false,
+          "modifications": [
+            {
+              "revision": "9bf4a236b99a24a7a17700591a0ff94feecf7ce7",
+              "modified-time": "Apr 19, 2021, 8:23:34 PM",
+              "data": {}
+            }
+          ]
+        }
+      ],
+      "stage": {
+        "name": "kubernetes_deploy",
+        "counter": "1",
+        "approval-type": "success",
+        "approved-by": "matt.gaunt@sentry.io",
+        "state": "Building",
+        "result": "Unknown",
+        "create-time": "Oct 19, 2022, 3:36:54 PM",
+        "jobs": [
+          {
+            "name": "deploy_atlas",
+            "schedule-time": "Oct 19, 2022, 3:36:54 PM",
+            "state": "Scheduled",
+            "result": "Unknown"
+          }
+        ]
+      }
+    }
+  },
+  "type": "stage"
+}

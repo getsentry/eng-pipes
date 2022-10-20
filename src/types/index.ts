@@ -183,3 +183,75 @@ export interface FreightPayload {
   user: string;
   user_id: number;
 }
+
+export type GoCDPayload = GoCDStageBody | GoCDAgentBody;
+
+export interface GoCDStageBody {
+  type: 'stage';
+  data: GoCDStagePayload;
+}
+
+export interface GoCDAgentBody {
+  type: 'agent';
+  data: any;
+}
+
+export interface GoCDStagePayload {
+  pipeline: {
+    name: string;
+    counter: string;
+    group: string;
+    'build-cause': Array<GoCDBuildCause>;
+    stage: {
+      name: string;
+      counter: string;
+      'approval-type': GoCDApprovalType;
+      'approved-by': string;
+      state: GoCDStateType;
+      result: GoCDResultType;
+      'create-time': string;
+      'last-transition-time': string;
+      jobs: Array<GoCDJob>;
+    };
+  };
+}
+
+interface GoCDJob {
+  name: string;
+  'schedule-time': string;
+  'assign-time': string;
+  'complete-time': string;
+  state: GoCDJobState;
+  result: GoCDJobResult;
+  'agent-uuid': string | null;
+}
+
+interface GoCDBuildCause {
+  material: {
+    'git-configuration': GoCDGitConfiguration;
+    type: string;
+  };
+  changed: boolean;
+  modifications: Array<GoCDModification>;
+}
+
+interface GoCDModification {
+  revision: string;
+  'modified-time': string;
+}
+
+interface GoCDGitConfiguration {
+  'shallow-clone': boolean;
+  branch: string;
+  url: string;
+}
+
+type GoCDJobResult = 'Unknown' | 'Passed';
+
+type GoCDJobState = 'Scheduled' | 'Completed';
+
+type GoCDApprovalType = 'success' | 'manual';
+
+type GoCDResultType = 'Passed' | 'Failed' | 'Unknown';
+
+type GoCDStateType = 'Passed' | 'Failed' | 'Building';
