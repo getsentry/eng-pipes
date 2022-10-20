@@ -1,12 +1,16 @@
 import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
-import gocdstagepayload from '@test/payloads/gocd/gocd-stage.json';
+import gocdstagepayload from '@test/payloads/gocd/gocd-stage-building.json';
 
 import { buildServer } from '@/buildServer';
 
-describe('freight webhook', function () {
+describe('gocd webhook', function () {
   let fastify;
   beforeEach(async function () {
     fastify = await buildServer(false);
+  });
+
+  afterEach(function () {
+    fastify.close();
   });
 
   it('correctly inserts gocd webhook when stage starts', async function () {
@@ -18,7 +22,7 @@ describe('freight webhook', function () {
 
     expect(response.statusCode).toBe(200);
 
-    // TODO (mattgauntseo-sentry): Check data is stored correctly in
+    // TODO (mattgauntseo-sentry): Check metric is stored correctly in
     // database
   });
 
