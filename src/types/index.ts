@@ -184,19 +184,19 @@ export interface FreightPayload {
   user_id: number;
 }
 
-export type GoCDPayload = GoCDStageBody | GoCDAgentBody;
+export type GoCDResponse = GoCDStageResponse | GoCDAgentResponse;
 
-export interface GoCDStageBody {
+export interface GoCDStageResponse {
   type: 'stage';
-  data: GoCDStagePayload;
+  data: GoCDStageData;
 }
 
-export interface GoCDAgentBody {
+export interface GoCDAgentResponse {
   type: 'agent';
   data: any;
 }
 
-export interface GoCDStagePayload {
+export interface GoCDStageData {
   pipeline: {
     name: string;
     counter: string;
