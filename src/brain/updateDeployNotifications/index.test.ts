@@ -792,7 +792,7 @@ describe('updateDeployNotifications', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is ready to deploy",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
       }
     `);
 

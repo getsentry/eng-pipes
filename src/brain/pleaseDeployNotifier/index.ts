@@ -9,7 +9,7 @@ import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsB
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { getDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
+import { getFreightDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -85,10 +85,14 @@ async function handler({
   const commit = checkRun.head_sha;
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
-  const text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
   // Look for queued commits and see if current commit is queued
-  const queuedCommit = await getDeployForQueuedCommit(commit);
+  const queuedCommit = await getFreightDeployForQueuedCommit(commit);
+
+  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
+  if (queuedCommit) {
+    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
+  }
 
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's
   // sha differs, it means that the relevantCommit is on the sentry repo
@@ -102,7 +106,7 @@ async function handler({
     relevantCommitRepo
   );
 
-  const actions = [
+  const actionBlocks = [
     freightDeploy(
       commit,
       isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
@@ -114,6 +118,8 @@ async function handler({
   const blocks = [
     ...commitBlocks,
 
+    // If the commit is already queued, add that message, otherwise
+    // show actions to start the deploy / review it.
     queuedCommit
       ? {
           type: 'section',
@@ -130,7 +136,7 @@ async function handler({
         }
       : {
           type: 'actions',
-          elements: actions,
+          elements: actionBlocks,
         },
   ];
 

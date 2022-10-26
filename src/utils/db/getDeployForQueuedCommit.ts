@@ -3,7 +3,7 @@ import { db } from '.';
 /**
  * Get the deploy for a queued commit.
  */
-export async function getDeployForQueuedCommit(sha: string) {
+export async function getFreightDeployForQueuedCommit(sha: string) {
   return await db
     .select('*')
     .from('queued_commits')
