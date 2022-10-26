@@ -1,65 +1,66 @@
 {
   "data": {
-    "name": "getsentry_frontend",
-    "counter": "115",
-    "group": "sentryio",
-    "build-cause": [
-      {
-        "material": {
-          "git-configuration": {
-            "shallow-clone": false,
-            "branch": "master",
-            "url": "git@github.com:getsentry/getsentry.git"
+    "pipeline": {
+      "name": "getsentry_frontend",
+      "counter": "20",
+      "group": "sentryio",
+      "build-cause": [
+        {
+          "material": {
+            "git-configuration": {
+              "shallow-clone": false,
+              "branch": "master",
+              "url": "git@github.com:getsentry/getsentry.git"
+            },
+            "type": "git"
           },
-          "type": "git"
+          "changed": false,
+          "modifications": [
+            {
+              "revision": "2b0034becc4ab26b985f4c1a08ab068f153c274c",
+              "modified-time": "Oct 26, 2022, 5:05:17 PM",
+              "data": {}
+            }
+          ]
         },
-        "changed": false,
-        "modifications": [
-          {
-            "revision": "ab16771cdb95d63196a6fe2f14875fbb745c0cee",
-            "modified-time": "Oct 20, 2022, 12:02:21 PM",
-            "data": {}
-          }
-        ]
-      },
-      {
-        "material": {
-          "git-configuration": {
-            "shallow-clone": false,
-            "branch": "master",
-            "url": "git@github.com:getsentry/sentry.git"
+        {
+          "material": {
+            "git-configuration": {
+              "shallow-clone": false,
+              "branch": "master",
+              "url": "git@github.com:getsentry/sentry.git"
+            },
+            "type": "git"
           },
-          "type": "git"
-        },
-        "changed": false,
-        "modifications": [
+          "changed": false,
+          "modifications": [
+            {
+              "revision": "77b189ad3b4b48a7eb1ec63cc486cdc991332352",
+              "modified-time": "Oct 26, 2022, 5:56:18 PM",
+              "data": {}
+            }
+          ]
+        }
+      ],
+      "stage": {
+        "name": "deploy_frontend",
+        "counter": "1",
+        "approval-type": "manual",
+        "approved-by": "matt.gaunt@sentry.io",
+        "state": "Failed",
+        "result": "Failed",
+        "create-time": "Oct 26, 2022, 5:58:42 PM",
+        "last-transition-time": "Oct 26, 2022, 5:58:47 PM",
+        "jobs": [
           {
-            "revision": "ec3e4e543fda1a38aa57fbed72d68b0c09e62af8",
-            "modified-time": "Oct 20, 2022, 12:01:37 PM",
-            "data": {}
+            "name": "deploy_static",
+            "schedule-time": "Oct 26, 2022, 5:58:42 PM",
+            "complete-time": "Oct 26, 2022, 5:58:47 PM",
+            "state": "Completed",
+            "result": "Failed"
           }
         ]
       }
-    ],
-    "stage": {
-      "name": "preliminary-checks",
-      "counter": "1",
-      "approval-type": "success",
-      "approved-by": "matt.gaunt@sentry.io",
-      "state": "Failed",
-      "result": "Failed",
-      "create-time": "Oct 20, 2022, 2:05:13 PM",
-      "last-transition-time": "Oct 20, 2022, 2:05:36 PM",
-      "jobs": [
-        {
-          "name": "preliminary-checks",
-          "schedule-time": "Oct 20, 2022, 2:05:13 PM",
-          "complete-time": "Oct 20, 2022, 2:05:36 PM",
-          "state": "Completed",
-          "result": "Failed",
-          "agent-uuid": "c070e21a-2b9a-4fa9-92f1-6fde2328adad"
-        }
-      ]
     }
   },
   "type": "stage"

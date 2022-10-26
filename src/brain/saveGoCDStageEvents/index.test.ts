@@ -51,8 +51,8 @@ describe('saveGoCDStageEvents.handler', function () {
           modifications: [
             {
               data: {},
-              'modified-time': 'Oct 20, 2022, 12:02:21 PM',
-              revision: 'ab16771cdb95d63196a6fe2f14875fbb745c0cee',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              revision: '2b0034becc4ab26b985f4c1a08ab068f153c274c',
             },
           ],
         },
@@ -69,20 +69,20 @@ describe('saveGoCDStageEvents.handler', function () {
           modifications: [
             {
               data: {},
-              'modified-time': 'Oct 20, 2022, 12:01:37 PM',
-              revision: 'ec3e4e543fda1a38aa57fbed72d68b0c09e62af8',
+              'modified-time': 'Oct 26, 2022, 5:56:18 PM',
+              revision: '77b189ad3b4b48a7eb1ec63cc486cdc991332352',
             },
           ],
         },
       ],
-      pipeline_counter: '115',
+      pipeline_counter: '20',
       pipeline_group: 'sentryio',
-      pipeline_id: 'sentryio_getsentry_frontend_115',
+      pipeline_id: 'sentryio_getsentry_frontend_20',
       pipeline_name: 'getsentry_frontend',
       stage_approval_type: 'success',
       stage_approved_by: 'matt.gaunt@sentry.io',
       stage_counter: '1',
-      stage_create_time: new Date('2022-10-20T14:05:13.000Z'),
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
       stage_jobs: [
         {
           name: 'preliminary-checks',
@@ -120,8 +120,8 @@ describe('saveGoCDStageEvents.handler', function () {
           modifications: [
             {
               data: {},
-              'modified-time': 'Oct 20, 2022, 12:02:21 PM',
-              revision: 'ab16771cdb95d63196a6fe2f14875fbb745c0cee',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              revision: '2b0034becc4ab26b985f4c1a08ab068f153c274c',
             },
           ],
         },
@@ -138,29 +138,29 @@ describe('saveGoCDStageEvents.handler', function () {
           modifications: [
             {
               data: {},
-              'modified-time': 'Oct 20, 2022, 12:01:37 PM',
-              revision: 'ec3e4e543fda1a38aa57fbed72d68b0c09e62af8',
+              'modified-time': 'Oct 26, 2022, 5:56:18 PM',
+              revision: '77b189ad3b4b48a7eb1ec63cc486cdc991332352',
             },
           ],
         },
       ],
-      pipeline_counter: '115',
+      pipeline_counter: '20',
       pipeline_group: 'sentryio',
-      pipeline_id: 'sentryio_getsentry_frontend_115',
+      pipeline_id: 'sentryio_getsentry_frontend_20',
       pipeline_name: 'getsentry_frontend',
-      stage_approval_type: 'success',
+      stage_approval_type: 'manual',
       stage_approved_by: 'matt.gaunt@sentry.io',
       stage_counter: '1',
-      stage_create_time: new Date('2022-10-20T14:05:13.000Z'),
+      stage_create_time: new Date('2022-10-26T17:58:42.000Z'),
       stage_jobs: [
         {
-          name: 'preliminary-checks',
+          name: 'deploy_static',
           result: 'Failed',
           state: 'Completed',
         },
       ],
-      stage_last_transition_time: new Date('2022-10-20T14:05:36.000Z'),
-      stage_name: 'preliminary-checks',
+      stage_last_transition_time: new Date('2022-10-26T17:58:47.000Z'),
+      stage_name: 'deploy_frontend',
       stage_result: 'Failed',
       stage_state: 'Failed',
     });

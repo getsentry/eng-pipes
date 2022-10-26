@@ -6,7 +6,7 @@ import { db } from '@utils/db';
 export async function handler(resBody: GoCDResponse) {
   const DB_TABLE = 'gocd-stages';
 
-  const pipeline = resBody.data;
+  const { pipeline } = resBody.data;
   const { stage } = pipeline;
 
   const pipeline_id = `${pipeline.group}_${pipeline.name}_${pipeline.counter}`;
