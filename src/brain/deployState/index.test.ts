@@ -3,18 +3,13 @@ import payload from '@test/payloads/freight.json';
 import { freight } from '@api/freight';
 import * as utils from '@utils/db';
 
-import { deployState } from '.';
+import { deployState, handler } from '.';
 
-function tick() {
-  return new Promise((resolve) => setTimeout(resolve, 10));
-}
-
-describe('deployState', function () {
+describe('deployState.handler', function () {
   let dbMock: jest.SpyInstance;
 
   beforeAll(async function () {
     await utils.db.migrate.latest();
-    deployState();
   });
 
   afterAll(async function () {
@@ -32,9 +27,7 @@ describe('deployState', function () {
   });
 
   it('saves and updates deploy state to database', async function () {
-    let deploys;
-
-    freight.emit('queued', {
+    await handler({
       ...payload,
       status: 'queued',
       date_started: null,
@@ -42,10 +35,10 @@ describe('deployState', function () {
       duration: null,
     });
 
-    expect(dbMock).toHaveBeenCalledTimes(1);
-    await tick();
+    expect(dbMock).toHaveBeenCalledTimes(2);
+
     // @ts-ignore
-    deploys = await dbMock('deploys').select('*');
+    let deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
     expect(deploys[0]).toMatchObject({
       app_name: 'getsentry-backend',
@@ -64,15 +57,15 @@ describe('deployState', function () {
     });
 
     dbMock.mockClear();
-    freight.emit('started', {
+
+    await handler({
       ...payload,
       status: 'started',
       date_finished: null,
       duration: null,
     });
-    expect(dbMock).toHaveBeenCalledTimes(1);
-    // I think `onConflict` is causing this
-    await tick();
+
+    expect(dbMock).toHaveBeenCalledTimes(2);
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
@@ -93,12 +86,14 @@ describe('deployState', function () {
     });
 
     dbMock.mockClear();
-    freight.emit('finished', {
+
+    await handler({
       ...payload,
       status: 'finished',
     });
-    expect(dbMock).toHaveBeenCalledTimes(1);
-    await tick();
+
+    expect(dbMock).toHaveBeenCalledTimes(2);
+
     // @ts-ignore
     deploys = await dbMock('deploys').select('*');
     expect(deploys).toHaveLength(1);
@@ -120,38 +115,55 @@ describe('deployState', function () {
   });
 
   it('is unique across id and environment', async function () {
-    freight.emit('started', {
+    await handler({
       ...payload,
       deploy_number: 1,
       status: 'started',
     });
 
-    await tick();
     // @ts-ignore
     expect(await dbMock('deploys').select('*')).toHaveLength(1);
 
     // Different environment, should be ok
-    freight.emit('started', {
+    await handler({
       ...payload,
       deploy_number: 1,
       status: 'started',
       environment: 'staging',
     });
-    await tick();
+
     // @ts-ignore
     expect(await dbMock('deploys').select('*')).toHaveLength(2);
 
-    freight.emit('started', {
+    await handler({
       ...payload,
       deploy_number: 1,
       status: 'finished',
       environment: 'staging',
     });
-    await tick();
+
     // @ts-ignore
     const result = await dbMock('deploys')
       .where({ environment: 'staging' })
       .first('*');
     expect(result.status).toBe('finished');
+  });
+});
+
+describe('deployState.deployState', function () {
+  let eventEmitterSpy;
+
+  beforeEach(async function () {
+    eventEmitterSpy = jest.spyOn(freight, 'on');
+  });
+
+  afterEach(async function () {
+    eventEmitterSpy.mockRestore();
+  });
+
+  it('process event', function () {
+    deployState();
+    expect(eventEmitterSpy).toHaveBeenCalledTimes(1);
+    expect(eventEmitterSpy).toHaveBeenCalledWith('*', handler);
   });
 });
