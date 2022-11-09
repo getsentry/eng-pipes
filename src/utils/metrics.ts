@@ -1,6 +1,13 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
+import {
+  MAX_ROUTE_DAYS,
+  MAX_TRIAGE_DAYS,
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
+} from '@/config';
+
 import { getOssUserType } from './getOssUserType';
 
 const PROJECT =
@@ -32,6 +39,8 @@ export const TARGETS = {
       target_id: 'INT64',
       target_name: 'STRING',
       target_type: 'STRING',
+      timeToRouteBy: 'TIMESTAMP',
+      timeToTriageBy: 'TIMESTAMP',
     },
   },
 
@@ -216,6 +225,28 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
+function calculateSLOViolation(target_name, action) {
+  const calcDate = (numDays) => {
+    const calculatedDate = new Date();
+    for (let i = 1; i <= numDays; i++) {
+      calculatedDate.setDate(calculatedDate.getDate() + 1);
+      if (calculatedDate.getDay() === 6) {
+        calculatedDate.setDate(calculatedDate.getDate() + 2);
+      } else if (calculatedDate.getDay() === 0) {
+        calculatedDate.setDate(calculatedDate.getDate() + 1);
+      }
+    }
+    return calculatedDate;
+  };
+  if (target_name === UNTRIAGED_LABEL && action == 'labeled') {
+    return calcDate(MAX_TRIAGE_DAYS);
+  } else if (target_name === UNROUTED_LABEL && action == 'labeled') {
+    return calcDate(MAX_ROUTE_DAYS);
+  } else {
+    return null;
+  }
+}
+
 export async function insertOss(
   eventType: string,
   payload: Record<string, any>
@@ -232,6 +263,8 @@ export async function insertOss(
     user_id: payload.sender.id,
     user_type: userType,
     repository: payload.repository.full_name,
+    timeToRouteBy: null,
+    timeToTriageBy: null,
   };
 
   if (eventType === 'issues') {
@@ -244,6 +277,11 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
+      data.timeToRouteBy = calculateSLOViolation(data.target_name, data.action);
+      data.timeToTriageBy = calculateSLOViolation(
+        data.target_name,
+        data.action
+      );
     }
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;

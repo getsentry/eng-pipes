@@ -74,6 +74,9 @@ export enum BuildStatus {
  */
 export const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
+export const UNROUTED_LABEL = 'Status: Unrouted';
+export const MAX_TRIAGE_DAYS = 2;
+export const MAX_ROUTE_DAYS = 1;
 
 /**
  * sentry/getsentry Git Bot
