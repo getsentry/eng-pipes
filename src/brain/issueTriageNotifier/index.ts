@@ -60,8 +60,9 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   // Acknowledge command request
   pending.push(ack());
   const { channel_id, channel_name, text } = command;
-  const args = text.match(/^\s*(?<op>[+-]?)(?<label>.+)/)?.groups;
-
+  const args = text.match(
+    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo?)/
+  )?.groups;
   if (!args) {
     const labels = (
       await getLabelsTable().where({ channel_id }).select('label_name')
@@ -76,6 +77,15 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   } else {
     const op = args.op || '+';
     const label_name = `Team: ${args.label}`;
+    const newOffice = args.office;
+    const currentOffice = (
+      await getLabelsTable()
+        .where({
+          label_name,
+          channel_id,
+        })
+        .select('office')
+    )[0].office;
     let channelInfo;
     let result;
 
@@ -109,6 +119,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
             {
               label_name,
               channel_id,
+              office: newOffice,
             },
             'label_name'
           )
@@ -118,14 +129,28 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         if (result.length > 0) {
           pending.push(
             say(
-              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}).`
+              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} hours.`
+            )
+          );
+        } else if (newOffice != currentOffice) {
+          result = await getLabelsTable()
+            .where({
+              label_name,
+              channel_id,
+            })
+            .update({
+              office: newOffice,
+            });
+          pending.push(
+            say(
+              `Set office location to ${newOffice} on the current channel (${channelInfo.channel.name}) for ${label_name}`
             )
           );
         } else {
           pending.push(
             respond({
               response_type: 'ephemeral',
-              text: `This channel (${channel_name}) is already subscribed to '${label_name}'.`,
+              text: `This channel (${channel_name}) is already subscribed to '${label_name} for the ${newOffice} office'.`,
             })
           );
         }
