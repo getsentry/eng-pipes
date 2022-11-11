@@ -129,7 +129,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         if (result.length > 0) {
           pending.push(
             say(
-              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} hours.`
+              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} business hours.`
             )
           );
         } else if (newOffice != currentOffice) {
@@ -150,7 +150,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
           pending.push(
             respond({
               response_type: 'ephemeral',
-              text: `This channel (${channel_name}) is already subscribed to '${label_name} for the ${newOffice} office hours'.`,
+              text: `This channel (${channel_name}) is already subscribed to '${label_name} during ${newOffice} business hours'.`,
             })
           );
         }
@@ -171,8 +171,8 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         pending.push(
           say(
             result.length > 0
-              ? `This channel (${channel_name}) will no longer get notifications for ${result[0]} for the ${newOffice} office hours.`
-              : `This channel (${channel_name}) is not subscribed to ${label_name} for the ${newOffice} office hours.`
+              ? `This channel (${channel_name}) will no longer get notifications for ${result[0]} during ${newOffice} business hours.`
+              : `This channel (${channel_name}) is not subscribed to ${label_name} during ${newOffice} business hours.`
           )
         );
         break;

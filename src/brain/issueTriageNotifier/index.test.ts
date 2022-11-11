@@ -265,7 +265,7 @@ describe('issueTriageNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[7]).toEqual([
-        'This channel (test) is not subscribed to Team: Test for the sea office hours.',
+        'This channel (test) is not subscribed to Team: Test during sea business hours.',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
@@ -286,7 +286,7 @@ describe('issueTriageNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[8]).toEqual([
-        'This channel (test) will no longer get notifications for Team: Test for the yyz office hours.',
+        'This channel (test) will no longer get notifications for Team: Test during yyz business hours.',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
