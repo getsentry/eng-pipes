@@ -61,11 +61,11 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   pending.push(ack());
   const { channel_id, channel_name, text } = command;
   const args = text.match(
-    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<timezone>yyz|vie|sea|sfo?)/
+    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo?)/
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(
-      (row) => `${row.label_name} (${row.timezone})`
+      (row) => `${row.label_name} (${row.office})`
     );
     const response =
       labels.length > 0
@@ -77,15 +77,15 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   } else {
     const op = args.op || '+';
     const label_name = `Team: ${args.label}`;
-    const newTimezone = args.timezone;
-    const currentTimezone = (
+    const newOffice = args.office;
+    const currentOffice = (
       await getLabelsTable()
         .where({
           label_name,
           channel_id,
         })
-        .select('timezone')
-    )[0]?.timezone;
+        .select('office')
+    )[0]?.office;
     let channelInfo;
     let result;
 
@@ -119,7 +119,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
             {
               label_name,
               channel_id,
-              timezone: newTimezone,
+              office: newOffice,
             },
             'label_name'
           )
@@ -129,28 +129,28 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         if (result.length > 0) {
           pending.push(
             say(
-              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newTimezone} hours.`
+              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} hours.`
             )
           );
-        } else if (newTimezone != currentTimezone) {
+        } else if (newOffice != currentOffice) {
           result = await getLabelsTable()
             .where({
               label_name,
               channel_id,
             })
             .update({
-              timezone: newTimezone,
+              office: newOffice,
             });
           pending.push(
             say(
-              `Set office location to ${newTimezone} on the current channel (${channelInfo.channel.name}) for ${label_name}`
+              `Set office location to ${newOffice} on the current channel (${channelInfo.channel.name}) for ${label_name}`
             )
           );
         } else {
           pending.push(
             respond({
               response_type: 'ephemeral',
-              text: `This channel (${channel_name}) is already subscribed to '${label_name} for the ${newTimezone} office hours'.`,
+              text: `This channel (${channel_name}) is already subscribed to '${label_name} for the ${newOffice} office hours'.`,
             })
           );
         }
@@ -160,7 +160,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
           .where({
             channel_id,
             label_name,
-            timezone: newTimezone,
+            office: newOffice,
           })
           .del('label_name');
 
@@ -171,8 +171,8 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         pending.push(
           say(
             result.length > 0
-              ? `This channel (${channel_name}) will no longer get notifications for ${result[0]} for the ${newTimezone} office hours.`
-              : `This channel (${channel_name}) is not subscribed to ${label_name} for the ${newTimezone} office hours.`
+              ? `This channel (${channel_name}) will no longer get notifications for ${result[0]} for the ${newOffice} office hours.`
+              : `This channel (${channel_name}) is not subscribed to ${label_name} for the ${newOffice} office hours.`
           )
         );
         break;
