@@ -246,6 +246,14 @@ interface GoCDGitConfiguration {
   url: string;
 }
 
+export interface GoCDBuildMaterial {
+  stage_material_id: string;
+  pipeline_id: string;
+  url: string;
+  branch: string;
+  revision: string;
+}
+
 type GoCDJobResult = 'Unknown' | 'Passed';
 
 type GoCDJobState = 'Scheduled' | 'Completed';

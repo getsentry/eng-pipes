@@ -1,11 +1,12 @@
-import { GoCDResponse } from '@/types';
+import { GoCDBuildMaterial, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
 
+export const DB_TABLE_STAGES = 'gocd-stages';
+export const DB_TABLE_MATERIALS = 'gocd-stage-materials';
+
 // Exported for tests
 export async function handler(resBody: GoCDResponse) {
-  const DB_TABLE = 'gocd-stages';
-
   const { pipeline } = resBody.data;
   const { stage } = pipeline;
 
@@ -15,7 +16,7 @@ export async function handler(resBody: GoCDResponse) {
     pipeline_id: pipeline_id,
   };
 
-  const dbEntry = await db(DB_TABLE).where(constraints).first('*');
+  const dbEntry = await db(DB_TABLE_STAGES).where(constraints).first('*');
 
   const gocdpipeline = {
     pipeline_id: pipeline_id,
@@ -35,12 +36,40 @@ export async function handler(resBody: GoCDResponse) {
     stage_last_transition_time: stage['last-transition-time'],
     stage_jobs: JSON.stringify(stage.jobs),
   };
+
   if (!dbEntry) {
-    await db(DB_TABLE).insert(gocdpipeline);
+    await db(DB_TABLE_STAGES).insert(gocdpipeline);
+
+    await saveBuildMaterials(pipeline_id, pipeline);
+
     return;
   }
 
-  await db(DB_TABLE).where(constraints).update(gocdpipeline);
+  await db(DB_TABLE_STAGES).where(constraints).update(gocdpipeline);
+}
+
+async function saveBuildMaterials(pipeline_id, pipeline) {
+  const gocdMaterials: Array<GoCDBuildMaterial> = [];
+  for (const bc of pipeline['build-cause']) {
+    if (!bc.material || bc.material.type != 'git') {
+      throw new Error('Unexpected GoCD build-case material');
+    }
+    if (bc.modifications.length == 0) {
+      throw new Error('No GoCD modification for material');
+    }
+
+    const gitConfig = bc.material['git-configuration'];
+    const modification = bc.modifications[0];
+
+    gocdMaterials.push({
+      stage_material_id: `${pipeline_id}_${gitConfig.url}_${modification.revision}`,
+      pipeline_id: pipeline_id,
+      url: gitConfig.url,
+      branch: gitConfig.branch,
+      revision: modification.revision,
+    });
+  }
+  await db(DB_TABLE_MATERIALS).insert(gocdMaterials);
 }
 
 export async function saveGoCDStageEvents() {
