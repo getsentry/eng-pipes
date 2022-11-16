@@ -1,12 +1,13 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { TEAM_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
+import { TEAM_LABEL_PREFIX, UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
+const SUPPORT_CHANNEL_ID = 'C02KHRNRZ1B';
 
 export const githubLabelHandler = async ({
   payload: { issue, label, repository },
@@ -25,6 +26,11 @@ export const githubLabelHandler = async ({
     teamLabel = issue.labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
+  } else if (label.name === UNROUTED_LABEL) {
+    bolt.client.chat.postMessage({
+      text: `⏲ Issue pending routing: <${issue.html_url}|#${issue.number} ${issue.title}>`,
+      channel: SUPPORT_CHANNEL_ID,
+    });
   }
 
   if (!teamLabel) {

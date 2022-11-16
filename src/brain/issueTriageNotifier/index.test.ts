@@ -1,6 +1,6 @@
 import { hydrateGitHubEventAndPayload } from '@test/utils/github';
 
-import { UNTRIAGED_LABEL } from '@/config';
+import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -97,6 +97,23 @@ describe('issueTriageNotifier Tests', function () {
       } else {
         expect(bolt.client.chat.postMessage).not.toBeCalled();
       }
+    });
+
+    it('should notify support channel if issue comes in with unrouted label', async function () {
+      const payload = { label: { name: UNROUTED_LABEL, id: 'random' } };
+      const eventPayload = hydrateGitHubEventAndPayload('issues', {
+        action: 'labeled',
+        ...payload,
+      }).payload;
+      await githubLabelHandler({
+        id: 'random-event-id',
+        name: 'issues',
+        payload: eventPayload,
+      });
+      expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
+        channel: 'C02KHRNRZ1B',
+        text: '⏲ Issue pending routing: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+      });
     });
   });
 
