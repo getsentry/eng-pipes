@@ -169,7 +169,10 @@ type TargetConfig = {
   schema: Record<string, string>;
 };
 
-async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+export async function _insert(
+  data: Record<string, any>,
+  targetConfig: TargetConfig
+) {
   const tx = Sentry.getCurrentHub()?.getScope()?.getTransaction();
   const span = tx?.startChild({
     op: 'bigquery',
@@ -225,22 +228,22 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
-function calculateSLOViolation(target_name, action) {
+export function calculateSLOViolation(target_name, action, timestamp) {
+  const dateObj = new Date(timestamp);
   const calcDate = (numDays) => {
-    const calculatedDate = new Date();
     for (let i = 1; i <= numDays; i++) {
-      calculatedDate.setDate(calculatedDate.getDate() + 1);
-      if (calculatedDate.getDay() === 6) {
-        calculatedDate.setDate(calculatedDate.getDate() + 2);
-      } else if (calculatedDate.getDay() === 0) {
-        calculatedDate.setDate(calculatedDate.getDate() + 1);
+      dateObj.setDate(dateObj.getDate() + 1);
+      if (dateObj.getDay() === 6) {
+        dateObj.setDate(dateObj.getDate() + 2);
+      } else if (dateObj.getDay() === 0) {
+        dateObj.setDate(dateObj.getDate() + 1);
       }
     }
-    return calculatedDate;
+    return dateObj.toISOString();
   };
-  if (target_name === UNTRIAGED_LABEL && action == 'labeled') {
+  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
     return calcDate(MAX_TRIAGE_DAYS);
-  } else if (target_name === UNROUTED_LABEL && action == 'labeled') {
+  } else if (target_name === UNROUTED_LABEL && action === 'labeled') {
     return calcDate(MAX_ROUTE_DAYS);
   } else {
     return null;
@@ -277,10 +280,15 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
-      data.timeToRouteBy = calculateSLOViolation(data.target_name, data.action);
+      data.timeToRouteBy = calculateSLOViolation(
+        data.target_name,
+        data.action,
+        Date.now()
+      );
       data.timeToTriageBy = calculateSLOViolation(
         data.target_name,
-        data.action
+        data.action,
+        Date.now()
       );
     }
   } else if (eventType === 'issue_comment') {
