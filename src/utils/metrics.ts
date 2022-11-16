@@ -228,26 +228,31 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
-export function calculateSLOViolation(target_name, action, timestamp) {
+function calcDate(numDays, timestamp) {
   const dateObj = new Date(timestamp);
-  const calcDate = (numDays) => {
-    for (let i = 1; i <= numDays; i++) {
+  for (let i = 1; i <= numDays; i++) {
+    dateObj.setDate(dateObj.getDate() + 1);
+    if (dateObj.getDay() === 6) {
+      dateObj.setDate(dateObj.getDate() + 2);
+    } else if (dateObj.getDay() === 0) {
       dateObj.setDate(dateObj.getDate() + 1);
-      if (dateObj.getDay() === 6) {
-        dateObj.setDate(dateObj.getDate() + 2);
-      } else if (dateObj.getDay() === 0) {
-        dateObj.setDate(dateObj.getDate() + 1);
-      }
     }
-    return dateObj.toISOString();
-  };
-  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
-    return calcDate(MAX_TRIAGE_DAYS);
-  } else if (target_name === UNROUTED_LABEL && action === 'labeled') {
-    return calcDate(MAX_ROUTE_DAYS);
-  } else {
-    return null;
   }
+  return dateObj.toISOString();
+}
+
+export function calculateSLOViolationTriage(target_name, action, timestamp) {
+  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
+    return calcDate(MAX_TRIAGE_DAYS, timestamp);
+  }
+  return null;
+}
+
+export function calculateSLOViolationRoute(target_name, action, timestamp) {
+  if (target_name === UNROUTED_LABEL && action === 'labeled') {
+    return calcDate(MAX_ROUTE_DAYS, timestamp);
+  }
+  return null;
 }
 
 export async function insertOss(
@@ -280,12 +285,12 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
-      data.timeToRouteBy = calculateSLOViolation(
+      data.timeToRouteBy = calculateSLOViolationRoute(
         data.target_name,
         data.action,
         Date.now()
       );
-      data.timeToTriageBy = calculateSLOViolation(
+      data.timeToTriageBy = calculateSLOViolationTriage(
         data.target_name,
         data.action,
         Date.now()
@@ -358,7 +363,6 @@ export async function insertOss(
 ######################################`);
     return;
   }
-
   return await _insert(data, TARGETS.oss);
 }
 
