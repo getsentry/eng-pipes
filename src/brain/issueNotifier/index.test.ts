@@ -99,6 +99,24 @@ describe('issueNotifier Tests', function () {
       }
     });
 
+    it('should not notify support channel if issue comes in with random label', async function () {
+      const payload = { label: { name: 'random label', id: 'random' } };
+      const eventPayload = hydrateGitHubEventAndPayload('issues', {
+        action: 'labeled',
+        ...payload,
+      }).payload;
+      await githubLabelHandler({
+        id: 'random-event-id',
+        name: 'issues',
+        payload: eventPayload,
+      });
+      expect(bolt.client.chat.postMessage).toBeCalledTimes(0);
+      expect(bolt.client.chat.postMessage).not.toHaveBeenLastCalledWith({
+        channel: 'C02KHRNRZ1B',
+        text: '⏲ Issue pending routing: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+      });
+    });
+
     it('should notify support channel if issue comes in with unrouted label', async function () {
       const payload = { label: { name: UNROUTED_LABEL, id: 'random' } };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {
@@ -110,6 +128,7 @@ describe('issueNotifier Tests', function () {
         name: 'issues',
         payload: eventPayload,
       });
+      expect(bolt.client.chat.postMessage).toBeCalledTimes(1);
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
         text: '⏲ Issue pending routing: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
