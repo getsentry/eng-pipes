@@ -1,6 +1,6 @@
 import { hydrateGitHubEventAndPayload } from '@test/utils/github';
 
-import { UNTRIAGED_LABEL } from '@/config';
+import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -10,7 +10,7 @@ const NUM_CHANNELS = 2;
 
 const channelId = (i: number) => `CHNLIDRND${i}`;
 
-describe('issueTriageNotifier Tests', function () {
+describe('issueNotifier Tests', function () {
   beforeAll(async function () {
     await db.migrate.latest();
     for (let i = 1; i <= NUM_CHANNELS; i++) {
@@ -97,6 +97,42 @@ describe('issueTriageNotifier Tests', function () {
       } else {
         expect(bolt.client.chat.postMessage).not.toBeCalled();
       }
+    });
+
+    it('should not notify support channel if issue comes in with random label', async function () {
+      const payload = { label: { name: 'random label', id: 'random' } };
+      const eventPayload = hydrateGitHubEventAndPayload('issues', {
+        action: 'labeled',
+        ...payload,
+      }).payload;
+      await githubLabelHandler({
+        id: 'random-event-id',
+        name: 'issues',
+        payload: eventPayload,
+      });
+      expect(bolt.client.chat.postMessage).toBeCalledTimes(0);
+      expect(bolt.client.chat.postMessage).not.toHaveBeenLastCalledWith({
+        channel: 'C02KHRNRZ1B',
+        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+      });
+    });
+
+    it('should notify support channel if issue comes in with unrouted label', async function () {
+      const payload = { label: { name: UNROUTED_LABEL, id: 'random' } };
+      const eventPayload = hydrateGitHubEventAndPayload('issues', {
+        action: 'labeled',
+        ...payload,
+      }).payload;
+      await githubLabelHandler({
+        id: 'random-event-id',
+        name: 'issues',
+        payload: eventPayload,
+      });
+      expect(bolt.client.chat.postMessage).toBeCalledTimes(1);
+      expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
+        channel: 'C02KHRNRZ1B',
+        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+      });
     });
   });
 
