@@ -2,7 +2,7 @@ import { Octokit } from '@octokit/rest';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { ClientType } from '@/api/github/clientType';
-import { getLabelsTable } from '@/brain/issueTriageNotifier';
+import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   DAY_IN_MS,
   OWNER,

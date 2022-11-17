@@ -188,14 +188,14 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   await Promise.all(pending);
 };
 
-export async function issueTriageNotifier() {
+export async function issueNotifier() {
   githubEvents.on(
     'issues.labeled',
-    wrapHandler('issueTriageNotifier', githubLabelHandler)
+    wrapHandler('issueNotifier', githubLabelHandler)
   );
 
   bolt.command(
     '/notify-for-triage',
-    wrapHandler('issueTriageNotifier', slackHandler)
+    wrapHandler('issueNotifier', slackHandler)
   );
 }

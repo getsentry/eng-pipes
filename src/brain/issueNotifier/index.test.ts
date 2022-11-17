@@ -10,7 +10,7 @@ const NUM_CHANNELS = 2;
 
 const channelId = (i: number) => `CHNLIDRND${i}`;
 
-describe('issueTriageNotifier Tests', function () {
+describe('issueNotifier Tests', function () {
   beforeAll(async function () {
     await db.migrate.latest();
     for (let i = 1; i <= NUM_CHANNELS; i++) {
