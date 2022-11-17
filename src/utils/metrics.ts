@@ -228,7 +228,7 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
-function calcDate(numDays, timestamp) {
+export function calcDate(numDays, timestamp) {
   const dateObj = new Date(timestamp);
   for (let i = 1; i <= numDays; i++) {
     dateObj.setDate(dateObj.getDate() + 1);
