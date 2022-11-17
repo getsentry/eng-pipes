@@ -113,7 +113,7 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).toBeCalledTimes(0);
       expect(bolt.client.chat.postMessage).not.toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
-        text: '⏲ Issue pending routing: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
       });
     });
 
@@ -131,7 +131,7 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).toBeCalledTimes(1);
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
-        text: '⏲ Issue pending routing: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
       });
     });
   });

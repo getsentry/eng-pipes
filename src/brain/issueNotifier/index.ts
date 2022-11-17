@@ -7,6 +7,7 @@ import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
+// currently #discuss-support-open-source
 const SUPPORT_CHANNEL_ID = 'C02KHRNRZ1B';
 
 export const githubLabelHandler = async ({
@@ -28,7 +29,7 @@ export const githubLabelHandler = async ({
     )?.name;
   } else if (label.name === UNROUTED_LABEL) {
     bolt.client.chat.postMessage({
-      text: `⏲ Issue pending routing: <${issue.html_url}|#${issue.number} ${issue.title}>`,
+      text: `⏲ Issue ready to route: <${issue.html_url}|#${issue.number} ${issue.title}>`,
       channel: SUPPORT_CHANNEL_ID,
     });
   }
