@@ -22,6 +22,52 @@ import { wrapHandler } from '@utils/wrapHandler';
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
 
+async function getFreightDeployBlock(freightDeployInfo, user): Promise<KnownBlock[]> {
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: getUpdatedDeployMessage({
+          isUserDeploying: freightDeployInfo.user == user.email,
+          payload: {
+            ...freightDeployInfo,
+            deploy_number: freightDeployInfo.external_id,
+          },
+        }),
+      },
+    }
+  ];
+}
+
+async function currentDeployBlocks(checkRun, user): Promise<KnownBlock[]|null> {
+  // Look for queued commits and see if current commit is queued
+  const freightDeployInfo = await getFreightDeployForQueuedCommit(checkRun.head_sha);
+  if (freightDeployInfo) {
+    return getFreightDeployBlock(freightDeployInfo, user);
+  }
+
+  /* const gocdDeployInfo = await getGoCDDeployForQueuedCommit(checkRun.head_sha);
+  if (gocdDeployInfo) {
+    console.log(`TODO: GoCD Deploy Info ------> `, gocdDeployInfo);
+    return [
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: getUpdatedGoCDDeployMessage({
+            isUserDeploying: gocdDeployInfo.stage_approved_by == user.email,
+            slackUser: user.slackUser,
+            pipeline: gocdDeployInfo,
+          }),
+        },
+      }
+    ];
+  }*/
+
+  return null;
+}
+
 async function handler({
   id,
   payload,
@@ -80,20 +126,6 @@ async function handler({
 
   const slackTarget = user?.slackUser;
 
-  // Author of commit found
-  const commitBlocks = await getBlocksForCommit(relevantCommit);
-  const commit = checkRun.head_sha;
-  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
-  const commitLinkText = `${commit.slice(0, 7)}`;
-
-  // Look for queued commits and see if current commit is queued
-  const queuedCommit = await getFreightDeployForQueuedCommit(commit);
-
-  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
-  if (queuedCommit) {
-    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
-  }
-
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's
   // sha differs, it means that the relevantCommit is on the sentry repo
   const relevantCommitRepo =
@@ -106,39 +138,33 @@ async function handler({
     relevantCommitRepo
   );
 
-  const actionBlocks = [
-    freightDeploy(
-      commit,
-      isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
-    ),
-    viewUndeployedCommits(commit),
-    muteDeployNotificationsButton(),
-  ];
+  const blocks = await getBlocksForCommit(relevantCommit);
 
-  const blocks = [
-    ...commitBlocks,
+  // Author of commit found
+  const commit = checkRun.head_sha;
+  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
+  const commitLinkText = `${commit.slice(0, 7)}`;
+  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
 
-    // If the commit is already queued, add that message, otherwise
-    // show actions to start the deploy / review it.
-    queuedCommit
-      ? {
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: getUpdatedDeployMessage({
-              isUserDeploying: queuedCommit.user == user.email,
-              payload: {
-                ...queuedCommit,
-                deploy_number: queuedCommit.external_id,
-              },
-            }),
-          },
-        }
-      : {
-          type: 'actions',
-          elements: actionBlocks,
-        },
-  ];
+  // If the commit is already queued, add that message, otherwise
+  // show actions to start the deploy / review it.
+  const deployBlocks = await currentDeployBlocks(checkRun, user);
+  if (deployBlocks) {
+    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
+    blocks.push(...deployBlocks);
+  } else {
+    blocks.push({
+      type: 'actions',
+      elements: [
+        freightDeploy(
+          commit,
+          isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
+        ),
+        viewUndeployedCommits(commit),
+        muteDeployNotificationsButton(),
+      ],
+    });
+  }
 
   const message = await slackMessageUser(slackTarget, {
     text,
