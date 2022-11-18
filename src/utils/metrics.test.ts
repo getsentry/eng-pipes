@@ -31,118 +31,47 @@ import {
 
 describe('metrics tests', function () {
   describe('calcDate', function () {
-    it('should calculate SLO violation for Monday', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(1);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-16T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(3);
-    });
+    const testTimestamps = [
+      { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
+      { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
+      { day: 'Wednesday', timestamp: '2022-11-16T23:36:00.000Z' },
+      { day: 'Thursday', timestamp: '2022-11-17T23:36:00.000Z' },
+      { day: 'Friday', timestamp: '2022-11-18T23:36:00.000Z' },
+      { day: 'Saturday', timestamp: '2022-11-19T23:36:00.000Z' },
+      { day: 'Sunday', timestamp: '2022-11-20T23:36:00.000Z' },
+    ];
 
-    it('should calculate SLO violation for Tuesday', function () {
-      const timestamp = '2022-11-15T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(2);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-17T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(4);
-    });
+    const triageResults = [
+      '2022-11-16T23:36:00.000Z',
+      '2022-11-17T23:36:00.000Z',
+      '2022-11-18T23:36:00.000Z',
+      '2022-11-21T23:36:00.000Z',
+      '2022-11-22T23:36:00.000Z',
+      '2022-11-22T23:36:00.000Z',
+      '2022-11-22T23:36:00.000Z',
+    ];
 
-    it('should calculate SLO violation for Wednesday', function () {
-      const timestamp = '2022-11-16T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(3);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-18T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(5);
-    });
+    const routingResults = [
+      '2022-11-15T23:36:00.000Z',
+      '2022-11-16T23:36:00.000Z',
+      '2022-11-17T23:36:00.000Z',
+      '2022-11-18T23:36:00.000Z',
+      '2022-11-21T23:36:00.000Z',
+      '2022-11-21T23:36:00.000Z',
+      '2022-11-21T23:36:00.000Z',
+    ];
 
-    it('should calculate SLO violation for Thursday', function () {
-      // This is a Thursday
-      const timestamp = '2022-11-17T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(4);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-21T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(1);
-    });
+    for (let i = 0; i < 7; i++) {
+      it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, function () {
+        const result = calcDate(MAX_TRIAGE_DAYS, testTimestamps[i].timestamp);
+        expect(result).toEqual(triageResults[i]);
+      });
 
-    it('should calculate SLO violation for Friday', function () {
-      const timestamp = '2022-11-18T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(5);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-22T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(2);
-    });
-
-    it('should calculate SLO violation for Saturday', function () {
-      const timestamp = '2022-11-19T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(6);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-22T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(2);
-    });
-
-    it('should calculate SLO violation for Sunday', function () {
-      const timestamp = '2022-11-20T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(0);
-      const result = calcDate(MAX_TRIAGE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-22T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(2);
-    });
-
-    it('should calculate SLO violation for Monday', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(1);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-15T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(2);
-    });
-
-    it('should calculate SLO violation for Tuesday', function () {
-      const timestamp = '2022-11-15T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(2);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-16T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(3);
-    });
-
-    it('should calculate SLO violation for Wednesday', function () {
-      const timestamp = '2022-11-16T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(3);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-17T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(4);
-    });
-
-    it('should calculate SLO violation for Thursday', function () {
-      const timestamp = '2022-11-17T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(4);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-18T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(5);
-    });
-
-    it('should calculate SLO violation for Friday', function () {
-      const timestamp = '2022-11-18T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(5);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-21T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(1);
-    });
-
-    it('should calculate SLO violation for Saturday', function () {
-      const timestamp = '2022-11-19T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(6);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-21T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(1);
-    });
-
-    it('should calculate SLO violation for Sunday', function () {
-      const timestamp = '2022-11-20T23:36:00.000Z';
-      expect(new Date(timestamp).getDay()).toEqual(0);
-      const result = calcDate(MAX_ROUTE_DAYS, timestamp);
-      expect(result).toEqual('2022-11-21T23:36:00.000Z');
-      expect(new Date(result).getDay()).toEqual(1);
-    });
+      it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, function () {
+        const result = calcDate(MAX_ROUTE_DAYS, testTimestamps[i].timestamp);
+        expect(result).toEqual(routingResults[i]);
+      });
+    }
   });
 
   describe('calculateSLOViolationRoute', function () {

@@ -232,6 +232,8 @@ export function calcDate(numDays, timestamp) {
   const dateObj = new Date(timestamp);
   for (let i = 1; i <= numDays; i++) {
     dateObj.setDate(dateObj.getDate() + 1);
+    // Saturday: Day 6
+    // Sunday: Day 0
     if (dateObj.getDay() === 6) {
       dateObj.setDate(dateObj.getDate() + 2);
     } else if (dateObj.getDay() === 0) {
