@@ -77,12 +77,6 @@ export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const UNROUTED_LABEL = 'Status: Unrouted';
 
 /**
- * sentry/getsentry Git Bot
- */
-export const GIT_BOT_HOST = 'sentry-deploy-sync-hook-dwunkkvj6a-uc.a.run.app';
-export const GIT_BOT_SECRET = process.env.GIT_BOT_SECRET || '';
-
-/**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
  */
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';

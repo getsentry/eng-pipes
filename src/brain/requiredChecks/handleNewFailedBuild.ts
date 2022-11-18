@@ -1,14 +1,10 @@
 import * as Sentry from '@sentry/node';
+import { KnownBlock } from '@slack/types';
+
+import { ReposGetCommit } from '@types';
 
 import { jobStatuses } from '@/blocks/jobStatuses';
-import { revertCommit as revertCommitBlock } from '@/blocks/revertCommit';
-import {
-  BuildStatus,
-  Color,
-  GETSENTRY_REPO,
-  REQUIRED_CHECK_CHANNEL,
-  SENTRY_REPO,
-} from '@/config';
+import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -34,6 +30,45 @@ interface HandleNewFailedBuildParams {
  */
 function getConclusionString(str: string) {
   return str.trim().split(' ').slice(-1)[0];
+}
+
+function getRevertBlocks(commit: ReposGetCommit | null): KnownBlock[] {
+  if (!commit) {
+    return [];
+  }
+
+  const title = commit.commit.message.split('\n')[0].trim();
+  const match = /\(#(\d+)\)$/.exec(title);
+
+  if (!match) {
+    return [];
+  }
+
+  const repo = commit.html_url.split('/').splice(0, 5).join('/');
+
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'To fast revert this commit apply the *`[Trigger: Revert]`* label to the PR.',
+      },
+    },
+    {
+      type: 'actions',
+      elements: [
+        {
+          type: 'button',
+          text: {
+            type: 'plain_text',
+            text: ':arrow_right: PR',
+            emoji: true,
+          },
+          url: `${repo}/pull/${match[1]}`,
+        },
+      ],
+    },
+  ];
 }
 
 type AllowedCheckRunPropertyTuple = [CheckRunProperty, any];
@@ -127,26 +162,7 @@ export async function handleNewFailedBuild({
       attachments: [
         {
           color: Color.DANGER,
-          blocks: [
-            ...commitBlocks,
-            ...(relevantCommit
-              ? [
-                  {
-                    type: 'actions',
-                    // @ts-ignore
-                    elements: [
-                      revertCommitBlock({
-                        sha: relevantCommit?.sha,
-                        repo:
-                          relevantCommit?.sha === checkRun.head_sha
-                            ? GETSENTRY_REPO
-                            : SENTRY_REPO,
-                      }),
-                    ],
-                  },
-                ]
-              : []),
-          ],
+          blocks: [...commitBlocks, ...getRevertBlocks(relevantCommit)],
         },
       ],
     }));

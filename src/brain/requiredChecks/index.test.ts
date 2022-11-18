@@ -246,17 +246,22 @@ describe('requiredChecks', function () {
               "type": "context",
             },
             Object {
+              "text": Object {
+                "text": "To fast revert this commit apply the *\`[Trigger: Revert]\`* label to the PR.",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
               "elements": Array [
                 Object {
-                  "action_id": "revert-commit",
-                  "style": "danger",
                   "text": Object {
                     "emoji": true,
-                    "text": "Revert Commit",
+                    "text": ":arrow_right: PR",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "value": "{\\"sha\\":\\"88c22a29176df64cfc027637a5ccfd9da1544e9f\\",\\"repo\\":\\"sentry\\"}",
+                  "url": "https://github.com/getsentry/getsentry/pull/23572",
                 },
               ],
               "type": "actions",
@@ -491,17 +496,22 @@ describe('requiredChecks', function () {
               "type": "context",
             },
             Object {
+              "text": Object {
+                "text": "To fast revert this commit apply the *\`[Trigger: Revert]\`* label to the PR.",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
               "elements": Array [
                 Object {
-                  "action_id": "revert-commit",
-                  "style": "danger",
                   "text": Object {
                     "emoji": true,
-                    "text": "Revert Commit",
+                    "text": ":arrow_right: PR",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "value": "{\\"sha\\":\\"6d225cb77225ac655d817a7551a26fff85090fe6\\",\\"repo\\":\\"getsentry\\"}",
+                  "url": "https://github.com/getsentry/getsentry/pull/5043",
                 },
               ],
               "type": "actions",
