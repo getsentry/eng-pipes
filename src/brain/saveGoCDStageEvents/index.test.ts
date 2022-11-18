@@ -6,8 +6,6 @@ import * as utils from '@utils/db';
 
 import * as saveGoCDStageEvents from '.';
 
-const DB_NAME = 'gocd-stages';
-
 describe('saveGoCDStageEvents.handler', function () {
   let dbMock: jest.SpyInstance;
 
@@ -26,15 +24,19 @@ describe('saveGoCDStageEvents.handler', function () {
 
   afterEach(async function () {
     dbMock.mockRestore();
-    await utils.db(DB_NAME).delete();
+    await utils.db(saveGoCDStageEvents.DB_TABLE_STAGES).delete();
+    await utils.db(saveGoCDStageEvents.DB_TABLE_MATERIALS).delete();
   });
 
   it('saves and updates stage to database', async function () {
     await saveGoCDStageEvents.handler(buildingPayload);
 
-    expect(dbMock).toHaveBeenCalledTimes(2);
+    // 1x Check if pipeline exists
+    // 1x Insert pipeline
+    // 1x Insert materials and revision
+    expect(dbMock).toHaveBeenCalledTimes(3);
 
-    let stages = await dbMock(DB_NAME).select('*');
+    let stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
     expect(stages).toHaveLength(1);
     expect(stages[0]).toMatchObject({
       pipeline_build_cause: [
@@ -96,13 +98,34 @@ describe('saveGoCDStageEvents.handler', function () {
       stage_state: 'Building',
     });
 
+    const materials = await dbMock(saveGoCDStageEvents.DB_TABLE_MATERIALS)
+      .select('*')
+      .orderBy('url', 'asc');
+    expect(materials).toHaveLength(2);
+    expect(materials[0]).toMatchObject({
+      stage_material_id:
+        'sentryio_getsentry_frontend_20_git@github.com:getsentry/getsentry.git_2b0034becc4ab26b985f4c1a08ab068f153c274c',
+      pipeline_id: 'sentryio_getsentry_frontend_20',
+      url: 'git@github.com:getsentry/getsentry.git',
+      branch: 'master',
+      revision: '2b0034becc4ab26b985f4c1a08ab068f153c274c',
+    });
+    expect(materials[1]).toMatchObject({
+      stage_material_id:
+        'sentryio_getsentry_frontend_20_git@github.com:getsentry/sentry.git_77b189ad3b4b48a7eb1ec63cc486cdc991332352',
+      pipeline_id: 'sentryio_getsentry_frontend_20',
+      url: 'git@github.com:getsentry/sentry.git',
+      branch: 'master',
+      revision: '77b189ad3b4b48a7eb1ec63cc486cdc991332352',
+    });
+
     dbMock.mockClear();
 
     await saveGoCDStageEvents.handler(failedPayload);
 
     expect(dbMock).toHaveBeenCalledTimes(2);
 
-    stages = await dbMock(DB_NAME).select('*');
+    stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
     expect(stages).toHaveLength(1);
 
     expect(stages[0]).toMatchObject({

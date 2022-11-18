@@ -1,6 +1,7 @@
-# issueTriageNotifier
+# issueNotifier
 
-Notifies team channels when they have a new issue [pending triage](https://open.sentry.io/triage/#3-triage).
+Notifies team channels when they have a new issue [pending triage](https://open.sentry.io/triage/#3-triage). This also notifies the support
+channel when a new issue comes in that is unrouted.
 
 This requires adding the `/notify-for-triage` command to the bot config.
 

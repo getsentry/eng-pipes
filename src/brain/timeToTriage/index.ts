@@ -19,7 +19,7 @@ const REPOS_TO_TRACK = new Set([
   'symbolicator',
   'test-ttt-simple',
   'wal2json',
-  
+
   // Web team, T1
   'sentry-javascript',
   'sentry-python',
