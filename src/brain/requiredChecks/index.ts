@@ -2,18 +2,14 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { wrapHandler } from '@/utils/wrapHandler';
 import { githubEvents } from '@api/github';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
-import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
-import { actionRevertCommit } from './actionRevertCommit';
 import { OK_CONCLUSIONS } from './constants';
 import { handleNewFailedBuild } from './handleNewFailedBuild';
 import { resolveFlakeyFailure } from './resolveFlakeyFailure';
 import { resolveOtherFailure } from './resolveOtherFailure';
-import { revertCommitConfirm } from './revertCommitConfirm';
 
 async function handler({
   id,
@@ -84,20 +80,4 @@ async function handler({
 export async function requiredChecks() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
-
-  /**
-   * User clicks on "Revert" button, opens a confirmation dialog
-   */
-  bolt.action(
-    /revert-commit/,
-    wrapHandler('actionRevertCommit', actionRevertCommit)
-  );
-
-  /**
-   * After user confirms they want to revert a commit
-   */
-  bolt.view(
-    'revert-commit-confirm',
-    wrapHandler('actionRevertCommitConfirm', revertCommitConfirm)
-  );
 }

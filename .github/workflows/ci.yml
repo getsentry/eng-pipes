@@ -165,7 +165,6 @@ jobs:
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
-          GIT_BOT_SECRET: ${{ secrets.GIT_BOT_SECRET }}
           GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
         run: |
           echo "deploy-start=$(date +%s)" >> "$GITHUB_OUTPUT"
