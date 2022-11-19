@@ -1,6 +1,13 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
+import {
+  MAX_ROUTE_DAYS,
+  MAX_TRIAGE_DAYS,
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
+} from '@/config';
+
 import { getOssUserType } from './getOssUserType';
 
 const PROJECT =
@@ -32,6 +39,8 @@ export const TARGETS = {
       target_id: 'INT64',
       target_name: 'STRING',
       target_type: 'STRING',
+      timeToRouteBy: 'TIMESTAMP',
+      timeToTriageBy: 'TIMESTAMP',
     },
   },
 
@@ -160,7 +169,10 @@ type TargetConfig = {
   schema: Record<string, string>;
 };
 
-async function _insert(data: Record<string, any>, targetConfig: TargetConfig) {
+export async function _insert(
+  data: Record<string, any>,
+  targetConfig: TargetConfig
+) {
   const tx = Sentry.getCurrentHub()?.getScope()?.getTransaction();
   const span = tx?.startChild({
     op: 'bigquery',
@@ -216,6 +228,35 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
+export function calcDate(numDays, timestamp) {
+  const dateObj = new Date(timestamp);
+  for (let i = 1; i <= numDays; i++) {
+    dateObj.setDate(dateObj.getDate() + 1);
+    // Saturday: Day 6
+    // Sunday: Day 0
+    if (dateObj.getDay() === 6) {
+      dateObj.setDate(dateObj.getDate() + 2);
+    } else if (dateObj.getDay() === 0) {
+      dateObj.setDate(dateObj.getDate() + 1);
+    }
+  }
+  return dateObj.toISOString();
+}
+
+export function calculateSLOViolationTriage(target_name, action, timestamp) {
+  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
+    return calcDate(MAX_TRIAGE_DAYS, timestamp);
+  }
+  return null;
+}
+
+export function calculateSLOViolationRoute(target_name, action, timestamp) {
+  if (target_name === UNROUTED_LABEL && action === 'labeled') {
+    return calcDate(MAX_ROUTE_DAYS, timestamp);
+  }
+  return null;
+}
+
 export async function insertOss(
   eventType: string,
   payload: Record<string, any>
@@ -232,6 +273,8 @@ export async function insertOss(
     user_id: payload.sender.id,
     user_type: userType,
     repository: payload.repository.full_name,
+    timeToRouteBy: null,
+    timeToTriageBy: null,
   };
 
   if (eventType === 'issues') {
@@ -244,6 +287,16 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
+      data.timeToRouteBy = calculateSLOViolationRoute(
+        data.target_name,
+        data.action,
+        Date.now()
+      );
+      data.timeToTriageBy = calculateSLOViolationTriage(
+        data.target_name,
+        data.action,
+        Date.now()
+      );
     }
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
@@ -312,7 +365,6 @@ export async function insertOss(
 ######################################`);
     return;
   }
-
   return await _insert(data, TARGETS.oss);
 }
 

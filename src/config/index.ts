@@ -75,6 +75,8 @@ export enum BuildStatus {
 export const TEAM_LABEL_PREFIX = 'Team: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const UNROUTED_LABEL = 'Status: Unrouted';
+export const MAX_TRIAGE_DAYS = 2;
+export const MAX_ROUTE_DAYS = 1;
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership

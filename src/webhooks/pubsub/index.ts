@@ -5,6 +5,7 @@ import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   DAY_IN_MS,
+  MAX_TRIAGE_DAYS,
   OWNER,
   SENTRY_REPO,
   TEAM_LABEL_PREFIX,
@@ -15,7 +16,7 @@ import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
-const MAX_TRIAGE_TIME = 4 * DAY_IN_MS;
+const MAX_TRIAGE_TIME = MAX_TRIAGE_DAYS * DAY_IN_MS;
 const EARLY_WARNING_TIME = 1 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';

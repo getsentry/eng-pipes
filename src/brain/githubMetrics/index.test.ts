@@ -85,6 +85,8 @@ describe('github webhook', function () {
         user_id: 21031067,
         user_type: null,
         username: 'Codertocat',
+        timeToTriageBy: null,
+        timeToRouteBy: null,
       },
       { schema: SCHEMA }
     );
@@ -111,6 +113,8 @@ describe('github webhook', function () {
         user_id: 21031067,
         user_type: 'external',
         username: 'Gowron',
+        timeToTriageBy: null,
+        timeToRouteBy: null,
       },
       { schema: SCHEMA }
     );
@@ -149,6 +153,8 @@ describe('github webhook', function () {
         target_type: 'label',
         target_id: 1362934389,
         target_name: 'bug',
+        timeToTriageBy: null,
+        timeToRouteBy: null,
       },
       { schema: SCHEMA }
     );
@@ -175,6 +181,8 @@ describe('github webhook', function () {
         user_id: 21031067,
         user_type: 'bot',
         username: 'human[bot]',
+        timeToTriageBy: null,
+        timeToRouteBy: null,
       },
       { schema: SCHEMA }
     );
