@@ -14,7 +14,7 @@ features:
     - command: /notify-for-triage
       url: <NGROK_URL>/apps/slack/events
       description: Team/channel notification settings for untriaged issues
-      usage_hint: "Team label name: ie. Workflow"
+      usage_hint: "Team label name followed by office location: ie. Workflow sfo"
       should_escape: false
 oauth_config:
   scopes:
