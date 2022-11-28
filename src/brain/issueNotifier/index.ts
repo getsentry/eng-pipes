@@ -68,7 +68,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   pending.push(ack());
   const { channel_id, channel_name, text } = command;
   const args = text.match(
-    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo?)/
+    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo|ams?)/
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(

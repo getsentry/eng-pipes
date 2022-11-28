@@ -1,5 +1,8 @@
+import fs from 'fs';
+
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
+import yaml from 'js-yaml';
 
 import {
   MAX_ROUTE_DAYS,
@@ -13,6 +16,8 @@ import { getOssUserType } from './getOssUserType';
 const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
+const file = fs.readFileSync('holidays.yml');
+const HOLIDAY_CONFIG = yaml.load(file);
 
 function objectToSchema(obj: Record<string, any>) {
   return Object.entries(obj).map(([name, type]) => ({

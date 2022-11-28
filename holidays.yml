@@ -1,0 +1,90 @@
+sfo:
+  dates: [
+    "2022-12-23", # Christmas Eve
+    "2022-12-26", # Christmas Day
+    "2023-01-02", # New Year's Day
+    "2023-01-16", # MLK Day
+    "2023-02-20", # President's Day
+    "2023-05-29", # Memorial Day
+    "2023-06-19", # Juneteenth
+    "2023-07-03", # Day off (add to Independence Day)
+    "2023-07-04", # Independence Day
+    "2023-09-01", # Day off (add to Labor Day)
+    "2023-09-04", # Labor Day
+    "2023-10-09", # Indigenous Peoples Day
+    "2023-11-10", # Veteran's Day
+    "2023-11-23", # Thanksgiving
+    "2023-11-24", # Day after Thanksgiving
+    "2023-12-25", # Christmas Day
+    "2023-12-26", # Boxing Day
+  ]
+sea:
+  dates: [
+    "2022-12-23", # Christmas Eve
+    "2022-12-26", # Christmas Day
+    "2023-01-02", # New Year's Day
+    "2023-01-16", # MLK Day
+    "2023-02-20", # President's Day
+    "2023-05-29", # Memorial Day
+    "2023-06-19", # Juneteenth
+    "2023-07-03", # Day off (add to Independence Day)
+    "2023-07-04", # Independence Day
+    "2023-09-01", # Day off (add to Labor Day)
+    "2023-09-04", # Labor Day
+    "2023-10-09", # Indigenous Peoples Day
+    "2023-11-10", # Veteran's Day
+    "2023-11-23", # Thanksgiving
+    "2023-11-24", # Day after Thanksgiving
+    "2023-12-25", # Christmas Day
+    "2023-12-26", # Boxing Day
+  ]
+vie:
+  dates: [
+    "2022-12-23", # Christmas Eve
+    "2022-12-26", # Christmas Day
+    "2022-12-27", # Boxing Day
+    "2023-01-02", # New Year's Day
+    "2023-01-06", # Epiphany
+    "2023-04-10", # Easter Monday
+    "2023-05-01", # Labor/May Day
+    "2023-05-18", # Ascension
+    "2023-05-29", # Whit Monday
+    "2023-06-08", # Corpus Christi
+    "2023-08-15", # Assumption Day
+    "2023-10-26", # Austrian National Holiday
+    "2023-11-01", # All Saints' Day
+    "2023-12-08", # Immaculate Conception
+    "2023-12-25", # Christmas Day
+    "2023-12-26", # Boxing Day
+  ]
+yyz:
+  dates: [
+    "2022-12-23", # Christmas Eve
+    "2022-12-26", # Christmas Day
+    "2022-12-27", # Boxing Day
+    "2023-01-02", # New Year's Day
+    "2023-01-20", # Nova Scotia Heritage Day and Family Day
+    "2023-04-07", # Good Friday
+    "2023-04-10", # Easter Monday
+    "2023-08-07", # Civic Holiday
+    "2023-07-03", # Day off (add to Independence Day)
+    "2023-09-01", # Day off (add to Labor Day)
+    "2023-09-04", # Labor Day
+    "2023-10-02", # National Day for Truth and Reconcilation
+    "2023-10-09", # Thanksgiving
+    "2023-11-13", # Remembrance Day
+    "2023-12-25", # Christmas Day
+    "2023-12-26", # Boxing Day
+  ]
+ams:
+  dates: [
+    "2023-01-02", # New Year's Day
+    "2023-04-07", # Good Friday
+    "2023-04-10", # Easter Monday
+    "2023-04-27", # King's Birthday
+    "2023-05-05", # Liberation Day
+    "2023-05-18", # Ascension
+    "2023-05-29", # Whit Monday
+    "2023-12-25", # Christmas Day
+    "2023-12-26", # Boxing Day
+  ]
