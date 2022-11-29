@@ -60,8 +60,8 @@ export const githubLabelHandler = async ({
 };
 
 // /notify-for-triage`: List all team label subscriptions
-// /notify-for-triage <name>`: Subscribe to all untriaged issues for `Team: <name>` label
-// /notify-for-triage -<name>`: Unsubscribe from untriaged issues for `Team: <name>` label
+// /notify-for-triage <name> <office>`: Subscribe to all untriaged issues for `Team: <name>` label
+// /notify-for-triage -<name> <office>`: Unsubscribe from untriaged issues for `Team: <name>` label
 export const slackHandler = async ({ command, ack, say, respond, client }) => {
   const pending: Promise<unknown>[] = [];
   // Acknowledge command request
@@ -72,7 +72,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(
-      (row) => `${row.label_name} (${row.office})`
+      (row) => `${row.label_name} (${row.offices.join(', ')})`
     );
     const response =
       labels.length > 0
@@ -85,14 +85,15 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
     const op = args.op || '+';
     const label_name = `Team: ${args.label}`;
     const newOffice = args.office;
-    const currentOffice = (
-      await getLabelsTable()
-        .where({
-          label_name,
-          channel_id,
-        })
-        .select('office')
-    )[0]?.office;
+    const currentOffices =
+      (
+        await getLabelsTable()
+          .where({
+            label_name,
+            channel_id,
+          })
+          .select('offices')
+      )[0]?.offices || [];
     let channelInfo;
     let result;
 
@@ -126,7 +127,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
             {
               label_name,
               channel_id,
-              office: newOffice,
+              offices: [newOffice],
             },
             'label_name'
           )
@@ -139,18 +140,18 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
               `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} business hours.`
             )
           );
-        } else if (newOffice != currentOffice) {
+        } else if (!currentOffices.includes(newOffice)) {
           result = await getLabelsTable()
             .where({
               label_name,
               channel_id,
             })
             .update({
-              office: newOffice,
+              offices: currentOffices.concat(newOffice),
             });
           pending.push(
             say(
-              `Set office location to ${newOffice} on the current channel (${channelInfo.channel.name}) for ${label_name}`
+              `Add office location ${newOffice} on the current channel (${channelInfo.channel.name}) for ${label_name}`
             )
           );
         } else {
@@ -163,25 +164,42 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         }
         break;
       case '-':
-        result = await getLabelsTable()
-          .where({
-            channel_id,
-            label_name,
-            office: newOffice,
-          })
-          .del('label_name');
+        if (currentOffices.includes(newOffice)) {
+          if (currentOffices.length > 1) {
+            currentOffices.splice(currentOffices.indexOf(newOffice), 1);
+            result = await getLabelsTable()
+              .where({
+                channel_id,
+                label_name,
+              })
+              .update({
+                offices: currentOffices,
+              });
+          } else {
+            result = await getLabelsTable()
+              .where({
+                channel_id,
+                label_name,
+              })
+              .del('label_name');
+          }
+          pending.push(
+            say(
+              `This channel (${channel_name}) will no longer get notifications for ${label_name} during ${newOffice} business hours.`
+            )
+          );
+        } else {
+          pending.push(
+            say(
+              `This channel (${channel_name}) is not subscribed to ${label_name} during ${newOffice} business hours.`
+            )
+          );
+        }
 
         // Unlike in the subscribe action, we do not leave the channel here because the
         // bot might have been invited to the channel for other purposes too. So making
         // sure we are in the channel when they subscribe to notifications makes sense
         // but leaving when they unsubscribe is not sure game.
-        pending.push(
-          say(
-            result.length > 0
-              ? `This channel (${channel_name}) will no longer get notifications for ${result[0]} during ${newOffice} business hours.`
-              : `This channel (${channel_name}) is not subscribed to ${label_name} during ${newOffice} business hours.`
-          )
-        );
         break;
     }
   }
