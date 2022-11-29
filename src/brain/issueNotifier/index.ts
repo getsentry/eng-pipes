@@ -60,8 +60,8 @@ export const githubLabelHandler = async ({
 };
 
 // /notify-for-triage`: List all team label subscriptions
-// /notify-for-triage <name>`: Subscribe to all untriaged issues for `Team: <name>` label
-// /notify-for-triage -<name>`: Unsubscribe from untriaged issues for `Team: <name>` label
+// /notify-for-triage <name> <office>`: Subscribe to all untriaged issues for `Team: <name>` label
+// /notify-for-triage -<name> <office>`: Unsubscribe from untriaged issues for `Team: <name>` label
 export const slackHandler = async ({ command, ack, say, respond, client }) => {
   const pending: Promise<unknown>[] = [];
   // Acknowledge command request
