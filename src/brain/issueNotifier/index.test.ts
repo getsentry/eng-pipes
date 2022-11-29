@@ -17,7 +17,7 @@ describe('issueNotifier Tests', function () {
       await getLabelsTable().insert({
         label_name: 'Team: Test',
         channel_id: channelId(i),
-        office: 'sfo',
+        offices: ['sfo'],
       });
     }
   });
@@ -182,12 +182,12 @@ describe('issueNotifier Tests', function () {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'sfo',
+          offices: ['sfo'],
         },
       ]);
     });
 
-    it('should change office to sea', async function () {
+    it('should add sea office', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -196,19 +196,19 @@ describe('issueNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[2]).toEqual([
-        'Set office location to sea on the current channel (test) for Team: Test',
+        'Add office location sea on the current channel (test) for Team: Test',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'sea',
+          offices: ['sfo', 'sea'],
         },
       ]);
     });
 
-    it('should not change office if office input is invalid', async function () {
+    it('should not add office if office input is invalid', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -217,40 +217,19 @@ describe('issueNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[3]).toEqual([
-        'This channel is set to receive notifications for: Team: Test (sea)',
+        'This channel is set to receive notifications for: Team: Test (sfo,sea)',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'sea',
+          offices: ['sfo', 'sea'],
         },
       ]);
     });
 
-    it('should change office to sfo', async function () {
-      const channel_id = channelId(1);
-      const command = {
-        channel_id,
-        channel_name: 'test',
-        text: 'Test sfo',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[4]).toEqual([
-        'Set office location to sfo on the current channel (test) for Team: Test',
-      ]);
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
-        {
-          channel_id: 'CHNLIDRND1',
-          id: 1,
-          label_name: 'Team: Test',
-          office: 'sfo',
-        },
-      ]);
-    });
-
-    it('should change office to vie', async function () {
+    it('should add vie office', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -258,20 +237,20 @@ describe('issueNotifier Tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[5]).toEqual([
-        'Set office location to vie on the current channel (test) for Team: Test',
+      expect(say.mock.calls[4]).toEqual([
+        'Add office location vie on the current channel (test) for Team: Test',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'vie',
+          offices: ['sfo', 'sea', 'vie'],
         },
       ]);
     });
 
-    it('should change office to yyz', async function () {
+    it('should add yyz office', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -279,20 +258,41 @@ describe('issueNotifier Tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[6]).toEqual([
-        'Set office location to yyz on the current channel (test) for Team: Test',
+      expect(say.mock.calls[5]).toEqual([
+        'Add office location yyz on the current channel (test) for Team: Test',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'yyz',
+          offices: ['sfo', 'sea', 'vie', 'yyz'],
         },
       ]);
     });
 
-    it('should not delete notifications for Team test if office is incorrect', async function () {
+    it('should delete notifications for Team test for office sea', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        channel_name: 'test',
+        text: '-Test sea',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say.mock.calls[6]).toEqual([
+        'This channel (test) will no longer get notifications for Team: Test during sea business hours.',
+      ]);
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: ['sfo', 'vie', 'yyz'],
+        },
+      ]);
+    });
+
+    it('should not delete notifications for Team test if office is not included', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -308,12 +308,12 @@ describe('issueNotifier Tests', function () {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          office: 'yyz',
+          offices: ['sfo', 'vie', 'yyz'],
         },
       ]);
     });
 
-    it('should delete notifications for Team test', async function () {
+    it('should delete notifications for Team test for office yyz', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
@@ -323,6 +323,48 @@ describe('issueNotifier Tests', function () {
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[8]).toEqual([
         'This channel (test) will no longer get notifications for Team: Test during yyz business hours.',
+      ]);
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: ['sfo', 'vie'],
+        },
+      ]);
+    });
+
+    it('should delete notifications for Team test for office sfo', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        channel_name: 'test',
+        text: '-Test sfo',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say.mock.calls[9]).toEqual([
+        'This channel (test) will no longer get notifications for Team: Test during sfo business hours.',
+      ]);
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: ['vie'],
+        },
+      ]);
+    });
+
+    it('should delete notifications for Team test for office vie', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        channel_name: 'test',
+        text: '-Test vie',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say.mock.calls[10]).toEqual([
+        'This channel (test) will no longer get notifications for Team: Test during vie business hours.',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
