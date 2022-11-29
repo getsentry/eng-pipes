@@ -72,7 +72,10 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(
-      (row) => `${row.label_name} (${(row.offices || []).join(', ')})`
+      (row) =>
+        `${row.label_name} (${(row.offices || ['no office specified']).join(
+          ', '
+        )})`
     );
     const response =
       labels.length > 0

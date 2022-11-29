@@ -17,7 +17,7 @@ describe('issueNotifier Tests', function () {
       await getLabelsTable().insert({
         label_name: 'Team: Test',
         channel_id: channelId(i),
-        offices: [],
+        offices: null,
       });
     }
   });
@@ -175,14 +175,14 @@ describe('issueNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say).lastCalledWith(
-        'This channel is set to receive notifications for: Team: Test ()'
+        'This channel is set to receive notifications for: Team: Test (no office specified)'
       );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
           id: 1,
           label_name: 'Team: Test',
-          offices: [],
+          offices: null,
         },
       ]);
     });
@@ -197,6 +197,27 @@ describe('issueNotifier Tests', function () {
       await slackHandler({ command, ack, say, respond, client });
       expect(say).lastCalledWith(
         'Add office location sfo on the current channel (test) for Team: Test'
+      );
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: ['sfo'],
+        },
+      ]);
+    });
+
+    it('should respond that channel is subscribed to team test if office is sfo', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        channel_name: 'test',
+        text: '',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say).lastCalledWith(
+        'This channel is set to receive notifications for: Team: Test (sfo)'
       );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
