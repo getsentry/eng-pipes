@@ -217,7 +217,7 @@ describe('issueNotifier Tests', function () {
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(say.mock.calls[3]).toEqual([
-        'This channel is set to receive notifications for: Team: Test (sfo,sea)',
+        'This channel is set to receive notifications for: Team: Test (sfo, sea)',
       ]);
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
