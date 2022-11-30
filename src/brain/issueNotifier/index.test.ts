@@ -156,7 +156,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(3);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -170,7 +169,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -191,7 +189,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -212,7 +209,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -233,7 +229,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -254,7 +249,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test blah',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -275,7 +269,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -296,7 +289,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -317,7 +309,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -338,7 +329,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -359,7 +349,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -380,7 +369,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
@@ -401,7 +389,6 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
