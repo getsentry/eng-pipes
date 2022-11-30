@@ -17,7 +17,7 @@ describe('issueNotifier Tests', function () {
       await getLabelsTable().insert({
         label_name: 'Team: Test',
         channel_id: channelId(i),
-        offices: ['sfo'],
+        offices: null,
       });
     }
   });
@@ -156,27 +156,65 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(3);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[0]).toEqual([
-        'This channel is not subscribed to any team notifications.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel is not subscribed to any team notifications.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
 
-    it('should respond that channel is subscribed to team test', async function () {
+    it('should respond that channel is subscribed to team test if office is null', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[1]).toEqual([
-        'This channel is set to receive notifications for: Team: Test (sfo)',
+      expect(say).lastCalledWith(
+        'This channel is set to receive notifications for: Team: Test (no office specified)'
+      );
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: null,
+        },
       ]);
+    });
+
+    it('should add sfo office', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        text: 'Test sfo',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say).lastCalledWith(
+        'Add office location sfo on the current channel (test) for Team: Test'
+      );
+      expect(await getLabelsTable().where({ channel_id })).toEqual([
+        {
+          channel_id: 'CHNLIDRND1',
+          id: 1,
+          label_name: 'Team: Test',
+          offices: ['sfo'],
+        },
+      ]);
+    });
+
+    it('should respond that channel is subscribed to team test if office is sfo', async function () {
+      const channel_id = channelId(1);
+      const command = {
+        channel_id,
+        text: '',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say).lastCalledWith(
+        'This channel is set to receive notifications for: Team: Test (sfo)'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -191,13 +229,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[2]).toEqual([
-        'Add office location sea on the current channel (test) for Team: Test',
-      ]);
+      expect(say).lastCalledWith(
+        'Add office location sea on the current channel (test) for Team: Test'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -212,13 +249,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test blah',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[3]).toEqual([
-        'This channel is set to receive notifications for: Team: Test (sfo, sea)',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel is set to receive notifications for: Team: Test (sfo, sea)'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -233,13 +269,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[4]).toEqual([
-        'Add office location vie on the current channel (test) for Team: Test',
-      ]);
+      expect(say).lastCalledWith(
+        'Add office location vie on the current channel (test) for Team: Test'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -254,13 +289,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[5]).toEqual([
-        'Add office location yyz on the current channel (test) for Team: Test',
-      ]);
+      expect(say).lastCalledWith(
+        'Add office location yyz on the current channel (test) for Team: Test'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -275,13 +309,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[6]).toEqual([
-        'This channel (test) will no longer get notifications for Team: Test during sea business hours.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel (test) will no longer get notifications for Team: Test during sea business hours.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -296,13 +329,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sea',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[7]).toEqual([
-        'This channel (test) is not subscribed to Team: Test during sea business hours.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel (test) is not subscribed to Team: Test during sea business hours.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -317,13 +349,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[8]).toEqual([
-        'This channel (test) will no longer get notifications for Team: Test during yyz business hours.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel (test) will no longer get notifications for Team: Test during yyz business hours.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -338,13 +369,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[9]).toEqual([
-        'This channel (test) will no longer get notifications for Team: Test during sfo business hours.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel (test) will no longer get notifications for Team: Test during sfo business hours.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([
         {
           channel_id: 'CHNLIDRND1',
@@ -359,13 +389,12 @@ describe('issueNotifier Tests', function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
-        channel_name: 'test',
         text: '-Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(say.mock.calls[10]).toEqual([
-        'This channel (test) will no longer get notifications for Team: Test during vie business hours.',
-      ]);
+      expect(say).lastCalledWith(
+        'This channel (test) will no longer get notifications for Team: Test during vie business hours.'
+      );
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
   });
