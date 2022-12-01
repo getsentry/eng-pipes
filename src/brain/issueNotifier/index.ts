@@ -66,13 +66,16 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   const pending: Promise<unknown>[] = [];
   // Acknowledge command request
   pending.push(ack());
-  const { channel_id, channel_name, text } = command;
+  const { channel_id, text } = command;
   const args = text.match(
     /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo|ams?)/
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(
-      (row) => `${row.label_name} (${row.offices})`
+      (row) =>
+        `${row.label_name} (${(row.offices || ['no office specified']).join(
+          ', '
+        )})`
     );
     const response =
       labels.length > 0
@@ -97,27 +100,28 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
     let channelInfo;
     let result;
 
+    try {
+      channelInfo = await client.conversations.info({
+        channel: channel_id,
+      });
+    } catch (err) {
+      // @ts-expect-error
+      if (err instanceof Error && err.data.error === 'channel_not_found') {
+        pending.push(
+          respond({
+            response_type: 'ephemeral',
+            text: `You need to invite me to the channel as it is private.`,
+          })
+        );
+        await Promise.all(pending);
+        return;
+      } else {
+        throw err;
+      }
+    }
+
     switch (op) {
       case '+':
-        try {
-          channelInfo = await client.conversations.info({
-            channel: channel_id,
-          });
-        } catch (err) {
-          // @ts-expect-error
-          if (err instanceof Error && err.data.error === 'channel_not_found') {
-            pending.push(
-              respond({
-                response_type: 'ephemeral',
-                text: `You need to invite me to the channel as it is private.`,
-              })
-            );
-            break;
-          } else {
-            throw err;
-          }
-        }
-
         if (!channelInfo.channel.is_member) {
           await client.conversations.join({ channel: channel_id });
         }
@@ -158,7 +162,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
           pending.push(
             respond({
               response_type: 'ephemeral',
-              text: `This channel (${channel_name}) is already subscribed to '${label_name} during ${newOffice} business hours'.`,
+              text: `This channel (${channelInfo.channel.name}) is already subscribed to '${label_name} during ${newOffice} business hours'.`,
             })
           );
         }
@@ -185,13 +189,13 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
           }
           pending.push(
             say(
-              `This channel (${channel_name}) will no longer get notifications for ${label_name} during ${newOffice} business hours.`
+              `This channel (${channelInfo.channel.name}) will no longer get notifications for ${label_name} during ${newOffice} business hours.`
             )
           );
         } else {
           pending.push(
             say(
-              `This channel (${channel_name}) is not subscribed to ${label_name} during ${newOffice} business hours.`
+              `This channel (${channelInfo.channel.name}) is not subscribed to ${label_name} during ${newOffice} business hours.`
             )
           );
         }
