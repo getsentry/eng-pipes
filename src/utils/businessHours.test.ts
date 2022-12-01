@@ -111,21 +111,21 @@ describe('businessHours tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
         const result = await calcDate(
           MAX_TRIAGE_DAYS,
-          '2022-12-22T00:00:00.000Z',
+          '2023-12-24T00:00:00.000Z',
           'Team: Test'
         );
-        // 2022-12-23 is Christmas Eve, 2022-12-24/2022-12-25 are weekends, 2022-12-26 is Christmas
-        expect(result).toEqual('2022-12-28T00:00:00.000Z');
+        // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
+        expect(result).toEqual('2023-12-29T00:00:00.000Z');
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
         const result = await calcDate(
           MAX_ROUTE_DAYS,
-          '2022-12-22T00:00:00.000Z',
+          '2023-12-24T00:00:00.000Z',
           'Team: Test'
         );
-        // 2022-12-23 is Christmas Eve, 2022-12-24/2022-12-25 are weekends, 2022-12-26 is Christmas
-        expect(result).toEqual('2022-12-27T00:00:00.000Z');
+        // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
+        expect(result).toEqual('2023-12-28T00:00:00.000Z');
       });
 
       it('should not include holiday in TTR if at least one office is still open', async function () {
