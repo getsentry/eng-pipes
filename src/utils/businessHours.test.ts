@@ -115,7 +115,7 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-29T00:00:00.000Z');
+        expect(result).toEqual('2023-12-28T00:00:00.000Z');
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
@@ -125,7 +125,7 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-28T00:00:00.000Z');
+        expect(result).toEqual('2023-12-27T00:00:00.000Z');
       });
 
       it('should not include holiday in TTR if at least one office is still open', async function () {

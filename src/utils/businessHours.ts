@@ -54,7 +54,6 @@ export async function calcDate(numDays, timestamp, team) {
     });
     if (shouldSkipDate) {
       i -= 1;
-      dateObj.setDate(dateObj.getDate() + 1);
     }
   }
   return dateObj.toISOString();
