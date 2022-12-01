@@ -23,6 +23,7 @@ describe('issueNotifier Tests', function () {
   });
 
   afterAll(async function () {
+    await db('label_to_channel').delete();
     await db.destroy();
   });
 

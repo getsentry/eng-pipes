@@ -3,9 +3,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import moment from 'moment-timezone';
 
-import { db } from '@utils/db';
-export const getLabelsTable = () => db('label_to_channel');
-
+import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   BUSINESS_HOURS,
   MAX_ROUTE_DAYS,
@@ -39,20 +37,30 @@ export async function calcDate(numDays, timestamp, team) {
     } else if (dateObj.getDay() === 0) {
       dateObj.setDate(dateObj.getDate() + 1);
     }
+    // If all offices are all on holiday, we skip the day.
+    // Otherwise, we count the day for our SLA's
+    let shouldSkipDate = false;
     offices.forEach((office) => {
       if (
         HOLIDAY_CONFIG[office].dates.includes(
+          // slicing the string here since we only care about YYYY/MM/DD
           dateObj.toISOString().slice(0, 10)
         )
       ) {
-        dateObj.setDate(dateObj.getDate() + 1);
+        shouldSkipDate = true;
+      } else {
+        shouldSkipDate = false;
       }
     });
+    if (shouldSkipDate) {
+      i -= 1;
+      dateObj.setDate(dateObj.getDate() + 1);
+    }
   }
   return dateObj.toISOString();
 }
 
-export function calculateSLOViolationTriage(
+export async function calculateSLOViolationTriage(
   target_name,
   action,
   timestamp,
@@ -75,7 +83,11 @@ export function calculateSLOViolationTriage(
   return null;
 }
 
-export function calculateSLOViolationRoute(target_name, action, timestamp) {
+export async function calculateSLOViolationRoute(
+  target_name,
+  action,
+  timestamp
+) {
   if (target_name === UNROUTED_LABEL && action === 'labeled') {
     return calcDate(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
@@ -95,6 +107,7 @@ export async function getOfficesForTeam(team, update) {
         .select('offices')
     ).reduce((acc, item) => acc.concat(item.offices), [])
   );
+  // Sorting from which office timezone comes earlier in the day in UTC, makes calculations easier later on
   const orderedOffices = [...officesSet].sort(
     (a: any, b: any) => officeHourOrdering[a] - officeHourOrdering[b]
   );
@@ -134,5 +147,3 @@ export async function getBusinessHoursForTeam(team, day) {
   }
   return hours;
 }
-
-calcDate(1, Date.now(), 'Team: Ingest');

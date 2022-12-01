@@ -2,12 +2,9 @@ import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
 import {
-  MAX_ROUTE_DAYS,
-  MAX_TRIAGE_DAYS,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
-} from '@/config';
-
+  calculateSLOViolationRoute,
+  calculateSLOViolationTriage,
+} from './businessHours';
 import { getOssUserType } from './getOssUserType';
 
 const PROJECT =
@@ -228,35 +225,6 @@ export function insertAssetSize({ pull_request_number, ...data }) {
   );
 }
 
-export function calcDate(numDays, timestamp) {
-  const dateObj = new Date(timestamp);
-  for (let i = 1; i <= numDays; i++) {
-    dateObj.setDate(dateObj.getDate() + 1);
-    // Saturday: Day 6
-    // Sunday: Day 0
-    if (dateObj.getDay() === 6) {
-      dateObj.setDate(dateObj.getDate() + 2);
-    } else if (dateObj.getDay() === 0) {
-      dateObj.setDate(dateObj.getDate() + 1);
-    }
-  }
-  return dateObj.toISOString();
-}
-
-export function calculateSLOViolationTriage(target_name, action, timestamp) {
-  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
-    return calcDate(MAX_TRIAGE_DAYS, timestamp);
-  }
-  return null;
-}
-
-export function calculateSLOViolationRoute(target_name, action, timestamp) {
-  if (target_name === UNROUTED_LABEL && action === 'labeled') {
-    return calcDate(MAX_ROUTE_DAYS, timestamp);
-  }
-  return null;
-}
-
 export async function insertOss(
   eventType: string,
   payload: Record<string, any>
@@ -287,15 +255,16 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
-      data.timeToRouteBy = calculateSLOViolationRoute(
+      data.timeToRouteBy = await calculateSLOViolationRoute(
         data.target_name,
         data.action,
         Date.now()
       );
-      data.timeToTriageBy = calculateSLOViolationTriage(
+      data.timeToTriageBy = await calculateSLOViolationTriage(
         data.target_name,
         data.action,
-        Date.now()
+        Date.now(),
+        issue.labels
       );
     }
   } else if (eventType === 'issue_comment') {
