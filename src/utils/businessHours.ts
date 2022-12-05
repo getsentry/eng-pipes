@@ -1,11 +1,9 @@
 import fs from 'fs';
 
 import yaml from 'js-yaml';
-import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  BUSINESS_HOURS,
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   TEAM_LABEL_PREFIX,
