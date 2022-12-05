@@ -25,16 +25,16 @@ const officeHourOrdering: Record<string, number> = {
 };
 const cache = {};
 
-export async function calcDate(numDays, timestamp, team) {
+export async function calculateDate(numDays, timestamp, team) {
   const dateObj = new Date(timestamp);
   const offices = await getOfficesForTeam(team, false);
   for (let i = 1; i <= numDays; i++) {
     dateObj.setDate(dateObj.getDate() + 1);
     // Saturday: Day 6
     // Sunday: Day 0
-    if (dateObj.getDay() === 6) {
+    if (dateObj.getUTCDay() === 6) {
       dateObj.setDate(dateObj.getDate() + 2);
-    } else if (dateObj.getDay() === 0) {
+    } else if (dateObj.getUTCDay() === 0) {
       dateObj.setDate(dateObj.getDate() + 1);
     }
     // If all offices are all on holiday, we skip the day.
@@ -70,14 +70,14 @@ export async function calculateSLOViolationTriage(
     const team = labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
-    return calcDate(MAX_TRIAGE_DAYS, timestamp, team);
+    return calculateDate(MAX_TRIAGE_DAYS, timestamp, team);
   }
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
-    return calcDate(MAX_TRIAGE_DAYS, timestamp, target_name);
+    return calculateDate(MAX_TRIAGE_DAYS, timestamp, target_name);
   }
   return null;
 }
@@ -88,15 +88,12 @@ export async function calculateSLOViolationRoute(
   timestamp
 ) {
   if (target_name === UNROUTED_LABEL && action === 'labeled') {
-    return calcDate(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
+    return calculateDate(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
   return null;
 }
 
-export async function getOfficesForTeam(team, update) {
-  if (cache[team] && !update) {
-    return cache[team];
-  }
+export async function setCache(team) {
   const officesSet = new Set(
     (
       await getLabelsTable()
@@ -111,38 +108,12 @@ export async function getOfficesForTeam(team, update) {
     (a: any, b: any) => officeHourOrdering[a] - officeHourOrdering[b]
   );
   cache[team] = orderedOffices;
-  return orderedOffices;
 }
 
-export async function getBusinessHoursForTeam(team, day) {
-  const offices = await getOfficesForTeam(team, false);
-  const hours: { start; end }[] = [];
-  offices.forEach((office) => {
-    if (!HOLIDAY_CONFIG[office].dates.includes(day)) {
-      hours.push({
-        start: moment
-          .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS[office])
-          .utc()
-          .toString(),
-        end: moment
-          .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS[office])
-          .utc()
-          .toString(),
-      });
-    }
-  });
-  // If no channels are subscribed to the notifications for a team label, default to sfo
-  if (!hours.length) {
-    hours.push({
-      start: moment
-        .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS['sfo'])
-        .utc()
-        .toString(),
-      end: moment
-        .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS['sfo'])
-        .utc()
-        .toString(),
-    });
+export async function getOfficesForTeam(team, update) {
+  if (cache[team]) {
+    return cache[team];
   }
-  return hours;
+  await setCache(team);
+  return cache[team];
 }

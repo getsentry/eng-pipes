@@ -3,7 +3,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { TEAM_LABEL_PREFIX, UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
-import { getOfficesForTeam } from '@utils/businessHours';
+import { setCache } from '@utils/businessHours';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
@@ -208,7 +208,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         break;
     }
     // Update cache for the offices mapped to each team
-    await getOfficesForTeam(label_name, true);
+    await setCache(label_name);
   }
   await Promise.all(pending);
 };

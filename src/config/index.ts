@@ -82,15 +82,3 @@ export const MAX_ROUTE_DAYS = 1;
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
  */
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
-
-/**
- * Business Hours by Office
- */
-
-export const BUSINESS_HOURS = {
-  vie: 'Europe/Vienna',
-  sea: 'America/Los_Angeles',
-  yyz: 'America/Toronto',
-  sfo: 'America/Los_Angeles',
-  ams: 'Europe/Amsterdam',
-};
