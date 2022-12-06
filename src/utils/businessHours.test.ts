@@ -222,6 +222,17 @@ describe('businessHours tests', function () {
       );
       expect(result).toEqual('2022-11-16T23:36:00.000Z');
     });
+
+    it('should not calculate SLO violation if team label is removed', async function () {
+      const timestamp = '2022-11-14T23:36:00.000Z';
+      const result = await calculateSLOViolationTriage(
+        'Team: Rerouted',
+        'unlabeled',
+        timestamp,
+        [{ name: 'Status: Untriaged' }]
+      );
+      expect(result).toEqual(null);
+    });
   });
 
   describe('getOfficesForTeam', function () {
