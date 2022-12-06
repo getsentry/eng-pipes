@@ -23,7 +23,7 @@ const officeHourOrdering: Record<string, number> = {
 };
 const officesCache = {};
 
-export async function calculateDate(numDays, timestamp, team) {
+export async function calculateTimeToRespondBy(numDays, timestamp, team) {
   const dateObj = new Date(timestamp);
   const offices = await getOfficesForTeam(team);
   for (let i = 1; i <= numDays; i++) {
@@ -68,14 +68,14 @@ export async function calculateSLOViolationTriage(
     const team = labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
-    return calculateDate(MAX_TRIAGE_DAYS, timestamp, team);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, team);
   }
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
-    return calculateDate(MAX_TRIAGE_DAYS, timestamp, target_name);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, target_name);
   }
   return null;
 }
@@ -86,7 +86,7 @@ export async function calculateSLOViolationRoute(
   timestamp
 ) {
   if (target_name === UNROUTED_LABEL && action === 'labeled') {
-    return calculateDate(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
+    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
   return null;
 }

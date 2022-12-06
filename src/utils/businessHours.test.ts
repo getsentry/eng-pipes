@@ -25,7 +25,7 @@ import {
 import { db } from '@utils/db';
 
 import {
-  calculateDate,
+  calculateTimeToRespondBy,
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   getOfficesForTeam,
@@ -56,7 +56,7 @@ describe('businessHours tests', function () {
     await db('label_to_channel').delete();
     await db.destroy();
   });
-  describe('calculateDate', function () {
+  describe('calculateTimeToRespondBy', function () {
     const testTimestamps = [
       { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
       { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
@@ -89,7 +89,7 @@ describe('businessHours tests', function () {
 
     for (let i = 0; i < 7; i++) {
       it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calculateDate(
+        const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           testTimestamps[i].timestamp,
           'Team: Test'
@@ -98,7 +98,7 @@ describe('businessHours tests', function () {
       });
 
       it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calculateDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           testTimestamps[i].timestamp,
           'Team: Test'
@@ -109,7 +109,7 @@ describe('businessHours tests', function () {
 
     describe('holiday tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
-        const result = await calculateDate(
+        const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           '2023-12-24T00:00:00.000Z',
           'Team: Test'
@@ -119,7 +119,7 @@ describe('businessHours tests', function () {
       });
 
       it.only('should calculate TTR SLO violation for Christmas', async function () {
-        const result = await calculateDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           '2023-12-24T00:00:00.000Z',
           'Team: Test'
@@ -134,7 +134,7 @@ describe('businessHours tests', function () {
           text: 'Test yyz',
         };
         await slackHandler({ command, ack, say, respond, client });
-        const result = await calculateDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           '2023-10-02T00:00:00.000Z',
           'Team: Test'
