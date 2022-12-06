@@ -64,7 +64,7 @@ export async function calculateSLOViolationTriage(
   labels
 ) {
   // calculate time to triage for issues that come in with untriaged label
-  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
+  if (target_name === UNTRIAGED_LABEL) {
     const team = labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
@@ -73,7 +73,6 @@ export async function calculateSLOViolationTriage(
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
-    action === 'labeled' &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
     return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, target_name);
@@ -86,7 +85,7 @@ export async function calculateSLOViolationRoute(
   action,
   timestamp
 ) {
-  if (target_name === UNROUTED_LABEL && action === 'labeled') {
+  if (target_name === UNROUTED_LABEL) {
     return calculateTimeToRespondBy(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
   return null;

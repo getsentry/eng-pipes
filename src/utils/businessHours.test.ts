@@ -25,9 +25,9 @@ import {
 import { db } from '@utils/db';
 
 import {
-  calculateTimeToRespondBy,
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
+  calculateTimeToRespondBy,
   getOfficesForTeam,
 } from './businessHours';
 
@@ -222,17 +222,6 @@ describe('businessHours tests', function () {
       );
       expect(result).toEqual('2022-11-16T23:36:00.000Z');
     });
-
-    it('should not calculate SLO violation if team label is removed', async function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = await calculateSLOViolationTriage(
-        'Team: Rerouted',
-        'unlabeled',
-        timestamp,
-        [{ name: 'Status: Untriaged' }]
-      );
-      expect(result).toEqual(null);
-    });
   });
 
   describe('getOfficesForTeam', function () {
@@ -246,10 +235,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test')).toEqual([
-        'vie',
-        'sfo',
-      ]);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'sfo']);
     });
 
     it('should get vie office in sorted order for team test if existing office is removed', async function () {
@@ -267,10 +253,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test')).toEqual([
-        'vie',
-        'yyz',
-      ]);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'yyz']);
     });
   });
 
