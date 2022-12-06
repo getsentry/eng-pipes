@@ -73,6 +73,7 @@ export async function calculateSLOViolationTriage(
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
+    action === 'labeled' &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
     return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, target_name);
@@ -109,9 +110,8 @@ export async function cacheOfficesForTeam(team) {
 }
 
 export async function getOfficesForTeam(team) {
-  if (officesCache[team]) {
-    return officesCache[team];
+  if (!officesCache[team]) {
+    await cacheOfficesForTeam(team);
   }
-  await cacheOfficesForTeam(team);
   return officesCache[team];
 }

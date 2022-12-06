@@ -118,7 +118,7 @@ describe('businessHours tests', function () {
         expect(result).toEqual('2023-12-28T00:00:00.000Z');
       });
 
-      it.only('should calculate TTR SLO violation for Christmas', async function () {
+      it('should calculate TTR SLO violation for Christmas', async function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           '2023-12-24T00:00:00.000Z',
