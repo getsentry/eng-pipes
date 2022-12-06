@@ -31,6 +31,8 @@ export const githubLabelHandler = async ({
     bolt.client.chat.postMessage({
       text: `⏲ Issue ready to route: <${issue.html_url}|#${issue.number} ${issue.title}>`,
       channel: SUPPORT_CHANNEL_ID,
+      unfurl_links: false,
+      unfurl_media: false,
     });
   }
 
@@ -54,6 +56,8 @@ export const githubLabelHandler = async ({
       bolt.client.chat.postMessage({
         text: `⏲ Issue pending triage: <${issue.html_url}|#${issue.number} ${issue.title}>`,
         channel,
+        unfurl_links: false,
+        unfurl_media: false,
       })
     )
   );
