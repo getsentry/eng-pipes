@@ -21,11 +21,11 @@ const officeHourOrdering: Record<string, number> = {
   sfo: 4,
   sea: 5,
 };
-const cache = {};
+const officesCache = {};
 
 export async function calculateDate(numDays, timestamp, team) {
   const dateObj = new Date(timestamp);
-  const offices = await getOfficesForTeam(team, false);
+  const offices = await getOfficesForTeam(team);
   for (let i = 1; i <= numDays; i++) {
     dateObj.setDate(dateObj.getDate() + 1);
     // Saturday: Day 6
@@ -91,7 +91,7 @@ export async function calculateSLOViolationRoute(
   return null;
 }
 
-export async function setCache(team) {
+export async function cacheOfficesForTeam(team) {
   const officesSet = new Set(
     (
       await getLabelsTable()
@@ -105,13 +105,13 @@ export async function setCache(team) {
   const orderedOffices = [...officesSet].sort(
     (a: any, b: any) => officeHourOrdering[a] - officeHourOrdering[b]
   );
-  cache[team] = orderedOffices;
+  officesCache[team] = orderedOffices;
 }
 
-export async function getOfficesForTeam(team, update) {
-  if (cache[team]) {
-    return cache[team];
+export async function getOfficesForTeam(team) {
+  if (officesCache[team]) {
+    return officesCache[team];
   }
-  await setCache(team);
-  return cache[team];
+  await cacheOfficesForTeam(team);
+  return officesCache[team];
 }

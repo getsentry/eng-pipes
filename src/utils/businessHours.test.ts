@@ -226,7 +226,7 @@ describe('businessHours tests', function () {
 
   describe('getOfficesForTeam', function () {
     it('should get sfo office for team test', async function () {
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual(['sfo']);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['sfo']);
     });
 
     it('should get sfo and vie office in sorted order for team test if new office is added', async function () {
@@ -235,7 +235,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual([
+      expect(await getOfficesForTeam('Team: Test')).toEqual([
         'vie',
         'sfo',
       ]);
@@ -247,7 +247,7 @@ describe('businessHours tests', function () {
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual(['vie']);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie']);
     });
 
     it('should get offices from multiple channels', async function () {
@@ -256,7 +256,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual([
+      expect(await getOfficesForTeam('Team: Test')).toEqual([
         'vie',
         'yyz',
       ]);
