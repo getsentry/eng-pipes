@@ -1,5 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
+import { KnownBlock } from '@slack/types';
 
 import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
@@ -9,7 +10,10 @@ import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsB
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { getFreightDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
+import {
+  getFreightDeployForQueuedCommit,
+  getGoCDDeployForQueuedCommit,
+} from '@/utils/db/getDeployForQueuedCommit';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -53,6 +57,11 @@ async function currentDeployBlocks(
   );
   if (freightDeployInfo) {
     return getFreightDeployBlock(freightDeployInfo, user);
+  }
+
+  const gocdDeployInfo = await getGoCDDeployForQueuedCommit(checkRun.head_sha);
+  if (gocdDeployInfo) {
+    // TODO: Add a block for GoCD deploy.
   }
 
   return null;
