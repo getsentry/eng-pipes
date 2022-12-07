@@ -75,7 +75,7 @@ describe('getDeployForQueuedCommit', function () {
         started_at: null,
         finished_at: null,
         title: null,
-        id: '1',
+        id: expect.any(String),
         head_sha: 'abc123',
         duration: null,
         link: null,
@@ -228,7 +228,7 @@ describe('getDeployForQueuedCommit', function () {
         stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
         stage_jobs: {},
 
-        id: 6,
+        id: expect.any(Number),
         data: {
           head_sha: 'abc123',
           sha: 'abc123',
