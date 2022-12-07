@@ -3,6 +3,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import { TEAM_LABEL_PREFIX, UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
+import { cacheOfficesForTeam } from '@utils/businessHours';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
@@ -72,7 +73,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   pending.push(ack());
   const { channel_id, text } = command;
   const args = text.match(
-    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo?)/
+    /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo|ams?)/
   )?.groups;
   if (!args) {
     const labels = (await getLabelsTable().where({ channel_id })).map(
@@ -210,8 +211,9 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         // but leaving when they unsubscribe is not sure game.
         break;
     }
+    // Update cache for the offices mapped to each team
+    await cacheOfficesForTeam(label_name);
   }
-
   await Promise.all(pending);
 };
 

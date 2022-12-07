@@ -24,21 +24,40 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import * as db from '@utils/metrics';
+import { db } from '@utils/db';
+import * as dbFunctions from '@utils/metrics';
+
+import { getLabelsTable } from '../issueNotifier';
 
 import { githubMetrics as metrics } from '.';
 
-jest.spyOn(db, 'insert');
-jest.spyOn(db, 'insertOss');
+jest.spyOn(dbFunctions, 'insert');
+jest.spyOn(dbFunctions, 'insertOss');
 
-const SCHEMA = Object.entries(db.TARGETS.oss.schema).map(([name, type]) => ({
-  name,
-  type,
-}));
+const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
+  ([name, type]) => ({
+    name,
+    type,
+  })
+);
 
 describe('github webhook', function () {
   let fastify: Fastify;
   let octokit;
+
+  beforeAll(async () => {
+    await db.migrate.latest();
+    await getLabelsTable().insert({
+      label_name: 'Team: Test',
+      channel_id: 'CHNLIDRND1',
+      offices: ['sfo'],
+    });
+  });
+
+  afterAll(async () => {
+    await db('label_to_channel').delete();
+    await db.destroy();
+  });
 
   beforeEach(async function () {
     fastify = await buildServer(false);
@@ -48,8 +67,8 @@ describe('github webhook', function () {
 
   afterEach(function () {
     fastify.close();
-    (db.insertOss as jest.Mock).mockClear();
-    (db.insert as jest.Mock).mockClear();
+    (dbFunctions.insertOss as jest.Mock).mockClear();
+    (dbFunctions.insert as jest.Mock).mockClear();
     octokit.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
@@ -67,7 +86,7 @@ describe('github webhook', function () {
     const response = await createGitHubEvent(fastify, 'pull_request');
 
     expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith(
+    expect(dbFunctions.insertOss).toHaveBeenCalledWith(
       'pull_request',
       expect.anything()
     );
@@ -98,7 +117,10 @@ describe('github webhook', function () {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(dbFunctions.insertOss).toHaveBeenCalledWith(
+      'issues',
+      expect.anything()
+    );
     expect(mockDataset).toHaveBeenCalledWith('open_source');
     expect(mockTable).toHaveBeenCalledWith('github_events');
     expect(mockInsert).toHaveBeenCalledTimes(1);
@@ -135,7 +157,10 @@ describe('github webhook', function () {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(dbFunctions.insertOss).toHaveBeenCalledWith(
+      'issues',
+      expect.anything()
+    );
     expect(mockDataset).toHaveBeenCalledWith('open_source');
     expect(mockTable).toHaveBeenCalledWith('github_events');
     expect(mockInsert).toHaveBeenCalledTimes(1);
@@ -166,7 +191,10 @@ describe('github webhook', function () {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith('issues', expect.anything());
+    expect(dbFunctions.insertOss).toHaveBeenCalledWith(
+      'issues',
+      expect.anything()
+    );
     expect(mockDataset).toHaveBeenCalledWith('open_source');
     expect(mockTable).toHaveBeenCalledWith('github_events');
     expect(mockInsert).toHaveBeenCalledTimes(1);
@@ -198,7 +226,10 @@ describe('github webhook', function () {
     );
 
     expect(response.statusCode).toBe(200);
-    expect(db.insertOss).toHaveBeenCalledWith('invalid', expect.anything());
+    expect(dbFunctions.insertOss).toHaveBeenCalledWith(
+      'invalid',
+      expect.anything()
+    );
     expect(mockDataset).not.toHaveBeenCalled();
     expect(console.warn).toHaveBeenCalled();
 
@@ -210,7 +241,7 @@ describe('github webhook', function () {
     const response = await createGitHubEvent(fastify, 'check_run');
 
     expect(response.statusCode).toBe(200);
-    expect(db.insert).toHaveBeenCalledWith({
+    expect(dbFunctions.insert).toHaveBeenCalledWith({
       event: 'build_queued',
       meta: {
         type: 'check_run',

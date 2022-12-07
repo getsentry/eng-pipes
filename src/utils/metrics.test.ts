@@ -15,129 +15,13 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import {
-  MAX_ROUTE_DAYS,
-  MAX_TRIAGE_DAYS,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
-} from '@/config';
+import { getLabelsTable } from '@/brain/issueNotifier';
+import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
+import { db } from '@utils/db';
 
-import {
-  calcDate,
-  calculateSLOViolationRoute,
-  calculateSLOViolationTriage,
-  insertOss,
-} from './metrics';
+import { insertOss } from './metrics';
 
 describe('metrics tests', function () {
-  describe('calcDate', function () {
-    const testTimestamps = [
-      { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
-      { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
-      { day: 'Wednesday', timestamp: '2022-11-16T23:36:00.000Z' },
-      { day: 'Thursday', timestamp: '2022-11-17T23:36:00.000Z' },
-      { day: 'Friday', timestamp: '2022-11-18T23:36:00.000Z' },
-      { day: 'Saturday', timestamp: '2022-11-19T23:36:00.000Z' },
-      { day: 'Sunday', timestamp: '2022-11-20T23:36:00.000Z' },
-    ];
-
-    const triageResults = [
-      '2022-11-16T23:36:00.000Z',
-      '2022-11-17T23:36:00.000Z',
-      '2022-11-18T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
-      '2022-11-22T23:36:00.000Z',
-      '2022-11-22T23:36:00.000Z',
-      '2022-11-22T23:36:00.000Z',
-    ];
-
-    const routingResults = [
-      '2022-11-15T23:36:00.000Z',
-      '2022-11-16T23:36:00.000Z',
-      '2022-11-17T23:36:00.000Z',
-      '2022-11-18T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
-    ];
-
-    for (let i = 0; i < 7; i++) {
-      it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, function () {
-        const result = calcDate(MAX_TRIAGE_DAYS, testTimestamps[i].timestamp);
-        expect(result).toEqual(triageResults[i]);
-      });
-
-      it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, function () {
-        const result = calcDate(MAX_ROUTE_DAYS, testTimestamps[i].timestamp);
-        expect(result).toEqual(routingResults[i]);
-      });
-    }
-  });
-
-  describe('calculateSLOViolationRoute', function () {
-    it('should not calculate SLO violation if label is not unrouted', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationRoute(
-        'Status: Test',
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual(null);
-    });
-
-    it('should not calculate SLO violation if label is untriaged', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationRoute(
-        UNTRIAGED_LABEL,
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual(null);
-    });
-
-    it('should calculate SLO violation if label is unrouted', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationRoute(
-        UNROUTED_LABEL,
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual('2022-11-15T23:36:00.000Z');
-    });
-  });
-
-  describe('calculateSLOViolationTriage', function () {
-    it('should not calculate SLO violation if label is not untriaged', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationTriage(
-        'Status: Test',
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual(null);
-    });
-
-    it('should not calculate SLO violation if label is unrouted', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationTriage(
-        UNROUTED_LABEL,
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual(null);
-    });
-
-    it('should calculate SLO violation if label is untriaged', function () {
-      const timestamp = '2022-11-14T23:36:00.000Z';
-      const result = calculateSLOViolationTriage(
-        UNTRIAGED_LABEL,
-        'labeled',
-        timestamp
-      );
-      expect(result).toEqual('2022-11-16T23:36:00.000Z');
-    });
-  });
-
   describe('insertOss', function () {
     const defaultPayload: Record<string, any> = {
       action: 'labeled',
@@ -155,6 +39,7 @@ describe('metrics tests', function () {
         number: 1234,
         created_at: null,
         updated_at: null,
+        labels: [{ name: 'Team: Test' }],
       },
       label: {
         id: 1234,
@@ -163,14 +48,22 @@ describe('metrics tests', function () {
     };
 
     let dateNowSpy;
-    beforeAll(() => {
+    beforeAll(async () => {
       dateNowSpy = jest
         .spyOn(Date, 'now')
         .mockImplementation(() => 1487076708000);
+      await db.migrate.latest();
+      await getLabelsTable().insert({
+        label_name: 'Team: Test',
+        channel_id: 'CHNLIDRND1',
+        offices: ['sfo'],
+      });
     });
 
-    afterAll(() => {
+    afterAll(async () => {
       dateNowSpy.mockRestore();
+      await db('label_to_channel').delete();
+      await db.destroy();
     });
 
     it('should calculate triage by timestamp if labeled untriaged status', async function () {
