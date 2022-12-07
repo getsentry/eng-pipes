@@ -255,17 +255,17 @@ export async function insertOss(
       data.target_id = label.id;
       data.target_name = label.name;
       data.target_type = 'label';
-      data.timeToRouteBy = await calculateSLOViolationRoute(
-        data.target_name,
-        data.action,
-        Date.now()
-      );
-      data.timeToTriageBy = await calculateSLOViolationTriage(
-        data.target_name,
-        data.action,
-        Date.now(),
-        issue.labels
-      );
+      if (data.action === 'labeled') {
+        data.timeToRouteBy = await calculateSLOViolationRoute(
+          data.target_name,
+          Date.now()
+        );
+        data.timeToTriageBy = await calculateSLOViolationTriage(
+          data.target_name,
+          Date.now(),
+          issue.labels
+        );
+      }
     }
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;

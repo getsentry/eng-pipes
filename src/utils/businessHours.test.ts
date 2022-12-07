@@ -25,9 +25,9 @@ import {
 import { db } from '@utils/db';
 
 import {
-  calcDate,
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
+  calculateTimeToRespondBy,
   getOfficesForTeam,
 } from './businessHours';
 
@@ -56,7 +56,7 @@ describe('businessHours tests', function () {
     await db('label_to_channel').delete();
     await db.destroy();
   });
-  describe('calcDate', function () {
+  describe('calculateTimeToRespondBy', function () {
     const testTimestamps = [
       { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
       { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
@@ -89,7 +89,7 @@ describe('businessHours tests', function () {
 
     for (let i = 0; i < 7; i++) {
       it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calcDate(
+        const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           testTimestamps[i].timestamp,
           'Team: Test'
@@ -98,7 +98,7 @@ describe('businessHours tests', function () {
       });
 
       it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calcDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           testTimestamps[i].timestamp,
           'Team: Test'
@@ -109,7 +109,7 @@ describe('businessHours tests', function () {
 
     describe('holiday tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
-        const result = await calcDate(
+        const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           '2023-12-24T00:00:00.000Z',
           'Team: Test'
@@ -119,7 +119,7 @@ describe('businessHours tests', function () {
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
-        const result = await calcDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           '2023-12-24T00:00:00.000Z',
           'Team: Test'
@@ -134,7 +134,7 @@ describe('businessHours tests', function () {
           text: 'Test yyz',
         };
         await slackHandler({ command, ack, say, respond, client });
-        const result = await calcDate(
+        const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           '2023-10-02T00:00:00.000Z',
           'Team: Test'
@@ -151,7 +151,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         'Status: Test',
-        'labeled',
         timestamp
       );
       expect(result).toEqual(null);
@@ -161,7 +160,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         UNTRIAGED_LABEL,
-        'labeled',
         timestamp
       );
       expect(result).toEqual(null);
@@ -171,7 +169,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         UNROUTED_LABEL,
-        'labeled',
         timestamp
       );
       expect(result).toEqual('2022-11-15T23:36:00.000Z');
@@ -183,7 +180,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         'Status: Test',
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -194,7 +190,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         UNROUTED_LABEL,
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -205,7 +200,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         UNTRIAGED_LABEL,
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -216,7 +210,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         'Team: Rerouted',
-        'labeled',
         timestamp,
         [{ name: 'Status: Untriaged' }]
       );
@@ -226,7 +219,7 @@ describe('businessHours tests', function () {
 
   describe('getOfficesForTeam', function () {
     it('should get sfo office for team test', async function () {
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual(['sfo']);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['sfo']);
     });
 
     it('should get sfo and vie office in sorted order for team test if new office is added', async function () {
@@ -235,10 +228,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual([
-        'vie',
-        'sfo',
-      ]);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'sfo']);
     });
 
     it('should get vie office in sorted order for team test if existing office is removed', async function () {
@@ -247,7 +237,7 @@ describe('businessHours tests', function () {
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual(['vie']);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie']);
     });
 
     it('should get offices from multiple channels', async function () {
@@ -256,10 +246,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test', false)).toEqual([
-        'vie',
-        'yyz',
-      ]);
+      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'yyz']);
     });
   });
 

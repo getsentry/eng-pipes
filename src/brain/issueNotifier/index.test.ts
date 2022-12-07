@@ -93,6 +93,8 @@ describe('issueNotifier Tests', function () {
           expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
             text: '⏲ Issue pending triage: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
             channel: channelId(i),
+            unfurl_links: false,
+            unfurl_media: false,
           });
         }
       } else {
@@ -115,6 +117,8 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).not.toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
         text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        unfurl_links: false,
+        unfurl_media: false,
       });
     });
 
@@ -133,6 +137,8 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
         text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        unfurl_links: false,
+        unfurl_media: false,
       });
     });
   });

@@ -23,18 +23,18 @@ const officeHourOrdering: Record<string, number> = {
   sfo: 4,
   sea: 5,
 };
-const cache = {};
+const officesCache = {};
 
-export async function calcDate(numDays, timestamp, team) {
+export async function calculateTimeToRespondBy(numDays, timestamp, team) {
   const dateObj = new Date(timestamp);
-  const offices = await getOfficesForTeam(team, false);
+  const offices = await getOfficesForTeam(team);
   for (let i = 1; i <= numDays; i++) {
     dateObj.setDate(dateObj.getDate() + 1);
     // Saturday: Day 6
     // Sunday: Day 0
-    if (dateObj.getDay() === 6) {
+    if (dateObj.getUTCDay() === 6) {
       dateObj.setDate(dateObj.getDate() + 2);
-    } else if (dateObj.getDay() === 0) {
+    } else if (dateObj.getUTCDay() === 0) {
       dateObj.setDate(dateObj.getDate() + 1);
     }
     // If all offices are all on holiday, we skip the day.
@@ -61,42 +61,34 @@ export async function calcDate(numDays, timestamp, team) {
 
 export async function calculateSLOViolationTriage(
   target_name,
-  action,
   timestamp,
   labels
 ) {
   // calculate time to triage for issues that come in with untriaged label
-  if (target_name === UNTRIAGED_LABEL && action === 'labeled') {
+  if (target_name === UNTRIAGED_LABEL) {
     const team = labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
-    return calcDate(MAX_TRIAGE_DAYS, timestamp, team);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, team);
   }
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
-    return calcDate(MAX_TRIAGE_DAYS, timestamp, target_name);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, target_name);
   }
   return null;
 }
 
-export async function calculateSLOViolationRoute(
-  target_name,
-  action,
-  timestamp
-) {
-  if (target_name === UNROUTED_LABEL && action === 'labeled') {
-    return calcDate(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
+export async function calculateSLOViolationRoute(target_name, timestamp) {
+  if (target_name === UNROUTED_LABEL) {
+    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
   return null;
 }
 
-export async function getOfficesForTeam(team, update) {
-  if (cache[team] && !update) {
-    return cache[team];
-  }
+export async function cacheOfficesForTeam(team) {
   const officesSet = new Set(
     (
       await getLabelsTable()
@@ -110,12 +102,12 @@ export async function getOfficesForTeam(team, update) {
   const orderedOffices = [...officesSet].sort(
     (a: any, b: any) => officeHourOrdering[a] - officeHourOrdering[b]
   );
-  cache[team] = orderedOffices;
+  officesCache[team] = orderedOffices;
   return orderedOffices;
 }
 
 export async function getBusinessHoursForTeam(team, day) {
-  const offices = await getOfficesForTeam(team, false);
+  const offices = await getOfficesForTeam(team);
   const hours: { start; end }[] = [];
   offices.forEach((office) => {
     if (!HOLIDAY_CONFIG[office].dates.includes(day)) {
@@ -145,4 +137,11 @@ export async function getBusinessHoursForTeam(team, day) {
     });
   }
   return hours;
+}
+
+export async function getOfficesForTeam(team) {
+  if (!officesCache[team]) {
+    await cacheOfficesForTeam(team);
+  }
+  return officesCache[team];
 }
