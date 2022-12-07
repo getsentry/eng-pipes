@@ -151,7 +151,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         'Status: Test',
-        'labeled',
         timestamp
       );
       expect(result).toEqual(null);
@@ -161,7 +160,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         UNTRIAGED_LABEL,
-        'labeled',
         timestamp
       );
       expect(result).toEqual(null);
@@ -171,7 +169,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationRoute(
         UNROUTED_LABEL,
-        'labeled',
         timestamp
       );
       expect(result).toEqual('2022-11-15T23:36:00.000Z');
@@ -183,7 +180,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         'Status: Test',
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -194,7 +190,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         UNROUTED_LABEL,
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -205,7 +200,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         UNTRIAGED_LABEL,
-        'labeled',
         timestamp,
         [{ name: 'Team: Test' }]
       );
@@ -216,7 +210,6 @@ describe('businessHours tests', function () {
       const timestamp = '2022-11-14T23:36:00.000Z';
       const result = await calculateSLOViolationTriage(
         'Team: Rerouted',
-        'labeled',
         timestamp,
         [{ name: 'Status: Untriaged' }]
       );

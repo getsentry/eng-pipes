@@ -59,7 +59,6 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
 
 export async function calculateSLOViolationTriage(
   target_name,
-  action,
   timestamp,
   labels
 ) {
@@ -82,7 +81,6 @@ export async function calculateSLOViolationTriage(
 
 export async function calculateSLOViolationRoute(
   target_name,
-  action,
   timestamp
 ) {
   if (target_name === UNROUTED_LABEL) {
