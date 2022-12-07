@@ -22,7 +22,10 @@ import { wrapHandler } from '@utils/wrapHandler';
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
 
-async function getFreightDeployBlock(freightDeployInfo, user): Promise<KnownBlock[]> {
+async function getFreightDeployBlock(
+  freightDeployInfo,
+  user
+): Promise<KnownBlock[]> {
   return [
     {
       type: 'section',
@@ -36,34 +39,21 @@ async function getFreightDeployBlock(freightDeployInfo, user): Promise<KnownBloc
           },
         }),
       },
-    }
+    },
   ];
 }
 
-async function currentDeployBlocks(checkRun, user): Promise<KnownBlock[]|null> {
+async function currentDeployBlocks(
+  checkRun,
+  user
+): Promise<KnownBlock[] | null> {
   // Look for queued commits and see if current commit is queued
-  const freightDeployInfo = await getFreightDeployForQueuedCommit(checkRun.head_sha);
+  const freightDeployInfo = await getFreightDeployForQueuedCommit(
+    checkRun.head_sha
+  );
   if (freightDeployInfo) {
     return getFreightDeployBlock(freightDeployInfo, user);
   }
-
-  /* const gocdDeployInfo = await getGoCDDeployForQueuedCommit(checkRun.head_sha);
-  if (gocdDeployInfo) {
-    console.log(`TODO: GoCD Deploy Info ------> `, gocdDeployInfo);
-    return [
-      {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: getUpdatedGoCDDeployMessage({
-            isUserDeploying: gocdDeployInfo.stage_approved_by == user.email,
-            slackUser: user.slackUser,
-            pipeline: gocdDeployInfo,
-          }),
-        },
-      }
-    ];
-  }*/
 
   return null;
 }
