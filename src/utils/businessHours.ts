@@ -79,10 +79,7 @@ export async function calculateSLOViolationTriage(
   return null;
 }
 
-export async function calculateSLOViolationRoute(
-  target_name,
-  timestamp
-) {
+export async function calculateSLOViolationRoute(target_name, timestamp) {
   if (target_name === UNROUTED_LABEL) {
     return calculateTimeToRespondBy(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
   }
@@ -107,6 +104,9 @@ export async function cacheOfficesForTeam(team) {
 }
 
 export async function getOfficesForTeam(team) {
+  if (!team) {
+    return [];
+  }
   if (!officesCache[team]) {
     await cacheOfficesForTeam(team);
   }

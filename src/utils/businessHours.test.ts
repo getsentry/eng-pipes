@@ -218,6 +218,10 @@ describe('businessHours tests', function () {
   });
 
   describe('getOfficesForTeam', function () {
+    it('should return empty array if team label is undefined', async function () {
+      expect(await getOfficesForTeam(undefined)).toEqual([]);
+    });
+
     it('should get sfo office for team test', async function () {
       expect(await getOfficesForTeam('Team: Test')).toEqual(['sfo']);
     });
