@@ -13,6 +13,8 @@ import {
   UNTRIAGED_LABEL,
 } from '@/config';
 
+const BUSINESS_DAY_IN_MS = 8 * 60 * 60 * 1000;
+
 const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
 
@@ -27,33 +29,33 @@ const officesCache = {};
 
 export async function calculateTimeToRespondBy(numDays, timestamp, team) {
   const dateObj = new Date(timestamp);
-  const offices = await getOfficesForTeam(team);
-  for (let i = 1; i <= numDays; i++) {
-    dateObj.setDate(dateObj.getDate() + 1);
-    // Saturday: Day 6
-    // Sunday: Day 0
-    if (dateObj.getUTCDay() === 6) {
-      dateObj.setDate(dateObj.getDate() + 2);
-    } else if (dateObj.getUTCDay() === 0) {
-      dateObj.setDate(dateObj.getDate() + 1);
-    }
-    // If all offices are all on holiday, we skip the day.
-    // Otherwise, we count the day for our SLA's
-    let shouldSkipDate = false;
-    offices.forEach((office) => {
-      if (
-        HOLIDAY_CONFIG[office]?.dates.includes(
-          // slicing the string here since we only care about YYYY/MM/DD
-          dateObj.toISOString().slice(0, 10)
-        )
-      ) {
-        shouldSkipDate = true;
-      } else {
-        shouldSkipDate = false;
+  let numMilliseconds = numDays * BUSINESS_DAY_IN_MS;
+  const businessDayMilliseconds = BUSINESS_DAY_IN_MS;
+  while (numMilliseconds > 0) {
+    const officeHours = await getBusinessHoursForTeam(team, dateObj.toISOString().slice(0, 10));
+    const startingDate = dateObj.toISOString().slice(0, 10)
+    officeHours.forEach((timePeriod) => {
+      const start = new Date(timePeriod.start);
+      const end = new Date(timePeriod.end);
+      if (dateObj.getTime() < start.getTime() && numMilliseconds > 0) {
+        dateObj.setTime(start.getTime());
+        const millisecondsToAdd = Math.min(businessDayMilliseconds, numMilliseconds);
+        dateObj.setTime(dateObj.getTime() + millisecondsToAdd);
+        numMilliseconds -= millisecondsToAdd;
       }
-    });
-    if (shouldSkipDate) {
-      i -= 1;
+      else if (dateObj.getTime() >= start.getTime() && dateObj.getTime() < end.getTime() && numMilliseconds > 0){
+        const hoursAvailable = end.getTime() - dateObj.getTime();
+        const millisecondsToAdd = Math.min(hoursAvailable, numMilliseconds);
+        dateObj.setTime(dateObj.getTime() + millisecondsToAdd);
+        numMilliseconds -= millisecondsToAdd;
+      }
+    })
+    if (numMilliseconds > 0 && dateObj.toISOString().slice(0, 10) === startingDate) {
+      dateObj.setDate(dateObj.getDate() + 1);
+      dateObj.setHours(0, 0, 0, 0);
+    }
+    else if (numMilliseconds === 0) {
+      return dateObj.toISOString();
     }
   }
   return dateObj.toISOString();
@@ -109,31 +111,35 @@ export async function cacheOfficesForTeam(team) {
 export async function getBusinessHoursForTeam(team, day) {
   const offices = await getOfficesForTeam(team);
   const hours: { start; end }[] = [];
+  const utcDay = new Date(day).getUTCDay();
+  // Saturday is 6, Sunday is 0
+  const isWeekend = utcDay === 6 || utcDay === 0
+  // Using moment timezone to deal with daylight savings instead of hardcoding UTC hours
   offices.forEach((office) => {
-    if (!HOLIDAY_CONFIG[office].dates.includes(day)) {
+    if (!HOLIDAY_CONFIG[office].dates.includes(day) && !isWeekend) {
       hours.push({
         start: moment
           .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS[office])
           .utc()
-          .toString(),
+          .toISOString(),
         end: moment
           .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS[office])
           .utc()
-          .toString(),
+          .toISOString(),
       });
     }
   });
   // If no channels are subscribed to the notifications for a team label, default to sfo
-  if (!hours.length) {
+  if (offices.length === 0) {
     hours.push({
       start: moment
         .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS['sfo'])
         .utc()
-        .toString(),
+        .toISOString(),
       end: moment
         .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS['sfo'])
         .utc()
-        .toString(),
+        .toISOString(),
     });
   }
   return hours;
