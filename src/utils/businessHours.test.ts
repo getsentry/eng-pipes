@@ -107,6 +107,34 @@ describe('businessHours tests', function () {
       });
     }
 
+    it('should handle case when offices is undefined', async function () {
+      await getLabelsTable().insert({
+        label_name: 'Team: Undefined',
+        channel_id: 'CHNLIDRND1',
+        offices: undefined,
+      });
+      const result = await calculateTimeToRespondBy(
+        MAX_TRIAGE_DAYS,
+        '2023-12-18T00:00:00.000Z',
+        'Team: Undefined'
+      );
+      expect(result).toEqual('2023-12-20T00:00:00.000Z');
+    })
+
+    it('should handle case when offices is undefined', async function () {
+      await getLabelsTable().insert({
+        label_name: 'Team: Null',
+        channel_id: 'CHNLIDRND1',
+        offices: null,
+      });
+      const result = await calculateTimeToRespondBy(
+        MAX_TRIAGE_DAYS,
+        '2023-12-18T00:00:00.000Z',
+        'Team: Null'
+      );
+      expect(result).toEqual('2023-12-20T00:00:00.000Z');
+    })
+
     describe('holiday tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
         const result = await calculateTimeToRespondBy(
