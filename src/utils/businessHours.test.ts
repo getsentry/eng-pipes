@@ -121,7 +121,7 @@ describe('businessHours tests', function () {
       expect(result).toEqual('2023-12-20T00:00:00.000Z');
     })
 
-    it('should handle case when offices is undefined', async function () {
+    it('should handle case when offices is null', async function () {
       await getLabelsTable().insert({
         label_name: 'Team: Null',
         channel_id: 'CHNLIDRND1',
