@@ -42,7 +42,7 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
     let shouldSkipDate = false;
     offices.forEach((office) => {
       if (
-        HOLIDAY_CONFIG[office].dates.includes(
+        HOLIDAY_CONFIG[office]?.dates.includes(
           // slicing the string here since we only care about YYYY/MM/DD
           dateObj.toISOString().slice(0, 10)
         )
@@ -140,6 +140,9 @@ export async function getBusinessHoursForTeam(team, day) {
 }
 
 export async function getOfficesForTeam(team) {
+  if (!team) {
+    return [];
+  }
   if (!officesCache[team]) {
     await cacheOfficesForTeam(team);
   }
