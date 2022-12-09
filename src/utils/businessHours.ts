@@ -41,11 +41,19 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
     officeHours.forEach((timePeriod) => {
       const start = new Date(timePeriod.start);
       const end = new Date(timePeriod.end);
+      /*
+        If current dateObj time is less than start of business hours, we need to set it to the start.
+        We'll use up the minimum of the 8 business hour window or the time left until violation.
+      */
       if (dateObj.getTime() < start.getTime() && numMilliseconds > 0) {
         dateObj.setTime(start.getTime());
         const millisecondsToAdd = Math.min(BUSINESS_DAY_IN_MS, numMilliseconds);
         dateObj.setTime(dateObj.getTime() + millisecondsToAdd);
         numMilliseconds -= millisecondsToAdd;
+      /*
+         If current dateObj time is >= start of business hours, we will find the max hours we can get
+         out of the window of business hours.
+      */
       } else if (
         dateObj.getTime() >= start.getTime() &&
         dateObj.getTime() < end.getTime() &&
@@ -57,15 +65,15 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
         numMilliseconds -= millisecondsToAdd;
       }
     });
-    if (
-      numMilliseconds > 0 &&
-      dateObj.toISOString().slice(0, 10) === startingDate
-    ) {
-      /*
+    /*
         We want to increment the day count and set the time to midnight to fully utilize the next day's business hours.
         Using setTime to add an entire day and then set the time to midnight to address
         the edge case of the last day of the month.
       */
+    if (
+      numMilliseconds > 0 &&
+      dateObj.toISOString().slice(0, 10) === startingDate
+    ) {
       dateObj.setTime(dateObj.getTime() + DAY_IN_MS);
       dateObj.setHours(0, 0, 0, 0);
     } else if (numMilliseconds === 0) {
