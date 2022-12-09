@@ -119,8 +119,8 @@ describe('businessHours tests', function () {
         '2023-12-18T00:00:00.000Z',
         'Team: Undefined'
       );
-      expect(result).toEqual('2023-12-19T17:00:00.000Z');
-    })
+      expect(result).toEqual('2023-12-20T01:00:00.000Z');
+    });
 
     it('should handle case when offices is null', async function () {
       await getLabelsTable().insert({
@@ -133,8 +133,26 @@ describe('businessHours tests', function () {
         '2023-12-18T00:00:00.000Z',
         'Team: Null'
       );
-      expect(result).toEqual('2023-12-19T17:00:00.000Z');
-    })
+      expect(result).toEqual('2023-12-20T01:00:00.000Z');
+    });
+
+    it('should handle the last day of the month for TTR', async function () {
+      const result = await calculateTimeToRespondBy(
+        MAX_ROUTE_DAYS,
+        '2023-01-31T00:00:00.000Z',
+        'Team: Test'
+      );
+      expect(result).toEqual('2023-02-01T01:00:00.000Z');
+    });
+
+    it('should handle the last day of the year for TTR', async function () {
+      const result = await calculateTimeToRespondBy(
+        MAX_ROUTE_DAYS,
+        '2022-12-31T00:00:00.000Z',
+        'Team: Test'
+      );
+      expect(result).toEqual('2023-01-04T01:00:00.000Z');
+    });
 
     describe('holiday tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
@@ -185,7 +203,7 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
-      })
+      });
 
       it('should route properly when team is subscribed to sfo, vie, and yyz', async function () {
         const command = {
@@ -203,7 +221,7 @@ describe('businessHours tests', function () {
         await slackHandler({ command, ack, say, respond, client });
         command.text = '-Test vie';
         await slackHandler({ command, ack, say, respond, client });
-      })
+      });
     });
   });
 
@@ -280,22 +298,26 @@ describe('businessHours tests', function () {
 
   describe('getBusinessHoursForTeam', function () {
     it('should get sfo timezones if team does not have offices', async function () {
-      expect(await getBusinessHoursForTeam("Team: Does not exist", '2022-12-08')).toEqual([
+      expect(
+        await getBusinessHoursForTeam('Team: Does not exist', '2022-12-08')
+      ).toEqual([
         {
           start: '2022-12-08T17:00:00.000Z',
-          end: '2022-12-09T01:00:00.000Z'
-        }
-      ])
-    })
+          end: '2022-12-09T01:00:00.000Z',
+        },
+      ]);
+    });
 
     it('should get sfo timezones for Team: Test', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
-        {
-          start: '2022-12-08T17:00:00.000Z',
-          end: '2022-12-09T01:00:00.000Z'
-        }
-      ])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
+        [
+          {
+            start: '2022-12-08T17:00:00.000Z',
+            end: '2022-12-09T01:00:00.000Z',
+          },
+        ]
+      );
+    });
 
     it('should get sfo, vie timezones for Team: Test', async function () {
       const command = {
@@ -303,17 +325,19 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
-        {
-          start: '2022-12-08T08:00:00.000Z',
-          end: '2022-12-08T16:00:00.000Z'
-        },
-        {
-          start: '2022-12-08T17:00:00.000Z',
-          end: '2022-12-09T01:00:00.000Z'
-        }
-      ])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
+        [
+          {
+            start: '2022-12-08T08:00:00.000Z',
+            end: '2022-12-08T16:00:00.000Z',
+          },
+          {
+            start: '2022-12-08T17:00:00.000Z',
+            end: '2022-12-09T01:00:00.000Z',
+          },
+        ]
+      );
+    });
 
     it('should get sfo, vie, yyz timezones for Team: Test', async function () {
       const command = {
@@ -321,66 +345,78 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
-        {
-          start: '2022-12-08T08:00:00.000Z',
-          end: '2022-12-08T16:00:00.000Z'
-        },
-        {
-          start: '2022-12-08T14:00:00.000Z',
-          end: '2022-12-08T22:00:00.000Z'
-        },
-        {
-          start: '2022-12-08T17:00:00.000Z',
-          end: '2022-12-09T01:00:00.000Z'
-        }
-      ])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
+        [
+          {
+            start: '2022-12-08T08:00:00.000Z',
+            end: '2022-12-08T16:00:00.000Z',
+          },
+          {
+            start: '2022-12-08T14:00:00.000Z',
+            end: '2022-12-08T22:00:00.000Z',
+          },
+          {
+            start: '2022-12-08T17:00:00.000Z',
+            end: '2022-12-09T01:00:00.000Z',
+          },
+        ]
+      );
+    });
 
     it('should return no hours for Christmas for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2023-12-25')).toEqual([])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2023-12-25')).toEqual(
+        []
+      );
+    });
 
     it('should return no hours for Saturday for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-17')).toEqual([])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-17')).toEqual(
+        []
+      );
+    });
 
     it('should return no hours for Sunday for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-18')).toEqual([])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-18')).toEqual(
+        []
+      );
+    });
 
     it('should get sfo only for Easter Monday', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2023-04-10')).toEqual([
-        {
-          start: '2023-04-10T16:00:00.000Z',
-          end: '2023-04-11T00:00:00.000Z'
-        }
-      ])
-    })
+      expect(await getBusinessHoursForTeam('Team: Test', '2023-04-10')).toEqual(
+        [
+          {
+            start: '2023-04-10T16:00:00.000Z',
+            end: '2023-04-11T00:00:00.000Z',
+          },
+        ]
+      );
+    });
 
     it('should get yyz, vie for Independence Day', async function () {
-      expect(await getBusinessHoursForTeam("Team: Test", '2023-07-04')).toEqual([
-        {
-          start: '2023-07-04T07:00:00.000Z',
-          end: '2023-07-04T15:00:00.000Z'
-        },
-        {
-          start: '2023-07-04T13:00:00.000Z',
-          end: '2023-07-04T21:00:00.000Z'
-        }
-      ]);
+      expect(await getBusinessHoursForTeam('Team: Test', '2023-07-04')).toEqual(
+        [
+          {
+            start: '2023-07-04T07:00:00.000Z',
+            end: '2023-07-04T15:00:00.000Z',
+          },
+          {
+            start: '2023-07-04T13:00:00.000Z',
+            end: '2023-07-04T21:00:00.000Z',
+          },
+        ]
+      );
       let command = {
         channel_id: 'CHNLIDRND2',
         text: '-Test vie',
-      }
+      };
       await slackHandler({ command, ack, say, respond, client });
       command = {
         channel_id: 'CHNLIDRND2',
         text: '-Test yyz',
-      }
+      };
       await slackHandler({ command, ack, say, respond, client });
-    })
-  })
+    });
+  });
 
   describe('getOfficesForTeam', function () {
     it('should return empty array if team label is undefined', async function () {

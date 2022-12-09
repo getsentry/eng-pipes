@@ -87,10 +87,10 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * Business Hours by Office
  */
 
-export const BUSINESS_HOURS = {
+export const OFFICE_TIME_ZONES = {
   vie: 'Europe/Vienna',
-  sea: 'America/Los_Angeles',
+  ams: 'Europe/Amsterdam',
   yyz: 'America/Toronto',
   sfo: 'America/Los_Angeles',
-  ams: 'Europe/Amsterdam',
+  sea: 'America/Los_Angeles',
 };
