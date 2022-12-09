@@ -172,7 +172,7 @@ describe('issueNotifier Tests', function () {
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
 
-    it.only('should respond that channel is subscribed to team test if office is null', async function () {
+    it('should respond that channel is subscribed to team test if office is null', async function () {
       const channel_id = channelId(1);
       const command = {
         channel_id,
