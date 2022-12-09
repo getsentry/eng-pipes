@@ -5,7 +5,10 @@ import { KnownBlock } from '@slack/types';
 import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { freightDeploy } from '@/blocks/freightDeploy';
-import { getUpdatedDeployMessage } from '@/blocks/getUpdatedDeployMessage';
+import {
+  getUpdatedDeployMessage,
+  getUpdatedGoCDDeployMessage,
+} from '@/blocks/getUpdatedDeployMessage';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
@@ -47,6 +50,22 @@ async function getFreightDeployBlock(
   ];
 }
 
+async function getGoCDDeployBlock(deployInfo, user): Promise<KnownBlock[]> {
+  return [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: getUpdatedGoCDDeployMessage({
+          isUserDeploying: deployInfo.stage_approved_by == user.email,
+          slackUser: user.slackUser,
+          pipeline: deployInfo,
+        }),
+      },
+    },
+  ];
+}
+
 async function currentDeployBlocks(
   checkRun,
   user
@@ -61,7 +80,7 @@ async function currentDeployBlocks(
 
   const gocdDeployInfo = await getGoCDDeployForQueuedCommit(checkRun.head_sha);
   if (gocdDeployInfo) {
-    // TODO: Add a block for GoCD deploy.
+    return getGoCDDeployBlock(gocdDeployInfo, user);
   }
 
   return null;
@@ -152,6 +171,8 @@ async function handler({
     text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
     blocks.push(...deployBlocks);
   } else {
+    // TODO (matt.gaunt): When ready we should switch this for a GoCD deploy
+    // block.
     blocks.push({
       type: 'actions',
       elements: [

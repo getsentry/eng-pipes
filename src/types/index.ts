@@ -197,23 +197,27 @@ export interface GoCDAgentResponse {
 }
 
 export interface GoCDStageData {
-  pipeline: {
-    name: string;
-    counter: string;
-    group: string;
-    'build-cause': Array<GoCDBuildCause>;
-    stage: {
-      name: string;
-      counter: string;
-      'approval-type': GoCDApprovalType;
-      'approved-by': string;
-      state: GoCDStateType;
-      result: GoCDResultType;
-      'create-time': string;
-      'last-transition-time': string;
-      jobs: Array<GoCDJob>;
-    };
-  };
+  pipeline: GoCDPipeline;
+}
+
+export interface GoCDPipeline {
+  name: string;
+  counter: string;
+  group: string;
+  'build-cause': Array<GoCDBuildCause>;
+  stage: GoCDStage;
+}
+
+export interface GoCDStage {
+  name: string;
+  counter: string;
+  'approval-type': GoCDApprovalType;
+  'approved-by': string;
+  state: GoCDStateType;
+  result: GoCDResultType;
+  'create-time': string;
+  'last-transition-time': string;
+  jobs: Array<GoCDJob>;
 }
 
 interface GoCDJob {
@@ -226,7 +230,7 @@ interface GoCDJob {
   'agent-uuid': string | null;
 }
 
-interface GoCDBuildCause {
+export interface GoCDBuildCause {
   material: {
     'git-configuration': GoCDGitConfiguration;
     type: string;
