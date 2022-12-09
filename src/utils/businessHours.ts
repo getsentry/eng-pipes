@@ -116,7 +116,7 @@ export async function getBusinessHoursForTeam(team, day) {
   const isWeekend = utcDay === 6 || utcDay === 0
   // Using moment timezone to deal with daylight savings instead of hardcoding UTC hours
   offices.forEach((office) => {
-    if (!HOLIDAY_CONFIG[office].dates.includes(day) && !isWeekend) {
+    if (!HOLIDAY_CONFIG[office]?.dates.includes(day) && !isWeekend) {
       hours.push({
         start: moment
           .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', BUSINESS_HOURS[office])

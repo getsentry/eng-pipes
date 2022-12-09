@@ -28,6 +28,7 @@ import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   calculateTimeToRespondBy,
+  getBusinessHoursForTeam,
   getOfficesForTeam,
 } from './businessHours';
 
@@ -73,8 +74,8 @@ describe('businessHours tests', function () {
       '2022-11-18T23:36:00.000Z',
       '2022-11-21T23:36:00.000Z',
       '2022-11-22T23:36:00.000Z',
-      '2022-11-22T23:36:00.000Z',
-      '2022-11-22T23:36:00.000Z',
+      '2022-11-23T01:00:00.000Z',
+      '2022-11-23T01:00:00.000Z',
     ];
 
     const routingResults = [
@@ -83,8 +84,8 @@ describe('businessHours tests', function () {
       '2022-11-17T23:36:00.000Z',
       '2022-11-18T23:36:00.000Z',
       '2022-11-21T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
-      '2022-11-21T23:36:00.000Z',
+      '2022-11-22T01:00:00.000Z',
+      '2022-11-22T01:00:00.000Z',
     ];
 
     for (let i = 0; i < 7; i++) {
@@ -118,7 +119,7 @@ describe('businessHours tests', function () {
         '2023-12-18T00:00:00.000Z',
         'Team: Undefined'
       );
-      expect(result).toEqual('2023-12-20T00:00:00.000Z');
+      expect(result).toEqual('2023-12-19T17:00:00.000Z');
     })
 
     it('should handle case when offices is null', async function () {
@@ -132,7 +133,7 @@ describe('businessHours tests', function () {
         '2023-12-18T00:00:00.000Z',
         'Team: Null'
       );
-      expect(result).toEqual('2023-12-20T00:00:00.000Z');
+      expect(result).toEqual('2023-12-19T17:00:00.000Z');
     })
 
     describe('holiday tests', function () {
@@ -143,7 +144,7 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-28T00:00:00.000Z');
+        expect(result).toEqual('2023-12-29T01:00:00.000Z');
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
@@ -153,7 +154,7 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-27T00:00:00.000Z');
+        expect(result).toEqual('2023-12-28T01:00:00.000Z');
       });
 
       it('should not include holiday in TTR if at least one office is still open', async function () {
@@ -171,6 +172,38 @@ describe('businessHours tests', function () {
         command.text = '-Test yyz';
         await slackHandler({ command, ack, say, respond, client });
       });
+
+      it('should triage on the same day if two office timezones do not overlap', async function () {
+        const command = {
+          channel_id: 'CHNLIDRND2',
+          text: 'Test vie',
+        };
+        await slackHandler({ command, ack, say, respond, client });
+        const result = await calculateTimeToRespondBy(
+          MAX_TRIAGE_DAYS,
+          '2023-10-02T00:00:00.000Z',
+          'Team: Test'
+        );
+        expect(result).toEqual('2023-10-03T00:00:00.000Z');
+      })
+
+      it('should route properly when team is subscribed to sfo, vie, and yyz', async function () {
+        const command = {
+          channel_id: 'CHNLIDRND2',
+          text: 'Test yyz',
+        };
+        await slackHandler({ command, ack, say, respond, client });
+        const result = await calculateTimeToRespondBy(
+          MAX_TRIAGE_DAYS,
+          '2023-10-02T17:00:00.000Z',
+          'Team: Test'
+        );
+        expect(result).toEqual('2023-10-03T16:00:00.000Z');
+        command.text = '-Test yyz';
+        await slackHandler({ command, ack, say, respond, client });
+        command.text = '-Test vie';
+        await slackHandler({ command, ack, say, respond, client });
+      })
     });
   });
 
@@ -245,6 +278,110 @@ describe('businessHours tests', function () {
     });
   });
 
+  describe('getBusinessHoursForTeam', function () {
+    it('should get sfo timezones if team does not have offices', async function () {
+      expect(await getBusinessHoursForTeam("Team: Does not exist", '2022-12-08')).toEqual([
+        {
+          start: '2022-12-08T17:00:00.000Z',
+          end: '2022-12-09T01:00:00.000Z'
+        }
+      ])
+    })
+
+    it('should get sfo timezones for Team: Test', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
+        {
+          start: '2022-12-08T17:00:00.000Z',
+          end: '2022-12-09T01:00:00.000Z'
+        }
+      ])
+    })
+
+    it('should get sfo, vie timezones for Team: Test', async function () {
+      const command = {
+        channel_id: 'CHNLIDRND2',
+        text: 'Test vie',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
+        {
+          start: '2022-12-08T08:00:00.000Z',
+          end: '2022-12-08T16:00:00.000Z'
+        },
+        {
+          start: '2022-12-08T17:00:00.000Z',
+          end: '2022-12-09T01:00:00.000Z'
+        }
+      ])
+    })
+
+    it('should get sfo, vie, yyz timezones for Team: Test', async function () {
+      const command = {
+        channel_id: 'CHNLIDRND2',
+        text: 'Test yyz',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-08')).toEqual([
+        {
+          start: '2022-12-08T08:00:00.000Z',
+          end: '2022-12-08T16:00:00.000Z'
+        },
+        {
+          start: '2022-12-08T14:00:00.000Z',
+          end: '2022-12-08T22:00:00.000Z'
+        },
+        {
+          start: '2022-12-08T17:00:00.000Z',
+          end: '2022-12-09T01:00:00.000Z'
+        }
+      ])
+    })
+
+    it('should return no hours for Christmas for vie, sfo, yyz', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2023-12-25')).toEqual([])
+    })
+
+    it('should return no hours for Saturday for vie, sfo, yyz', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-17')).toEqual([])
+    })
+
+    it('should return no hours for Sunday for vie, sfo, yyz', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2022-12-18')).toEqual([])
+    })
+
+    it('should get sfo only for Easter Monday', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2023-04-10')).toEqual([
+        {
+          start: '2023-04-10T16:00:00.000Z',
+          end: '2023-04-11T00:00:00.000Z'
+        }
+      ])
+    })
+
+    it('should get yyz, vie for Independence Day', async function () {
+      expect(await getBusinessHoursForTeam("Team: Test", '2023-07-04')).toEqual([
+        {
+          start: '2023-07-04T07:00:00.000Z',
+          end: '2023-07-04T15:00:00.000Z'
+        },
+        {
+          start: '2023-07-04T13:00:00.000Z',
+          end: '2023-07-04T21:00:00.000Z'
+        }
+      ]);
+      let command = {
+        channel_id: 'CHNLIDRND2',
+        text: '-Test vie',
+      }
+      await slackHandler({ command, ack, say, respond, client });
+      command = {
+        channel_id: 'CHNLIDRND2',
+        text: '-Test yyz',
+      }
+      await slackHandler({ command, ack, say, respond, client });
+    })
+  })
+
   describe('getOfficesForTeam', function () {
     it('should return empty array if team label is undefined', async function () {
       expect(await getOfficesForTeam(undefined)).toEqual([]);
@@ -281,9 +418,4 @@ describe('businessHours tests', function () {
       expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'yyz']);
     });
   });
-
-  // TODO: hubertdeng123
-  // describe('getBusinessHoursForTeam', function () {
-
-  // })
 });
