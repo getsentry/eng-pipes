@@ -1,54 +1,43 @@
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
+import { GOCD_ORIGIN } from '@/config';
 
 describe('getUpdatedGoCDDeployMessage', function () {
-  const env = process.env;
-
-  beforeAll(() => {
-    process.env = {
-      GOCD_ORIGIN: 'http://deploy-example.getsentry.net',
-    };
-  });
-
-  afterAll(() => {
-    process.env = env;
-  });
-
   const CURRENT_USER = 'current-user';
   const scenarios = [
     // Building
     {
       currentUser: CURRENT_USER,
       state: 'Building',
-      want: 'You have queued this commit for deployment (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Building',
-      want: 'diff-user has queued this commit for deployment (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `diff-user has queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
 
     // Passed
     {
       currentUser: CURRENT_USER,
       state: 'Passed',
-      want: 'You have finished deploying this commit (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `You have finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Passed',
-      want: 'diff-user has finished deploying this commit (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `diff-user has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
 
     // Unknown / Failed
     {
       currentUser: CURRENT_USER,
       state: 'Other',
-      want: 'You have failed to deploy this commit (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Other',
-      want: 'diff-user has failed to deploy this commit (<http://deploy-example.getsentry.net/go/pipelines/example-pipeline/undefined/example-stage/3>)',
+      want: `diff-user has failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
     },
   ];
 

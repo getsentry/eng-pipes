@@ -8,7 +8,7 @@ import {
   DB_TABLE_STAGES,
 } from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
-import { REQUIRED_CHECK_NAME } from '@/config';
+import { GOCD_ORIGIN, REQUIRED_CHECK_NAME } from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { ClientType } from '@api/github/clientType';
@@ -1771,7 +1771,7 @@ Remove "always()" from GHA workflows`,
               },
               Object {
                 "text": Object {
-                  "text": "U789123 has queued this commit for deployment (<https://gocd-mattgaunt.getsentry.net/go/pipelines/example-pipeline/2/example-stage/3>)",
+                  "text": "U789123 has queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/example-stage/3>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",

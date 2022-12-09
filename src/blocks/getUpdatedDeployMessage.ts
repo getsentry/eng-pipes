@@ -1,5 +1,7 @@
 import { FreightPayload } from '@types';
 
+import { GOCD_ORIGIN } from '@/config';
+
 /**
  * Constructs a message for the status of a deploy
  */
@@ -78,7 +80,7 @@ export function getUpdatedGoCDDeployMessage({
 }) {
   const subject = getSubject(isUserDeploying, slackUser);
 
-  const link = `${process.env.GOCD_ORIGIN}/go/pipelines/${pipeline.pipeline_name}/${pipeline.pipeline_counter}/${pipeline.stage_name}/${pipeline.stage_counter}`;
+  const link = `${GOCD_ORIGIN}/go/pipelines/${pipeline.pipeline_name}/${pipeline.pipeline_counter}/${pipeline.stage_name}/${pipeline.stage_counter}`;
   const slackLink = `<${link}>`;
 
   if (pipeline.stage_state.toLowerCase() === 'building') {
