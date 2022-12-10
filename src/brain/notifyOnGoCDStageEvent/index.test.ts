@@ -6,6 +6,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_BOT_ID,
+  GOCD_ORIGIN,
   REQUIRED_CHECK_NAME,
   SENTRYIO_GOCD_PIPELINE_GROUP,
 } from '@/config';
@@ -23,6 +24,7 @@ import { handler, notifyOnGoCDStageEvent } from '.';
 describe('notifyOnGoCDStageEvent', function () {
   let fastify: Fastify;
   let octokit;
+  let gocdPayload;
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -32,6 +34,14 @@ describe('notifyOnGoCDStageEvent', function () {
     metrics.insert.mockImplementation(() => Promise.resolve());
     // @ts-ignore
     metrics.mapDeployToPullRequest.mockImplementation(() => Promise.resolve());
+
+    gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          group: SENTRYIO_GOCD_PIPELINE_GROUP,
+        },
+      },
+    });
   });
 
   afterAll(async function () {
@@ -127,7 +137,7 @@ describe('notifyOnGoCDStageEvent', function () {
 
   it('do nothing for pipeline outside of expected group', async function () {
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             group: 'other',
@@ -139,7 +149,7 @@ describe('notifyOnGoCDStageEvent', function () {
   });
 
   it('do nothing for pipeline that doesnt have the getsentry repo in its build causes', async function () {
-    const nobuild = merge({}, payload);
+    const nobuild = merge({}, gocdPayload);
     delete nobuild.data.pipeline['build-cause'];
     await handler(
       merge({}, nobuild, {
@@ -211,7 +221,7 @@ describe('notifyOnGoCDStageEvent', function () {
       },
     });
 
-    await handler(payload);
+    await handler(gocdPayload);
     expect(updateMock).toHaveBeenCalledTimes(1);
     expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
       Object {
@@ -248,7 +258,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have queued this commit for deployment (<https://gocd-mattgaunt.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -265,7 +275,7 @@ describe('notifyOnGoCDStageEvent', function () {
 
     updateMock.mockClear();
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: { counter: '2' },
@@ -309,7 +319,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have begun deploying this commit (<https://gocd-mattgaunt.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/2|getsentry_frontend: Stage 2>)",
+                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/2|getsentry_frontend: Stage 2>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -330,7 +340,7 @@ describe('notifyOnGoCDStageEvent', function () {
 
     // Post message is called when finished
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: { state: 'Passed', result: 'Passed' },
@@ -352,7 +362,7 @@ describe('notifyOnGoCDStageEvent', function () {
 
     updateMock.mockClear();
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: { state: 'Failed', result: 'Failed' },
@@ -396,7 +406,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have failed to deploy this commit (<https://gocd-mattgaunt.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
