@@ -8,36 +8,36 @@ describe('getUpdatedGoCDDeployMessage', function () {
     {
       currentUser: CURRENT_USER,
       state: 'Building',
-      want: `You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Building',
-      want: `diff-user has queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `diff-user has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
 
     // Passed
     {
       currentUser: CURRENT_USER,
       state: 'Passed',
-      want: `You have finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `You have finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Passed',
-      want: `diff-user has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `diff-user has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
 
     // Unknown / Failed
     {
       currentUser: CURRENT_USER,
       state: 'Other',
-      want: `You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
     {
       currentUser: 'diff-user',
       state: 'Other',
-      want: `diff-user has failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3>)`,
+      want: `diff-user has failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
   ];
 

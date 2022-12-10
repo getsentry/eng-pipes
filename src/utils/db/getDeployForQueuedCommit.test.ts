@@ -214,12 +214,12 @@ describe('getDeployForQueuedCommit', function () {
         sha: 'abc123',
 
         pipeline_name: 'pipeline-name',
-        pipeline_counter: '2',
+        pipeline_counter: 2,
         pipeline_group: 'pipeline-group',
         pipeline_build_cause: {},
 
         stage_name: 'stage-name',
-        stage_counter: '1',
+        stage_counter: 1,
         stage_approval_type: '',
         stage_approved_by: '',
         stage_state: 'unknown',

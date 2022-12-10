@@ -1771,7 +1771,7 @@ Remove "always()" from GHA workflows`,
               },
               Object {
                 "text": Object {
-                  "text": "U789123 has queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/example-stage/3>)",
+                  "text": "U789123 has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/example-stage/3|example-pipeline: Stage 3>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",

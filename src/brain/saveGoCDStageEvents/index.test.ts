@@ -77,13 +77,13 @@ describe('saveGoCDStageEvents.handler', function () {
           ],
         },
       ],
-      pipeline_counter: '20',
+      pipeline_counter: 20,
       pipeline_group: 'sentryio',
       pipeline_id: 'sentryio_getsentry_frontend_20',
       pipeline_name: 'getsentry_frontend',
       stage_approval_type: 'success',
       stage_approved_by: 'matt.gaunt@sentry.io',
-      stage_counter: '1',
+      stage_counter: 1,
       stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
       stage_jobs: [
         {
@@ -167,13 +167,13 @@ describe('saveGoCDStageEvents.handler', function () {
           ],
         },
       ],
-      pipeline_counter: '20',
+      pipeline_counter: 20,
       pipeline_group: 'sentryio',
       pipeline_id: 'sentryio_getsentry_frontend_20',
       pipeline_name: 'getsentry_frontend',
       stage_approval_type: 'manual',
       stage_approved_by: 'matt.gaunt@sentry.io',
-      stage_counter: '1',
+      stage_counter: 1,
       stage_create_time: new Date('2022-10-26T17:58:42.000Z'),
       stage_jobs: [
         {
