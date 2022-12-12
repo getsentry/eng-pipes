@@ -72,25 +72,31 @@ export function getUpdatedGoCDDeployMessage({
   slackUser: string | undefined;
   pipeline: {
     pipeline_name: string;
-    pipeline_counter: string;
+    pipeline_counter: Number;
     stage_name: string;
-    stage_counter: string;
+    stage_counter: Number;
     stage_state: string;
   };
 }) {
   const subject = getSubject(isUserDeploying, slackUser);
 
   const link = `${GOCD_ORIGIN}/go/pipelines/${pipeline.pipeline_name}/${pipeline.pipeline_counter}/${pipeline.stage_name}/${pipeline.stage_counter}`;
-  const slackLink = `<${link}>`;
+  const slackLink = `<${link}|${pipeline.pipeline_name}: Stage ${[
+    pipeline.stage_counter,
+  ]}>`;
 
-  if (pipeline.stage_state.toLowerCase() === 'building') {
-    return `${subject} queued this commit for deployment (${slackLink})`;
+  const state = pipeline.stage_state.toLowerCase();
+  switch (state) {
+    case 'building':
+      if (pipeline.stage_counter > 1) {
+        return `${subject} begun deploying this commit (${slackLink})`;
+      } else {
+        return `${subject} queued this commit for deployment (${slackLink})`;
+      }
+    case 'passed':
+      return `${subject} finished deploying this commit (${slackLink})`;
+    default:
+      // Otherwise it failed to deploy.
+      return `${subject} failed to deploy this commit (${slackLink})`;
   }
-
-  if (pipeline.stage_state.toLowerCase() === 'passed') {
-    return `${subject} finished deploying this commit (${slackLink})`;
-  }
-
-  // Otherwise it failed to deploy.
-  return `${subject} failed to deploy this commit (${slackLink})`;
 }
