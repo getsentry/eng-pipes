@@ -41,6 +41,16 @@ describe('businessHours tests', function () {
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
+    await getLabelsTable().insert({
+      label_name: 'Team: Undefined',
+      channel_id: 'CHNLIDRND1',
+      offices: undefined,
+    });
+    await getLabelsTable().insert({
+      label_name: 'Team: Null',
+      channel_id: 'CHNLIDRND1',
+      offices: null,
+    });
     say = jest.fn();
     respond = jest.fn();
     client = {
@@ -109,11 +119,6 @@ describe('businessHours tests', function () {
     }
 
     it('should handle case when offices is undefined', async function () {
-      await getLabelsTable().insert({
-        label_name: 'Team: Undefined',
-        channel_id: 'CHNLIDRND1',
-        offices: undefined,
-      });
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
         '2023-12-18T00:00:00.000Z',
@@ -123,11 +128,6 @@ describe('businessHours tests', function () {
     });
 
     it('should handle case when offices is null', async function () {
-      await getLabelsTable().insert({
-        label_name: 'Team: Null',
-        channel_id: 'CHNLIDRND1',
-        offices: null,
-      });
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
         '2023-12-18T00:00:00.000Z',
@@ -302,8 +302,8 @@ describe('businessHours tests', function () {
         await getBusinessHoursForTeam('Team: Does not exist', '2022-12-08')
       ).toEqual([
         {
-          start: '2022-12-08T17:00:00.000Z',
-          end: '2022-12-09T01:00:00.000Z',
+          start: new Date('2022-12-08T17:00:00.000Z'),
+          end: new Date('2022-12-09T01:00:00.000Z'),
         },
       ]);
     });
@@ -312,8 +312,8 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: '2022-12-08T17:00:00.000Z',
-            end: '2022-12-09T01:00:00.000Z',
+            start: new Date('2022-12-08T17:00:00.000Z'),
+            end: new Date('2022-12-09T01:00:00.000Z'),
           },
         ]
       );
@@ -328,12 +328,12 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: '2022-12-08T08:00:00.000Z',
-            end: '2022-12-08T16:00:00.000Z',
+            start: new Date('2022-12-08T08:00:00.000Z'),
+            end: new Date('2022-12-08T16:00:00.000Z'),
           },
           {
-            start: '2022-12-08T17:00:00.000Z',
-            end: '2022-12-09T01:00:00.000Z',
+            start: new Date('2022-12-08T17:00:00.000Z'),
+            end: new Date('2022-12-09T01:00:00.000Z'),
           },
         ]
       );
@@ -348,16 +348,16 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: '2022-12-08T08:00:00.000Z',
-            end: '2022-12-08T16:00:00.000Z',
+            start: new Date('2022-12-08T08:00:00.000Z'),
+            end: new Date('2022-12-08T16:00:00.000Z'),
           },
           {
-            start: '2022-12-08T14:00:00.000Z',
-            end: '2022-12-08T22:00:00.000Z',
+            start: new Date('2022-12-08T14:00:00.000Z'),
+            end: new Date('2022-12-08T22:00:00.000Z'),
           },
           {
-            start: '2022-12-08T17:00:00.000Z',
-            end: '2022-12-09T01:00:00.000Z',
+            start: new Date('2022-12-08T17:00:00.000Z'),
+            end: new Date('2022-12-09T01:00:00.000Z'),
           },
         ]
       );
@@ -385,8 +385,8 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2023-04-10')).toEqual(
         [
           {
-            start: '2023-04-10T16:00:00.000Z',
-            end: '2023-04-11T00:00:00.000Z',
+            start: new Date('2023-04-10T16:00:00.000Z'),
+            end: new Date('2023-04-11T00:00:00.000Z'),
           },
         ]
       );
@@ -396,12 +396,12 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2023-07-04')).toEqual(
         [
           {
-            start: '2023-07-04T07:00:00.000Z',
-            end: '2023-07-04T15:00:00.000Z',
+            start: new Date('2023-07-04T07:00:00.000Z'),
+            end: new Date('2023-07-04T15:00:00.000Z'),
           },
           {
-            start: '2023-07-04T13:00:00.000Z',
-            end: '2023-07-04T21:00:00.000Z',
+            start: new Date('2023-07-04T13:00:00.000Z'),
+            end: new Date('2023-07-04T21:00:00.000Z'),
           },
         ]
       );
@@ -421,6 +421,14 @@ describe('businessHours tests', function () {
   describe('getOfficesForTeam', function () {
     it('should return empty array if team label is undefined', async function () {
       expect(await getOfficesForTeam(undefined)).toEqual([]);
+    });
+
+    it('should return empty array if team offices value is undefined', async function () {
+      expect(await getOfficesForTeam('Team: Undefined')).toEqual([]);
+    });
+
+    it('should return empty array if team offices value is null', async function () {
+      expect(await getOfficesForTeam('Team: Null')).toEqual([]);
     });
 
     it('should get sfo office for team test', async function () {

@@ -13,9 +13,9 @@ import {
   UNTRIAGED_LABEL,
 } from '@/config';
 
-const HOUR_TO_MS = 60 * 60 * 1000;
-const BUSINESS_DAY_IN_MS = 8 * HOUR_TO_MS;
-const DAY_IN_MS = 24 * HOUR_TO_MS;
+const HOUR_IN_MS = 60 * 60 * 1000;
+const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
+const DAY_IN_MS = 24 * HOUR_IN_MS;
 
 const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
@@ -30,39 +30,39 @@ const officeHourOrdering: Record<string, number> = {
 const officesCache = {};
 
 export async function calculateTimeToRespondBy(numDays, timestamp, team) {
-  const dateObj = new Date(timestamp);
-  let numMilliseconds = numDays * BUSINESS_DAY_IN_MS;
-  while (numMilliseconds > 0) {
-    const officeHours = await getBusinessHoursForTeam(
+  const cursor = new Date(timestamp);
+  let msRemaining = numDays * BUSINESS_DAY_IN_MS;
+  while (msRemaining > 0) {
+    // Slicing ISO string gives us just the YYYY-MM-DD
+    const startingDate = cursor.toISOString().slice(0, 10);
+    const officeHoursPerOffice = await getBusinessHoursForTeam(
       team,
-      dateObj.toISOString().slice(0, 10)
+      startingDate
     );
-    const startingDate = dateObj.toISOString().slice(0, 10);
-    officeHours.forEach((timePeriod) => {
-      const start = new Date(timePeriod.start);
-      const end = new Date(timePeriod.end);
+    officeHoursPerOffice.forEach((timePeriod) => {
+      const { start, end } = timePeriod;
       /*
-        If current dateObj time is less than start of business hours, we need to set it to the start.
+        If current cursor time is less than start of business hours, we need to set it to the start.
         We'll use up the minimum of the 8 business hour window or the time left until violation.
       */
-      if (dateObj.getTime() < start.getTime() && numMilliseconds > 0) {
-        dateObj.setTime(start.getTime());
-        const millisecondsToAdd = Math.min(BUSINESS_DAY_IN_MS, numMilliseconds);
-        dateObj.setTime(dateObj.getTime() + millisecondsToAdd);
-        numMilliseconds -= millisecondsToAdd;
-      /*
-         If current dateObj time is >= start of business hours, we will find the max hours we can get
+      if (cursor.getTime() < start.getTime() && msRemaining > 0) {
+        cursor.setTime(start.getTime());
+        const msToAdd = Math.min(BUSINESS_DAY_IN_MS, msRemaining);
+        cursor.setTime(cursor.getTime() + msToAdd);
+        msRemaining -= msToAdd;
+        /*
+         If current cursor time is >= start of business hours, we will find the max hours we can get
          out of the window of business hours.
       */
       } else if (
-        dateObj.getTime() >= start.getTime() &&
-        dateObj.getTime() < end.getTime() &&
-        numMilliseconds > 0
+        cursor.getTime() >= start.getTime() &&
+        cursor.getTime() < end.getTime() &&
+        msRemaining > 0
       ) {
-        const hoursAvailable = end.getTime() - dateObj.getTime();
-        const millisecondsToAdd = Math.min(hoursAvailable, numMilliseconds);
-        dateObj.setTime(dateObj.getTime() + millisecondsToAdd);
-        numMilliseconds -= millisecondsToAdd;
+        const msAvailable = end.getTime() - cursor.getTime();
+        const msToAdd = Math.min(msAvailable, msRemaining);
+        cursor.setTime(cursor.getTime() + msToAdd);
+        msRemaining -= msToAdd;
       }
     });
     /*
@@ -70,17 +70,12 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
         Using setTime to add an entire day and then set the time to midnight to address
         the edge case of the last day of the month.
       */
-    if (
-      numMilliseconds > 0 &&
-      dateObj.toISOString().slice(0, 10) === startingDate
-    ) {
-      dateObj.setTime(dateObj.getTime() + DAY_IN_MS);
-      dateObj.setHours(0, 0, 0, 0);
-    } else if (numMilliseconds === 0) {
-      return dateObj.toISOString();
+    if (msRemaining > 0 && cursor.toISOString().slice(0, 10) === startingDate) {
+      cursor.setTime(cursor.getTime() + DAY_IN_MS);
+      cursor.setUTCHours(0, 0, 0, 0);
     }
   }
-  return dateObj.toISOString();
+  return cursor.toISOString();
 }
 
 export async function calculateSLOViolationTriage(
@@ -120,7 +115,9 @@ export async function cacheOfficesForTeam(team) {
           label_name: team,
         })
         .select('offices')
-    ).reduce((acc, item) => acc.concat(item.offices), [])
+    )
+      .reduce((acc, item) => acc.concat(item.offices), [])
+      .filter((office) => office != null)
   );
   // Sorting from which office timezone comes earlier in the day in UTC, makes calculations easier later on
   const orderedOffices = [...officesSet].sort(
@@ -136,38 +133,28 @@ export async function getBusinessHoursForTeam(team, day) {
   const utcDay = new Date(day).getUTCDay();
   // Saturday is 6, Sunday is 0
   const isWeekend = utcDay === 6 || utcDay === 0;
-  // Using moment timezone to deal with daylight savings instead of hardcoding UTC hours
-  offices.forEach((office) => {
-    if (
-      office != null &&
-      !HOLIDAY_CONFIG[office]?.dates.includes(day) &&
-      !isWeekend
-    ) {
+  /*
+    Using moment timezone to deal with daylight savings instead of hardcoding UTC hours.
+    If offices is empty, then we default to sfo office
+  */
+  (offices?.length > 0 ? offices : ['sfo']).forEach((office) => {
+    if (!HOLIDAY_CONFIG[office]?.dates.includes(day) && !isWeekend) {
       hours.push({
-        start: moment
-          .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-          .utc()
-          .toISOString(),
-        end: moment
-          .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-          .utc()
-          .toISOString(),
+        start: new Date(
+          moment
+            .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+            .utc()
+            .toISOString()
+        ),
+        end: new Date(
+          moment
+            .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+            .utc()
+            .toISOString()
+        ),
       });
     }
   });
-  // If no channels are subscribed to the notifications for a team label, default to sfo
-  if (offices.length == 0 || (offices.length > 0 && offices[0] == null)) {
-    hours.push({
-      start: moment
-        .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES['sfo'])
-        .utc()
-        .toISOString(),
-      end: moment
-        .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES['sfo'])
-        .utc()
-        .toISOString(),
-    });
-  }
   return hours;
 }
 
