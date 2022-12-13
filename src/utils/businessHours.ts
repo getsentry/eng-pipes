@@ -55,7 +55,7 @@ export async function calculateTimeToRespondBy(numDays, timestamp, team) {
          out of the window of business hours.
       */
       } else if (cursor >= start && cursor < end) {
-        const msAvailable = end - cursor;
+        const msAvailable = end.valueOf() - cursor.valueOf();
         const msToAdd = Math.min(msAvailable, msRemaining);
         cursor.add(msToAdd, 'milliseconds');
         msRemaining -= msToAdd;
