@@ -315,7 +315,10 @@ describe('businessHours tests', function () {
   describe('getBusinessHoursForTeam', function () {
     it('should get open source team timezones if team does not have offices', async function () {
       expect(
-        await getBusinessHoursForTeam('Team: Does not exist', '2022-12-08')
+        await getBusinessHoursForTeam(
+          'Team: Does not exist',
+          '2022-12-08T12:00:00.000Z'
+        )
       ).toEqual([
         {
           start: moment.tz(
@@ -333,22 +336,22 @@ describe('businessHours tests', function () {
     });
 
     it('should get sfo timezones for Team: Test', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
-        [
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-          },
-        ]
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2022-12-08T12:00:00.000Z')
+      ).toEqual([
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+        },
+      ]);
     });
 
     it('should get sfo, vie timezones for Team: Test', async function () {
@@ -357,34 +360,34 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
-        [
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-          },
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-          },
-        ]
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2022-12-08T12:00:00.000Z')
+      ).toEqual([
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+        },
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+        },
+      ]);
     });
 
     it('should get sfo, vie, yyz timezones for Team: Test', async function () {
@@ -393,114 +396,114 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
-        [
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-          },
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Toronto'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Toronto'
-            ),
-          },
-          {
-            start: moment.tz(
-              '2022-12-08 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-            end: moment.tz(
-              '2022-12-08 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-          },
-        ]
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2022-12-08T12:00:00.000Z')
+      ).toEqual([
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+        },
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Toronto'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Toronto'
+          ),
+        },
+        {
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+        },
+      ]);
     });
 
     it('should return no hours for Christmas for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2023-12-25')).toEqual(
-        []
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2023-12-25T12:00:00.000Z')
+      ).toEqual([]);
     });
 
     it('should return no hours for Saturday for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-17')).toEqual(
-        []
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2022-12-17T12:00:00.000Z')
+      ).toEqual([]);
     });
 
     it('should return no hours for Sunday for vie, sfo, yyz', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2022-12-18')).toEqual(
-        []
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2022-12-18T12:00:00.000Z')
+      ).toEqual([]);
     });
 
     it('should get sfo only for Easter Monday', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2023-04-10')).toEqual(
-        [
-          {
-            start: moment.tz(
-              '2023-04-10 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-            end: moment.tz(
-              '2023-04-10 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Los_Angeles'
-            ),
-          },
-        ]
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2023-04-10T12:00:00.000Z')
+      ).toEqual([
+        {
+          start: moment.tz(
+            '2023-04-10 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+          end: moment.tz(
+            '2023-04-10 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+        },
+      ]);
     });
 
     it('should get yyz, vie for Independence Day', async function () {
-      expect(await getBusinessHoursForTeam('Team: Test', '2023-07-04')).toEqual(
-        [
-          {
-            start: moment.tz(
-              '2023-07-04 09:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-            end: moment.tz(
-              '2023-07-04 17:00',
-              'YYYY-MM-DD hh:mm',
-              'Europe/Vienna'
-            ),
-          },
-          {
-            start: moment.tz(
-              '2023-07-04 09:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Toronto'
-            ),
-            end: moment.tz(
-              '2023-07-04 17:00',
-              'YYYY-MM-DD hh:mm',
-              'America/Toronto'
-            ),
-          },
-        ]
-      );
+      expect(
+        await getBusinessHoursForTeam('Team: Test', '2023-07-04T12:00:00.000Z')
+      ).toEqual([
+        {
+          start: moment.tz(
+            '2023-07-04 09:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+          end: moment.tz(
+            '2023-07-04 17:00',
+            'YYYY-MM-DD hh:mm',
+            'Europe/Vienna'
+          ),
+        },
+        {
+          start: moment.tz(
+            '2023-07-04 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Toronto'
+          ),
+          end: moment.tz(
+            '2023-07-04 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Toronto'
+          ),
+        },
+      ]);
       let command = {
         channel_id: 'CHNLIDRND2',
         text: '-Test vie',
