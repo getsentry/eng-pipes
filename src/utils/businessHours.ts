@@ -15,7 +15,6 @@ import {
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
-const DAY_IN_MS = 24 * HOUR_IN_MS;
 
 const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
@@ -30,49 +29,51 @@ const officeHourOrdering: Record<string, number> = {
 const officesCache = {};
 
 export async function calculateTimeToRespondBy(numDays, timestamp, team) {
-  const cursor = new Date(timestamp);
+  let cursor = moment(timestamp);
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
   while (msRemaining > 0) {
     // Slicing ISO string gives us just the YYYY-MM-DD
-    const startingDate = cursor.toISOString().slice(0, 10);
-    const officeHoursPerOffice = await getBusinessHoursForTeam(
+    const businessHoursPerOffice = await getBusinessHoursForTeam(
       team,
-      startingDate
+      cursor.toISOString()
     );
-    officeHoursPerOffice.forEach((timePeriod) => {
-      const { start, end } = timePeriod;
+    businessHoursPerOffice.forEach(({ start, end }) => {
+      if (msRemaining <= 0) {
+        return;
+      }
       /*
         If current cursor time is less than start of business hours, we need to set it to the start.
         We'll use up the minimum of the 8 business hour window or the time left until violation.
       */
-      if (cursor.getTime() < start.getTime() && msRemaining > 0) {
-        cursor.setTime(start.getTime());
+      if (cursor < start) {
+        cursor = moment(start);
         const msToAdd = Math.min(BUSINESS_DAY_IN_MS, msRemaining);
-        cursor.setTime(cursor.getTime() + msToAdd);
+        cursor.add(msToAdd, 'milliseconds');
         msRemaining -= msToAdd;
         /*
          If current cursor time is >= start of business hours, we will find the max hours we can get
          out of the window of business hours.
       */
-      } else if (
-        cursor.getTime() >= start.getTime() &&
-        cursor.getTime() < end.getTime() &&
-        msRemaining > 0
-      ) {
-        const msAvailable = end.getTime() - cursor.getTime();
+      } else if (cursor >= start && cursor < end) {
+        const msAvailable = end - cursor;
         const msToAdd = Math.min(msAvailable, msRemaining);
-        cursor.setTime(cursor.getTime() + msToAdd);
+        cursor.add(msToAdd, 'milliseconds');
         msRemaining -= msToAdd;
       }
     });
     /*
-        We want to increment the day count and set the time to midnight to fully utilize the next day's business hours.
-        Using setTime to add an entire day and then set the time to midnight to address
-        the edge case of the last day of the month.
-      */
-    if (msRemaining > 0 && cursor.toISOString().slice(0, 10) === startingDate) {
-      cursor.setTime(cursor.getTime() + DAY_IN_MS);
-      cursor.setUTCHours(0, 0, 0, 0);
+      Here, I'm incrementing the cursor by an hour until the business hours for a team changes. Since
+      we're dealing with different timezones, we can't just increment by an entire day. This will always discover
+      the next business hours window 9 hours before.
+    */
+    while (
+      msRemaining > 0 &&
+      JSON.stringify(businessHoursPerOffice) ===
+        JSON.stringify(
+          await getBusinessHoursForTeam(team, cursor.toISOString())
+        )
+    ) {
+      cursor.add(HOUR_IN_MS, 'milliseconds');
     }
   }
   return cursor.toISOString();
@@ -127,30 +128,37 @@ export async function cacheOfficesForTeam(team) {
   return orderedOffices;
 }
 
-export async function getBusinessHoursForTeam(team, day) {
-  const offices = await getOfficesForTeam(team);
+export async function getBusinessHoursForTeam(team, timestamp) {
+  let offices = await getOfficesForTeam(team);
+  if (offices.length === 0) {
+    offices = await getOfficesForTeam('Team: Open Source');
+    if (offices.length === 0) {
+      throw new Error('Open Source team not subscribed to any offices.');
+    }
+  }
   const hours: { start; end }[] = [];
-  const utcDay = new Date(day).getUTCDay();
-  // Saturday is 6, Sunday is 0
-  const isWeekend = utcDay === 6 || utcDay === 0;
   /*
     Using moment timezone to deal with daylight savings instead of hardcoding UTC hours.
     If offices is empty, then we default to sfo office
   */
-  (offices?.length > 0 ? offices : ['sfo']).forEach((office) => {
-    if (!HOLIDAY_CONFIG[office]?.dates.includes(day) && !isWeekend) {
+  offices.forEach((office) => {
+    const dayOfTheWeek = moment(timestamp).tz(OFFICE_TIME_ZONES[office]).day();
+    // Saturday is 6, Sunday is 0
+    const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
+    const date = moment(timestamp)
+      .tz(OFFICE_TIME_ZONES[office])
+      .format('YYYY-MM-DD');
+    if (!HOLIDAY_CONFIG[office]?.dates.includes(date) && !isWeekend) {
       hours.push({
-        start: new Date(
-          moment
-            .tz(`${day} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-            .utc()
-            .toISOString()
+        start: moment.tz(
+          `${date} 09:00`,
+          'YYYY-MM-DD hh:mm',
+          OFFICE_TIME_ZONES[office]
         ),
-        end: new Date(
-          moment
-            .tz(`${day} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-            .utc()
-            .toISOString()
+        end: moment.tz(
+          `${date} 17:00`,
+          'YYYY-MM-DD hh:mm',
+          OFFICE_TIME_ZONES[office]
         ),
       });
     }

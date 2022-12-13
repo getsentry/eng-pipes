@@ -58,6 +58,11 @@ describe('metrics tests', function () {
         channel_id: 'CHNLIDRND1',
         offices: ['sfo'],
       });
+      await getLabelsTable().insert({
+        label_name: 'Team: Open Source',
+        channel_id: 'CHNLIDRND1',
+        offices: ['sfo'],
+      });
     });
 
     afterAll(async () => {

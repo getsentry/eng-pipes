@@ -15,6 +15,8 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
+import moment from 'moment-timezone';
+
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import {
   MAX_ROUTE_DAYS,
@@ -50,6 +52,11 @@ describe('businessHours tests', function () {
       label_name: 'Team: Null',
       channel_id: 'CHNLIDRND1',
       offices: null,
+    });
+    await getLabelsTable().insert({
+      label_name: 'Team: Open Source',
+      channel_id: 'CHNLIDRND1',
+      offices: ['sfo'],
     });
     say = jest.fn();
     respond = jest.fn();
@@ -142,7 +149,7 @@ describe('businessHours tests', function () {
         '2023-01-31T00:00:00.000Z',
         'Team: Test'
       );
-      expect(result).toEqual('2023-02-01T01:00:00.000Z');
+      expect(result).toEqual('2023-02-01T00:00:00.000Z');
     });
 
     it('should handle the last day of the year for TTR', async function () {
@@ -151,7 +158,7 @@ describe('businessHours tests', function () {
         '2022-12-31T00:00:00.000Z',
         'Team: Test'
       );
-      expect(result).toEqual('2023-01-04T01:00:00.000Z');
+      expect(result).toEqual('2023-01-04T00:00:00.000Z');
     });
 
     describe('holiday tests', function () {
@@ -203,6 +210,15 @@ describe('businessHours tests', function () {
           'Team: Test'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
+      });
+
+      it('should calculate weekends properly for friday in sfo, weekend in vie', async function () {
+        const result = await calculateTimeToRespondBy(
+          MAX_TRIAGE_DAYS,
+          '2022-12-17T00:00:00.000Z',
+          'Team: Test'
+        );
+        expect(result).toEqual('2022-12-20T00:00:00.000Z');
       });
 
       it('should route properly when team is subscribed to sfo, vie, and yyz', async function () {
@@ -297,13 +313,21 @@ describe('businessHours tests', function () {
   });
 
   describe('getBusinessHoursForTeam', function () {
-    it('should get sfo timezones if team does not have offices', async function () {
+    it('should get open source team timezones if team does not have offices', async function () {
       expect(
         await getBusinessHoursForTeam('Team: Does not exist', '2022-12-08')
       ).toEqual([
         {
-          start: new Date('2022-12-08T17:00:00.000Z'),
-          end: new Date('2022-12-09T01:00:00.000Z'),
+          start: moment.tz(
+            '2022-12-08 09:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
+          end: moment.tz(
+            '2022-12-08 17:00',
+            'YYYY-MM-DD hh:mm',
+            'America/Los_Angeles'
+          ),
         },
       ]);
     });
@@ -312,8 +336,16 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: new Date('2022-12-08T17:00:00.000Z'),
-            end: new Date('2022-12-09T01:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
           },
         ]
       );
@@ -328,12 +360,28 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: new Date('2022-12-08T08:00:00.000Z'),
-            end: new Date('2022-12-08T16:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
           },
           {
-            start: new Date('2022-12-08T17:00:00.000Z'),
-            end: new Date('2022-12-09T01:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
           },
         ]
       );
@@ -348,16 +396,40 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2022-12-08')).toEqual(
         [
           {
-            start: new Date('2022-12-08T08:00:00.000Z'),
-            end: new Date('2022-12-08T16:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
           },
           {
-            start: new Date('2022-12-08T14:00:00.000Z'),
-            end: new Date('2022-12-08T22:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Toronto'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Toronto'
+            ),
           },
           {
-            start: new Date('2022-12-08T17:00:00.000Z'),
-            end: new Date('2022-12-09T01:00:00.000Z'),
+            start: moment.tz(
+              '2022-12-08 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
+            end: moment.tz(
+              '2022-12-08 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
           },
         ]
       );
@@ -385,8 +457,16 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2023-04-10')).toEqual(
         [
           {
-            start: new Date('2023-04-10T16:00:00.000Z'),
-            end: new Date('2023-04-11T00:00:00.000Z'),
+            start: moment.tz(
+              '2023-04-10 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
+            end: moment.tz(
+              '2023-04-10 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Los_Angeles'
+            ),
           },
         ]
       );
@@ -396,12 +476,28 @@ describe('businessHours tests', function () {
       expect(await getBusinessHoursForTeam('Team: Test', '2023-07-04')).toEqual(
         [
           {
-            start: new Date('2023-07-04T07:00:00.000Z'),
-            end: new Date('2023-07-04T15:00:00.000Z'),
+            start: moment.tz(
+              '2023-07-04 09:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
+            end: moment.tz(
+              '2023-07-04 17:00',
+              'YYYY-MM-DD hh:mm',
+              'Europe/Vienna'
+            ),
           },
           {
-            start: new Date('2023-07-04T13:00:00.000Z'),
-            end: new Date('2023-07-04T21:00:00.000Z'),
+            start: moment.tz(
+              '2023-07-04 09:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Toronto'
+            ),
+            end: moment.tz(
+              '2023-07-04 17:00',
+              'YYYY-MM-DD hh:mm',
+              'America/Toronto'
+            ),
           },
         ]
       );
