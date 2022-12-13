@@ -8,6 +8,7 @@ import {
   GETSENTRY_BOT_ID,
   GOCD_ORIGIN,
   REQUIRED_CHECK_NAME,
+  SENTRYIO_GOCD_BE_PIPELINE_NAME,
   SENTRYIO_GOCD_PIPELINE_GROUP,
 } from '@/config';
 import { Fastify } from '@/types';
@@ -38,6 +39,7 @@ describe('notifyOnGoCDStageEvent', function () {
     gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
+          name: SENTRYIO_GOCD_BE_PIPELINE_NAME,
           group: SENTRYIO_GOCD_PIPELINE_GROUP,
         },
       },
@@ -258,7 +260,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/${SENTRYIO_GOCD_BE_PIPELINE_NAME}/20/preliminary-checks/1|${SENTRYIO_GOCD_BE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -319,7 +321,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/2|getsentry_frontend: Stage 2>)",
+                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${SENTRYIO_GOCD_BE_PIPELINE_NAME}/20/preliminary-checks/2|${SENTRYIO_GOCD_BE_PIPELINE_NAME}: Stage 2>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -406,7 +408,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/${SENTRYIO_GOCD_BE_PIPELINE_NAME}/20/preliminary-checks/1|${SENTRYIO_GOCD_BE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",

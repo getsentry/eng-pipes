@@ -18,7 +18,7 @@ import { db } from '@utils/db';
 import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
 
 import * as actions from './actionViewUndeployedCommits';
-import { pleaseDeployNotifier } from '.';
+import { deployActions, pleaseDeployNotifier } from '.';
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
@@ -1790,5 +1790,72 @@ Remove "always()" from GHA workflows`,
         status: 'undeployed',
       },
     });
+  });
+});
+
+describe('pleaseDeployNotifier.deployActions', function () {
+  it('return gocd deploy actions', async function () {
+    const commit = {};
+    const checkRun = {
+      head_sha: 'abcd1234',
+    };
+    const blocks = await deployActions(true, commit, checkRun);
+    expect(blocks).toMatchObject([
+      {
+        type: 'actions',
+        elements: [
+          {
+            type: 'button',
+            style: 'primary',
+            text: { type: 'plain_text', text: 'Deploy', emoji: true },
+            value: 'abcd1234',
+            url: 'https://gocd-mattgaunt-2.getsentry.net',
+            action_id: 'gocd-deploy: getsentry-backend',
+          },
+          {
+            type: 'button',
+            text: {
+              type: 'plain_text',
+              text: 'View Undeployed Commits',
+              emoji: true,
+            },
+            value: 'abcd1234',
+            action_id: 'view-undeployed-commits-',
+          },
+          {
+            type: 'button',
+            style: 'danger',
+            text: { type: 'plain_text', text: 'Mute', emoji: true },
+            action_id: 'mute-slack-deploy',
+            value: 'mute',
+            confirm: {
+              title: {
+                type: 'plain_text',
+                text: 'Mute deploy notifications?',
+              },
+              confirm: {
+                type: 'plain_text',
+                text: 'Mute',
+              },
+              deny: {
+                type: 'plain_text',
+                text: 'Cancel',
+              },
+              text: {
+                type: 'mrkdwn',
+                text: `Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
+
+\`\`\`
+deploy notifications on
+\`\`\`
+
+Or you can visit the App's "Home" tab in Slack.
+`,
+              },
+            },
+          },
+        ],
+      },
+    ]);
   });
 });

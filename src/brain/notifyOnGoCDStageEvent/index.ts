@@ -18,6 +18,8 @@ import {
   GETSENTRY_REPO,
   OWNER,
   SENTRY_REPO,
+  SENTRYIO_GOCD_BE_PIPELINE_NAME,
+  SENTRYIO_GOCD_FE_PIPELINE_NAME,
   SENTRYIO_GOCD_PIPELINE_GROUP,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -229,18 +231,12 @@ async function filterCommits(octokit, pipeline, commits) {
       relevantCommit.sha,
       relevantRepo
     );
-
     // NOTE: We do not handle scenarios where the commit has both
     // frontend and backend changes.
     if (
-      (isFrontendOnly &&
-        pipeline.name == process.env.SENTRYIO_GOCD_FE_PIPELINE_NAME) ||
-      (isBackendOnly &&
-        pipeline.name == process.env.SENTRYIO_GOCD_BE_PIPELINE_NAME)
+      (isFrontendOnly && pipeline.name == SENTRYIO_GOCD_FE_PIPELINE_NAME) ||
+      (isBackendOnly && pipeline.name == SENTRYIO_GOCD_BE_PIPELINE_NAME)
     ) {
-      relevantCommitShas.push(sha);
-    } else {
-      // TODO (mattgaunt): DO NOT COMMIT THIS!
       relevantCommitShas.push(sha);
     }
   }

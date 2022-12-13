@@ -9,9 +9,10 @@ import {
   getUpdatedDeployMessage,
   getUpdatedGoCDDeployMessage,
 } from '@/blocks/getUpdatedDeployMessage';
+import { gocdDeployBlock } from '@/blocks/gocdDeployBlock';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
-import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
+import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO, USE_GOCD } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import {
   getFreightDeployForQueuedCommit,
@@ -86,6 +87,62 @@ async function currentDeployBlocks(
   return null;
 }
 
+function gocdDeployActions(commitSHA, isFrontendOnly): KnownBlock[] {
+  return [
+    {
+      type: 'actions',
+      elements: [
+        gocdDeployBlock(
+          commitSHA,
+          isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
+        ),
+        viewUndeployedCommits(commitSHA),
+        muteDeployNotificationsButton(),
+      ],
+    },
+  ];
+}
+
+function freightDeployActions(commitSHA, isFrontendOnly): KnownBlock[] {
+  return [
+    {
+      type: 'actions',
+      elements: [
+        freightDeploy(
+          commitSHA,
+          isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
+        ),
+        viewUndeployedCommits(commitSHA),
+        muteDeployNotificationsButton(),
+      ],
+    },
+  ];
+}
+
+export async function deployActions(
+  useGoCD,
+  relevantCommit,
+  checkRun
+): Promise<KnownBlock[]> {
+  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
+  // sha differs, it means that the relevantCommit is on the sentry repo
+  const relevantCommitRepo =
+    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
+
+  // If the commit contains only frontend changes, link user to deploy the
+  // `getsentry-frontend` Freight app
+  const { isFrontendOnly } = await getChangedStack(
+    relevantCommit.sha,
+    relevantCommitRepo
+  );
+
+  if (useGoCD) {
+    return gocdDeployActions(checkRun.head_sha, isFrontendOnly);
+  }
+
+  return freightDeployActions(checkRun.head_sha, isFrontendOnly);
+}
+
 async function handler({
   id,
   payload,
@@ -144,18 +201,6 @@ async function handler({
 
   const slackTarget = user?.slackUser;
 
-  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
-  // sha differs, it means that the relevantCommit is on the sentry repo
-  const relevantCommitRepo =
-    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
-
-  // If the commit contains only frontend changes, link user to deploy the
-  // `getsentry-frontend` Freight app
-  const { isFrontendOnly } = await getChangedStack(
-    relevantCommit.sha,
-    relevantCommitRepo
-  );
-
   const blocks = await getBlocksForCommit(relevantCommit);
 
   // Author of commit found
@@ -171,19 +216,8 @@ async function handler({
     text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
     blocks.push(...deployBlocks);
   } else {
-    // TODO (matt.gaunt): When ready we should switch this for a GoCD deploy
-    // block.
-    blocks.push({
-      type: 'actions',
-      elements: [
-        freightDeploy(
-          commit,
-          isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
-        ),
-        viewUndeployedCommits(commit),
-        muteDeployNotificationsButton(),
-      ],
-    });
+    const actions = await deployActions(USE_GOCD, relevantCommit, checkRun);
+    blocks.push(...actions);
   }
 
   const message = await slackMessageUser(slackTarget, {
@@ -240,6 +274,21 @@ export async function pleaseDeployNotifier() {
       tx.finish();
     });
     // TODO(billy): Call freight API directly to deploy
+  });
+
+  // We need to respond to button clicks, otherwise it will display a warning message
+  bolt.action(/gocd-deploy:(.*)/, async ({ ack, body, context }) => {
+    await ack();
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
+      const tx = Sentry.startTransaction({
+        op: 'slack.action',
+        name: `gocd-deploy: ${context.actionIdMatches[1]}`,
+      });
+      tx.finish();
+    });
   });
 
   // Handles both mute and unmute action that comes from deploy notification
