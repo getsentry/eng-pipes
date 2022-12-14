@@ -30,7 +30,10 @@ export async function calculateTimeToRespondBy(numDays, team, testTimestamp?) {
     testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
   while (msRemaining > 0) {
-    const nextBusinessHours = await getNextBusinessHours(team, cursor);
+    const nextBusinessHours = await getNextAvailableBusinessHourWindow(
+      team,
+      cursor
+    );
     const { start, end }: BusinessHourWindow = nextBusinessHours;
     cursor = start;
     const msAvailable = end.valueOf() - start.valueOf();
@@ -66,7 +69,7 @@ export async function calculateSLOViolationRoute(target_name) {
   return null;
 }
 
-export async function cacheOfficesForTeam(team) {
+export async function cacheOffices(team) {
   const offices = [
     ...new Set(
       (
@@ -84,13 +87,13 @@ export async function cacheOfficesForTeam(team) {
   return offices;
 }
 
-export async function getNextBusinessHours(
+export async function getNextAvailableBusinessHourWindow(
   team,
   momentTime
 ): Promise<BusinessHourWindow> {
-  let offices = await getOfficesForTeam(team);
+  let offices = await getOffices(team);
   if (offices.length === 0) {
-    offices = await getOfficesForTeam('Team: Open Source');
+    offices = await getOffices('Team: Open Source');
     if (offices.length === 0) {
       throw new Error('Open Source team not subscribed to any offices.');
     }
@@ -140,12 +143,12 @@ export async function getNextBusinessHours(
   return businessHourWindows[0];
 }
 
-export async function getOfficesForTeam(team) {
+export async function getOffices(team) {
   if (!team) {
     return [];
   }
   if (!officesCache[team]) {
-    await cacheOfficesForTeam(team);
+    await cacheOffices(team);
   }
   return officesCache[team];
 }

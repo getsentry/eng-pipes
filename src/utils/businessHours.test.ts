@@ -30,8 +30,8 @@ import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   calculateTimeToRespondBy,
-  getNextBusinessHours,
-  getOfficesForTeam,
+  getNextAvailableBusinessHourWindow,
+  getOffices,
 } from './businessHours';
 
 describe('businessHours tests', function () {
@@ -302,9 +302,9 @@ describe('businessHours tests', function () {
     });
   });
 
-  describe('getNextBusinessHours', function () {
+  describe('getNextAvailableBusinessHourWindow', function () {
     it('should get open source team timezones if team does not have offices', async function () {
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Does not exist',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
@@ -317,7 +317,7 @@ describe('businessHours tests', function () {
     });
 
     it('should get sfo timezones for Team: Test', async function () {
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
@@ -335,7 +335,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
@@ -353,7 +353,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-08T16:30:00.000Z').utc()
       );
@@ -371,7 +371,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-08T16:30:00.000Z').utc()
       );
@@ -384,7 +384,7 @@ describe('businessHours tests', function () {
     });
 
     it('should return vie hours for Christmas for team subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2023-12-23T12:00:00.000Z').utc()
       );
@@ -397,7 +397,7 @@ describe('businessHours tests', function () {
     });
 
     it('should return vie hours for Saturday for team subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-17T12:00:00.000Z').utc()
       );
@@ -410,7 +410,7 @@ describe('businessHours tests', function () {
     });
 
     it('should return vie hours for Sunday for team subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-18T12:00:00.000Z').utc()
       );
@@ -428,7 +428,7 @@ describe('businessHours tests', function () {
         text: '-Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      const { start, end } = await getNextBusinessHours(
+      const { start, end } = await getNextAvailableBusinessHourWindow(
         'Team: Test',
         moment('2022-12-17T12:00:00.000Z').utc()
       );
@@ -446,21 +446,21 @@ describe('businessHours tests', function () {
     });
   });
 
-  describe('getOfficesForTeam', function () {
+  describe('getOffices', function () {
     it('should return empty array if team label is undefined', async function () {
-      expect(await getOfficesForTeam(undefined)).toEqual([]);
+      expect(await getOffices(undefined)).toEqual([]);
     });
 
     it('should return empty array if team offices value is undefined', async function () {
-      expect(await getOfficesForTeam('Team: Undefined')).toEqual([]);
+      expect(await getOffices('Team: Undefined')).toEqual([]);
     });
 
     it('should return empty array if team offices value is null', async function () {
-      expect(await getOfficesForTeam('Team: Null')).toEqual([]);
+      expect(await getOffices('Team: Null')).toEqual([]);
     });
 
     it('should get sfo office for team test', async function () {
-      expect(await getOfficesForTeam('Team: Test')).toEqual(['sfo']);
+      expect(await getOffices('Team: Test')).toEqual(['sfo']);
     });
 
     it('should get sfo and vie office for team test if new office is added', async function () {
@@ -469,7 +469,7 @@ describe('businessHours tests', function () {
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test')).toEqual(['sfo', 'vie']);
+      expect(await getOffices('Team: Test')).toEqual(['sfo', 'vie']);
     });
 
     it('should get vie office for team test if existing office is removed', async function () {
@@ -478,7 +478,7 @@ describe('businessHours tests', function () {
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie']);
+      expect(await getOffices('Team: Test')).toEqual(['vie']);
     });
 
     it('should get offices from multiple channels', async function () {
@@ -487,7 +487,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOfficesForTeam('Team: Test')).toEqual(['vie', 'yyz']);
+      expect(await getOffices('Team: Test')).toEqual(['vie', 'yyz']);
     });
   });
 });
