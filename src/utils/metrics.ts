@@ -1,5 +1,6 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
+import moment from 'moment-timezone';
 
 import {
   calculateSLOViolationRoute,
@@ -256,13 +257,9 @@ export async function insertOss(
       data.target_name = label.name;
       data.target_type = 'label';
       if (data.action === 'labeled') {
-        data.timeToRouteBy = await calculateSLOViolationRoute(
-          data.target_name,
-          Date.now()
-        );
+        data.timeToRouteBy = await calculateSLOViolationRoute(data.target_name);
         data.timeToTriageBy = await calculateSLOViolationTriage(
           data.target_name,
-          Date.now(),
           issue.labels
         );
       }

@@ -19,116 +19,68 @@ const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
 const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
 
-const officeHourOrdering: Record<string, number> = {
-  vie: 1,
-  ams: 2,
-  yyz: 3,
-  sfo: 4,
-  sea: 5,
-};
 const officesCache = {};
 
-export async function calculateTimeToRespondBy(numDays, timestamp, team) {
-  let cursor = moment(timestamp);
+export async function calculateTimeToRespondBy(numDays, team, testTimestamp?) {
+  let cursor =
+    testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
   while (msRemaining > 0) {
-    // Slicing ISO string gives us just the YYYY-MM-DD
-    const businessHoursPerOffice = await getBusinessHoursForTeam(
-      team,
-      cursor.toISOString()
-    );
-    businessHoursPerOffice.forEach(({ start, end }) => {
-      if (msRemaining <= 0) {
-        return;
-      }
-      /*
-        If current cursor time is less than start of business hours, we need to set it to the start.
-        We'll use up the minimum of the 8 business hour window or the time left until violation.
-      */
-      if (cursor < start) {
-        cursor = moment(start);
-        const msToAdd = Math.min(BUSINESS_DAY_IN_MS, msRemaining);
-        cursor.add(msToAdd, 'milliseconds');
-        msRemaining -= msToAdd;
-        /*
-         If current cursor time is >= start of business hours, we will find the max hours we can get
-         out of the window of business hours.
-      */
-      } else if (cursor >= start && cursor < end) {
-        const msAvailable = end.valueOf() - cursor.valueOf();
-        const msToAdd = Math.min(msAvailable, msRemaining);
-        cursor.add(msToAdd, 'milliseconds');
-        msRemaining -= msToAdd;
-      }
-    });
-    /*
-      Here, I'm incrementing the cursor by an hour until the business hours for a team changes. Since
-      we're dealing with different timezones, we can't just increment by an entire day. This will always discover
-      the next business hours window 9 hours before.
-    */
-    while (
-      msRemaining > 0 &&
-      JSON.stringify(businessHoursPerOffice) ===
-        JSON.stringify(
-          await getBusinessHoursForTeam(team, cursor.toISOString())
-        )
-    ) {
-      cursor.add(HOUR_IN_MS, 'milliseconds');
-    }
+    const nextBusinessHours = await getNextBusinessHours(team, cursor);
+    const { start, end } = nextBusinessHours;
+    cursor = start;
+    const msAvailable = end.valueOf() - start.valueOf();
+    const msToAdd = Math.min(msAvailable, msRemaining);
+    cursor.add(msToAdd, 'milliseconds');
+    msRemaining -= msToAdd;
   }
   return cursor.toISOString();
 }
 
-export async function calculateSLOViolationTriage(
-  target_name,
-  timestamp,
-  labels
-) {
+export async function calculateSLOViolationTriage(target_name, labels) {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === UNTRIAGED_LABEL) {
     const team = labels?.find((label) =>
       label.name.startsWith(TEAM_LABEL_PREFIX)
     )?.name;
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, team);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, team);
   }
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(TEAM_LABEL_PREFIX) &&
     labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, timestamp, target_name);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, target_name);
   }
   return null;
 }
 
-export async function calculateSLOViolationRoute(target_name, timestamp) {
+export async function calculateSLOViolationRoute(target_name) {
   if (target_name === UNROUTED_LABEL) {
-    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, timestamp, 'Team: Support');
+    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Team: Support');
   }
   return null;
 }
 
 export async function cacheOfficesForTeam(team) {
-  const officesSet = new Set(
-    (
-      await getLabelsTable()
-        .where({
-          label_name: team,
-        })
-        .select('offices')
-    )
-      .reduce((acc, item) => acc.concat(item.offices), [])
-      .filter((office) => office != null)
-  );
-  // Sorting from which office timezone comes earlier in the day in UTC, makes calculations easier later on
-  const orderedOffices = [...officesSet].sort(
-    (a: any, b: any) => officeHourOrdering[a] - officeHourOrdering[b]
-  );
-  officesCache[team] = orderedOffices;
-  return orderedOffices;
+  const offices = [
+    ...new Set(
+      (
+        await getLabelsTable()
+          .where({
+            label_name: team,
+          })
+          .select('offices')
+      )
+        .reduce((acc, item) => acc.concat(item.offices), [])
+        .filter((office) => office != null)
+    ),
+  ];
+  officesCache[team] = offices;
+  return offices;
 }
 
-export async function getBusinessHoursForTeam(team, timestamp) {
+export async function getNextBusinessHours(team, momentTime) {
   let offices = await getOfficesForTeam(team);
   if (offices.length === 0) {
     offices = await getOfficesForTeam('Team: Open Source');
@@ -137,33 +89,53 @@ export async function getBusinessHoursForTeam(team, timestamp) {
     }
   }
   const hours: { start; end }[] = [];
-  /*
-    Using moment timezone to deal with daylight savings instead of hardcoding UTC hours.
-    If offices is empty, then we default to sfo office
-  */
   offices.forEach((office) => {
-    const dayOfTheWeek = moment(timestamp).tz(OFFICE_TIME_ZONES[office]).day();
-    // Saturday is 6, Sunday is 0
-    const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
-    const date = moment(timestamp)
-      .tz(OFFICE_TIME_ZONES[office])
-      .format('YYYY-MM-DD');
-    if (!HOLIDAY_CONFIG[office]?.dates.includes(date) && !isWeekend) {
-      hours.push({
-        start: moment.tz(
-          `${date} 09:00`,
-          'YYYY-MM-DD hh:mm',
-          OFFICE_TIME_ZONES[office]
-        ),
-        end: moment.tz(
-          `${date} 17:00`,
-          'YYYY-MM-DD hh:mm',
-          OFFICE_TIME_ZONES[office]
-        ),
-      });
-    }
+    const momentIterator = moment(momentTime.valueOf()).utc();
+    let isWeekend,
+      dayOfTheWeek,
+      date,
+      isTimestampOutsideBusinessHourWindow,
+      end;
+    do {
+      dayOfTheWeek = momentIterator.tz(OFFICE_TIME_ZONES[office]).day();
+      // Saturday is 6, Sunday is 0
+      isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
+      date = momentIterator.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
+      end = moment
+        .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+        .utc();
+      isTimestampOutsideBusinessHourWindow = momentTime >= end;
+      momentIterator.add(1, 'days');
+      /*
+      We want to iterate until we find the first business hours for each office.
+      Three cases to consider here before incrementing the momentIterator obj
+      1. momentIterator date is a holiday
+      2. momentIterator date is a weekend
+      3. business hours for an office on momentIterator date has passed by
+    */
+    } while (
+      HOLIDAY_CONFIG[office]?.dates.includes(date) ||
+      isWeekend ||
+      isTimestampOutsideBusinessHourWindow
+    );
+    // Start window will be the max of the start of the workday or the moment time passed in
+    const start = moment.max(
+      moment
+        .tz(`${date} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+        .utc(),
+      momentTime
+    );
+    hours.push({
+      start,
+      end,
+    });
   });
-  return hours;
+  // Sort the business hours by the starting date, we only care about the closest business hour window
+  hours.sort((a: any, b: any) => a.start - b.start);
+  if (hours.length === 0) {
+    return [];
+  }
+  return hours[0];
 }
 
 export async function getOfficesForTeam(team) {
