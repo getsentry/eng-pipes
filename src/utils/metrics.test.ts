@@ -58,6 +58,11 @@ describe('metrics tests', function () {
         channel_id: 'CHNLIDRND1',
         offices: ['sfo'],
       });
+      await getLabelsTable().insert({
+        label_name: 'Team: Open Source',
+        channel_id: 'CHNLIDRND1',
+        offices: ['sfo'],
+      });
     });
 
     afterAll(async () => {
@@ -72,7 +77,7 @@ describe('metrics tests', function () {
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         timeToRouteBy: null,
-        timeToTriageBy: '2017-02-16T12:51:48.000Z',
+        timeToTriageBy: '2017-02-16T01:00:00.000Z',
       });
     });
 
@@ -81,7 +86,7 @@ describe('metrics tests', function () {
       testPayload.label.name = UNROUTED_LABEL;
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
-        timeToRouteBy: '2017-02-15T12:51:48.000Z',
+        timeToRouteBy: '2017-02-15T01:00:00.000Z',
         timeToTriageBy: null,
       });
     });

@@ -182,10 +182,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel is set to receive notifications for: Team: Test (no office specified)'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: null,
         },
@@ -202,10 +201,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'Add office location sfo on the current channel (test) for Team: Test'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo'],
         },
@@ -222,10 +220,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel is set to receive notifications for: Team: Test (sfo)'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo'],
         },
@@ -242,10 +239,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'Add office location sea on the current channel (test) for Team: Test'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'sea'],
         },
@@ -262,10 +258,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel is set to receive notifications for: Team: Test (sfo, sea)'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'sea'],
         },
@@ -282,10 +277,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'Add office location vie on the current channel (test) for Team: Test'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'sea', 'vie'],
         },
@@ -302,10 +296,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'Add office location yyz on the current channel (test) for Team: Test'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'sea', 'vie', 'yyz'],
         },
@@ -322,10 +315,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel (test) will no longer get notifications for Team: Test during sea business hours.'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'vie', 'yyz'],
         },
@@ -342,10 +334,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel (test) is not subscribed to Team: Test during sea business hours.'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'vie', 'yyz'],
         },
@@ -362,10 +353,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel (test) will no longer get notifications for Team: Test during yyz business hours.'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['sfo', 'vie'],
         },
@@ -382,10 +372,9 @@ describe('issueNotifier Tests', function () {
       expect(say).lastCalledWith(
         'This channel (test) will no longer get notifications for Team: Test during sfo business hours.'
       );
-      expect(await getLabelsTable().where({ channel_id })).toEqual([
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
         {
           channel_id: 'CHNLIDRND1',
-          id: 1,
           label_name: 'Team: Test',
           offices: ['vie'],
         },
