@@ -20,6 +20,10 @@ const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
 
 const officesCache = {};
+interface BusinessHourWindow {
+  start: moment.Moment;
+  end: moment.Moment;
+}
 
 export async function calculateTimeToRespondBy(numDays, team, testTimestamp?) {
   let cursor =
@@ -27,7 +31,7 @@ export async function calculateTimeToRespondBy(numDays, team, testTimestamp?) {
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
   while (msRemaining > 0) {
     const nextBusinessHours = await getNextBusinessHours(team, cursor);
-    const { start, end } = nextBusinessHours;
+    const { start, end }: BusinessHourWindow = nextBusinessHours;
     cursor = start;
     const msAvailable = end.valueOf() - start.valueOf();
     const msToAdd = Math.min(msAvailable, msRemaining);
@@ -80,7 +84,10 @@ export async function cacheOfficesForTeam(team) {
   return offices;
 }
 
-export async function getNextBusinessHours(team, momentTime) {
+export async function getNextBusinessHours(
+  team,
+  momentTime
+): Promise<BusinessHourWindow> {
   let offices = await getOfficesForTeam(team);
   if (offices.length === 0) {
     offices = await getOfficesForTeam('Team: Open Source');
@@ -88,12 +95,13 @@ export async function getNextBusinessHours(team, momentTime) {
       throw new Error('Open Source team not subscribed to any offices.');
     }
   }
-  const hours: { start; end }[] = [];
+  const businessHourWindows: BusinessHourWindow[] = [];
   offices.forEach((office) => {
     const momentIterator = moment(momentTime.valueOf()).utc();
     let isWeekend,
       dayOfTheWeek,
       date,
+      isHoliday,
       isTimestampOutsideBusinessHourWindow,
       end;
     do {
@@ -105,6 +113,7 @@ export async function getNextBusinessHours(team, momentTime) {
         .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
         .utc();
       isTimestampOutsideBusinessHourWindow = momentTime >= end;
+      isHoliday = HOLIDAY_CONFIG[office]?.dates.includes(date);
       momentIterator.add(1, 'days');
       /*
       We want to iterate until we find the first business hours for each office.
@@ -113,11 +122,7 @@ export async function getNextBusinessHours(team, momentTime) {
       2. momentIterator date is a weekend
       3. business hours for an office on momentIterator date has passed by
     */
-    } while (
-      HOLIDAY_CONFIG[office]?.dates.includes(date) ||
-      isWeekend ||
-      isTimestampOutsideBusinessHourWindow
-    );
+    } while (isHoliday || isWeekend || isTimestampOutsideBusinessHourWindow);
     // Start window will be the max of the start of the workday or the moment time passed in
     const start = moment.max(
       moment
@@ -125,17 +130,14 @@ export async function getNextBusinessHours(team, momentTime) {
         .utc(),
       momentTime
     );
-    hours.push({
+    businessHourWindows.push({
       start,
       end,
     });
   });
   // Sort the business hours by the starting date, we only care about the closest business hour window
-  hours.sort((a: any, b: any) => a.start - b.start);
-  if (hours.length === 0) {
-    return [];
-  }
-  return hours[0];
+  businessHourWindows.sort((a: any, b: any) => a.start - b.start);
+  return businessHourWindows[0];
 }
 
 export async function getOfficesForTeam(team) {

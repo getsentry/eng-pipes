@@ -1,6 +1,5 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
-import moment from 'moment-timezone';
 
 import {
   calculateSLOViolationRoute,
