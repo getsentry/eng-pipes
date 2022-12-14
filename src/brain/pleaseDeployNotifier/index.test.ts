@@ -1809,7 +1809,7 @@ describe('pleaseDeployNotifier.deployActions', function () {
             style: 'primary',
             text: { type: 'plain_text', text: 'Deploy', emoji: true },
             value: 'abcd1234',
-            url: 'https://gocd-mattgaunt-2.getsentry.net',
+            url: GOCD_ORIGIN,
             action_id: 'gocd-deploy: getsentry-backend',
           },
           {
