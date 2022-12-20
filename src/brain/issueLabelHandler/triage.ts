@@ -1,11 +1,10 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { githubEvents } from '@api/github';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK = new Set([
+const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
   'arroyo',
   'cdc',
   'craft',
@@ -70,8 +69,8 @@ async function isNotFromAnExternalUser(payload) {
   return (await getOssUserType(payload)) !== 'external';
 }
 
-function isNotInARepoWeCareAbout(payload) {
-  return !REPOS_TO_TRACK.has(payload.repository.name);
+function isNotInARepoWeCareAboutForTriage(payload) {
+  return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
 }
 
 function isTheUntriagedLabel(payload) {
@@ -80,22 +79,22 @@ function isTheUntriagedLabel(payload) {
 
 // Markers of State
 
-async function markUntriaged({
+export async function markUntriaged({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'timeToTriage.markUntriaged',
+    name: 'issueLabelHandler.markUntriaged',
   });
 
-  const reasonsToSkip = [
-    isNotInARepoWeCareAbout,
+  const reasonsToSkipTriage = [
+    isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalUser,
   ];
-  if (await shouldSkip(payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, reasonsToSkipTriage)) {
     return;
   }
 
@@ -113,18 +112,18 @@ async function markUntriaged({
   tx.finish();
 }
 
-async function markTriaged({
+export async function markTriaged({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'timeToTriage.markTriaged',
+    name: 'issueLabelHandler.markTriaged',
   });
 
   const reasonsToSkip = [
-    isNotInARepoWeCareAbout,
+    isNotInARepoWeCareAboutForTriage,
     isFromABot,
     isTheUntriagedLabel,
     isAlreadyTriaged,
@@ -157,13 +156,4 @@ async function markTriaged({
   }
 
   tx.finish();
-}
-
-// Install.
-
-export async function timeToTriage() {
-  githubEvents.removeListener('issues.opened', markUntriaged);
-  githubEvents.on('issues.opened', markUntriaged);
-  githubEvents.removeListener('issues.labeled', markTriaged);
-  githubEvents.on('issues.labeled', markTriaged);
 }
