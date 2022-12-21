@@ -1,4 +1,4 @@
-# Issue Label Handler - Simplified
+# Issue Label Handler
 
 ## Time to Triage
 
