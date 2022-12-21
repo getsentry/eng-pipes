@@ -1,4 +1,6 @@
-# Time to Triage - Simplified
+# Issue Label Handler - Simplified
+
+## Time to Triage
 
 We track Time to Triage [as an SLO][looker] for the Open Source Team and the
 EPD org as a whole. The computation is [defined in LookML][implementation]

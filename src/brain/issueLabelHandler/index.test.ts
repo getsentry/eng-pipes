@@ -9,7 +9,7 @@ import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
-import { timeToTriage } from '.';
+import { issueLabelHandler } from '.';
 
 describe('timeToTriage', function () {
   let fastify: Fastify;
@@ -31,7 +31,7 @@ describe('timeToTriage', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    await timeToTriage();
+    await issueLabelHandler();
     octokit = await getClient(ClientType.App, 'Enterprise');
   });
 
