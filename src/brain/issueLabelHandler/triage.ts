@@ -1,7 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { githubEvents } from '@api/github';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
@@ -80,7 +79,7 @@ function isTheUntriagedLabel(payload) {
 
 // Markers of State
 
-async function markUntriaged({
+export async function markUntriaged({
   id,
   payload,
   ...rest
@@ -113,7 +112,7 @@ async function markUntriaged({
   tx.finish();
 }
 
-async function markTriaged({
+export async function markTriaged({
   id,
   payload,
   ...rest
@@ -157,13 +156,4 @@ async function markTriaged({
   }
 
   tx.finish();
-}
-
-// Install.
-
-export async function timeToTriage() {
-  githubEvents.removeListener('issues.opened', markUntriaged);
-  githubEvents.on('issues.opened', markUntriaged);
-  githubEvents.removeListener('issues.labeled', markTriaged);
-  githubEvents.on('issues.labeled', markTriaged);
 }
