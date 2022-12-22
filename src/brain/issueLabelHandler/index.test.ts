@@ -240,12 +240,12 @@ describe('issueLabelHandler', function () {
     });
   });
 
-  describe('routing test cases', function () {
+  describe('[routing](https://open.sentry.io/triage/#2-route) test cases', function () {
     it('adds `Status: Unrouted` to new issues', async function () {
       await createIssue('sentry-docs');
       expectUnrouted();
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -261,8 +261,8 @@ describe('issueLabelHandler', function () {
       expectUntriaged();
       expectRouted();
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -271,7 +271,7 @@ describe('issueLabelHandler', function () {
       await addLabel('Status: Needs More Information', 'sentry-docs');
       expectUnrouted();
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -280,8 +280,8 @@ describe('issueLabelHandler', function () {
       await addLabel('Team: Does Not Exist', 'sentry-docs', 'test');
       expectUntriaged();
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -291,12 +291,12 @@ describe('issueLabelHandler', function () {
       expectUntriaged();
       expectRouted();
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Failed to route to Team: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Failed to route to Team: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
-    it('removes previous Team labels when rerouting', async function () {
+    it('removes previous Team labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
       await createIssue('sentry-docs');
       await addLabel('Team: Test', 'sentry-docs');
       expectUntriaged();
@@ -305,9 +305,9 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Team: Rerouted');
       expect(octokit.issues._labels).not.toContain('Team: Test');
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -321,8 +321,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Team: Rerouted');
       expect(octokit.issues._labels).toContain('Team: Test');
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -336,8 +336,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Team: Rerouted');
       expect(octokit.issues._labels).toContain('Team: Test');
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
 
@@ -350,8 +350,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Team: Rerouted');
       expect(octokit.issues._labels).toContain('Team: Test');
       expect(octokit.issues._comments).toEqual([
-        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**. ⏲️',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**. ⏲️',
       ]);
     });
   });

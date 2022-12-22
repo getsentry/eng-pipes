@@ -102,7 +102,7 @@ export async function markUnrouted({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    body: `Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=${timeToRouteBy}>${readableTimeToRouteBy}</time>**`,
+    body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableTimeToRouteBy}</time>**. ⏲️`,
   });
 
   tx.finish();
@@ -116,7 +116,7 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
       org: SENTRY_ORG,
       team_slug: strippedTeamName,
     });
-    return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+    return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   } catch {
     // If the label name doesn't work, try description
     try {
@@ -125,9 +125,9 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
         org: SENTRY_ORG,
         team_slug: descriptionSlugName,
       });
-      return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+      return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     } catch {
-      return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+      return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     }
   }
 }
@@ -196,7 +196,7 @@ export async function markRouted({
   });
 
   const teamLabelDescription = teamLabel?.description;
-  const comment = await routeIssue(
+  const routedTeam = await routeIssue(
     octokit,
     teamLabelName,
     teamLabelDescription
@@ -206,11 +206,13 @@ export async function markRouted({
     teamLabel,
   ]);
   const readableTimeToTriageBy = moment(timeToTriageBy).utc().toString();
+  const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableTimeToTriageBy}</time>**. ⏲️`;
+  const comment = `${routedTeam}, ${dueBy}`;
   await octokit.issues.createComment({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    body: `${comment}\nThe Sentry team will respond by **<time datetime=${timeToTriageBy}>${readableTimeToTriageBy}</time>**`,
+    body: comment,
   });
 
   tx.finish();
