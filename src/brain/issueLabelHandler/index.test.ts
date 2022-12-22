@@ -76,9 +76,11 @@ describe('issueLabelHandler', function () {
     repo?: string,
     label?: string,
     sender?: string,
-    labelDescription?: string
+    labelDescription?: string,
+    state?: string
   ) {
     repo = repo || 'test-ttt-simple';
+    state = state || 'open';
 
     const labels = Array.from(octokit.issues._labels, (name) => ({ name }));
     const payload: Record<string, any> = {
@@ -87,13 +89,12 @@ describe('issueLabelHandler', function () {
         name: repo,
         owner: { login: 'Enterprise' },
       },
-      issue: { labels }, // mix in labels stored in mock
+      issue: { state, labels }, // mix in labels stored in mock
     };
 
     if (label) {
       payload.label = { name: label, description: labelDescription };
     }
-
     return payload;
   }
 
@@ -109,13 +110,14 @@ describe('issueLabelHandler', function () {
   async function addLabel(
     label: string,
     repo?: string,
-    labelDescription?: string
+    labelDescription?: string,
+    state?: string
   ) {
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issues.labeled',
-      makePayload(repo, label, undefined, labelDescription)
+      makePayload(repo, label, undefined, labelDescription, state)
     );
     octokit.issues.addLabels({ labels: [label] });
   }
@@ -306,6 +308,50 @@ describe('issueLabelHandler', function () {
         'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
         'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
         'Routing to @getsentry/rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+      ]);
+    });
+
+    it('should not reroute if Status: Backlog is exists on issue', async function () {
+      await createIssue('sentry-docs');
+      await addLabel('Team: Test', 'sentry-docs');
+      expectUntriaged();
+      expectRouted();
+      await addLabel('Status: Backlog', 'sentry-docs');
+      await addLabel('Team: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Team: Rerouted');
+      expect(octokit.issues._labels).toContain('Team: Test');
+      expect(octokit.issues._comments).toEqual([
+        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+      ]);
+    });
+
+    it('should not reroute if Status: In Progress exists on issue', async function () {
+      await createIssue('sentry-docs');
+      await addLabel('Team: Test', 'sentry-docs');
+      expectUntriaged();
+      expectRouted();
+      await addLabel('Status: In Progress', 'sentry-docs');
+      await addLabel('Team: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Team: Rerouted');
+      expect(octokit.issues._labels).toContain('Team: Test');
+      expect(octokit.issues._comments).toEqual([
+        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
+      ]);
+    });
+
+    it('should not reroute if issue is closed', async function () {
+      await createIssue('sentry-docs');
+      await addLabel('Team: Test', 'sentry-docs');
+      expectUntriaged();
+      expectRouted();
+      await addLabel('Team: Rerouted', 'sentry-docs', undefined, 'closed');
+      expect(octokit.issues._labels).toContain('Team: Rerouted');
+      expect(octokit.issues._labels).toContain('Team: Test');
+      expect(octokit.issues._comments).toEqual([
+        'Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=2022-12-20T00:00:00.000Z>Tue Dec 20 2022 00:00:00 GMT+0000</time>**',
+        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️\nThe Sentry team will respond by **<time datetime=2022-12-21T00:00:00.000Z>Wed Dec 21 2022 00:00:00 GMT+0000</time>**',
       ]);
     });
   });

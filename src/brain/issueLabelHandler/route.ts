@@ -12,6 +12,7 @@ import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set([
   // 'sentry',
+  'test-sentry-app',
   'sentry-docs',
 ]);
 
@@ -40,6 +41,7 @@ function isAlreadyUnrouted(payload) {
 }
 
 async function isNotFromAnExternalUser(payload) {
+  return false;
   return (await getOssUserType(payload)) !== 'external';
 }
 
@@ -47,8 +49,15 @@ function isNotInARepoWeCareAboutForRouting(payload) {
   return !REPOS_TO_TRACK_FOR_ROUTING.has(payload.repository.name);
 }
 
-function isNotATeamLabel(payload) {
-  return !payload.label?.name.startsWith(TEAM_LABEL_PREFIX);
+function isValidLabel(payload) {
+  return (
+    !payload.label?.name.startsWith(TEAM_LABEL_PREFIX) ||
+    payload.issue.labels?.some(
+      (label) =>
+        label.name === 'Status: Backlog' || label.name === 'Status: In Progress'
+    ) ||
+    payload.issue.state !== 'open'
+  );
 }
 
 function shouldLabelBeRemoved(label, target_name) {
@@ -138,7 +147,7 @@ export async function markRouted({
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
     isFromABot,
-    isNotATeamLabel,
+    isValidLabel,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
     return;
