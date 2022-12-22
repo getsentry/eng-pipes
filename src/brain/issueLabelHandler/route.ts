@@ -40,7 +40,6 @@ function isAlreadyUnrouted(payload) {
 }
 
 async function isNotFromAnExternalUser(payload) {
-  return false;
   return (await getOssUserType(payload)) !== 'external';
 }
 
