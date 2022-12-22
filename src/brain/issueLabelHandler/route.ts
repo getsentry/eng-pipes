@@ -11,8 +11,7 @@ import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set([
-  'test-sentry-app',
-  'sentry',
+  // 'sentry',
   'sentry-docs',
 ]);
 
@@ -41,6 +40,7 @@ function isAlreadyUnrouted(payload) {
 }
 
 async function isNotFromAnExternalUser(payload) {
+  return false;
   return (await getOssUserType(payload)) !== 'external';
 }
 
@@ -96,10 +96,34 @@ export async function markUnrouted({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    body: `Thanks for filing this issue!\n @getsentry/support will get back to you by **<time datetime=${timeToRouteBy}>${readableTimeToRouteBy}</time>**`,
+    body: `Thanks for filing this issue!\n@getsentry/support will get back to you by **<time datetime=${timeToRouteBy}>${readableTimeToRouteBy}</time>**`,
   });
 
   tx.finish();
+}
+
+async function routeIssue(octokit, teamLabelName, teamDescription) {
+  try {
+    const strippedTeamName =
+      teamLabelName?.substr(6).replace(' ', '-').toLowerCase() || '';
+    await octokit.teams.getByName({
+      org: SENTRY_ORG,
+      team_slug: strippedTeamName,
+    });
+    return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+  } catch {
+    // If the label name doesn't work, try description
+    try {
+      const descriptionSlugName = teamDescription || '';
+      await octokit.teams.getByName({
+        org: SENTRY_ORG,
+        team_slug: descriptionSlugName,
+      });
+      return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+    } catch {
+      return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
+    }
+  }
 }
 
 export async function markRouted({
@@ -129,6 +153,7 @@ export async function markRouted({
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
 
+  // When routing, remove all Status and Team labels that currently exist on issue
   issue.labels?.forEach((label) => {
     if (shouldLabelBeRemoved(label, teamLabelName)) {
       labelsToRemove.push(label.name);
@@ -164,30 +189,12 @@ export async function markRouted({
     labels: [UNTRIAGED_LABEL],
   });
 
-  // strip the "Team: " and replace all whitespaces with hyphen
-  const strippedTeam =
-    teamLabelName?.substr(6).replace(' ', '-').toLowerCase() || '';
-  let comment;
-  try {
-    const labelSlugName = strippedTeam;
-    await octokit.teams.getByName({
-      org: SENTRY_ORG,
-      team_slug: labelSlugName,
-    });
-    comment = `Routing to @${SENTRY_ORG}/${labelSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
-  } catch (error) {
-    // If the label name doesn't work, try description
-    try {
-      const descriptionSlugName = teamLabel?.description || '';
-      await octokit.teams.getByName({
-        org: SENTRY_ORG,
-        team_slug: descriptionSlugName,
-      });
-      comment = `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
-    } catch {
-      comment = `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage). ⏲️`;
-    }
-  }
+  const teamLabelDescription = teamLabel?.description;
+  const comment = await routeIssue(
+    octokit,
+    teamLabelName,
+    teamLabelDescription
+  );
 
   const timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
     teamLabel,
@@ -197,7 +204,7 @@ export async function markRouted({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    body: `${comment} \n The Sentry team will respond by **<time datetime=${timeToTriageBy}>${readableTimeToTriageBy}</time>**`,
+    body: `${comment}\nThe Sentry team will respond by **<time datetime=${timeToTriageBy}>${readableTimeToTriageBy}</time>**`,
   });
 
   tx.finish();
