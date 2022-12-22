@@ -12,7 +12,6 @@ import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set([
   // 'sentry',
-  'test-sentry-app',
   'sentry-docs',
 ]);
 
