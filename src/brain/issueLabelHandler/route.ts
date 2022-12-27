@@ -10,10 +10,7 @@ import {
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set([
-  // 'sentry',
-  'sentry-docs',
-]);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
 import { ClientType } from '@/api/github/clientType';
 import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
