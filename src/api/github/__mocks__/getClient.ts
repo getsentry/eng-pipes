@@ -54,8 +54,17 @@ function mockClient() {
     git: {
       getCommit: jest.fn(),
     },
+    teams: {
+      getByName: jest.fn(async function (payload) {
+        if (payload.team_slug === 'test' || payload.team_slug === 'rerouted') {
+          return { status: 200, data: {} };
+        }
+        throw new MockOctokitError(404);
+      }),
+    },
     issues: {
       _labels: new Set([]),
+      _comments: [],
       addLabels: jest.fn(async function (payload) {
         for (const name of payload.labels) {
           this._labels.add(name);
@@ -63,6 +72,9 @@ function mockClient() {
       }),
       removeLabel: jest.fn(async function (payload) {
         this._labels.delete(payload.name);
+      }),
+      createComment: jest.fn(async function (payload) {
+        this._comments.push(payload.body);
       }),
     },
     orgs: {

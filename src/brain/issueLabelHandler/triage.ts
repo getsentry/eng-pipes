@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK = new Set([
+const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
   'arroyo',
   'cdc',
   'craft',
@@ -69,8 +69,8 @@ async function isNotFromAnExternalUser(payload) {
   return (await getOssUserType(payload)) !== 'external';
 }
 
-function isNotInARepoWeCareAbout(payload) {
-  return !REPOS_TO_TRACK.has(payload.repository.name);
+function isNotInARepoWeCareAboutForTriage(payload) {
+  return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
 }
 
 function isTheUntriagedLabel(payload) {
@@ -86,15 +86,15 @@ export async function markUntriaged({
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'timeToTriage.markUntriaged',
+    name: 'issueLabelHandler.markUntriaged',
   });
 
-  const reasonsToSkip = [
-    isNotInARepoWeCareAbout,
+  const reasonsToSkipTriage = [
+    isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalUser,
   ];
-  if (await shouldSkip(payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, reasonsToSkipTriage)) {
     return;
   }
 
@@ -119,11 +119,11 @@ export async function markTriaged({
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'timeToTriage.markTriaged',
+    name: 'issueLabelHandler.markTriaged',
   });
 
   const reasonsToSkip = [
-    isNotInARepoWeCareAbout,
+    isNotInARepoWeCareAboutForTriage,
     isFromABot,
     isTheUntriagedLabel,
     isAlreadyTriaged,
