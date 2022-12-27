@@ -117,8 +117,7 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
   } catch (error) {
     // Use capture message here, because many teams rely on the label description for routing and it's not an exception we care about yet.
     Sentry.captureMessage(
-      'Routing to team label name failed, retrying with label description',
-      { level: 'warning' }
+      'Routing to team label name failed, retrying with label description'
     );
     // If the label name doesn't work, try description
     try {
