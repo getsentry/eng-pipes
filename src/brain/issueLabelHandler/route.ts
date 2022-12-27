@@ -115,7 +115,10 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
     });
     return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   } catch (error) {
-    Sentry.captureException(error);
+    Sentry.captureMessage(
+      'Routing to team label name failed, retrying with label description',
+      { level: 'warning' }
+    );
     // If the label name doesn't work, try description
     try {
       const descriptionSlugName = teamDescription || '';
