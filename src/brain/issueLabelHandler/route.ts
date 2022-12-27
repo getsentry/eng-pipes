@@ -117,7 +117,8 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
       team_slug: strippedTeamName,
     });
     return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
-  } catch {
+  } catch (error) {
+    Sentry.captureException(error);
     // If the label name doesn't work, try description
     try {
       const descriptionSlugName = teamDescription || '';
@@ -126,7 +127,8 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
         team_slug: descriptionSlugName,
       });
       return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
-    } catch {
+    } catch (error) {
+      Sentry.captureException(error);
       return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     }
   }
