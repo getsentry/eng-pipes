@@ -10,10 +10,7 @@ import {
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set([
-  // 'sentry',
-  'sentry-docs',
-]);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
 import { ClientType } from '@/api/github/clientType';
 import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
@@ -118,7 +115,10 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
     });
     return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   } catch (error) {
-    Sentry.captureException(error);
+    // Use capture message here, because many teams rely on the label description for routing and it's not an exception we care about yet.
+    Sentry.captureMessage(
+      'Routing to team label name failed, retrying with label description'
+    );
     // If the label name doesn't work, try description
     try {
       const descriptionSlugName = teamDescription || '';
