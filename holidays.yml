@@ -27,6 +27,7 @@ sfo:
     "2023-12-27", # Unofficial days between Christmas and New Years
     "2023-12-28",
     "2023-12-29",
+    "2024-01-01", # New Year's Day
   ]
 sea:
   dates: [
@@ -54,6 +55,7 @@ sea:
     "2023-12-27", # Unofficial days between Christmas and New Years
     "2023-12-28",
     "2023-12-29",
+    "2024-01-01", # New Year's Day
   ]
 vie:
   dates: [
@@ -79,6 +81,7 @@ vie:
     "2023-12-27", # Unofficial days between Christmas and New Years
     "2023-12-28",
     "2023-12-29",
+    "2024-01-01", # New Year's Day
   ]
 yyz:
   dates: [
@@ -104,6 +107,7 @@ yyz:
     "2023-12-27", # Unofficial days between Christmas and New Years
     "2023-12-28",
     "2023-12-29",
+    "2024-01-01", # New Year's Day
   ]
 ams:
   dates: [
@@ -119,4 +123,5 @@ ams:
     "2023-12-27", # Unofficial days between Christmas and New Years
     "2023-12-28",
     "2023-12-29",
+    "2024-01-01", # New Year's Day
   ]
