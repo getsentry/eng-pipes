@@ -5,6 +5,10 @@ sfo:
   dates: [
     "2022-12-23", # Christmas Eve
     "2022-12-26", # Christmas Day
+    "2022-12-27", # Unofficial days between Christmas and New Years
+    "2022-12-28",
+    "2022-12-29",
+    "2022-12-30",
     "2023-01-02", # New Year's Day
     "2023-01-16", # MLK Day
     "2023-02-20", # President's Day
@@ -20,11 +24,18 @@ sfo:
     "2023-11-24", # Day after Thanksgiving
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
+    "2023-12-27", # Unofficial days between Christmas and New Years
+    "2023-12-28",
+    "2023-12-29",
   ]
 sea:
   dates: [
     "2022-12-23", # Christmas Eve
     "2022-12-26", # Christmas Day
+    "2022-12-27", # Unofficial days between Christmas and New Years
+    "2022-12-28",
+    "2022-12-29",
+    "2022-12-30",
     "2023-01-02", # New Year's Day
     "2023-01-16", # MLK Day
     "2023-02-20", # President's Day
@@ -40,12 +51,18 @@ sea:
     "2023-11-24", # Day after Thanksgiving
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
+    "2023-12-27", # Unofficial days between Christmas and New Years
+    "2023-12-28",
+    "2023-12-29",
   ]
 vie:
   dates: [
     "2022-12-23", # Christmas Eve
     "2022-12-26", # Christmas Day
     "2022-12-27", # Boxing Day
+    "2022-12-28", # Unofficial days between Christmas and New Years
+    "2022-12-29",
+    "2022-12-30",
     "2023-01-02", # New Year's Day
     "2023-01-06", # Epiphany
     "2023-04-10", # Easter Monday
@@ -59,12 +76,18 @@ vie:
     "2023-12-08", # Immaculate Conception
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
+    "2023-12-27", # Unofficial days between Christmas and New Years
+    "2023-12-28",
+    "2023-12-29",
   ]
 yyz:
   dates: [
     "2022-12-23", # Christmas Eve
     "2022-12-26", # Christmas Day
     "2022-12-27", # Boxing Day
+    "2022-12-28", # Unofficial days between Christmas and New Years
+    "2022-12-29",
+    "2022-12-30",
     "2023-01-02", # New Year's Day
     "2023-01-20", # Nova Scotia Heritage Day and Family Day
     "2023-04-07", # Good Friday
@@ -78,6 +101,9 @@ yyz:
     "2023-11-13", # Remembrance Day
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
+    "2023-12-27", # Unofficial days between Christmas and New Years
+    "2023-12-28",
+    "2023-12-29",
   ]
 ams:
   dates: [
@@ -90,4 +116,7 @@ ams:
     "2023-05-29", # Whit Monday
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
+    "2023-12-27", # Unofficial days between Christmas and New Years
+    "2023-12-28",
+    "2023-12-29",
   ]
