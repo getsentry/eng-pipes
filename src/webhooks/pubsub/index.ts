@@ -1,11 +1,11 @@
 import { Octokit } from '@octokit/rest';
+import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  DAY_IN_MS,
-  MAX_TRIAGE_DAYS,
   OWNER,
   SENTRY_REPO,
   TEAM_LABEL_PREFIX,
@@ -16,8 +16,6 @@ import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
-const MAX_TRIAGE_TIME = MAX_TRIAGE_DAYS * DAY_IN_MS;
-const EARLY_WARNING_TIME = 1 * DAY_IN_MS;
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
 
@@ -32,7 +30,7 @@ type IssueSLOInfo = {
   number: number;
   title: string;
   teamLabel: string;
-  waitTime: number;
+  triageBy: string;
 };
 
 export const opts = {
@@ -65,12 +63,12 @@ const getIssueTeamLabel = (issue: Issue) => {
   return getLabelName(label) || DEFAULT_TEAM_LABEL;
 };
 
-const getRoutingTimestamp = async (
+const getTriageSLOTimestamp = async (
   octokit: Octokit,
   repo: string,
   issue_number: number
 ) => {
-  const issues = await octokit.paginate(octokit.issues.listEvents, {
+  const issues = await octokit.paginate(octokit.issues.listComments, {
     owner: OWNER,
     repo,
     issue_number,
@@ -80,17 +78,32 @@ const getRoutingTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.event === 'labeled' && event.label.name === UNTRIAGED_LABEL
+      event.user.type === 'Bot'
   );
-  const lastRouteEvent = routingEvents[routingEvents.length - 1];
+  const lastRouteComment = routingEvents[routingEvents.length - 1];
   // Due to @octokit/webhooks upgrade, created_at is now string|undefined
-  return Date.parse(lastRouteEvent.created_at || '');
+  const parseBodyForDatetime = lastRouteComment.body?.match(
+    /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3})Z>/
+  )?.groups;
+  if (!parseBodyForDatetime?.timestamp) {
+    Sentry.captureException(
+      new Error(
+        `Could not parse timestamp from comments for  ${repo}/issues/${issue_number}`
+      )
+    );
+    return moment().toISOString();
+  }
+  return parseBodyForDatetime.timestamp;
 };
 
-export const handler = async (
+export const notifyTeamsForUntriagedIssues = async (
   request: FastifyRequest<{ Body: { message: { data: string } } }>,
   reply: FastifyReply
 ) => {
+  const tx = Sentry.startTransaction({
+    op: 'webhooks',
+    name: 'pubsub.notifyForUntriagedIssues',
+  });
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
@@ -110,8 +123,7 @@ export const handler = async (
 
   const octokit = await getClient(ClientType.App, OWNER);
   const repos: string[] = payload.repos || DEFAULT_REPOS;
-  const SLO = payload.slo || MAX_TRIAGE_TIME;
-  const now = Date.now();
+  const now = moment();
 
   // 1. Get all open, untriaged issues
   // 2. Get all the events for each of the remaining issues
@@ -134,8 +146,7 @@ export const handler = async (
       number: issue.number,
       title: issue.title,
       teamLabel: getIssueTeamLabel(issue),
-      // TODO(byk): Make this business days (at least weekend-aware)
-      waitTime: now - (await getRoutingTimestamp(octokit, repo, issue.number)),
+      triageBy: await getTriageSLOTimestamp(octokit, repo, issue.number),
     }));
 
     return Promise.all(issuesWithSLOInfo);
@@ -145,37 +156,65 @@ export const handler = async (
     await Promise.all(repos.map(getIssueSLOInfoForRepo))
   )
     .flat()
-    .filter((data) => data.waitTime >= SLO - EARLY_WARNING_TIME);
+    .filter((data) => now.isAfter(data.triageBy));
 
   // Get an N-to-N mapping of `Team: *` labels to Slack Channels
-  const teamsToNotify = new Set(
-    issuesToNotifyAbout.map((data) => data.teamLabel)
-  ) as Set<string>;
+  const teamToIssuesMap = {};
+  const teamsToNotify = new Set() as Set<string>;
+  issuesToNotifyAbout.forEach((data) => {
+    if (data.teamLabel in teamToIssuesMap) {
+      teamToIssuesMap[data.teamLabel].push(data);
+    } else {
+      teamToIssuesMap[data.teamLabel] = [data];
+      teamsToNotify.add(data.teamLabel);
+    }
+  });
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
       .select('label_name', 'channel_id')
       .whereIn('label_name', Array.from(teamsToNotify))
   ).reduce((res, { label_name, channel_id }) => {
-    const channels = res[label_name] || [];
-    channels.push(channel_id);
-    res[label_name] = channels;
+    const teams = res[channel_id] || [];
+    teams.push(label_name);
+    res[channel_id] = teams;
     return res;
   }, {});
 
   // Notify all channels associated with the relevant `Team: *` label per issue
-  const notifications = issuesToNotifyAbout.flatMap(
-    ({ url, number, title, teamLabel, waitTime }) =>
-      notificationChannels[teamLabel].map((channel) =>
-        bolt.client.chat.postMessage({
-          channel,
-          text: `⚠ Issue ${
-            waitTime < SLO ? 'about to violate' : 'is violating'
-          } time-to-triage SLO: <${url}|#${number} ${title}>`,
-        })
-      )
+  const notifications = Object.keys(notificationChannels).flatMap(
+    (channelId) => {
+      let overdue = '';
+      let actFast = '';
+      let triageQueue = '';
+      notificationChannels[channelId].map((team) => {
+        teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
+          if (now.diff(triageBy, 'hours') <= -4) {
+            actFast += `\n- <${url}|#${number} ${title}>`;
+          } else if (now.diff(triageBy, 'hours') >= 0) {
+            overdue += `\n- <${url}|#${number} ${title}>`;
+          } else {
+            triageQueue += `\n- <${url}|#${number} ${title}>`;
+          }
+        });
+      });
+      return bolt.client.chat.postMessage({
+        channel: channelId,
+        text: `Hey! You have some tickets to triage:
+
+🚨 *Overdue* 😰
+${overdue}
+
+⌛️ *Act fast!* 😨
+${actFast}
+
+⏳ *Triage Queue* 😯
+${triageQueue}`,
+      });
+    }
   );
   // Do all this in parallel and wait till all finish
   await Promise.all(notifications);
+  tx.finish();
 };
 
 // Test command for `sentry-docs` repo:
