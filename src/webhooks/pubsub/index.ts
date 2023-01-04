@@ -33,6 +33,12 @@ type IssueSLOInfo = {
   triageBy: string;
 };
 
+type SlackMessageBlocks = {
+  type: string;
+  text?: object;
+  fields?: object;
+};
+
 export const opts = {
   schema: {
     body: {
@@ -63,7 +69,7 @@ const getIssueTeamLabel = (issue: Issue) => {
   return getLabelName(label) || DEFAULT_TEAM_LABEL;
 };
 
-const getTriageSLOTimestamp = async (
+export const getTriageSLOTimestamp = async (
   octokit: Octokit,
   repo: string,
   issue_number: number
@@ -81,19 +87,128 @@ const getTriageSLOTimestamp = async (
       event.user.type === 'Bot'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
-  // Due to @octokit/webhooks upgrade, created_at is now string|undefined
+  // use regex to parse the timestamp from the bot comment
   const parseBodyForDatetime = lastRouteComment.body?.match(
-    /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3})Z>/
+    /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
   )?.groups;
   if (!parseBodyForDatetime?.timestamp) {
+    // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(
       new Error(
-        `Could not parse timestamp from comments for  ${repo}/issues/${issue_number}`
+        `Could not parse timestamp from comments for ${repo}/issues/${issue_number}`
       )
     );
     return moment().toISOString();
   }
   return parseBodyForDatetime.timestamp;
+};
+
+export const constructSlackMessage = (
+  notificationChannels: Record<string, string[]>,
+  teamToIssuesMap: Record<string, IssueSLOInfo[]>,
+  now: moment.Moment
+) => {
+  return Object.keys(notificationChannels).flatMap((channelId) => {
+    // Group issues into buckets based on time left until SLA
+    const overdueIssues: {
+      text: string;
+      timeRemaining: string;
+      number: number;
+    } = {
+      text: '',
+      timeRemaining: '',
+      number: 1,
+    };
+    const actFastIssues: {
+      text: string;
+      timeRemaining: string;
+      number: number;
+    } = {
+      text: '',
+      timeRemaining: '',
+      number: 1,
+    };
+    const triageQueueIssues: {
+      text: string;
+      timeRemaining: string;
+      number: number;
+    } = {
+      text: '',
+      timeRemaining: '',
+      number: 1,
+    };
+    notificationChannels[channelId].map((team) => {
+      teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
+        const hoursLeft = now.diff(triageBy, 'hours') * -1;
+        const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+        if (hoursLeft <= 0) {
+          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+          overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
+            minutesLeft * -1
+          } minutes overdue`;
+          overdueIssues.number += 1;
+        } else if (hoursLeft <= 4) {
+          actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
+          actFastIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+          actFastIssues.number += 1;
+        } else {
+          triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
+          triageQueueIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+          triageQueueIssues.number += 1;
+        }
+      });
+    });
+    const messageBlocks: SlackMessageBlocks[] = [
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: 'Hey! You have some tickets to triage:',
+        },
+      },
+    ];
+    if (overdueIssues.text) {
+      messageBlocks.push({
+        type: 'section',
+        fields: [
+          { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
+          { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
+        ],
+      });
+    }
+    if (actFastIssues.text) {
+      messageBlocks.push({
+        type: 'section',
+        fields: [
+          {
+            type: 'mrkdwn',
+            text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
+          },
+          { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
+        ],
+      });
+    }
+    if (triageQueueIssues.text) {
+      messageBlocks.push({
+        type: 'section',
+        fields: [
+          {
+            type: 'mrkdwn',
+            text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
+          },
+          { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
+        ],
+      });
+    }
+    if (messageBlocks.length === 1) {
+      return Promise.resolve();
+    }
+    return bolt.client.chat.postMessage({
+      channel: channelId,
+      text: '👋 Triage Reminder ⏰',
+      blocks: messageBlocks,
+    });
+  });
 };
 
 export const notifyTeamsForUntriagedIssues = async (
@@ -154,12 +269,10 @@ export const notifyTeamsForUntriagedIssues = async (
 
   const issuesToNotifyAbout = (
     await Promise.all(repos.map(getIssueSLOInfoForRepo))
-  )
-    .flat()
-    .filter((data) => now.isAfter(data.triageBy));
+  ).flat();
 
-  // Get an N-to-N mapping of `Team: *` labels to Slack Channels
-  const teamToIssuesMap = {};
+  // Get an N-to-N mapping of "Team: *" labels to issues
+  const teamToIssuesMap: Record<string, IssueSLOInfo[]> = {};
   const teamsToNotify = new Set() as Set<string>;
   issuesToNotifyAbout.forEach((data) => {
     if (data.teamLabel in teamToIssuesMap) {
@@ -169,6 +282,7 @@ export const notifyTeamsForUntriagedIssues = async (
       teamsToNotify.add(data.teamLabel);
     }
   });
+  // Get a mapping from Channels to subscribed teams
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
       .select('label_name', 'channel_id')
@@ -181,36 +295,10 @@ export const notifyTeamsForUntriagedIssues = async (
   }, {});
 
   // Notify all channels associated with the relevant `Team: *` label per issue
-  const notifications = Object.keys(notificationChannels).flatMap(
-    (channelId) => {
-      let overdue = '';
-      let actFast = '';
-      let triageQueue = '';
-      notificationChannels[channelId].map((team) => {
-        teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
-          if (now.diff(triageBy, 'hours') <= -4) {
-            actFast += `\n- <${url}|#${number} ${title}>`;
-          } else if (now.diff(triageBy, 'hours') >= 0) {
-            overdue += `\n- <${url}|#${number} ${title}>`;
-          } else {
-            triageQueue += `\n- <${url}|#${number} ${title}>`;
-          }
-        });
-      });
-      return bolt.client.chat.postMessage({
-        channel: channelId,
-        text: `Hey! You have some tickets to triage:
-
-🚨 *Overdue* 😰
-${overdue}
-
-⌛️ *Act fast!* 😨
-${actFast}
-
-⏳ *Triage Queue* 😯
-${triageQueue}`,
-      });
-    }
+  const notifications = constructSlackMessage(
+    notificationChannels,
+    teamToIssuesMap,
+    now
   );
   // Do all this in parallel and wait till all finish
   await Promise.all(notifications);
