@@ -4,11 +4,7 @@ import moment from 'moment-timezone';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import {
-  constructSlackMessage,
-  getTriageSLOTimestamp,
-  notifyTeamsForUntriagedIssues,
-} from '.';
+import { constructSlackMessage, getTriageSLOTimestamp } from '.';
 
 describe('Triage Notification Tests', function () {
   beforeAll(async function () {
@@ -21,6 +17,7 @@ describe('Triage Notification Tests', function () {
     const sampleComment = {
       user: {
         type: 'Bot',
+        login: 'getsantry[bot]',
       },
       body: `Routing to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/
         #3-triage), due by **<time datetime=2023-01-05T16:00:00.000Z>Thu Jan 05 2023 16:00:00 GMT+0000</time>**.`,
@@ -64,6 +61,7 @@ describe('Triage Notification Tests', function () {
             {
               user: {
                 type: 'Bot',
+                login: 'getsantry[bot]',
               },
               body: `random string`,
               created_at: '2022-12-28T21:14:14Z',

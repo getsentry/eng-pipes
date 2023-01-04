@@ -84,7 +84,7 @@ export const getTriageSLOTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot'
+      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
