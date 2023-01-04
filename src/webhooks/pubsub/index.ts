@@ -141,7 +141,7 @@ export const constructSlackMessage = (
       teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
         const hoursLeft = now.diff(triageBy, 'hours') * -1;
         const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-        if (hoursLeft <= 0) {
+        if (hoursLeft <= 0 && minutesLeft <= 0) {
           overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
           overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
             minutesLeft * -1
