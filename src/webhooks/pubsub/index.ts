@@ -2,6 +2,7 @@ import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
+import { db } from '@utils/db';
 
 import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
@@ -14,10 +15,13 @@ import {
 import { Issue } from '@/types';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
+import { isChannelInBusinessHours } from '@/utils/businessHours';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
+const getChannelLastNotifiedTable = () => db('channel_last_notified');
+
 
 type PubSubPayload = {
   name: string;
@@ -84,11 +88,11 @@ export const getTriageSLOTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
+      event.user.type === 'Bot'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
-  const parseBodyForDatetime = lastRouteComment.body?.match(
+  const parseBodyForDatetime = lastRouteComment?.body?.match(
     /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
   )?.groups;
   if (!parseBodyForDatetime?.timestamp) {
@@ -108,7 +112,7 @@ export const constructSlackMessage = (
   teamToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
-  return Object.keys(notificationChannels).flatMap((channelId) => {
+  return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
     const overdueIssues: {
       text: string;
@@ -137,77 +141,85 @@ export const constructSlackMessage = (
       timeRemaining: '',
       number: 1,
     };
-    notificationChannels[channelId].map((team) => {
-      teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
-        const hoursLeft = now.diff(triageBy, 'hours') * -1;
-        const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-        if (hoursLeft <= 0 && minutesLeft <= 0) {
-          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
-            minutesLeft * -1
-          } minutes overdue`;
-          overdueIssues.number += 1;
-        } else if (hoursLeft <= 4) {
-          actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-          actFastIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
-          actFastIssues.number += 1;
-        } else {
-          triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
-          triageQueueIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
-          triageQueueIssues.number += 1;
-        }
+    if(await isChannelInBusinessHours(channelId, now)) {
+      notificationChannels[channelId].map((team) => {
+        teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
+          const hoursLeft = now.diff(triageBy, 'hours') * -1;
+          const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+          if (hoursLeft <= 0 && minutesLeft <= 0) {
+            overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+            overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
+              minutesLeft * -1
+            } minutes overdue`;
+            overdueIssues.number += 1;
+          } else if (hoursLeft <= 4) {
+            actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
+            actFastIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+            actFastIssues.number += 1;
+          } else {
+            triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
+            triageQueueIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+            triageQueueIssues.number += 1;
+          }
+        });
       });
-    });
-    const messageBlocks: SlackMessageBlocks[] = [
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: 'Hey! You have some tickets to triage:',
+      const messageBlocks: SlackMessageBlocks[] = [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: 'Hey! You have some tickets to triage:',
+          },
         },
-      },
-    ];
-    if (overdueIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
-          { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
-        ],
+      ];
+      if (overdueIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
+            { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
+          ],
+        });
+      }
+      if (actFastIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
+            },
+            { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
+          ],
+        });
+      }
+      const result = await getChannelLastNotifiedTable().where({ channel_id: channelId }).select('last_notified_at');
+      const shouldNotifyForOnlyTriagedQueue = result.length > 0 ? now.diff(result[0], "hours") < 4 : true
+      if (triageQueueIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
+            },
+            { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
+          ],
+        });
+      }
+      if (messageBlocks.length === 1 ||
+        messageBlocks.length === 2 && triageQueueIssues.number > 1 && !shouldNotifyForOnlyTriagedQueue) {
+        return Promise.resolve();
+      }
+      return bolt.client.chat.postMessage({
+        channel: channelId,
+        text: '👋 Triage Reminder ⏰',
+        blocks: messageBlocks,
+      }).then(async () => {
+        await getChannelLastNotifiedTable().insert({ channel_id: channelId, last_notified_at: now }).onConflict("channel_id").merge();
       });
     }
-    if (actFastIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
-          },
-          { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
-        ],
-      });
-    }
-    if (triageQueueIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
-          },
-          { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
-        ],
-      });
-    }
-    if (messageBlocks.length === 1) {
-      return Promise.resolve();
-    }
-    return bolt.client.chat.postMessage({
-      channel: channelId,
-      text: '👋 Triage Reminder ⏰',
-      blocks: messageBlocks,
-    });
+    return Promise.resolve();
   });
 };
 
@@ -238,7 +250,7 @@ export const notifyTeamsForUntriagedIssues = async (
 
   const octokit = await getClient(ClientType.App, OWNER);
   const repos: string[] = payload.repos || DEFAULT_REPOS;
-  const now = moment();
+  const now = moment().utc();
 
   // 1. Get all open, untriaged issues
   // 2. Get all the events for each of the remaining issues

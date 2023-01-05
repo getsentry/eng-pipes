@@ -87,6 +87,38 @@ export async function cacheOffices(team) {
   return offices;
 }
 
+export const isChannelInBusinessHours = async (channelId: string, now: moment.Moment) => {
+  // find all offices channel is subscribed to
+  const offices = [...new Set(
+      (
+        await getLabelsTable()
+          .where({
+            channel_id: channelId,
+          })
+          .select('offices')
+      )
+        .reduce((acc, item) => acc.concat(item.offices), [])
+        .filter((office) => office != null)
+    )];
+    // for all offices, check if the current time is in business hours
+    return offices.map((office: any) => {
+      const dayOfTheWeek = now.day();
+      const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
+      const date = now.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
+      const isHoliday = HOLIDAY_CONFIG[office]?.dates.includes(date);
+      if (!isWeekend && !isHoliday) {
+        const start = moment
+          .tz(`${date} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+          .utc();
+        const end = moment
+          .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+          .utc();
+        return start <= now && now <= end;
+      }
+      return false;
+    }).includes(true);
+}
+
 export async function getNextAvailableBusinessHourWindow(
   team,
   momentTime
