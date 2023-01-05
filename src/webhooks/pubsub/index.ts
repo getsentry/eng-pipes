@@ -88,7 +88,7 @@ export const getTriageSLOTimestamp = async (
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
-  const parseBodyForDatetime = lastRouteComment.body?.match(
+  const parseBodyForDatetime = lastRouteComment?.body?.match(
     /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
   )?.groups;
   if (!parseBodyForDatetime?.timestamp) {
