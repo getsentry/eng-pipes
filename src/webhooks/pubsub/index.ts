@@ -2,7 +2,6 @@ import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
-import { db } from '@utils/db';
 
 import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
@@ -13,15 +12,15 @@ import {
   UNTRIAGED_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
+import { isChannelInBusinessHours } from '@/utils/businessHours';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
-import { isChannelInBusinessHours } from '@/utils/businessHours';
+import { db } from '@utils/db';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
 const getChannelLastNotifiedTable = () => db('channel_last_notified');
-
 
 type PubSubPayload = {
   name: string;
@@ -88,7 +87,7 @@ export const getTriageSLOTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot'
+      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
@@ -141,11 +140,12 @@ export const constructSlackMessage = (
       timeRemaining: '',
       number: 1,
     };
-    if(await isChannelInBusinessHours(channelId, now)) {
+    if (await isChannelInBusinessHours(channelId, now)) {
       notificationChannels[channelId].map((team) => {
         teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
           const hoursLeft = now.diff(triageBy, 'hours') * -1;
-          const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+          const minutesLeft =
+            now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
           if (hoursLeft <= 0 && minutesLeft <= 0) {
             overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
             overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
@@ -193,8 +193,13 @@ export const constructSlackMessage = (
           ],
         });
       }
-      const result = await getChannelLastNotifiedTable().where({ channel_id: channelId }).select('last_notified_at');
-      const shouldNotifyForOnlyTriagedQueue = result.length > 0 ? now.diff(result[0], "hours") < 4 : true
+      const result = await getChannelLastNotifiedTable()
+        .where({ channel_id: channelId })
+        .select('last_notified_at');
+      const shouldNotifyForOnlyTriagedQueue =
+        result.length > 0
+          ? now.diff(result[0].last_notified_at, 'hours') >= 4
+          : true;
       if (triageQueueIssues.text) {
         messageBlocks.push({
           type: 'section',
@@ -207,17 +212,26 @@ export const constructSlackMessage = (
           ],
         });
       }
-      if (messageBlocks.length === 1 ||
-        messageBlocks.length === 2 && triageQueueIssues.number > 1 && !shouldNotifyForOnlyTriagedQueue) {
+      if (
+        messageBlocks.length === 1 ||
+        (messageBlocks.length === 2 &&
+          triageQueueIssues.number > 1 &&
+          !shouldNotifyForOnlyTriagedQueue)
+      ) {
         return Promise.resolve();
       }
-      return bolt.client.chat.postMessage({
-        channel: channelId,
-        text: '👋 Triage Reminder ⏰',
-        blocks: messageBlocks,
-      }).then(async () => {
-        await getChannelLastNotifiedTable().insert({ channel_id: channelId, last_notified_at: now }).onConflict("channel_id").merge();
-      });
+      return bolt.client.chat
+        .postMessage({
+          channel: channelId,
+          text: '👋 Triage Reminder ⏰',
+          blocks: messageBlocks,
+        })
+        .then(async () => {
+          await getChannelLastNotifiedTable()
+            .insert({ channel_id: channelId, last_notified_at: now })
+            .onConflict('channel_id')
+            .merge();
+        });
     }
     return Promise.resolve();
   });

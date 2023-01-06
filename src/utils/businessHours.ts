@@ -87,9 +87,13 @@ export async function cacheOffices(team) {
   return offices;
 }
 
-export const isChannelInBusinessHours = async (channelId: string, now: moment.Moment) => {
+export const isChannelInBusinessHours = async (
+  channelId: string,
+  now: moment.Moment
+) => {
   // find all offices channel is subscribed to
-  const offices = [...new Set(
+  let offices = [
+    ...new Set(
       (
         await getLabelsTable()
           .where({
@@ -99,9 +103,17 @@ export const isChannelInBusinessHours = async (channelId: string, now: moment.Mo
       )
         .reduce((acc, item) => acc.concat(item.offices), [])
         .filter((office) => office != null)
-    )];
-    // for all offices, check if the current time is in business hours
-    return offices.map((office: any) => {
+    ),
+  ];
+
+  // If no offices are found for the channel, backfill this with sfo
+  if (offices.length === 0) {
+    offices = ['sfo'];
+  }
+
+  // for all offices, check if the current time is in business hours
+  return offices
+    .map((office: any) => {
       const dayOfTheWeek = now.day();
       const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
       const date = now.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
@@ -116,8 +128,9 @@ export const isChannelInBusinessHours = async (channelId: string, now: moment.Mo
         return start <= now && now <= end;
       }
       return false;
-    }).includes(true);
-}
+    })
+    .includes(true);
+};
 
 export async function getNextAvailableBusinessHourWindow(
   team,
