@@ -46,10 +46,7 @@ function isNotInARepoWeCareAboutForRouting(payload) {
 
 function isIssueFromOrgMember(payload) {
   return (
-    payload.issue.author_association === 'MEMBER' ||
-    payload.issue.author_association === 'CONTRIBUTOR' ||
-    payload.issue.author_association === 'COLLABORATOR' ||
-    payload.issue.author_association === 'OWNER'
+    'MEMBER CONTRIBUTOR COLLABORATOR OWNER'.split(' ').includes(payload.issue.author_association)
   );
 }
 
