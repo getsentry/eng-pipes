@@ -141,19 +141,47 @@ export const constructSlackMessage = (
       teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
         const hoursLeft = now.diff(triageBy, 'hours') * -1;
         const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-        if (hoursLeft <= 0 && minutesLeft <= 0) {
+        const daysLeft = now.diff(triageBy, 'days');
+        if (daysLeft < -1) {
+          const daysText = daysLeft * -1 === 1 ? `${daysLeft * -1} day` : `${daysLeft * -1} days`;
           overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${hoursLeft * -1} hours ${
-            minutesLeft * -1
-          } minutes overdue`;
+          overdueIssues.timeRemaining += `\n${daysText} overdue`;
           overdueIssues.number += 1;
-        } else if (hoursLeft <= 4) {
+        }
+        if (hoursLeft < -4) {
+          const minutesText = minutesLeft * -1 === 1 ? `${minutesLeft * -1} minute` : `${minutesLeft * -1} minutes`;
+          const hoursText = hoursLeft * -1 === 1 ? `${hoursLeft * -1} hour` : `${hoursLeft * -1} hours`;
+          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+          overdueIssues.timeRemaining += `\n${hoursText} ${minutesText} overdue`;
+          overdueIssues.number += 1;
+        }
+        if (hoursLeft <= 0 && minutesLeft <= 0) {
+          const minutesText = minutesLeft * -1 === 1 ? `${minutesLeft * -1} minute` : `${minutesLeft * -1} minutes`;
+          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+          overdueIssues.timeRemaining += `\n${minutesText} overdue`;
+          overdueIssues.number += 1;
+        }
+        else if (hoursLeft < 1) {
+          const minutesText = minutesLeft === 1 ? `${minutesLeft} minute` : `${minutesLeft} minutes`;
           actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-          actFastIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+          actFastIssues.timeRemaining += `\n${minutesText} left`;
+          actFastIssues.number += 1;
+        }
+        else if (hoursLeft <= 4) {
+          const minutesText = minutesLeft === 1 ? `${minutesLeft} minute` : `${minutesLeft} minutes`;
+          const hoursText = hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
+          actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
+          actFastIssues.timeRemaining += `\n${hoursText} ${minutesText} left`;
           actFastIssues.number += 1;
         } else {
           triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
-          triageQueueIssues.timeRemaining += `\n${hoursLeft} hours ${minutesLeft} minutes left`;
+          if (daysLeft < 1) {
+            triageQueueIssues.timeRemaining += `\n${hoursLeft} hours left`;
+          }
+          else {
+            const daysText = daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
+            triageQueueIssues.timeRemaining += `\n${daysText} left`;
+          }
           triageQueueIssues.number += 1;
         }
       });
