@@ -77,10 +77,12 @@ describe('issueLabelHandler', function () {
     label?: string,
     sender?: string,
     labelDescription?: string,
-    state?: string
+    state?: string,
+    author_association?: string
   ) {
     repo = repo || 'test-ttt-simple';
     state = state || 'open';
+    author_association = author_association || 'NONE';
 
     const labels = Array.from(octokit.issues._labels, (name) => ({ name }));
     const payload: Record<string, any> = {
@@ -89,7 +91,7 @@ describe('issueLabelHandler', function () {
         name: repo,
         owner: { login: 'Enterprise' },
       },
-      issue: { state, labels }, // mix in labels stored in mock
+      issue: { state, labels, author_association }, // mix in labels stored in mock
     };
 
     if (label) {
@@ -98,12 +100,23 @@ describe('issueLabelHandler', function () {
     return payload;
   }
 
-  async function createIssue(repo?: string, username?: string) {
+  async function createIssue(
+    repo?: string,
+    username?: string,
+    author_association?: string
+  ) {
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issues.opened',
-      makePayload(repo, undefined, username)
+      makePayload(
+        repo,
+        undefined,
+        username,
+        undefined,
+        undefined,
+        author_association
+      )
     );
   }
 
@@ -111,13 +124,21 @@ describe('issueLabelHandler', function () {
     label: string,
     repo?: string,
     labelDescription?: string,
-    state?: string
+    state?: string,
+    author_association?: string
   ) {
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issues.labeled',
-      makePayload(repo, label, undefined, labelDescription, state)
+      makePayload(
+        repo,
+        label,
+        undefined,
+        labelDescription,
+        state,
+        author_association
+      )
     );
     octokit.issues.addLabels({ labels: [label] });
   }
@@ -241,6 +262,54 @@ describe('issueLabelHandler', function () {
   });
 
   describe('[routing](https://open.sentry.io/triage/#2-route) test cases', function () {
+    it('skips routing if issue is created by collaborator', async function () {
+      await createIssue('sentry-docs', 'Picard', 'COLLABORATOR');
+      await addLabel(
+        'Team: Test',
+        'sentry-docs',
+        undefined,
+        undefined,
+        'COLLABORATOR'
+      );
+      expect(octokit.issues._comments).toEqual([]);
+    });
+
+    it('skips routing if issue is created by owner', async function () {
+      await createIssue('sentry-docs', 'Picard', 'OWNER');
+      await addLabel(
+        'Team: Test',
+        'sentry-docs',
+        undefined,
+        undefined,
+        'OWNER'
+      );
+      expect(octokit.issues._comments).toEqual([]);
+    });
+
+    it('skips routing if issue is created by owner', async function () {
+      await createIssue('sentry-docs', 'Picard', 'MEMBER');
+      await addLabel(
+        'Team: Test',
+        'sentry-docs',
+        undefined,
+        undefined,
+        'MEMBER'
+      );
+      expect(octokit.issues._comments).toEqual([]);
+    });
+
+    it('skips routing if issue is created by owner', async function () {
+      await createIssue('sentry-docs', 'Picard', 'CONTRIBUTOR');
+      await addLabel(
+        'Team: Test',
+        'sentry-docs',
+        undefined,
+        undefined,
+        'CONTRIBUTOR'
+      );
+      expect(octokit.issues._comments).toEqual([]);
+    });
+
     it('adds `Status: Unrouted` to new issues', async function () {
       await createIssue('sentry-docs');
       expectUnrouted();

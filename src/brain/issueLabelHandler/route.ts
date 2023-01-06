@@ -44,6 +44,15 @@ function isNotInARepoWeCareAboutForRouting(payload) {
   return !REPOS_TO_TRACK_FOR_ROUTING.has(payload.repository.name);
 }
 
+function isIssueFromOrgMember(payload) {
+  return (
+    payload.issue.author_association === 'MEMBER' ||
+    payload.issue.author_association === 'CONTRIBUTOR' ||
+    payload.issue.author_association === 'COLLABORATOR' ||
+    payload.issue.author_association === 'OWNER'
+  );
+}
+
 function isValidLabel(payload) {
   return (
     !payload.label?.name.startsWith(TEAM_LABEL_PREFIX) ||
@@ -148,6 +157,7 @@ export async function markRouted({
     isNotInARepoWeCareAboutForRouting,
     isFromABot,
     isValidLabel,
+    isIssueFromOrgMember,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
     return;
