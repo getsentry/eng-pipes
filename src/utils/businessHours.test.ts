@@ -159,7 +159,7 @@ describe('businessHours tests', function () {
         'Team: Test',
         '2022-12-31T00:00:00.000Z'
       );
-      expect(result).toEqual('2023-01-04T00:00:00.000Z');
+      expect(result).toEqual('2023-01-04T01:00:00.000Z');
     });
 
     describe('holiday tests', function () {
@@ -170,7 +170,7 @@ describe('businessHours tests', function () {
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-29T01:00:00.000Z');
+        expect(result).toEqual('2024-01-04T01:00:00.000Z');
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
@@ -180,7 +180,7 @@ describe('businessHours tests', function () {
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
-        expect(result).toEqual('2023-12-28T01:00:00.000Z');
+        expect(result).toEqual('2024-01-03T01:00:00.000Z');
       });
 
       it('should not include holiday in TTR if at least one office is still open', async function () {
@@ -467,10 +467,10 @@ describe('businessHours tests', function () {
         moment('2023-12-23T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
-        moment('2023-12-27T08:00:00.000Z').valueOf()
+        moment('2024-01-02T08:00:00.000Z').valueOf()
       );
       expect(end.valueOf()).toEqual(
-        moment('2023-12-27T16:00:00.000Z').valueOf()
+        moment('2024-01-02T16:00:00.000Z').valueOf()
       );
     });
 

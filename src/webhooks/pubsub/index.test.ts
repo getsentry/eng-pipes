@@ -95,6 +95,23 @@ describe('Triage Notification Tests', function () {
         )
       );
     });
+    it('should return current time if bot comment is not found', async function () {
+      const octokit = {
+        paginate: (a, b) => a(b),
+        issues: {
+          listComments: () => [],
+        },
+      };
+      const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
+      expect(await getTriageSLOTimestamp(octokit, 'test', 1234)).not.toEqual(
+        '2023-01-05T16:00:00.000Z'
+      );
+      expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
+        new Error(
+          'Could not parse timestamp from comments for test/issues/1234'
+        )
+      );
+    });
   });
   describe('constructSlackMessage', function () {
     let boltPostMessageSpy;
