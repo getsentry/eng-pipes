@@ -32,6 +32,7 @@ import {
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
   getOffices,
+  isChannelInBusinessHours,
 } from './businessHours';
 
 describe('businessHours tests', function () {
@@ -269,6 +270,83 @@ describe('businessHours tests', function () {
     it('should calculate SLO violation if label is unrouted', async function () {
       const result = await calculateSLOViolationRoute(UNROUTED_LABEL);
       expect(result).not.toEqual(null);
+    });
+  });
+
+  describe('isChannelInBusinessHours', function () {
+    beforeAll(async function () {
+      await getLabelsTable().insert({
+        label_name: 'Team: Open Source',
+        channel_id: 'CHNLIDRND4',
+        offices: ['sfo', 'vie'],
+      });
+      await getLabelsTable().insert({
+        label_name: 'Team: Test',
+        channel_id: 'CHNLIDRND4',
+        offices: ['yyz'],
+      });
+    });
+    afterAll(async function () {
+      await getLabelsTable().where({ channel_id: 'CHNLIDRND4' }).del();
+    });
+    it('should return true for sfo office if in between 9am-5pm sfo business hours on workday', async function () {
+      const nowForTest = moment('2023-01-05T18:00:00.000Z').utc();
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return true if no office specified and in between 9am-5pm sfo business hours on workday', async function () {
+      const nowForTest = moment('2023-01-05T18:00:00.000Z').utc();
+      const result = await isChannelInBusinessHours('CHNLIDRND3', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return true for sfo office if on 9am sfo business hours on workday', async function () {
+      const nowForTest = moment('2023-01-05T17:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return true for sfo office if on 5pm sfo business hours on workday', async function () {
+      const nowForTest = moment('2023-01-06T01:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return false for sfo office if not in sfo business hours on workday', async function () {
+      const nowForTest = moment('2023-01-05T09:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(false);
+    });
+
+    it('should return false for sfo office if it is Christmas during business hours', async function () {
+      const nowForTest = moment('2023-12-24T17:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(false);
+    });
+
+    it('should return true if channel subscribed to vie, yyz, sfo and time is in sfo business hours', async function () {
+      const nowForTest = moment('2023-01-06T01:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND4', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return true if channel subscribed to vie, yyz, sfo and time is in yyz business hours', async function () {
+      const nowForTest = moment('2023-01-06T16:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND4', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return true if channel subscribed to vie, yyz, sfo and time is in vie business hours', async function () {
+      const nowForTest = moment('2023-01-05T12:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND4', nowForTest);
+      expect(result).toEqual(true);
+    });
+
+    it('should return false if channel subscribed to vie, yyz, sfo and time is a vie holiday', async function () {
+      const nowForTest = moment('2023-01-06T12:00:00.000Z');
+      const result = await isChannelInBusinessHours('CHNLIDRND4', nowForTest);
+      expect(result).toEqual(false);
     });
   });
 
