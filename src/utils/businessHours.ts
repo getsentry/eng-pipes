@@ -12,6 +12,9 @@ import {
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
 } from '@/config';
+import { bolt } from '@api/slack';
+
+const OPEN_SOURCE_TEAM_CHANNEL = 'G01F3FQ0T41';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
@@ -108,6 +111,10 @@ export const isChannelInBusinessHours = async (
 
   // If no offices are found for the channel, backfill this with sfo
   if (offices.length === 0) {
+    await bolt.client.chat.postMessage({
+      text: `Hey OSPO, looks like ${channelId} doesn't have offices set.`,
+      channel: OPEN_SOURCE_TEAM_CHANNEL,
+    });
     offices = ['sfo'];
   }
 
