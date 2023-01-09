@@ -24,6 +24,7 @@ import {
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
 } from '@/config';
+import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import {
@@ -285,6 +286,11 @@ describe('businessHours tests', function () {
         channel_id: 'CHNLIDRND4',
         offices: ['yyz'],
       });
+      await getLabelsTable().insert({
+        label_name: 'Team: Undefined',
+        channel_id: 'CHNLIDRND5',
+        offices: undefined,
+      });
     });
     afterAll(async function () {
       await getLabelsTable().where({ channel_id: 'CHNLIDRND4' }).del();
@@ -293,6 +299,16 @@ describe('businessHours tests', function () {
       const nowForTest = moment('2023-01-05T18:00:00.000Z').utc();
       const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
       expect(result).toEqual(true);
+    });
+
+    it('should post message to OSPO channel if offices is undefined', async function () {
+      const nowForTest = moment('2023-01-05T18:00:00.000Z').utc();
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      const result = await isChannelInBusinessHours('CHNLIDRND5', nowForTest);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        channel: 'G01F3FQ0T41',
+        text: "Hey OSPO, looks like CHNLIDRND5 doesn't have offices set.",
+      });
     });
 
     it('should return true if no office specified and in between 9am-5pm sfo business hours on workday', async function () {
