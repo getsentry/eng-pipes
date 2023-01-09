@@ -309,6 +309,7 @@ describe('businessHours tests', function () {
         channel: 'G01F3FQ0T41',
         text: "Hey OSPO, looks like CHNLIDRND5 doesn't have offices set.",
       });
+      expect(result).toEqual(true);
     });
 
     it('should return true if no office specified and in between 9am-5pm sfo business hours on workday', async function () {
