@@ -307,7 +307,7 @@ describe('businessHours tests', function () {
       const result = await isChannelInBusinessHours('CHNLIDRND5', nowForTest);
       expect(postMessageSpy).toHaveBeenCalledWith({
         channel: 'G01F3FQ0T41',
-        text: "Hey OSPO, looks like test-channel doesn't have offices set.",
+        text: "Hey OSPO, looks like #test-channel doesn't have offices set.",
       });
       expect(result).toEqual(true);
     });

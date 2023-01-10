@@ -116,7 +116,7 @@ export const isChannelInBusinessHours = async (
       await bolt.client.conversations.info({ channel: channelId })
     ).channel?.name;
     await bolt.client.chat.postMessage({
-      text: `Hey OSPO, looks like ${channelName} doesn't have offices set.`,
+      text: `Hey OSPO, looks like #${channelName} doesn't have offices set.`,
       channel: OPEN_SOURCE_TEAM_CHANNEL,
     });
     offices = ['sfo'];
