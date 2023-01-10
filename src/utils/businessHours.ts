@@ -111,8 +111,12 @@ export const isChannelInBusinessHours = async (
 
   // If no offices are found for the channel, backfill this with sfo
   if (offices.length === 0) {
+    // @ts-expect-error
+    const channelName = (
+      await bolt.client.conversations.info({ channel: channelId })
+    ).channel?.name;
     await bolt.client.chat.postMessage({
-      text: `Hey OSPO, looks like ${channelId} doesn't have offices set.`,
+      text: `Hey OSPO, looks like ${channelName} doesn't have offices set.`,
       channel: OPEN_SOURCE_TEAM_CHANNEL,
     });
     offices = ['sfo'];

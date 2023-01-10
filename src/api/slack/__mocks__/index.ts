@@ -49,6 +49,11 @@ jest.mock('@slack/web-api', () => ({
         }),
         postEphemeral: jest.fn(() => Promise.resolve({ ok: true })),
       },
+      conversations: {
+        info: jest.fn(() =>
+          Promise.resolve({ channel: { name: 'test-channel' } })
+        ),
+      },
       users: {
         info: jest.fn(() =>
           Promise.resolve({
