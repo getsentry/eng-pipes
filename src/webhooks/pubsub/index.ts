@@ -12,12 +12,15 @@ import {
   UNTRIAGED_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
+import { isChannelInBusinessHours } from '@/utils/businessHours';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
+import { db } from '@utils/db';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const GH_API_PER_PAGE = 100;
 const DEFAULT_TEAM_LABEL = 'Team: Open Source';
+const getChannelLastNotifiedTable = () => db('channel_last_notified');
 
 type PubSubPayload = {
   name: string;
@@ -108,7 +111,7 @@ export const constructSlackMessage = (
   teamToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
-  return Object.keys(notificationChannels).flatMap((channelId) => {
+  return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
     const overdueIssues: {
       text: string;
@@ -137,128 +140,151 @@ export const constructSlackMessage = (
       timeRemaining: '',
       number: 1,
     };
-    notificationChannels[channelId].map((team) => {
-      teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
-        const hoursLeft = now.diff(triageBy, 'hours') * -1;
-        const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-        const daysLeft = now.diff(triageBy, 'days') * -1;
-        if (daysLeft <= -1) {
-          const daysText =
-            daysLeft * -1 === 1
-              ? `${daysLeft * -1} day`
-              : `${daysLeft * -1} days`;
-          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${daysText} overdue`;
-          overdueIssues.number += 1;
-        } else if (hoursLeft < -4) {
-          const hoursText =
-            hoursLeft * -1 === 1
-              ? `${hoursLeft * -1} hour`
-              : `${hoursLeft * -1} hours`;
-          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${hoursText} overdue`;
-          overdueIssues.number += 1;
-        } else if (hoursLeft <= -1) {
-          const minutesText =
-            minutesLeft * -1 === 1
-              ? `${minutesLeft * -1} minute`
-              : `${minutesLeft * -1} minutes`;
-          const hoursText =
-            hoursLeft * -1 === 1
-              ? `${hoursLeft * -1} hour`
-              : `${hoursLeft * -1} hours`;
-          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${hoursText} ${minutesText} overdue`;
-          overdueIssues.number += 1;
-        } else if (hoursLeft == 0 && minutesLeft <= 0) {
-          const minutesText =
-            minutesLeft * -1 === 1
-              ? `${minutesLeft * -1} minute`
-              : `${minutesLeft * -1} minutes`;
-          overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-          overdueIssues.timeRemaining += `\n${minutesText} overdue`;
-          overdueIssues.number += 1;
-        } else if (hoursLeft == 0 && minutesLeft >= 0) {
-          const minutesText =
-            minutesLeft === 1
-              ? `${minutesLeft} minute`
-              : `${minutesLeft} minutes`;
-          actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-          actFastIssues.timeRemaining += `\n${minutesText} left`;
-          actFastIssues.number += 1;
-        } else if (hoursLeft <= 4) {
-          const minutesText =
-            minutesLeft === 1
-              ? `${minutesLeft} minute`
-              : `${minutesLeft} minutes`;
-          const hoursText =
-            hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
-          actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-          actFastIssues.timeRemaining += `\n${hoursText} ${minutesText} left`;
-          actFastIssues.number += 1;
-        } else {
-          triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
-          if (daysLeft < 1) {
-            triageQueueIssues.timeRemaining += `\n${hoursLeft} hours left`;
-          } else {
+    if (await isChannelInBusinessHours(channelId, now)) {
+      notificationChannels[channelId].map((team) => {
+        teamToIssuesMap[team].forEach(({ url, number, title, triageBy }) => {
+          const hoursLeft = now.diff(triageBy, 'hours') * -1;
+          const minutesLeft =
+            now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+          const daysLeft = now.diff(triageBy, 'days') * -1;
+          if (daysLeft <= -1) {
             const daysText =
-              daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
-            triageQueueIssues.timeRemaining += `\n${daysText} left`;
+              daysLeft * -1 === 1
+                ? `${daysLeft * -1} day`
+                : `${daysLeft * -1} days`;
+            overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+            overdueIssues.timeRemaining += `\n${daysText} overdue`;
+            overdueIssues.number += 1;
+          } else if (hoursLeft < -4) {
+            const hoursText =
+              hoursLeft * -1 === 1
+                ? `${hoursLeft * -1} hour`
+                : `${hoursLeft * -1} hours`;
+            overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+            overdueIssues.timeRemaining += `\n${hoursText} overdue`;
+            overdueIssues.number += 1;
+          } else if (hoursLeft <= -1) {
+            const minutesText =
+              minutesLeft * -1 === 1
+                ? `${minutesLeft * -1} minute`
+                : `${minutesLeft * -1} minutes`;
+            const hoursText =
+              hoursLeft * -1 === 1
+                ? `${hoursLeft * -1} hour`
+                : `${hoursLeft * -1} hours`;
+            overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+            overdueIssues.timeRemaining += `\n${hoursText} ${minutesText} overdue`;
+            overdueIssues.number += 1;
+          } else if (hoursLeft == 0 && minutesLeft <= 0) {
+            const minutesText =
+              minutesLeft * -1 === 1
+                ? `${minutesLeft * -1} minute`
+                : `${minutesLeft * -1} minutes`;
+            overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
+            overdueIssues.timeRemaining += `\n${minutesText} overdue`;
+            overdueIssues.number += 1;
+          } else if (hoursLeft == 0 && minutesLeft >= 0) {
+            const minutesText =
+              minutesLeft === 1
+                ? `${minutesLeft} minute`
+                : `${minutesLeft} minutes`;
+            actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
+            actFastIssues.timeRemaining += `\n${minutesText} left`;
+            actFastIssues.number += 1;
+          } else if (hoursLeft <= 4) {
+            const minutesText =
+              minutesLeft === 1
+                ? `${minutesLeft} minute`
+                : `${minutesLeft} minutes`;
+            const hoursText =
+              hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
+            actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
+            actFastIssues.timeRemaining += `\n${hoursText} ${minutesText} left`;
+            actFastIssues.number += 1;
+          } else {
+            triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
+            if (daysLeft < 1) {
+              triageQueueIssues.timeRemaining += `\n${hoursLeft} hours left`;
+            } else {
+              const daysText =
+                daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
+              triageQueueIssues.timeRemaining += `\n${daysText} left`;
+            }
+            triageQueueIssues.number += 1;
           }
-          triageQueueIssues.number += 1;
-        }
+        });
       });
-    });
-    const messageBlocks: SlackMessageBlocks[] = [
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: 'Hey! You have some tickets to triage:',
+      const messageBlocks: SlackMessageBlocks[] = [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: 'Hey! You have some tickets to triage:',
+          },
         },
-      },
-    ];
-    if (overdueIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
-          { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
-        ],
-      });
+      ];
+      if (overdueIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
+            { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
+          ],
+        });
+      }
+      if (actFastIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
+            },
+            { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
+          ],
+        });
+      }
+      const result = await getChannelLastNotifiedTable()
+        .where({ channel_id: channelId })
+        .select('last_notified_at');
+      const shouldNotifyForOnlyTriagedQueue =
+        result.length > 0
+          ? now.diff(result[0].last_notified_at, 'hours') >= 4
+          : true;
+      if (triageQueueIssues.text) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
+            },
+            { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
+          ],
+        });
+      }
+      if (
+        messageBlocks.length === 1 ||
+        (messageBlocks.length === 2 &&
+          triageQueueIssues.number > 1 &&
+          !shouldNotifyForOnlyTriagedQueue)
+      ) {
+        return Promise.resolve();
+      }
+      return bolt.client.chat
+        .postMessage({
+          channel: channelId,
+          text: '👋 Triage Reminder ⏰',
+          blocks: messageBlocks,
+        })
+        .then(async () => {
+          await getChannelLastNotifiedTable()
+            .insert({ channel_id: channelId, last_notified_at: now })
+            .onConflict('channel_id')
+            .merge();
+        });
     }
-    if (actFastIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
-          },
-          { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
-        ],
-      });
-    }
-    if (triageQueueIssues.text) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
-          },
-          { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
-        ],
-      });
-    }
-    if (messageBlocks.length === 1) {
-      return Promise.resolve();
-    }
-    return bolt.client.chat.postMessage({
-      channel: channelId,
-      text: '👋 Triage Reminder ⏰',
-      blocks: messageBlocks,
-    });
+    return Promise.resolve();
   });
 };
 
@@ -289,7 +315,7 @@ export const notifyTeamsForUntriagedIssues = async (
 
   const octokit = await getClient(ClientType.App, OWNER);
   const repos: string[] = payload.repos || DEFAULT_REPOS;
-  const now = moment();
+  const now = moment().utc();
 
   // 1. Get all open, untriaged issues
   // 2. Get all the events for each of the remaining issues

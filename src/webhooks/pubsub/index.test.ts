@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
+import { getLabelsTable } from '@/brain/issueNotifier';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -9,8 +10,24 @@ import { constructSlackMessage, getTriageSLOTimestamp } from '.';
 describe('Triage Notification Tests', function () {
   beforeAll(async function () {
     await db.migrate.latest();
+    await getLabelsTable().insert({
+      label_name: 'Team: Open Source',
+      channel_id: 'channel1',
+      offices: ['yyz'],
+    });
+    await getLabelsTable().insert({
+      label_name: 'Team: Test',
+      channel_id: 'channel2',
+      offices: ['yyz'],
+    });
+    await getLabelsTable().insert({
+      label_name: 'Team: Open Source',
+      channel_id: 'channel2',
+      offices: ['yyz'],
+    });
   });
   afterAll(async function () {
+    await db('label_to_channel').delete();
     await db.destroy();
   });
   describe('getTriageSLOTimestamp', function () {
@@ -102,7 +119,8 @@ describe('Triage Notification Tests', function () {
     beforeEach(function () {
       boltPostMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
     });
-    afterEach(function () {
+    afterEach(async function () {
+      await db('channel_last_notified').delete();
       jest.clearAllMocks();
     });
     it('should return empty promise if no issues are untriaged', async function () {
@@ -114,8 +132,39 @@ describe('Triage Notification Tests', function () {
         'Team: Test': [],
         'Team: Open Source': [],
       };
+      const now = moment('2022-12-12T17:00:00.000Z');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(boltPostMessageSpy).toHaveBeenCalledTimes(0);
+    });
+    it('should return empty promise if outside business hours', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-12T20:00:00.000Z',
+          },
+        ],
+      };
       const now = moment('2022-12-12T00:00:00.000Z');
-      Promise.all(
+      await Promise.all(
         constructSlackMessage(notificationChannels, teamToIssuesMap, now)
       );
       expect(boltPostMessageSpy).toHaveBeenCalledTimes(0);
@@ -132,7 +181,7 @@ describe('Triage Notification Tests', function () {
             number: 1,
             title: 'Test Issue',
             teamLabel: 'Team: Test',
-            triageBy: '2022-12-11T21:00:00.000Z',
+            triageBy: '2022-12-12T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -141,17 +190,17 @@ describe('Triage Notification Tests', function () {
             number: 2,
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
-            triageBy: '2022-12-11T20:00:00.000Z',
+            triageBy: '2022-12-12T20:00:00.000Z',
           },
         ],
       };
-      const now = moment('2022-12-12T00:00:00.000Z');
+      const now = moment('2022-12-12T21:00:00.000Z');
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      Promise.all(
+      await Promise.all(
         constructSlackMessage(notificationChannels, teamToIssuesMap, now)
       );
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      expect(postMessageSpy).toHaveBeenNthCalledWith(1, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -166,7 +215,7 @@ describe('Triage Notification Tests', function () {
                 text: '🚨 *Overdue*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
-              { text: '😰\n\n3 hours 0 minutes overdue', type: 'mrkdwn' },
+              { text: '😰\n\n0 minutes overdue', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -174,7 +223,7 @@ describe('Triage Notification Tests', function () {
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
-      expect(postMessageSpy).toHaveBeenNthCalledWith(2, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -190,7 +239,7 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               {
-                text: '😰\n\n3 hours 0 minutes overdue\n4 hours 0 minutes overdue',
+                text: '😰\n\n0 minutes overdue\n1 hour 0 minutes overdue',
                 type: 'mrkdwn',
               },
             ],
@@ -200,6 +249,46 @@ describe('Triage Notification Tests', function () {
         channel: 'channel2',
         text: '👋 Triage Reminder ⏰',
       });
+    });
+    it('should always notify if issues are overdue and an hour has passed', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-12T20:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T21:00:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      await Promise.all(
+        constructSlackMessage(
+          notificationChannels,
+          teamToIssuesMap,
+          now.add(1, 'hours')
+        )
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(4);
     });
     it('should return all issues in act fast if SLA is approaching', async function () {
       const notificationChannels = {
@@ -213,7 +302,7 @@ describe('Triage Notification Tests', function () {
             number: 1,
             title: 'Test Issue',
             teamLabel: 'Team: Test',
-            triageBy: '2022-12-11T21:00:00.000Z',
+            triageBy: '2022-12-12T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -222,17 +311,17 @@ describe('Triage Notification Tests', function () {
             number: 2,
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
-            triageBy: '2022-12-11T20:00:00.000Z',
+            triageBy: '2022-12-12T20:00:00.000Z',
           },
         ],
       };
-      const now = moment('2022-12-11T17:00:00.000Z');
+      const now = moment('2022-12-12T17:00:00.000Z');
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      Promise.all(
+      await Promise.all(
         constructSlackMessage(notificationChannels, teamToIssuesMap, now)
       );
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      expect(postMessageSpy).toHaveBeenNthCalledWith(1, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -255,7 +344,7 @@ describe('Triage Notification Tests', function () {
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
-      expect(postMessageSpy).toHaveBeenNthCalledWith(2, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -282,6 +371,46 @@ describe('Triage Notification Tests', function () {
         text: '👋 Triage Reminder ⏰',
       });
     });
+    it('should always notify if issue SLA is in the act fast queue on every hour', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-12T20:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T17:00:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      await Promise.all(
+        constructSlackMessage(
+          notificationChannels,
+          teamToIssuesMap,
+          now.add(1, 'hours')
+        )
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(4);
+    });
     it('should return all issues in triage queue if SLA is more than 4 hours away', async function () {
       const notificationChannels = {
         channel1: ['Team: Test'],
@@ -294,7 +423,7 @@ describe('Triage Notification Tests', function () {
             number: 1,
             title: 'Test Issue',
             teamLabel: 'Team: Test',
-            triageBy: '2022-12-11T21:00:00.000Z',
+            triageBy: '2022-12-13T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -303,17 +432,17 @@ describe('Triage Notification Tests', function () {
             number: 2,
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
-            triageBy: '2022-12-11T20:00:00.000Z',
+            triageBy: '2022-12-13T20:00:00.000Z',
           },
         ],
       };
-      const now = moment('2022-12-10T16:58:00.000Z');
+      const now = moment('2022-12-12T16:58:00.000Z');
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      Promise.all(
+      await Promise.all(
         constructSlackMessage(notificationChannels, teamToIssuesMap, now)
       );
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      expect(postMessageSpy).toHaveBeenNthCalledWith(1, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -336,7 +465,7 @@ describe('Triage Notification Tests', function () {
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
-      expect(postMessageSpy).toHaveBeenNthCalledWith(2, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -363,6 +492,86 @@ describe('Triage Notification Tests', function () {
         text: '👋 Triage Reminder ⏰',
       });
     });
+    it('should not notify if issues are only in triage queue and channel has been notified less than 4 hours ago', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-13T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-13T20:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T16:58:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      await Promise.all(
+        constructSlackMessage(
+          notificationChannels,
+          teamToIssuesMap,
+          now.add(2, 'hours')
+        )
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+    });
+    it('should notify if issues are only in triage queue and channel has been notified 4 hours ago', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-13T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-13T20:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T16:58:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      await Promise.all(
+        constructSlackMessage(
+          notificationChannels,
+          teamToIssuesMap,
+          now.add(4, 'hours')
+        )
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(4);
+    });
     it('should return issues appropriately in different blocks', async function () {
       const notificationChannels = {
         channel1: ['Team: Test'],
@@ -375,14 +584,14 @@ describe('Triage Notification Tests', function () {
             number: 1,
             title: 'Test Issue',
             teamLabel: 'Team: Test',
-            triageBy: '2022-12-11T21:00:00.000Z',
+            triageBy: '2022-12-13T21:00:00.000Z',
           },
           {
             url: 'https://test.com/issues/3',
             number: 3,
             title: 'Test Issue 2',
             teamLabel: 'Team: Test',
-            triageBy: '2022-12-10T19:00:00.000Z',
+            triageBy: '2022-12-12T19:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -391,17 +600,17 @@ describe('Triage Notification Tests', function () {
             number: 2,
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
-            triageBy: '2022-12-10T16:00:00.000Z',
+            triageBy: '2022-12-12T16:00:00.000Z',
           },
         ],
       };
-      const now = moment('2022-12-10T16:58:00.000Z');
+      const now = moment('2022-12-12T16:58:00.000Z');
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      Promise.all(
+      await Promise.all(
         constructSlackMessage(notificationChannels, teamToIssuesMap, now)
       );
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      expect(postMessageSpy).toHaveBeenNthCalledWith(1, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
@@ -434,7 +643,7 @@ describe('Triage Notification Tests', function () {
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
-      expect(postMessageSpy).toHaveBeenNthCalledWith(2, {
+      expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
           {
             text: {
