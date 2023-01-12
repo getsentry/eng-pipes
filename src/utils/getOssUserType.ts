@@ -56,7 +56,15 @@ export async function getOssUserType(
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   switch (responseStatus as number) {
     case 204: {
-      const type = 'internal';
+      if () {
+        const type = 'internal';
+      } else {
+        const type = 'gtm';
+        // https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#get-team-membership-for-a-user
+        // "will include the members of child teams."
+        
+        // /orgs/{org}/teams/{team_slug}/memberships/{username}
+      }
       _USER_CACHE.set(username, { type, expires });
       return type;
     }
