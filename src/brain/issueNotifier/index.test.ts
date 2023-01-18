@@ -91,7 +91,7 @@ describe('issueNotifier Tests', function () {
         expect(bolt.client.chat.postMessage).toBeCalledTimes(NUM_CHANNELS);
         for (let i = 1; i <= NUM_CHANNELS; i++) {
           expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
-            text: '⏲ Issue pending triage: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+            text: '⏲ A wild issue has appeared! <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
             channel: channelId(i),
             unfurl_links: false,
             unfurl_media: false,
