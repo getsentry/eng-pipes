@@ -2,10 +2,12 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { SENTRY_ORG, TEAM_LABEL_PREFIX } from '@/config';
+import { OFFICE_TIME_ZONES, SENTRY_ORG, TEAM_LABEL_PREFIX } from '@/config';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
+  getSortedOffices,
+  isTimeInBusinessHours,
 } from '@utils/businessHours';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
@@ -94,12 +96,13 @@ export async function markUnrouted({
   });
 
   const timeToRouteBy = await calculateSLOViolationRoute(UNROUTED_LABEL);
-  const readableTimeToRouteBy = moment(timeToRouteBy).utc().toString();
+  const { readableDueByDate, lastOfficeInBusinessHours } =
+    await getReadableTimeStamp(timeToRouteBy, 'Team: Support');
   await octokit.issues.createComment({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableTimeToRouteBy}</time>**. ⏲️`,
+    body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
 
   tx.finish();
@@ -132,6 +135,23 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
       return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     }
   }
+}
+
+async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
+  const dueByMoment = moment(timeToTriageBy);
+  const officesForTeam = await getSortedOffices(teamLabelName);
+  let lastOfficeInBusinessHours;
+  (officesForTeam.length > 0 ? officesForTeam : ['sfo']).forEach((office) => {
+    if (isTimeInBusinessHours(dueByMoment, office)) {
+      lastOfficeInBusinessHours = office;
+    }
+  });
+  return {
+    readableDueByDate: dueByMoment
+      .tz(OFFICE_TIME_ZONES[lastOfficeInBusinessHours])
+      .format('ddd, MMMM Do [at] HH:mm'),
+    lastOfficeInBusinessHours,
+  };
 }
 
 export async function markRouted({
@@ -207,8 +227,9 @@ export async function markRouted({
   const timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
     teamLabel,
   ]);
-  const readableTimeToTriageBy = moment(timeToTriageBy).utc().toString();
-  const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableTimeToTriageBy}</time>**. ⏲️`;
+  const { readableDueByDate, lastOfficeInBusinessHours } =
+    await getReadableTimeStamp(timeToTriageBy, teamLabelName);
+  const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`;
   const comment = `${routedTeam}, ${dueBy}`;
   await octokit.issues.createComment({
     owner,

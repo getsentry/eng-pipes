@@ -90,6 +90,23 @@ export async function cacheOffices(team) {
   return offices;
 }
 
+export const isTimeInBusinessHours = (time: moment.Moment, office: string) => {
+  const dayOfTheWeek = time.day();
+  const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
+  const date = time.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
+  const isHoliday = HOLIDAY_CONFIG[office]?.dates.includes(date);
+  if (!isWeekend && !isHoliday) {
+    const start = moment
+      .tz(`${date} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+      .utc();
+    const end = moment
+      .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
+      .utc();
+    return start <= time && time <= end;
+  }
+  return false;
+};
+
 export const isChannelInBusinessHours = async (
   channelId: string,
   now: moment.Moment
@@ -124,22 +141,7 @@ export const isChannelInBusinessHours = async (
 
   // for all offices, check if the current time is in business hours
   return offices
-    .map((office: any) => {
-      const dayOfTheWeek = now.day();
-      const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
-      const date = now.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
-      const isHoliday = HOLIDAY_CONFIG[office]?.dates.includes(date);
-      if (!isWeekend && !isHoliday) {
-        const start = moment
-          .tz(`${date} 09:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-          .utc();
-        const end = moment
-          .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
-          .utc();
-        return start <= now && now <= end;
-      }
-      return false;
-    })
+    .map((office: any) => isTimeInBusinessHours(now, office))
     .includes(true);
 };
 
@@ -207,4 +209,11 @@ export async function getOffices(team) {
     await cacheOffices(team);
   }
   return officesCache[team];
+}
+
+export async function getSortedOffices(team) {
+  const timezoneOrder = ['vie', 'ams', 'yyz', 'sfo', 'sea'];
+  return (await getOffices(team)).sort(
+    (a, b) => timezoneOrder.indexOf(a) - timezoneOrder.indexOf(b)
+  );
 }
