@@ -55,7 +55,7 @@ export const githubLabelHandler = async ({
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ Issue pending triage: <${issue.html_url}|#${issue.number} ${issue.title}>`,
+        text: `⏲ A wild issue has appeared! <${issue.html_url}|#${issue.number} ${issue.title}>`,
         channel,
         unfurl_links: false,
         unfurl_media: false,
