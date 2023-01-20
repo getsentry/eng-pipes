@@ -33,6 +33,7 @@ import {
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
   getOffices,
+  getSortedOffices,
   isChannelInBusinessHours,
 } from './businessHours';
 
@@ -577,12 +578,41 @@ describe('businessHours tests', function () {
     });
 
     it('should get offices from multiple channels', async function () {
-      const command = {
+      let command = {
         channel_id: 'CHNLIDRND2',
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
       expect(await getOffices('Team: Test')).toEqual(['vie', 'yyz']);
+      command = {
+        channel_id: 'CHNLIDRND2',
+        text: '-Test yyz',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+    });
+  });
+
+  describe('getSortedOffices', function () {
+    it('should get sfo and vie office in sorted order for team test if new office is added', async function () {
+      const command = {
+        channel_id: 'CHNLIDRND1',
+        text: 'Test sfo',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(await getSortedOffices('Team: Test')).toEqual(['vie', 'sfo']);
+    });
+
+    it('should get sfo, vie, yyz offices in sorted order for team test if new office is added', async function () {
+      const command = {
+        channel_id: 'CHNLIDRND1',
+        text: 'Test yyz',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(await getSortedOffices('Team: Test')).toEqual([
+        'vie',
+        'yyz',
+        'sfo',
+      ]);
     });
   });
 });
