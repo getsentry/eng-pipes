@@ -2,7 +2,12 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { OFFICE_TIME_ZONES, SENTRY_ORG, TEAM_LABEL_PREFIX } from '@/config';
+import {
+  OFFICE_TIME_ZONES,
+  OFFICES_EU,
+  SENTRY_ORG,
+  TEAM_LABEL_PREFIX,
+} from '@/config';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
@@ -146,10 +151,14 @@ async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
       lastOfficeInBusinessHours = office;
     }
   });
+  const officeDateFormat =
+    lastOfficeInBusinessHours && OFFICES_EU.includes(lastOfficeInBusinessHours)
+      ? 'dddd, MMMM Do [at] HH:mm'
+      : 'dddd, MMMM Do [at] h:mm a';
   return {
     readableDueByDate: dueByMoment
       .tz(OFFICE_TIME_ZONES[lastOfficeInBusinessHours])
-      .format('ddd, MMMM Do [at] HH:mm'),
+      .format(officeDateFormat),
     lastOfficeInBusinessHours,
   };
 }
@@ -227,6 +236,7 @@ export async function markRouted({
   const timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
     teamLabel,
   ]);
+
   const { readableDueByDate, lastOfficeInBusinessHours } =
     await getReadableTimeStamp(timeToTriageBy, teamLabelName);
   const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`;
