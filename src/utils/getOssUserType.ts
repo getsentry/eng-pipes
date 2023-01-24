@@ -5,7 +5,7 @@ import { DAY_IN_MS } from '@/config';
 import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
 
-type UserType = 'bot' | 'internal' | 'external';
+type UserType = 'bot' | 'internal' | 'external' | 'gtm';
 type CachedUser = {
   type: UserType;
   expires: number;
@@ -28,7 +28,6 @@ export async function getOssUserType(
     return null;
   }
 
-  // NB: Try to keep this check in sync with getsentry/.github/.../validate-new-issue.yml.
   const org = owner.login;
   const octokit = await getClient(ClientType.User, org);
   const username = payload.sender.login;
@@ -41,35 +40,56 @@ export async function getOssUserType(
     }
   }
 
-  let responseStatus: number | undefined;
-  const capture = (r) => (responseStatus = r.status);
-  await octokit.orgs
-    .checkMembershipForUser({
-      org,
-      username: payload.sender.login,
-    })
-    .then(capture)
-    .catch(capture);
+  async function getResponseStatus(func, args: any[]): Promise<number | null> {
+    // Work around GitHub API goofiness.
+    let out: number | null = null;
+    const capture = (r) => (out = r.status);
+    await func(...args)
+      .then(capture)
+      .catch(capture);
+    return out;
+  }
 
-  const expires = Date.now() + DAY_IN_MS;
+  let type: UserType | null = null;
+  let status: number | null;
+  let check: 'Org' | 'Team';
 
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
-  switch (responseStatus as number) {
-    case 204: {
-      const type = 'internal';
-      _USER_CACHE.set(username, { type, expires });
-      return type;
+  check = 'Org';
+  status = await getResponseStatus(octokit.orgs.checkMembershipForUser, [
+    { org, username },
+  ]);
+
+  if (status === 204) {
+    // https://docs.github.com/en/rest/teams/members?apiVersion=2022-11-28#get-team-membership-for-a-user
+    // "will include the members of child teams"
+
+    check = 'Team';
+    status = await getResponseStatus(octokit.request, [
+      'GET /orgs/{org}/teams/GTM/memberships/{username}',
+      { org, username },
+    ]);
+    if (status === 200) {
+      // I'd rather express this inversely, so that the failure case is
+      // slightly safer, but our GitHub teams are not clean enough for that.
+      type = 'gtm';
+    } else if (status === 404) {
+      type = 'internal'; // ~= EPD
     }
-    case 404: {
-      const type = 'external';
-      _USER_CACHE.set(username, { type, expires });
-      return type;
-    }
-    default: {
-      Sentry.captureException(
-        new Error(`Org membership check failing with ${responseStatus}`)
-      );
-      return null;
-    }
+  } else if (status === 404) {
+    type = 'external';
   }
+
+  if (type === null) {
+    Sentry.captureException(
+      new Error(
+        `${check} membership check for ${username} failed with ${status}.`
+      )
+    );
+  } else {
+    const expires = Date.now() + DAY_IN_MS;
+    _USER_CACHE.set(username, { type, expires });
+  }
+
+  return type;
 }
