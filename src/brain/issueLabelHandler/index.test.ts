@@ -51,6 +51,7 @@ describe('issueLabelHandler', function () {
     // @ts-expect-error
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
+    await db('label_to_channel').delete();
     await db.destroy();
   });
 
