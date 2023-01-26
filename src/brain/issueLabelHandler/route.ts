@@ -151,6 +151,12 @@ async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
       lastOfficeInBusinessHours = office;
     }
   });
+  if (!lastOfficeInBusinessHours) {
+    lastOfficeInBusinessHours = 'sfo';
+    Sentry.captureMessage(
+      `Unable to find an office in business hours for ${teamLabelName} for time ${timeToTriageBy}`
+    );
+  }
   const officeDateFormat =
     lastOfficeInBusinessHours && OFFICES_EU.includes(lastOfficeInBusinessHours)
       ? 'dddd, MMMM Do [at] HH:mm'
