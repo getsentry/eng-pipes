@@ -100,6 +100,6 @@ export const OFFICE_TIME_ZONES = {
   sea: 'America/Los_Angeles',
 };
 
-export const OFFICES_24_HOUR = ['vie', 'ams', 'yyz'];
+export const OFFICES_EU = ['vie', 'ams'];
 
-export const OFFICES_12_HOUR = ['sfo', 'sea'];
+export const OFFICES_NA = ['yyz', 'sfo', 'sea'];
