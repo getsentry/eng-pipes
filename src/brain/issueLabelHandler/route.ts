@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 
 import {
   OFFICE_TIME_ZONES,
-  OFFICES_EU,
+  OFFICES_24_HOUR,
   SENTRY_ORG,
   TEAM_LABEL_PREFIX,
 } from '@/config';
@@ -17,7 +17,11 @@ import {
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set([
+  'sentry',
+  'sentry-docs',
+  'test-sentry-app',
+]);
 
 import { ClientType } from '@/api/github/clientType';
 import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
@@ -143,7 +147,7 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
 }
 
 async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
-  const dueByMoment = moment(timeToTriageBy);
+  const dueByMoment = moment(timeToTriageBy).utc();
   const officesForTeam = await getSortedOffices(teamLabelName);
   let lastOfficeInBusinessHours;
   (officesForTeam.length > 0 ? officesForTeam : ['sfo']).forEach((office) => {
@@ -151,8 +155,16 @@ async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
       lastOfficeInBusinessHours = office;
     }
   });
+  // Hacky way to check if we are setting lastOfficeInBusinessHours
+  if (lastOfficeInBusinessHours == null) {
+    lastOfficeInBusinessHours = 'sfo';
+    Sentry.captureMessage(
+      `Failed to find an office in business hours for ${teamLabelName} during ${timeToTriageBy}`
+    );
+  }
   const officeDateFormat =
-    lastOfficeInBusinessHours && OFFICES_EU.includes(lastOfficeInBusinessHours)
+    lastOfficeInBusinessHours &&
+    OFFICES_24_HOUR.includes(lastOfficeInBusinessHours)
       ? 'dddd, MMMM Do [at] HH:mm'
       : 'dddd, MMMM Do [at] h:mm a';
   return {
