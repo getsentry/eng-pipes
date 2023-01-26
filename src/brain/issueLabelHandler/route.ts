@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 
 import {
   OFFICE_TIME_ZONES,
-  OFFICES_24_HOUR,
+  OFFICES_EU,
   SENTRY_ORG,
   TEAM_LABEL_PREFIX,
 } from '@/config';
@@ -152,8 +152,7 @@ async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
     }
   });
   const officeDateFormat =
-    lastOfficeInBusinessHours &&
-    OFFICES_24_HOUR.includes(lastOfficeInBusinessHours)
+    lastOfficeInBusinessHours && OFFICES_EU.includes(lastOfficeInBusinessHours)
       ? 'dddd, MMMM Do [at] HH:mm'
       : 'dddd, MMMM Do [at] h:mm a';
   return {
