@@ -17,6 +17,7 @@ describe('getUserOssType', function () {
   });
   beforeEach(function () {
     octokit.orgs.checkMembershipForUser.mockClear();
+    octokit.request.mockClear();
   });
 
   it('caches membership result', async function () {
@@ -32,6 +33,7 @@ describe('getUserOssType', function () {
     expect(result).toBe('internal');
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
     octokit.orgs.checkMembershipForUser.mockClear();
+    octokit.request.mockClear();
 
     // Check same user
     result = await getOssUserType({
@@ -43,6 +45,7 @@ describe('getUserOssType', function () {
     expect(result).toBe('internal');
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(0);
     octokit.orgs.checkMembershipForUser.mockClear();
+    octokit.request.mockClear();
 
     // Different user
     result = await getOssUserType({
@@ -55,6 +58,19 @@ describe('getUserOssType', function () {
     expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
   });
 
+  it('differentiates gtm', async function () {
+    const result = await getOssUserType({
+      sender: {
+        login: 'Troi',
+      },
+      repository,
+    });
+
+    expect(result).toBe('gtm');
+    expect(octokit.orgs.checkMembershipForUser).toHaveBeenCalledTimes(1);
+    expect(octokit.request).toHaveBeenCalledTimes(1);
+  });
+
   it('checks for expired cache', async function () {
     const now = Date.now();
     let result;
@@ -62,7 +78,7 @@ describe('getUserOssType', function () {
     // Note cache persists between tests
     result = await getOssUserType({
       sender: {
-        login: 'Picard2',
+        login: 'Solo',
       },
       repository,
     });
@@ -75,7 +91,7 @@ describe('getUserOssType', function () {
     // Check same user
     result = await getOssUserType({
       sender: {
-        login: 'Picard2',
+        login: 'Solo',
       },
       repository,
     });

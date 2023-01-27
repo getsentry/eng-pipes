@@ -65,8 +65,9 @@ function isAlreadyTriaged(payload) {
   return !payload.issue.labels.some(({ name }) => name === UNTRIAGED_LABEL);
 }
 
-async function isNotFromAnExternalUser(payload) {
-  return (await getOssUserType(payload)) !== 'external';
+async function isNotFromAnExternalOrGTMUser(payload) {
+  const type = await getOssUserType(payload);
+  return !(type === 'external' || type === 'gtm');
 }
 
 function isNotInARepoWeCareAboutForTriage(payload) {
@@ -92,7 +93,7 @@ export async function markUntriaged({
   const reasonsToSkipTriage = [
     isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
-    isNotFromAnExternalUser,
+    isNotFromAnExternalOrGTMUser,
   ];
   if (await shouldSkip(payload, reasonsToSkipTriage)) {
     return;

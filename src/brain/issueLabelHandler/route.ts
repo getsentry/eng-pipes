@@ -43,8 +43,9 @@ function isAlreadyUnrouted(payload) {
   return payload.issue.labels.some(({ name }) => name === UNROUTED_LABEL);
 }
 
-async function isNotFromAnExternalUser(payload) {
-  return (await getOssUserType(payload)) !== 'external';
+async function isNotFromAnExternalOrGTMUser(payload) {
+  const type = await getOssUserType(payload);
+  return !(type === 'external' || type === 'gtm');
 }
 
 function isNotInARepoWeCareAboutForRouting(payload) {
@@ -84,7 +85,7 @@ export async function markUnrouted({
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
     isAlreadyUnrouted,
-    isNotFromAnExternalUser,
+    isNotFromAnExternalOrGTMUser,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
     return;

@@ -81,7 +81,7 @@ function mockClient() {
       checkMembershipForUser: jest.fn(async function (x) {
         let status = 302;
         if (x.org === 'Enterprise' || x.org === null) {
-          if (x.username === 'Picard') {
+          if (x.username === 'Picard' || x.username === 'Troi') {
             return { status: 204 };
           } else {
             status = 404;
@@ -130,7 +130,18 @@ function mockClient() {
       }),
     },
 
-    request: jest.fn(async () => {
+    request: jest.fn(async (URL, x) => {
+      if (URL.includes && URL.includes('/GTM/')) {
+        let status = 302;
+        if (x.org === 'Enterprise' || x.org === null) {
+          if (x.username === 'Troi') {
+            return { status: 200 };
+          } else {
+            status = 404;
+          }
+        }
+        throw new MockOctokitError(status);
+      }
       return {};
     }),
   };

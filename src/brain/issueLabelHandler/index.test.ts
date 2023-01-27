@@ -192,6 +192,12 @@ describe('issueLabelHandler', function () {
       expectAdding();
     });
 
+    it('adds `Status: Untriaged` for GTM users', async function () {
+      await createIssue(undefined, 'Troi');
+      expectUntriaged();
+      expectAdding();
+    });
+
     it('skips adding `Status: Untriaged` in untracked repos', async function () {
       await createIssue('other-repo');
       expectTriaged();
@@ -266,6 +272,20 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+    });
+
+    it('adds `Status: Unrouted` for GTM users', async function () {
+      await createIssue('sentry-docs', 'Troi');
+      expectUnrouted();
+      expect(octokit.issues._comments).toEqual([
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
+      ]);
+    });
+
+    it('skips adding `Status: Unrouted` for internal users', async function () {
+      await createIssue('sentry-docs', 'Picard');
+      expectRouted();
+      expect(octokit.issues._comments).toEqual([]);
     });
 
     it('skips adding `Status: Unrouted` in untracked repos', async function () {
