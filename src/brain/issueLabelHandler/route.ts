@@ -151,7 +151,7 @@ async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
       lastOfficeInBusinessHours = office;
     }
   });
-  if (!lastOfficeInBusinessHours) {
+  if (lastOfficeInBusinessHours == null) {
     lastOfficeInBusinessHours = 'sfo';
     Sentry.captureMessage(
       `Unable to find an office in business hours for ${teamLabelName} for time ${timeToTriageBy}`
