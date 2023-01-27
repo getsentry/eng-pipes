@@ -214,12 +214,17 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider'
+          },
+          {
             fields: [
               {
-                text: '🚨 *Overdue*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '🚨 *Overdue*',
                 type: 'mrkdwn',
               },
-              { text: '😰\n\n0 minutes overdue', type: 'mrkdwn' },
+              { text: '😰', type: 'mrkdwn' },
+              { text: '1. <https://test.com/issues/1|#1 Test Issue>', type: 'mrkdwn' },
+              { text: '0 minutes overdue', type: 'mrkdwn' }
             ],
             type: 'section',
           },
@@ -237,15 +242,22 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider'
+          },
+          {
             fields: [
               {
-                text: '🚨 *Overdue*\n\n1. <https://test.com/issues/1|#1 Test Issue>\n2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '🚨 *Overdue*',
                 type: 'mrkdwn',
               },
               {
-                text: '😰\n\n0 minutes overdue\n1 hour 0 minutes overdue',
+                text: '😰',
                 type: 'mrkdwn',
               },
+              { text: '2. <https://test.com/issues/2|#2 Open Source Issue>', type: 'mrkdwn' },
+              { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
+              { text: '1. <https://test.com/issues/1|#1 Test Issue>', type: 'mrkdwn' },
+              { text: '0 minutes overdue', type: 'mrkdwn' },
             ],
             type: 'section',
           },

@@ -28,6 +28,18 @@ type PubSubPayload = {
   repos?: string[];
 };
 
+type SlackMessageIssueItem = {
+  triageBy: string;
+  fields: [{
+    text: string;
+    type: string;
+  },
+  {
+    text: string;
+    type: string;
+  }]
+};
+
 type IssueSLOInfo = {
   url: string;
   number: number;
@@ -88,7 +100,7 @@ export const getTriageSLOTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
+      event.user.type === 'Bot' //&& event.user.login === 'getsantry[bot]'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
@@ -114,109 +126,69 @@ export const constructSlackMessage = (
 ) => {
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
-    const overdueIssues: {
-      text: string;
-      timeRemaining: string;
-      number: number;
-    } = {
-      text: '',
-      timeRemaining: '',
-      number: 1,
-    };
-    const actFastIssues: {
-      text: string;
-      timeRemaining: string;
-      number: number;
-    } = {
-      text: '',
-      timeRemaining: '',
-      number: 1,
-    };
-    const triageQueueIssues: {
-      text: string;
-      timeRemaining: string;
-      number: number;
-    } = {
-      text: '',
-      timeRemaining: '',
-      number: 1,
-    };
     let hasEnoughTimePassedSinceIssueCreation = false;
+    const overdueIssues: SlackMessageIssueItem[] = [];
+    const actFastIssues: SlackMessageIssueItem[] = [];
+    const triageQueueIssues: SlackMessageIssueItem[] = [];
     if (await isChannelInBusinessHours(channelId, now)) {
       notificationChannels[channelId].map((team) => {
-        teamToIssuesMap[team].forEach(
-          ({ url, number, title, triageBy, createdAt }) => {
-            const hoursLeft = now.diff(triageBy, 'hours') * -1;
-            const minutesLeft =
-              now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-            hasEnoughTimePassedSinceIssueCreation =
+        teamToIssuesMap[team].forEach(({ url, number, title, triageBy, createdAt }) => {
+          const hoursLeft = now.diff(triageBy, 'hours') * -1;
+          const minutesLeft =
+            now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+          const daysLeft = now.diff(triageBy, 'days') * -1;
+          hasEnoughTimePassedSinceIssueCreation =
               hasEnoughTimePassedSinceIssueCreation ||
               now.diff(createdAt, 'hours') > 4;
-            const daysLeft = now.diff(triageBy, 'days') * -1;
-            if (daysLeft <= -1) {
-              const daysText =
-                daysLeft * -1 === 1
-                  ? `${daysLeft * -1} day`
-                  : `${daysLeft * -1} days`;
-              overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-              overdueIssues.timeRemaining += `\n${daysText} overdue`;
-              overdueIssues.number += 1;
-            } else if (hoursLeft < -4) {
-              const hoursText =
-                hoursLeft * -1 === 1
-                  ? `${hoursLeft * -1} hour`
-                  : `${hoursLeft * -1} hours`;
-              overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-              overdueIssues.timeRemaining += `\n${hoursText} overdue`;
-              overdueIssues.number += 1;
-            } else if (hoursLeft <= -1) {
-              const minutesText =
-                minutesLeft * -1 === 1
-                  ? `${minutesLeft * -1} minute`
-                  : `${minutesLeft * -1} minutes`;
-              const hoursText =
-                hoursLeft * -1 === 1
-                  ? `${hoursLeft * -1} hour`
-                  : `${hoursLeft * -1} hours`;
-              overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-              overdueIssues.timeRemaining += `\n${hoursText} ${minutesText} overdue`;
-              overdueIssues.number += 1;
-            } else if (hoursLeft == 0 && minutesLeft <= 0) {
-              const minutesText =
-                minutesLeft * -1 === 1
-                  ? `${minutesLeft * -1} minute`
-                  : `${minutesLeft * -1} minutes`;
-              overdueIssues.text += `\n${overdueIssues.number}. <${url}|#${number} ${title}>`;
-              overdueIssues.timeRemaining += `\n${minutesText} overdue`;
-              overdueIssues.number += 1;
-            } else if (hoursLeft == 0 && minutesLeft >= 0) {
-              const minutesText =
-                minutesLeft === 1
-                  ? `${minutesLeft} minute`
-                  : `${minutesLeft} minutes`;
-              actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-              actFastIssues.timeRemaining += `\n${minutesText} left`;
-              actFastIssues.number += 1;
-            } else if (hoursLeft <= 4) {
-              const minutesText =
-                minutesLeft === 1
-                  ? `${minutesLeft} minute`
-                  : `${minutesLeft} minutes`;
-              const hoursText =
-                hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
-              actFastIssues.text += `\n${actFastIssues.number}. <${url}|#${number} ${title}>`;
-              actFastIssues.timeRemaining += `\n${hoursText} ${minutesText} left`;
-              actFastIssues.number += 1;
+          if (daysLeft <= -1) {
+            const daysText =
+              daysLeft * -1 === 1
+                ? `${daysLeft * -1} day`
+                : `${daysLeft * -1} days`;
+            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${daysText} overdue`, type: 'mrkdwn' }]});
+          } else if (hoursLeft < -4) {
+            const hoursText =
+              hoursLeft * -1 === 1
+                ? `${hoursLeft * -1} hour`
+                : `${hoursLeft * -1} hours`;
+            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} overdue`, type: 'mrkdwn' }]});
+          } else if (hoursLeft <= -1) {
+            const minutesText =
+              minutesLeft * -1 === 1
+                ? `${minutesLeft * -1} minute`
+                : `${minutesLeft * -1} minutes`;
+            const hoursText =
+              hoursLeft * -1 === 1
+                ? `${hoursLeft * -1} hour`
+                : `${hoursLeft * -1} hours`;
+            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} ${minutesText} overdue`, type: 'mrkdwn' }]});
+          } else if (hoursLeft == 0 && minutesLeft <= 0) {
+            const minutesText =
+              minutesLeft * -1 === 1
+                ? `${minutesLeft * -1} minute`
+                : `${minutesLeft * -1} minutes`;
+            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${minutesText} overdue`, type: 'mrkdwn' }]});
+          } else if (hoursLeft == 0 && minutesLeft >= 0) {
+            const minutesText =
+              minutesLeft === 1
+                ? `${minutesLeft} minute`
+                : `${minutesLeft} minutes`;
+            actFastIssues.push({ triageBy, fields: [{ text: `${actFastIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${minutesText} left`, type: 'mrkdwn' }]});
+          } else if (hoursLeft <= 4) {
+            const minutesText =
+              minutesLeft === 1
+                ? `${minutesLeft} minute`
+                : `${minutesLeft} minutes`;
+            const hoursText =
+              hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
+            actFastIssues.push({ triageBy, fields: [{ text: `${actFastIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} ${minutesText} left`, type: 'mrkdwn' }]});
+          } else {
+            if (daysLeft < 1) {
+              triageQueueIssues.push({ triageBy, fields: [{ text: `${triageQueueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursLeft} hours left`, type: 'mrkdwn' }]});
             } else {
-              triageQueueIssues.text += `\n${triageQueueIssues.number}. <${url}|#${number} ${title}>`;
-              if (daysLeft < 1) {
-                triageQueueIssues.timeRemaining += `\n${hoursLeft} hours left`;
-              } else {
-                const daysText =
-                  daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
-                triageQueueIssues.timeRemaining += `\n${daysText} left`;
-              }
-              triageQueueIssues.number += 1;
+              const daysText =
+                daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
+              triageQueueIssues.push({ triageBy, fields: [{ text: `${triageQueueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${daysText} left`, type: 'mrkdwn' }]});
             }
           }
         );
@@ -229,25 +201,30 @@ export const constructSlackMessage = (
             text: 'Hey! You have some tickets to triage:',
           },
         },
+        {
+          "type": "divider"
+        },
       ];
-      if (overdueIssues.text) {
+      if (overdueIssues.length > 0) {
         messageBlocks.push({
           type: 'section',
           fields: [
-            { type: 'mrkdwn', text: `🚨 *Overdue*\n${overdueIssues.text}` },
-            { type: 'mrkdwn', text: `😰\n${overdueIssues.timeRemaining}` },
+            { type: 'mrkdwn', text: `🚨 *Overdue*` },
+            { type: 'mrkdwn', text: `😰` },
+            ...overdueIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
           ],
         });
       }
-      if (actFastIssues.text) {
+      if (actFastIssues.length > 0) {
         messageBlocks.push({
           type: 'section',
           fields: [
             {
               type: 'mrkdwn',
-              text: `⌛️ *Act fast!*\n${actFastIssues.text}`,
+              text: `⌛️ *Act fast!*`,
             },
-            { type: 'mrkdwn', text: `😨\n${actFastIssues.timeRemaining}` },
+            { type: 'mrkdwn', text: `😨` },
+            ...actFastIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
           ],
         });
       }
@@ -261,22 +238,23 @@ export const constructSlackMessage = (
       const shouldNotifyForOnlyTriagedQueue =
         hasEnoughTimePassedSinceLastNotification &&
         hasEnoughTimePassedSinceIssueCreation;
-      if (triageQueueIssues.text) {
+      if (triageQueueIssues.length > 0) {
         messageBlocks.push({
           type: 'section',
           fields: [
             {
               type: 'mrkdwn',
-              text: `⏳ *Triage Queue*\n${triageQueueIssues.text}`,
+              text: `⏳ *Triage Queue*`,
             },
-            { type: 'mrkdwn', text: `😯\n${triageQueueIssues.timeRemaining}` },
+            { type: 'mrkdwn', text: `😯` },
+            ...triageQueueIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
           ],
         });
       }
       if (
-        messageBlocks.length === 1 ||
-        (messageBlocks.length === 2 &&
-          triageQueueIssues.number > 1 &&
+        messageBlocks.length === 2 ||
+        (messageBlocks.length === 3 &&
+          triageQueueIssues.length > 0 &&
           !shouldNotifyForOnlyTriagedQueue)
       ) {
         return Promise.resolve();
