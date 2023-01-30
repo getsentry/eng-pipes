@@ -151,6 +151,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -160,6 +161,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -182,6 +184,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -191,6 +194,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -263,6 +267,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -272,6 +277,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -303,6 +309,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -312,6 +319,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -384,6 +392,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -393,6 +402,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -411,6 +421,40 @@ describe('Triage Notification Tests', function () {
       );
       expect(postMessageSpy).toHaveBeenCalledTimes(4);
     });
+    it('should return nothing in triage queue if issues were created less than 4 hours ago', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+        channel2: ['Team: Test', 'Team: Open Source'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-13T21:00:00.000Z',
+            createdAt: '2022-12-12T21:00:00.000Z',
+          },
+        ],
+        'Team: Open Source': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            teamLabel: 'Team: Open Source',
+            triageBy: '2022-12-13T20:00:00.000Z',
+            createdAt: '2022-12-12T21:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T16:58:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
     it('should return all issues in triage queue if SLA is more than 4 hours away', async function () {
       const notificationChannels = {
         channel1: ['Team: Test'],
@@ -424,6 +468,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-13T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -433,6 +478,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-13T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -505,6 +551,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-13T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -514,6 +561,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-13T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -545,6 +593,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-13T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -554,6 +603,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-13T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
@@ -585,6 +635,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-13T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
           {
             url: 'https://test.com/issues/3',
@@ -592,6 +643,7 @@ describe('Triage Notification Tests', function () {
             title: 'Test Issue 2',
             teamLabel: 'Team: Test',
             triageBy: '2022-12-12T19:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
         'Team: Open Source': [
@@ -601,6 +653,7 @@ describe('Triage Notification Tests', function () {
             title: 'Open Source Issue',
             teamLabel: 'Team: Open Source',
             triageBy: '2022-12-12T16:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
           },
         ],
       };
