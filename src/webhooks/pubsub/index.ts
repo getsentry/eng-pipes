@@ -31,10 +31,12 @@ type PubSubPayload = {
 type SlackMessageIssueItem = {
   triageBy: string;
   fields: [
+    // Issue title and link
     {
       text: string;
       type: string;
     },
+    // Time until issue is due
     {
       text: string;
       type: string;
