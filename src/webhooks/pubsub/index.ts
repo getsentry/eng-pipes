@@ -30,14 +30,16 @@ type PubSubPayload = {
 
 type SlackMessageIssueItem = {
   triageBy: string;
-  fields: [{
-    text: string;
-    type: string;
-  },
-  {
-    text: string;
-    type: string;
-  }]
+  fields: [
+    {
+      text: string;
+      type: string;
+    },
+    {
+      text: string;
+      type: string;
+    }
+  ];
 };
 
 type IssueSLOInfo = {
@@ -100,7 +102,7 @@ export const getTriageSLOTimestamp = async (
   const routingEvents = issues.filter(
     (event) =>
       // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot' //&& event.user.login === 'getsantry[bot]'
+      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
   );
   const lastRouteComment = routingEvents[routingEvents.length - 1];
   // use regex to parse the timestamp from the bot comment
@@ -145,13 +147,35 @@ export const constructSlackMessage = (
               daysLeft * -1 === 1
                 ? `${daysLeft * -1} day`
                 : `${daysLeft * -1} days`;
-            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${daysText} overdue`, type: 'mrkdwn' }]});
+            overdueIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    overdueIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${daysText} overdue`, type: 'mrkdwn' },
+              ],
+            });
           } else if (hoursLeft < -4) {
             const hoursText =
               hoursLeft * -1 === 1
                 ? `${hoursLeft * -1} hour`
                 : `${hoursLeft * -1} hours`;
-            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} overdue`, type: 'mrkdwn' }]});
+            overdueIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    overdueIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${hoursText} overdue`, type: 'mrkdwn' },
+              ],
+            });
           } else if (hoursLeft <= -1) {
             const minutesText =
               minutesLeft * -1 === 1
@@ -161,19 +185,52 @@ export const constructSlackMessage = (
               hoursLeft * -1 === 1
                 ? `${hoursLeft * -1} hour`
                 : `${hoursLeft * -1} hours`;
-            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} ${minutesText} overdue`, type: 'mrkdwn' }]});
+            overdueIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    overdueIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${hoursText} ${minutesText} overdue`, type: 'mrkdwn' },
+              ],
+            });
           } else if (hoursLeft == 0 && minutesLeft <= 0) {
             const minutesText =
               minutesLeft * -1 === 1
                 ? `${minutesLeft * -1} minute`
                 : `${minutesLeft * -1} minutes`;
-            overdueIssues.push({ triageBy, fields: [{ text: `${overdueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${minutesText} overdue`, type: 'mrkdwn' }]});
+            overdueIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    overdueIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${minutesText} overdue`, type: 'mrkdwn' },
+              ],
+            });
           } else if (hoursLeft == 0 && minutesLeft >= 0) {
             const minutesText =
               minutesLeft === 1
                 ? `${minutesLeft} minute`
                 : `${minutesLeft} minutes`;
-            actFastIssues.push({ triageBy, fields: [{ text: `${actFastIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${minutesText} left`, type: 'mrkdwn' }]});
+            actFastIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    actFastIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${minutesText} left`, type: 'mrkdwn' },
+              ],
+            });
           } else if (hoursLeft <= 4) {
             const minutesText =
               minutesLeft === 1
@@ -181,14 +238,47 @@ export const constructSlackMessage = (
                 : `${minutesLeft} minutes`;
             const hoursText =
               hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
-            actFastIssues.push({ triageBy, fields: [{ text: `${actFastIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursText} ${minutesText} left`, type: 'mrkdwn' }]});
+            actFastIssues.push({
+              triageBy,
+              fields: [
+                {
+                  text: `${
+                    actFastIssues.length + 1
+                  }. <${url}|#${number} ${title}>`,
+                  type: 'mrkdwn',
+                },
+                { text: `${hoursText} ${minutesText} left`, type: 'mrkdwn' },
+              ],
+            });
           } else {
             if (daysLeft < 1) {
-              triageQueueIssues.push({ triageBy, fields: [{ text: `${triageQueueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${hoursLeft} hours left`, type: 'mrkdwn' }]});
+              triageQueueIssues.push({
+                triageBy,
+                fields: [
+                  {
+                    text: `${
+                      triageQueueIssues.length + 1
+                    }. <${url}|#${number} ${title}>`,
+                    type: 'mrkdwn',
+                  },
+                  { text: `${hoursLeft} hours left`, type: 'mrkdwn' },
+                ],
+              });
             } else {
               const daysText =
                 daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
-              triageQueueIssues.push({ triageBy, fields: [{ text: `${triageQueueIssues.length + 1}. <${url}|#${number} ${title}>`, type: 'mrkdwn' }, { text: `${daysText} left`, type: 'mrkdwn' }]});
+              triageQueueIssues.push({
+                triageBy,
+                fields: [
+                  {
+                    text: `${
+                      triageQueueIssues.length + 1
+                    }. <${url}|#${number} ${title}>`,
+                    type: 'mrkdwn',
+                  },
+                  { text: `${daysText} left`, type: 'mrkdwn' },
+                ],
+              });
             }
           }
         );
@@ -202,7 +292,7 @@ export const constructSlackMessage = (
           },
         },
         {
-          "type": "divider"
+          type: 'divider',
         },
       ];
       if (overdueIssues.length > 0) {
@@ -211,7 +301,13 @@ export const constructSlackMessage = (
           fields: [
             { type: 'mrkdwn', text: `🚨 *Overdue*` },
             { type: 'mrkdwn', text: `😰` },
-            ...overdueIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
+            ...overdueIssues
+              .sort(
+                (a, b) =>
+                  moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
+              )
+              .map((item) => item.fields)
+              .flat(),
           ],
         });
       }
@@ -224,7 +320,13 @@ export const constructSlackMessage = (
               text: `⌛️ *Act fast!*`,
             },
             { type: 'mrkdwn', text: `😨` },
-            ...actFastIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
+            ...actFastIssues
+              .sort(
+                (a, b) =>
+                  moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
+              )
+              .map((item) => item.fields)
+              .flat(),
           ],
         });
       }
@@ -247,7 +349,13 @@ export const constructSlackMessage = (
               text: `⏳ *Triage Queue*`,
             },
             { type: 'mrkdwn', text: `😯` },
-            ...triageQueueIssues.sort((a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()).map(item => item.fields).flat()
+            ...triageQueueIssues
+              .sort(
+                (a, b) =>
+                  moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
+              )
+              .map((item) => item.fields)
+              .flat(),
           ],
         });
       }

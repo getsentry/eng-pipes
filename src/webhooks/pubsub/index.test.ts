@@ -214,7 +214,7 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
-            type: 'divider'
+            type: 'divider',
           },
           {
             fields: [
@@ -223,8 +223,11 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               { text: '😰', type: 'mrkdwn' },
-              { text: '1. <https://test.com/issues/1|#1 Test Issue>', type: 'mrkdwn' },
-              { text: '0 minutes overdue', type: 'mrkdwn' }
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '0 minutes overdue', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -242,7 +245,7 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
-            type: 'divider'
+            type: 'divider',
           },
           {
             fields: [
@@ -254,9 +257,15 @@ describe('Triage Notification Tests', function () {
                 text: '😰',
                 type: 'mrkdwn',
               },
-              { text: '2. <https://test.com/issues/2|#2 Open Source Issue>', type: 'mrkdwn' },
+              {
+                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
               { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
-              { text: '1. <https://test.com/issues/1|#1 Test Issue>', type: 'mrkdwn' },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
               { text: '0 minutes overdue', type: 'mrkdwn' },
             ],
             type: 'section',
@@ -351,12 +360,23 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '⌛️ *Act fast!*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '⌛️ *Act fast!*',
                 type: 'mrkdwn',
               },
-              { text: '😨\n\n4 hours 0 minutes left', type: 'mrkdwn' },
+              {
+                text: '😨',
+                type: 'mrkdwn',
+              },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '4 hours 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -374,15 +394,28 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '⌛️ *Act fast!*\n\n1. <https://test.com/issues/1|#1 Test Issue>\n2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '⌛️ *Act fast!*',
                 type: 'mrkdwn',
               },
               {
-                text: '😨\n\n4 hours 0 minutes left\n3 hours 0 minutes left',
+                text: '😨',
                 type: 'mrkdwn',
               },
+              {
+                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '3 hours 0 minutes left', type: 'mrkdwn' },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '4 hours 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -510,12 +543,20 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '⏳ *Triage Queue*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '⏳ *Triage Queue*',
                 type: 'mrkdwn',
               },
-              { text: '😯\n\n1 day left', type: 'mrkdwn' },
+              { text: '😯', type: 'mrkdwn' },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -533,15 +574,28 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '⏳ *Triage Queue*\n\n1. <https://test.com/issues/1|#1 Test Issue>\n2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '⏳ *Triage Queue*',
                 type: 'mrkdwn',
               },
               {
-                text: '😯\n\n1 day left\n1 day left',
+                text: '😯',
                 type: 'mrkdwn',
               },
+              {
+                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -685,22 +739,41 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '⌛️ *Act fast!*\n\n1. <https://test.com/issues/3|#3 Test Issue 2>',
+                text: '⌛️ *Act fast!*',
                 type: 'mrkdwn',
               },
-              { text: '😨\n\n2 hours 2 minutes left', type: 'mrkdwn' },
+              {
+                text: '😨',
+                type: 'mrkdwn',
+              },
+              {
+                text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
+                type: 'mrkdwn',
+              },
+              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
           {
             fields: [
               {
-                text: '⏳ *Triage Queue*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '⏳ *Triage Queue*',
                 type: 'mrkdwn',
               },
-              { text: '😯\n\n1 day left', type: 'mrkdwn' },
+              {
+                text: '😯',
+                type: 'mrkdwn',
+              },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -718,32 +791,56 @@ describe('Triage Notification Tests', function () {
             type: 'header',
           },
           {
+            type: 'divider',
+          },
+          {
             fields: [
               {
-                text: '🚨 *Overdue*\n\n1. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '🚨 *Overdue*',
                 type: 'mrkdwn',
               },
-              { text: '😰\n\n58 minutes overdue', type: 'mrkdwn' },
+              { text: '😰', type: 'mrkdwn' },
+              {
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '58 minutes overdue', type: 'mrkdwn' },
             ],
             type: 'section',
           },
           {
             fields: [
               {
-                text: '⌛️ *Act fast!*\n\n1. <https://test.com/issues/3|#3 Test Issue 2>',
+                text: '⌛️ *Act fast!*',
                 type: 'mrkdwn',
               },
-              { text: '😨\n\n2 hours 2 minutes left', type: 'mrkdwn' },
+              {
+                text: '😨',
+                type: 'mrkdwn',
+              },
+              {
+                text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
+                type: 'mrkdwn',
+              },
+              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
           {
             fields: [
               {
-                text: '⏳ *Triage Queue*\n\n1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '⏳ *Triage Queue*',
                 type: 'mrkdwn',
               },
-              { text: '😯\n\n1 day left', type: 'mrkdwn' },
+              {
+                text: '😯',
+                type: 'mrkdwn',
+              },
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
