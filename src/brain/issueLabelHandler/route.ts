@@ -140,7 +140,7 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
 }
 
 async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
-  const dueByMoment = moment(timeToTriageBy);
+  const dueByMoment = moment(timeToTriageBy).utc();
   const officesForTeam = await getSortedOffices(teamLabelName);
   let lastOfficeInBusinessHours;
   (officesForTeam.length > 0 ? officesForTeam : ['sfo']).forEach((office) => {

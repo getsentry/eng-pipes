@@ -91,9 +91,10 @@ export async function cacheOffices(team) {
 }
 
 export const isTimeInBusinessHours = (time: moment.Moment, office: string) => {
-  const dayOfTheWeek = time.day();
+  const localTime = time.tz(OFFICE_TIME_ZONES[office]);
+  const date = localTime.format('YYYY-MM-DD');
+  const dayOfTheWeek = localTime.day();
   const isWeekend = dayOfTheWeek === 6 || dayOfTheWeek === 0;
-  const date = time.tz(OFFICE_TIME_ZONES[office]).format('YYYY-MM-DD');
   const isHoliday = HOLIDAY_CONFIG[office]?.dates.includes(date);
   if (!isWeekend && !isHoliday) {
     const start = moment
@@ -102,7 +103,7 @@ export const isTimeInBusinessHours = (time: moment.Moment, office: string) => {
     const end = moment
       .tz(`${date} 17:00`, 'YYYY-MM-DD hh:mm', OFFICE_TIME_ZONES[office])
       .utc();
-    return start <= time && time <= end;
+    return start <= localTime && localTime <= end;
   }
   return false;
 };
