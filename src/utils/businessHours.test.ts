@@ -302,6 +302,12 @@ describe('businessHours tests', function () {
       expect(result).toEqual(true);
     });
 
+    it('should return true for sfo office if utc day is Saturday, but local sfo time is Friday', async function () {
+      const nowForTest = moment('2023-02-04T01:00:00.000Z').utc();
+      const result = await isChannelInBusinessHours('CHNLIDRND1', nowForTest);
+      expect(result).toEqual(true);
+    });
+
     it('should post message to OSPO channel if offices is undefined', async function () {
       const nowForTest = moment('2023-01-05T18:00:00.000Z').utc();
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
