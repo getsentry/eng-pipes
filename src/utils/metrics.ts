@@ -252,15 +252,24 @@ export async function insertOss(
     data.created_at = issue.created_at;
     data.updated_at = issue.updated_at;
     if (data.action === 'labeled' || data.action === 'unlabeled') {
-      data.target_id = label.id;
-      data.target_name = label.name;
-      data.target_type = 'label';
-      if (data.action === 'labeled') {
-        data.timeToRouteBy = await calculateSLOViolationRoute(data.target_name);
-        data.timeToTriageBy = await calculateSLOViolationTriage(
-          data.target_name,
-          issue.labels
+      if (label == null) {
+        Sentry.setContext('payload', payload);
+        Sentry.captureException(
+          new Error('Unable to find label for labeling/unlabeling event')
         );
+      } else {
+        data.target_id = label.id;
+        data.target_name = label.name;
+        data.target_type = 'label';
+        if (data.action === 'labeled') {
+          data.timeToRouteBy = await calculateSLOViolationRoute(
+            data.target_name
+          );
+          data.timeToTriageBy = await calculateSLOViolationTriage(
+            data.target_name,
+            issue.labels
+          );
+        }
       }
     }
   } else if (eventType === 'issue_comment') {
