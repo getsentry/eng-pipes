@@ -102,6 +102,29 @@ describe('issueNotifier Tests', function () {
       }
     });
 
+    it('should escape issue titles with < or > characters', async function () {
+      const payload = {
+        label: { name: 'Team: Test', id: 'random' },
+        issue: { labels: [{ name: UNTRIAGED_LABEL, id: 'test-id2' }] },
+      };
+      const eventPayload = hydrateGitHubEventAndPayload('issues', {
+        action: 'labeled',
+        ...payload,
+      }).payload;
+      eventPayload.issue.title = '<Title with < and > characters>';
+      await githubLabelHandler({
+        id: 'random-event-id',
+        name: 'issues',
+        payload: eventPayload,
+      });
+      expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
+        channel: 'CHNLIDRND2',
+        text: '⏲ A wild issue has appeared! <https://github.com/Enterprise/Hello-World/issues/1|#1 &lt;Title with &lt; and &gt; characters&gt;>',
+        unfurl_links: false,
+        unfurl_media: false,
+      });
+    });
+
     it('should not notify support channel if issue comes in with random label', async function () {
       const payload = { label: { name: 'random label', id: 'random' } };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {

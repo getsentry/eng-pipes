@@ -51,11 +51,13 @@ export const githubLabelHandler = async ({
       })
       .select('channel_id')
   ).map((row) => row.channel_id);
-
+  const escapedIssueTitle = issue.title
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
   await Promise.all(
     channelsToNotify.map((channel) =>
       bolt.client.chat.postMessage({
-        text: `⏲ A wild issue has appeared! <${issue.html_url}|#${issue.number} ${issue.title}>`,
+        text: `⏲ A wild issue has appeared! <${issue.html_url}|#${issue.number} ${escapedIssueTitle}>`,
         channel,
         unfurl_links: false,
         unfurl_media: false,
