@@ -252,12 +252,11 @@ export async function insertOss(
     data.created_at = issue.created_at;
     data.updated_at = issue.updated_at;
     if (data.action === 'labeled' || data.action === 'unlabeled') {
-      if (label == null) {
-        Sentry.setContext('payload', payload);
-        Sentry.captureException(
-          new Error('Unable to find label for labeling/unlabeling event')
-        );
-      } else {
+      /*
+        The only times a label will be null here is when a label is deleted.
+        This triggers an unlabeling event and we want to ignore those events.
+      */
+      if (label != null) {
         data.target_id = label.id;
         data.target_name = label.name;
         data.target_type = 'label';
