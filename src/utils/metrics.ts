@@ -253,7 +253,7 @@ export async function insertOss(
     data.updated_at = issue.updated_at;
     if (data.action === 'labeled' || data.action === 'unlabeled') {
       /*
-        The only times a label will be undefined here is when a label is deleted.
+        The only times a label will be null here is when a label is deleted.
         This triggers an unlabeling event and we want to ignore those events.
       */
       if (label != null) {
