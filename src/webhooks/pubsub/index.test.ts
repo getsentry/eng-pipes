@@ -223,6 +223,11 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               { text: '😰', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -257,11 +262,21 @@ describe('Triage Notification Tests', function () {
                 text: '😰',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -372,6 +387,11 @@ describe('Triage Notification Tests', function () {
                 text: '😨',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -406,11 +426,21 @@ describe('Triage Notification Tests', function () {
                 text: '😨',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '3 hours 0 minutes left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -552,6 +582,11 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               { text: '😯', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -586,11 +621,21 @@ describe('Triage Notification Tests', function () {
                 text: '😯',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '1 day left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -751,6 +796,11 @@ describe('Triage Notification Tests', function () {
                 text: '😨',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
                 type: 'mrkdwn',
@@ -769,6 +819,11 @@ describe('Triage Notification Tests', function () {
                 text: '😯',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
@@ -800,6 +855,11 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               { text: '😰', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
@@ -818,6 +878,11 @@ describe('Triage Notification Tests', function () {
                 text: '😨',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
                 type: 'mrkdwn',
@@ -836,6 +901,11 @@ describe('Triage Notification Tests', function () {
                 text: '😯',
                 type: 'mrkdwn',
               },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
               {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',

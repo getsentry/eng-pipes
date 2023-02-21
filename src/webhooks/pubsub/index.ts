@@ -138,6 +138,9 @@ export const constructSlackMessage = (
       notificationChannels[channelId].map((team) => {
         teamToIssuesMap[team].forEach(
           ({ url, number, title, triageBy, createdAt }) => {
+            const escapedIssueTitle = title
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;');
             const hoursLeft = now.diff(triageBy, 'hours') * -1;
             const minutesLeft =
               now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
@@ -156,7 +159,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       overdueIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   { text: `${daysText} overdue`, type: 'mrkdwn' },
@@ -173,7 +176,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       overdueIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   { text: `${hoursText} overdue`, type: 'mrkdwn' },
@@ -194,7 +197,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       overdueIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   {
@@ -214,7 +217,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       overdueIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   { text: `${minutesText} overdue`, type: 'mrkdwn' },
@@ -231,7 +234,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       actFastIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   { text: `${minutesText} left`, type: 'mrkdwn' },
@@ -250,7 +253,7 @@ export const constructSlackMessage = (
                   {
                     text: `${
                       actFastIssues.length + 1
-                    }. <${url}|#${number} ${title}>`,
+                    }. <${url}|#${number} ${escapedIssueTitle}>`,
                     type: 'mrkdwn',
                   },
                   { text: `${hoursText} ${minutesText} left`, type: 'mrkdwn' },
@@ -264,7 +267,7 @@ export const constructSlackMessage = (
                     {
                       text: `${
                         triageQueueIssues.length + 1
-                      }. <${url}|#${number} ${title}>`,
+                      }. <${url}|#${number} ${escapedIssueTitle}>`,
                       type: 'mrkdwn',
                     },
                     { text: `${hoursLeft} hours left`, type: 'mrkdwn' },
@@ -279,7 +282,7 @@ export const constructSlackMessage = (
                     {
                       text: `${
                         triageQueueIssues.length + 1
-                      }. <${url}|#${number} ${title}>`,
+                      }. <${url}|#${number} ${escapedIssueTitle}>`,
                       type: 'mrkdwn',
                     },
                     { text: `${daysText} left`, type: 'mrkdwn' },
@@ -311,16 +314,23 @@ export const constructSlackMessage = (
         },
       ];
       if (overdueIssues.length > 0) {
+        const formattedIssues = sortAndFlattenIssuesArray(overdueIssues);
         messageBlocks.push({
           type: 'section',
           fields: [
             { type: 'mrkdwn', text: `🚨 *Overdue*` },
             { type: 'mrkdwn', text: `😰` },
-            ...sortAndFlattenIssuesArray(overdueIssues),
           ],
         });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
       }
       if (actFastIssues.length > 0) {
+        const formattedIssues = sortAndFlattenIssuesArray(actFastIssues);
         messageBlocks.push({
           type: 'section',
           fields: [
@@ -329,9 +339,14 @@ export const constructSlackMessage = (
               text: `⌛️ *Act fast!*`,
             },
             { type: 'mrkdwn', text: `😨` },
-            ...sortAndFlattenIssuesArray(actFastIssues),
           ],
         });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
       }
       const result = await getChannelLastNotifiedTable()
         .where({ channel_id: channelId })
@@ -343,6 +358,7 @@ export const constructSlackMessage = (
       const shouldNotifyForOnlyTriagedQueue =
         hasEnoughTimePassedSinceLastNotification &&
         hasEnoughTimePassedSinceIssueCreation;
+      const formattedIssues = sortAndFlattenIssuesArray(triageQueueIssues);
       if (triageQueueIssues.length > 0) {
         messageBlocks.push({
           type: 'section',
@@ -352,15 +368,18 @@ export const constructSlackMessage = (
               text: `⏳ *Triage Queue*`,
             },
             { type: 'mrkdwn', text: `😯` },
-            ...sortAndFlattenIssuesArray(triageQueueIssues),
           ],
         });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
       }
       if (
         messageBlocks.length === 2 ||
-        (messageBlocks.length === 3 &&
-          triageQueueIssues.length > 0 &&
-          !shouldNotifyForOnlyTriagedQueue)
+        (triageQueueIssues.length > 0 && !shouldNotifyForOnlyTriagedQueue)
       ) {
         return Promise.resolve();
       }
