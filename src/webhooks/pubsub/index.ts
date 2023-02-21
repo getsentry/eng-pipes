@@ -384,8 +384,13 @@ export const constructSlackMessage = (
         2. Issues are in triage queue but channel doesn't need to be notified
       */
       if (
-        messageBlocks.length === 2 ||
-        (triageQueueIssues.length > 0 && !shouldNotifyForOnlyTriagedQueue)
+        (overdueIssues.length === 0 &&
+          actFastIssues.length === 0 &&
+          triageQueueIssues.length === 0) ||
+        (overdueIssues.length === 0 &&
+          actFastIssues.length === 0 &&
+          triageQueueIssues.length > 0 &&
+          !shouldNotifyForOnlyTriagedQueue)
       ) {
         return Promise.resolve();
       }
