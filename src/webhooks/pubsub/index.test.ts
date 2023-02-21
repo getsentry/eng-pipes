@@ -290,6 +290,121 @@ describe('Triage Notification Tests', function () {
         text: '👋 Triage Reminder ⏰',
       });
     });
+    it('should strip issue of < and > characters in slack message', async function () {
+      const notificationChannels = {
+        channel1: ['Team: Test'],
+      };
+      const teamToIssuesMap = {
+        'Team: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: '<Test Issue 1>',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: '<Test Issue 2>',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-12T22:00:00.000Z',
+            createdAt: '2022-12-10T22:00:00.000Z',
+          },
+          {
+            url: 'https://test.com/issues/3',
+            number: 3,
+            title: '<Test Issue 3>',
+            teamLabel: 'Team: Test',
+            triageBy: '2022-12-14T20:00:00.000Z',
+            createdAt: '2022-12-12T20:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T21:00:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, teamToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              text: 'Hey! You have some tickets to triage:',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            type: 'divider',
+          },
+          {
+            fields: [
+              {
+                text: '🚨 *Overdue*',
+                type: 'mrkdwn',
+              },
+              { text: '😰', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/1|#1 &lt;Test Issue 1&gt;>',
+                type: 'mrkdwn',
+              },
+              { text: '0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '⌛️ *Act fast!*',
+                type: 'mrkdwn',
+              },
+              { text: '😨', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/2|#2 &lt;Test Issue 2&gt;>',
+                type: 'mrkdwn',
+              },
+              { text: '1 hour 0 minutes left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '⏳ *Triage Queue*',
+                type: 'mrkdwn',
+              },
+              { text: '😯', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/3|#3 &lt;Test Issue 3&gt;>',
+                type: 'mrkdwn',
+              },
+              { text: '1 day left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+        ],
+        channel: 'channel1',
+        text: '👋 Triage Reminder ⏰',
+      });
+    });
     it('should always notify if issues are overdue and an hour has passed', async function () {
       const notificationChannels = {
         channel1: ['Team: Test'],
