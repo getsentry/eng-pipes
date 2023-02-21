@@ -138,6 +138,7 @@ export const constructSlackMessage = (
       notificationChannels[channelId].map((team) => {
         teamToIssuesMap[team].forEach(
           ({ url, number, title, triageBy, createdAt }) => {
+            // Escape issue title for < and > characters
             const escapedIssueTitle = title
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;');
@@ -377,6 +378,11 @@ export const constructSlackMessage = (
           });
         }
       }
+      /*
+        Two cases to skip sending message
+        1. No issues in any queue
+        2. Issues are in triage queue but channel doesn't need to be notified
+      */
       if (
         messageBlocks.length === 2 ||
         (triageQueueIssues.length > 0 && !shouldNotifyForOnlyTriagedQueue)
