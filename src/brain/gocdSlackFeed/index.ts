@@ -87,12 +87,12 @@ async function getBodyText(pipeline: GoCDPipeline) {
 }
 
 async function newSlackMessage(refId, pipeline: GoCDPipeline) {
-  const body = await getBodyText(pipeline);
   const attachments = getMessageAttachments(pipeline);
   if (!attachments) {
     return;
   }
 
+  const body = await getBodyText(pipeline);
   const message = await bolt.client.chat.postMessage({
     text: body,
     channel: FEED_ENG_CHANNEL_ID,
