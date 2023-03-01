@@ -9,6 +9,7 @@ import {
   getUpdatedDeployMessage,
   getUpdatedGoCDDeployMessage,
 } from '@/blocks/getUpdatedDeployMessage';
+import { gocdDeploy } from '@/blocks/gocdDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
@@ -171,15 +172,18 @@ async function handler({
     text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
     blocks.push(...deployBlocks);
   } else {
-    // TODO (matt.gaunt): When ready we should switch this for a GoCD deploy
-    // block.
+    let deployElement = gocdDeploy(commit);
+
+    // TODO (matt.gaunt): When GoCD backend is deploying from GoCD we should
+    // Remove this if statement
+    if (!isFrontendOnly) {
+      deployElement = freightDeploy(commit, 'getsentry-backend');
+    }
+
     blocks.push({
       type: 'actions',
       elements: [
-        freightDeploy(
-          commit,
-          isFrontendOnly ? 'getsentry-frontend' : 'getsentry-backend'
-        ),
+        deployElement,
         viewUndeployedCommits(commit),
         muteDeployNotificationsButton(),
       ],
@@ -240,6 +244,19 @@ export async function pleaseDeployNotifier() {
       tx.finish();
     });
     // TODO(billy): Call freight API directly to deploy
+  });
+  bolt.action(/gocd-deploy/, async ({ ack, body, context }) => {
+    await ack();
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
+      const tx = Sentry.startTransaction({
+        op: 'slack.action',
+        name: `gocd-deploy`,
+      });
+      tx.finish();
+    });
   });
 
   // Handles both mute and unmute action that comes from deploy notification

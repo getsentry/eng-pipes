@@ -12,10 +12,12 @@ export const SENTRY_REPO = process.env.SENTRY_REPO || 'sentry';
 export const SENTRY_ORG = 'getsentry';
 export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
+export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
+  process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry_frontend';
+export const GOCD_SENTRYIO_BE_PIPELINE_NAME =
+  process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'deploy-getsentry-backend';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
-export const SENTRYIO_GOCD_PIPELINE_GROUP =
-  process.env.SENTRYIO_GOCD_PIPELINE_GROUP || 'internal-sentry';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';

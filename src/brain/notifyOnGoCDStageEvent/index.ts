@@ -16,9 +16,10 @@ import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
   Color,
   GETSENTRY_REPO,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_FE_PIPELINE_NAME,
   OWNER,
   SENTRY_REPO,
-  SENTRYIO_GOCD_PIPELINE_GROUP,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
@@ -29,23 +30,27 @@ import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
-const QUEUED_MSG = 'is queued for deployment';
 const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';
 const FAILED_MSG = 'failed to deploy';
 
+// GoCD does not provide details about all pipeline stages, so we can't
+// know if a GoCD notification is the last stage in the pipeline or not.
+// We use these names to determine if the deployment is complete or not.
+export const FINAL_STAGE_NAMES = ['deploy', 'deploy-primary'];
+
 function getProgressSuffix(stage: GoCDStage) {
   switch (stage.result.toLowerCase()) {
     case 'passed':
-      return DEPLOYED_MSG;
+      // If the final stage has passed, return the deployed message
+      if (FINAL_STAGE_NAMES.indexOf(stage.name) >= 0) {
+        return DEPLOYED_MSG;
+      }
+      return INPROGRESS_MSG;
     case 'failed':
       return FAILED_MSG;
     case 'unknown':
-      if (parseInt(stage.counter, 10) > 1) {
-        return INPROGRESS_MSG;
-      } else {
-        return QUEUED_MSG;
-      }
+      return INPROGRESS_MSG;
   }
   return '';
 }
@@ -57,12 +62,10 @@ function getProgressMessage(stage: GoCDStage, message: any) {
   }
 
   const replaceValues = [
-    QUEUED_MSG,
     INPROGRESS_MSG,
     DEPLOYED_MSG,
     FAILED_MSG,
     'is ready to deploy',
-    'is being deployed',
   ];
   let msg = message.context.text;
   for (const r of replaceValues) {
@@ -74,7 +77,11 @@ function getProgressMessage(stage: GoCDStage, message: any) {
 function getProgressColor(stage: GoCDStage) {
   switch (stage.result.toLowerCase()) {
     case 'passed':
-      return Color.SUCCESS;
+      // If the final stage has passed, return the success color
+      if (FINAL_STAGE_NAMES.indexOf(stage.name) >= 0) {
+        return Color.SUCCESS;
+      }
+      return Color.OFF_WHITE_TOO;
     case 'unknown':
       return Color.OFF_WHITE_TOO;
     default:
@@ -132,7 +139,10 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
     }),
   ];
 
-  if (stage.result === 'Passed') {
+  if (
+    FINAL_STAGE_NAMES.indexOf(stage.name) !== -1 &&
+    stage.result === 'Passed'
+  ) {
     // We want to thread a message only when the commit is deployed
     promises.push(
       bolt.client.chat.postMessage({
@@ -234,9 +244,9 @@ async function filterCommits(octokit, pipeline, commits) {
     // frontend and backend changes.
     if (
       (isFrontendOnly &&
-        pipeline.name == process.env.SENTRYIO_GOCD_FE_PIPELINE_NAME) ||
+        pipeline.name == process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME) ||
       (isBackendOnly &&
-        pipeline.name == process.env.SENTRYIO_GOCD_BE_PIPELINE_NAME)
+        pipeline.name == process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME)
     ) {
       relevantCommitShas.push(sha);
     } else {
@@ -289,8 +299,12 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
 export async function handler(resBody: GoCDResponse) {
   const { pipeline } = resBody.data;
 
-  // The getsentry / sentry pipelines are under this group
-  if (pipeline.group !== SENTRYIO_GOCD_PIPELINE_GROUP) {
+  // Only notify on the getsentry frontend / backend
+  // pipelines.
+  if (
+    pipeline.name !== GOCD_SENTRYIO_FE_PIPELINE_NAME &&
+    pipeline.name !== GOCD_SENTRYIO_BE_PIPELINE_NAME
+  ) {
     return;
   }
 

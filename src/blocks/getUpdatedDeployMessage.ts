@@ -1,5 +1,6 @@
 import { FreightPayload } from '@types';
 
+import { FINAL_STAGE_NAMES } from '@/brain/notifyOnGoCDStageEvent';
 import { GOCD_ORIGIN } from '@/config';
 
 /**
@@ -94,7 +95,10 @@ export function getUpdatedGoCDDeployMessage({
         return `${subject} queued this commit for deployment (${slackLink})`;
       }
     case 'passed':
-      return `${subject} finished deploying this commit (${slackLink})`;
+      if (FINAL_STAGE_NAMES.indexOf(pipeline.stage_name) !== -1) {
+        return `${subject} finished deploying this commit (${slackLink})`;
+      }
+      return `${subject} begun deploying this commit (${slackLink})`;
     default:
       // Otherwise it failed to deploy.
       return `${subject} failed to deploy this commit (${slackLink})`;

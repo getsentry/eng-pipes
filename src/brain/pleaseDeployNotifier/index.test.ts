@@ -786,7 +786,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-frontend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -794,7 +794,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-frontend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -1162,7 +1162,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-frontend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1170,7 +1170,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-frontend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
