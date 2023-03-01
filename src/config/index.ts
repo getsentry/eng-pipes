@@ -14,6 +14,8 @@ export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
+export const FEED_ENG_CHANNEL_ID =
+  process.env.FEED_ENG_CHANNEL_ID || 'C1BC69PHR';
 export const SENTRYIO_GOCD_PIPELINE_GROUP =
   process.env.SENTRYIO_GOCD_PIPELINE_GROUP || 'internal-sentry';
 
