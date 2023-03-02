@@ -7,8 +7,8 @@ import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_BOT_ID,
   GOCD_ORIGIN,
+  GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-  SENTRYIO_GOCD_PIPELINE_GROUP,
 } from '@/config';
 import { Fastify } from '@/types';
 import { ClientType } from '@api/github/clientType';
@@ -19,7 +19,7 @@ import * as metrics from '@utils/metrics';
 
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
-import { handler, notifyOnGoCDStageEvent } from '.';
+import { FINAL_STAGE_NAMES, handler, notifyOnGoCDStageEvent } from '.';
 
 describe('notifyOnGoCDStageEvent', function () {
   let fastify: Fastify;
@@ -38,7 +38,7 @@ describe('notifyOnGoCDStageEvent', function () {
     gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          group: SENTRYIO_GOCD_PIPELINE_GROUP,
+          name: GOCD_SENTRYIO_FE_PIPELINE_NAME,
         },
       },
     });
@@ -258,7 +258,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/1|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -268,7 +268,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "channel_id",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is queued for deployment",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
         "ts": "1234123.123",
       }
     `);
@@ -319,7 +319,70 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/2|getsentry_frontend: Stage 2>)",
+                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/2|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 2>)",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+            ],
+            "color": "#E7E1EC",
+          },
+        ],
+        "channel": "channel_id",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
+        "ts": "1234123.123",
+      }
+    `);
+
+    updateMock.mockClear();
+    await handler(
+      merge({}, gocdPayload, {
+        data: {
+          pipeline: {
+            // The name is not one of the expected final stages, so this should
+            // continue to be treated as "in progress".
+            stage: { counter: '2', state: 'Passed', result: 'Passed' },
+          },
+        },
+      })
+    );
+
+    expect(updateMock.mock.calls[0][0]).toMatchInlineSnapshot(`
+      Object {
+        "attachments": Array [
+          Object {
+            "blocks": Array [
+              Object {
+                "text": Object {
+                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*feat(ui): Change default period for fresh releases (#23572)*>",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "text": Object {
+                  "text": "The fresh releases (not older than one day) will have default statsPeriod on the release detail page set to 24 hours.",
+                  "type": "mrkdwn",
+                },
+                "type": "section",
+              },
+              Object {
+                "elements": Array [
+                  Object {
+                    "alt_text": "mars",
+                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                    "type": "image",
+                  },
+                  Object {
+                    "text": "<https://github.com/matejminar|mars (matejminar)>",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
+                "text": Object {
+                  "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/2|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 2>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -343,7 +406,11 @@ describe('notifyOnGoCDStageEvent', function () {
       merge({}, gocdPayload, {
         data: {
           pipeline: {
-            stage: { state: 'Passed', result: 'Passed' },
+            stage: {
+              name: FINAL_STAGE_NAMES[0],
+              state: 'Passed',
+              result: 'Passed',
+            },
           },
         },
       })
@@ -406,7 +473,7 @@ describe('notifyOnGoCDStageEvent', function () {
               },
               Object {
                 "text": Object {
-                  "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|getsentry_frontend: Stage 1>)",
+                  "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/1|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
