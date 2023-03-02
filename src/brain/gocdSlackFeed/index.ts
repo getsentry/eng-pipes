@@ -78,7 +78,7 @@ async function getBodyText(pipeline: GoCDPipeline) {
       body = `GoCD auto-deployment started`;
     } else {
       const user = await getUser({ email: approvedBy });
-      if (user) {
+      if (user?.slackUser) {
         body = `GoCD deployment started by <@${user.slackUser}>`;
       }
     }
