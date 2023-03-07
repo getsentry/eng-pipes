@@ -1089,7 +1089,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["ignore", "npm:4.0.6"],
             ["import-fresh", "npm:3.2.1"],
             ["js-yaml", "npm:4.1.0"],
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["strip-json-comments", "npm:3.1.1"]
           ],
           "linkType": "HARD",
@@ -1188,7 +1188,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@humanwhocodes/config-array", "npm:0.6.0"],
             ["@humanwhocodes/object-schema", "npm:1.2.1"],
             ["debug", "virtual:3a4dedf3f7af41df4edd570c93c4126de67c5e458a3b579d255b1e8423f52c355b4621ca7129f7769a7e7f91c1e0abff031564e672c722042a1e843d1951cc0f#npm:4.3.1"],
-            ["minimatch", "npm:3.0.4"]
+            ["minimatch", "npm:3.0.8"]
           ],
           "linkType": "HARD",
         }]
@@ -4684,7 +4684,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["json-stable-stringify-without-jsonify", "npm:1.0.1"],
             ["levn", "npm:0.4.1"],
             ["lodash.merge", "npm:4.6.2"],
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["natural-compare", "npm:1.4.0"],
             ["optionator", "npm:0.9.1"],
             ["progress", "npm:2.0.3"],
@@ -5702,7 +5702,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["fs.realpath", "npm:1.0.0"],
             ["inflight", "npm:1.0.6"],
             ["inherits", "npm:2.0.4"],
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["once", "npm:1.4.0"],
             ["path-is-absolute", "npm:1.0.1"]
           ],
@@ -7968,7 +7968,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lodash.flatten", "npm:4.4.0"],
             ["markdownlint", "npm:0.23.1"],
             ["markdownlint-rule-helpers", "npm:0.14.0"],
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["minimist", "npm:1.2.5"],
             ["rc", "npm:1.2.8"]
           ],
@@ -8124,10 +8124,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["minimatch", [
-        ["npm:3.0.4", {
-          "packageLocation": "./.yarn/cache/minimatch-npm-3.0.4-6e76f51c23-66ac295f8a.zip/node_modules/minimatch/",
+        ["npm:3.0.8", {
+          "packageLocation": "./.yarn/cache/minimatch-npm-3.0.8-f3deb724b2-850cca179c.zip/node_modules/minimatch/",
           "packageDependencies": [
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["brace-expansion", "npm:1.1.11"]
           ],
           "linkType": "HARD",
@@ -8339,7 +8339,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["chokidar", "npm:3.4.0"],
             ["debug", "virtual:7b95e4651161f58fae67ad0e500093fe3efc1260126f9dd9f0cf96334b9e5c43c30afa86faf5d3c609740562b9985718bf9d1cf396b473e9cda8d4a60334e6e1#npm:3.2.6"],
             ["ignore-by-default", "npm:1.0.1"],
-            ["minimatch", "npm:3.0.4"],
+            ["minimatch", "npm:3.0.8"],
             ["pstree.remy", "npm:1.1.7"],
             ["semver", "npm:5.7.1"],
             ["supports-color", "npm:5.5.0"],
@@ -10390,7 +10390,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["test-exclude", "npm:6.0.0"],
             ["@istanbuljs/schema", "npm:0.1.2"],
             ["glob", "npm:7.1.6"],
-            ["minimatch", "npm:3.0.4"]
+            ["minimatch", "npm:3.0.8"]
           ],
           "linkType": "HARD",
         }]
