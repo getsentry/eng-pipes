@@ -57,7 +57,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-prettier", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.3.0"],
             ["eslint-plugin-prettier", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.0.0"],
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],
-            ["fastify", "npm:3.23.1"],
+            ["fastify", "npm:3.29.5"],
             ["fastify-formbody", "npm:5.2.0"],
             ["husky", "npm:4.3.0"],
             ["jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.3.1"],
@@ -1101,6 +1101,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@fastify/ajv-compiler", "npm:1.1.0"],
             ["ajv", "npm:6.12.6"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@fastify/error", [
+        ["npm:2.0.0", {
+          "packageLocation": "./.yarn/cache/@fastify-error-npm-2.0.0-9960848f02-ecf0834966.zip/node_modules/@fastify/error/",
+          "packageDependencies": [
+            ["@fastify/error", "npm:2.0.0"]
           ],
           "linkType": "HARD",
         }]
@@ -5094,6 +5103,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["fast-content-type-parse", [
+        ["npm:1.0.0", {
+          "packageLocation": "./.yarn/cache/fast-content-type-parse-npm-1.0.0-08ad8e1d9f-9e9187be17.zip/node_modules/fast-content-type-parse/",
+          "packageDependencies": [
+            ["fast-content-type-parse", "npm:1.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["fast-decode-uri-component", [
         ["npm:1.0.1", {
           "packageLocation": "./.yarn/cache/fast-decode-uri-component-npm-1.0.1-578ba9fecf-427a48fe09.zip/node_modules/fast-decode-uri-component/",
@@ -5209,34 +5227,26 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["fastify", [
-        ["npm:3.23.1", {
-          "packageLocation": "./.yarn/cache/fastify-npm-3.23.1-204aed681f-c1110085c9.zip/node_modules/fastify/",
+        ["npm:3.29.5", {
+          "packageLocation": "./.yarn/cache/fastify-npm-3.29.5-4daa5ccb41-6f97e67c25.zip/node_modules/fastify/",
           "packageDependencies": [
-            ["fastify", "npm:3.23.1"],
+            ["fastify", "npm:3.29.5"],
             ["@fastify/ajv-compiler", "npm:1.1.0"],
+            ["@fastify/error", "npm:2.0.0"],
             ["abstract-logging", "npm:2.0.0"],
             ["avvio", "npm:7.2.2"],
+            ["fast-content-type-parse", "npm:1.0.0"],
             ["fast-json-stringify", "npm:2.7.12"],
-            ["fastify-error", "npm:0.3.1"],
-            ["fastify-warning", "npm:0.2.0"],
-            ["find-my-way", "npm:4.4.0"],
+            ["find-my-way", "npm:4.5.1"],
             ["flatstr", "npm:1.0.12"],
             ["light-my-request", "npm:4.6.0"],
             ["pino", "npm:6.13.3"],
+            ["process-warning", "npm:1.0.0"],
             ["proxy-addr", "npm:2.0.7"],
             ["rfdc", "npm:1.3.0"],
             ["secure-json-parse", "npm:2.4.0"],
             ["semver", "npm:7.3.4"],
-            ["tiny-lru", "npm:7.0.6"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
-      ["fastify-error", [
-        ["npm:0.3.1", {
-          "packageLocation": "./.yarn/cache/fastify-error-npm-0.3.1-9c1ef70a86-fd6a0f6f87.zip/node_modules/fastify-error/",
-          "packageDependencies": [
-            ["fastify-error", "npm:0.3.1"]
+            ["tiny-lru", "npm:8.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -5344,10 +5354,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["find-my-way", [
-        ["npm:4.4.0", {
-          "packageLocation": "./.yarn/cache/find-my-way-npm-4.4.0-883e46f625-ec09b9af8f.zip/node_modules/find-my-way/",
+        ["npm:4.5.1", {
+          "packageLocation": "./.yarn/cache/find-my-way-npm-4.5.1-f905fe6212-85b8c07d34.zip/node_modules/find-my-way/",
           "packageDependencies": [
-            ["find-my-way", "npm:4.4.0"],
+            ["find-my-way", "npm:4.5.1"],
             ["fast-decode-uri-component", "npm:1.0.1"],
             ["fast-deep-equal", "npm:3.1.3"],
             ["safe-regex2", "npm:2.0.0"],
@@ -9146,6 +9156,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["process-warning", [
+        ["npm:1.0.0", {
+          "packageLocation": "./.yarn/cache/process-warning-npm-1.0.0-8b886c4a9d-c708a03241.zip/node_modules/process-warning/",
+          "packageDependencies": [
+            ["process-warning", "npm:1.0.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["progress", [
         ["npm:2.0.3", {
           "packageLocation": "./.yarn/cache/progress-npm-2.0.3-d1f87e2ac6-f67403fe7b.zip/node_modules/progress/",
@@ -9775,7 +9794,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-config-prettier", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.3.0"],
             ["eslint-plugin-prettier", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:4.0.0"],
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],
-            ["fastify", "npm:3.23.1"],
+            ["fastify", "npm:3.29.5"],
             ["fastify-formbody", "npm:5.2.0"],
             ["husky", "npm:4.3.0"],
             ["jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.3.1"],
@@ -10468,10 +10487,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["tiny-lru", [
-        ["npm:7.0.6", {
-          "packageLocation": "./.yarn/cache/tiny-lru-npm-7.0.6-872b74163c-36a786a911.zip/node_modules/tiny-lru/",
+        ["npm:8.0.2", {
+          "packageLocation": "./.yarn/cache/tiny-lru-npm-8.0.2-b190e31fd1-ec4d884914.zip/node_modules/tiny-lru/",
           "packageDependencies": [
-            ["tiny-lru", "npm:7.0.6"]
+            ["tiny-lru", "npm:8.0.2"]
           ],
           "linkType": "HARD",
         }]
