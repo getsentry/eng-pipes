@@ -1734,7 +1734,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/types", "npm:6.8.5"],
             ["deprecation", "npm:2.3.1"],
             ["is-plain-object", "npm:5.0.0"],
-            ["node-fetch", "npm:2.6.1"],
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],
             ["once", "npm:1.4.0"],
             ["universal-user-agent", "npm:6.0.0"]
           ],
@@ -1748,7 +1748,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/request-error", "npm:2.1.0"],
             ["@octokit/types", "npm:6.34.0"],
             ["is-plain-object", "npm:5.0.0"],
-            ["node-fetch", "npm:2.6.1"],
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],
             ["universal-user-agent", "npm:6.0.0"]
           ],
           "linkType": "HARD",
@@ -5587,7 +5587,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["extend", "npm:3.0.2"],
             ["https-proxy-agent", "npm:5.0.0"],
             ["is-stream", "npm:2.0.0"],
-            ["node-fetch", "npm:2.6.1"]
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"]
           ],
           "linkType": "HARD",
         }],
@@ -5599,7 +5599,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["extend", "npm:3.0.2"],
             ["https-proxy-agent", "npm:5.0.0"],
             ["is-stream", "npm:2.0.0"],
-            ["node-fetch", "npm:2.6.1"]
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"]
           ],
           "linkType": "HARD",
         }]
@@ -8288,10 +8288,24 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["node-fetch", [
-        ["npm:2.6.1", {
-          "packageLocation": "./.yarn/cache/node-fetch-npm-2.6.1-46c670dbc1-91075bedd5.zip/node_modules/node-fetch/",
+        ["npm:2.6.9", {
+          "packageLocation": "./.yarn/cache/node-fetch-npm-2.6.9-9fc9a54529-acb04f9ce7.zip/node_modules/node-fetch/",
           "packageDependencies": [
-            ["node-fetch", "npm:2.6.1"]
+            ["node-fetch", "npm:2.6.9"]
+          ],
+          "linkType": "SOFT",
+        }],
+        ["virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9", {
+          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-09e94fc04f/0/cache/node-fetch-npm-2.6.9-9fc9a54529-acb04f9ce7.zip/node_modules/node-fetch/",
+          "packageDependencies": [
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],
+            ["@types/encoding", null],
+            ["encoding", null],
+            ["whatwg-url", "npm:5.0.0"]
+          ],
+          "packagePeers": [
+            "@types/encoding",
+            "encoding"
           ],
           "linkType": "HARD",
         }]
@@ -10403,7 +10417,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["teeny-request", "npm:7.0.1"],
             ["http-proxy-agent", "npm:4.0.1"],
             ["https-proxy-agent", "npm:5.0.0"],
-            ["node-fetch", "npm:2.6.1"],
+            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],
             ["stream-events", "npm:1.0.5"],
             ["uuid", "npm:8.3.2"]
           ],
@@ -10572,6 +10586,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["tr46", [
+        ["npm:0.0.3", {
+          "packageLocation": "./.yarn/cache/tr46-npm-0.0.3-de53018915-726321c5ea.zip/node_modules/tr46/",
+          "packageDependencies": [
+            ["tr46", "npm:0.0.3"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:2.0.2", {
           "packageLocation": "./.yarn/cache/tr46-npm-2.0.2-9a9c502938-2b2b3dfa6b.zip/node_modules/tr46/",
           "packageDependencies": [
@@ -11053,6 +11074,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["webidl-conversions", [
+        ["npm:3.0.1", {
+          "packageLocation": "./.yarn/cache/webidl-conversions-npm-3.0.1-60310f6a2b-c92a0a6ab9.zip/node_modules/webidl-conversions/",
+          "packageDependencies": [
+            ["webidl-conversions", "npm:3.0.1"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:5.0.0", {
           "packageLocation": "./.yarn/cache/webidl-conversions-npm-5.0.0-9649787484-ccf1ec2ca7.zip/node_modules/webidl-conversions/",
           "packageDependencies": [
@@ -11088,6 +11116,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["whatwg-url", [
+        ["npm:5.0.0", {
+          "packageLocation": "./.yarn/cache/whatwg-url-npm-5.0.0-374fb45e60-b8daed4ad3.zip/node_modules/whatwg-url/",
+          "packageDependencies": [
+            ["whatwg-url", "npm:5.0.0"],
+            ["tr46", "npm:0.0.3"],
+            ["webidl-conversions", "npm:3.0.1"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:8.1.0", {
           "packageLocation": "./.yarn/cache/whatwg-url-npm-8.1.0-49b88f6bf9-10642be39a.zip/node_modules/whatwg-url/",
           "packageDependencies": [
