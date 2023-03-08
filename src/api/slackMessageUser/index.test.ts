@@ -35,11 +35,12 @@ describe('slackMessageUser', function () {
       slackUser: 'U1234',
       githubUser: 'githubUser',
     };
+
     const [userId] = await db('users').returning('id').insert(user);
 
     await db('users')
       .where({
-        id: userId,
+        id: userId.id,
       })
       .update({
         preferences: { disableSlackNotifications: true },
