@@ -1,56 +1,23 @@
 import * as Sentry from '@sentry/node';
 
-import { GoCDPipeline, GoCDResponse, GoCDStage } from '@types';
+import { GoCDPipeline, GoCDResponse } from '@types';
 
 import { gocdevents } from '@/api/gocdevents';
-import { Color, FEED_ENG_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
+import { FEED_ENG_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { getProgressColor, getProgressSuffix } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
-const INPROGRESS_MSG = 'has begun';
-const DEPLOYED_MSG = 'was successful';
-const FAILED_MSG = 'was not successful';
-
-function getProgressMessage(stage: GoCDStage) {
-  switch (stage.result.toLowerCase()) {
-    case 'passed':
-      return DEPLOYED_MSG;
-    case 'failed':
-      return FAILED_MSG;
-    case 'unknown':
-      return INPROGRESS_MSG;
-  }
-  return '';
-}
-
-function getProgressColor(stage: GoCDStage) {
-  switch (stage.result.toLowerCase()) {
-    case 'passed':
-      return Color.SUCCESS;
-    case 'unknown':
-      return Color.OFF_WHITE_TOO;
-    default:
-      return Color.DANGER;
-  }
-}
-
 function getMessageAttachments(pipeline) {
-  const progressText = getProgressMessage(pipeline.stage);
+  const progressText = getProgressSuffix(pipeline);
   if (!progressText) {
-    console.warn(
-      `Unable to get progress from pipeline stage: ${JSON.stringify(
-        pipeline.stage,
-        null,
-        2
-      )}`
-    );
     return;
   }
 
-  const progressColor = getProgressColor(pipeline.stage);
+  const progressColor = getProgressColor(pipeline);
   const overviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
   const logsURL = `${GOCD_ORIGIN}/go/tab/build/detail/${pipeline.name}/${
     pipeline.counter
