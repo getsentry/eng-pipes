@@ -5812,7 +5812,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/google-p12-pem-npm-3.0.3-e9ea4f0145-b4698748bb.zip/node_modules/google-p12-pem/",
           "packageDependencies": [
             ["google-p12-pem", "npm:3.0.3"],
-            ["node-forge", "npm:0.10.0"]
+            ["node-forge", "npm:1.3.1"]
           ],
           "linkType": "HARD",
         }]
@@ -8296,10 +8296,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["node-forge", [
-        ["npm:0.10.0", {
-          "packageLocation": "./.yarn/cache/node-forge-npm-0.10.0-605ba7b28b-5aa6dc9922.zip/node_modules/node-forge/",
+        ["npm:1.3.1", {
+          "packageLocation": "./.yarn/cache/node-forge-npm-1.3.1-f31fd566cc-08fb072d3d.zip/node_modules/node-forge/",
           "packageDependencies": [
-            ["node-forge", "npm:0.10.0"]
+            ["node-forge", "npm:1.3.1"]
           ],
           "linkType": "HARD",
         }]
