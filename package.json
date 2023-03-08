@@ -52,7 +52,7 @@
     "@slack/web-api": "^6.0.0",
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "12",
-    "@types/tar": "^6.1.2",
+    "@types/tar": "^6.1.4",
     "fastify": "^3.29.4",
     "fastify-formbody": "^5.2.0",
     "js-yaml": "^4.1.0",
@@ -62,7 +62,7 @@
     "moment-timezone": "^0.5.39",
     "pg": "^8.5.1",
     "source-map-support": "^0.5.21",
-    "tar": "^6.1.11",
+    "tar": "^6.1.12",
     "typescript": "^4.5.0"
   },
   "devDependencies": {
