@@ -4503,10 +4503,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["entities", [
-        ["npm:2.1.0", {
-          "packageLocation": "./.yarn/cache/entities-npm-2.1.0-b27b8aebc6-a10a877e48.zip/node_modules/entities/",
+        ["npm:3.0.1", {
+          "packageLocation": "./.yarn/cache/entities-npm-3.0.1-21eeb201ba-aaf7f12033.zip/node_modules/entities/",
           "packageDependencies": [
-            ["entities", "npm:2.1.0"]
+            ["entities", "npm:3.0.1"]
           ],
           "linkType": "HARD",
         }]
@@ -7627,10 +7627,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["linkify-it", [
-        ["npm:3.0.2", {
-          "packageLocation": "./.yarn/cache/linkify-it-npm-3.0.2-55fc9f4a37-08e14854ec.zip/node_modules/linkify-it/",
+        ["npm:4.0.1", {
+          "packageLocation": "./.yarn/cache/linkify-it-npm-4.0.1-9c7d5a3cd6-3e0a299212.zip/node_modules/linkify-it/",
           "packageDependencies": [
-            ["linkify-it", "npm:3.0.2"],
+            ["linkify-it", "npm:4.0.1"],
             ["uc.micro", "npm:1.0.6"]
           ],
           "linkType": "HARD",
@@ -7864,13 +7864,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["markdown-it", [
-        ["npm:12.0.4", {
-          "packageLocation": "./.yarn/cache/markdown-it-npm-12.0.4-f58fa54bda-001451527c.zip/node_modules/markdown-it/",
+        ["npm:13.0.1", {
+          "packageLocation": "./.yarn/cache/markdown-it-npm-13.0.1-dcb1a8675c-faf5891d38.zip/node_modules/markdown-it/",
           "packageDependencies": [
-            ["markdown-it", "npm:12.0.4"],
+            ["markdown-it", "npm:13.0.1"],
             ["argparse", "npm:2.0.1"],
-            ["entities", "npm:2.1.0"],
-            ["linkify-it", "npm:3.0.2"],
+            ["entities", "npm:3.0.1"],
+            ["linkify-it", "npm:4.0.1"],
             ["mdurl", "npm:1.0.1"],
             ["uc.micro", "npm:1.0.6"]
           ],
@@ -7882,7 +7882,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/markdownlint-npm-0.23.1-8de5b78dcb-e80a903c8c.zip/node_modules/markdownlint/",
           "packageDependencies": [
             ["markdownlint", "npm:0.23.1"],
-            ["markdown-it", "npm:12.0.4"]
+            ["markdown-it", "npm:13.0.1"]
           ],
           "linkType": "HARD",
         }]

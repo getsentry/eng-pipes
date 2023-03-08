@@ -3491,10 +3491,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"entities@npm:~2.1.0":
-  version: 2.1.0
-  resolution: "entities@npm:2.1.0"
-  checksum: a10a877e489586a3f6a691fe49bf3fc4e58f06c8e80522f08214a5150ba457e7017b447d4913a3fa041bda06ee4c92517baa4d8d75373eaa79369e9639225ffd
+"entities@npm:~3.0.1":
+  version: 3.0.1
+  resolution: "entities@npm:3.0.1"
+  checksum: aaf7f12033f0939be91f5161593f853f2da55866db55ccbf72f45430b8977e2b79dbd58c53d0fdd2d00bd7d313b75b0968d09f038df88e308aa97e39f9456572
   languageName: node
   linkType: hard
 
@@ -6239,12 +6239,12 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"linkify-it@npm:^3.0.1":
-  version: 3.0.2
-  resolution: "linkify-it@npm:3.0.2"
+"linkify-it@npm:^4.0.1":
+  version: 4.0.1
+  resolution: "linkify-it@npm:4.0.1"
   dependencies:
     uc.micro: ^1.0.1
-  checksum: 08e14854ec3c29e3578311b1cd95e469952a27f191633189a23890628939fc45c6d84fa4495abb9f7f06e60f73a31b8881d834214864d46db914a09ffc7889ae
+  checksum: 3e0a29921269c14eb7ac6f5db2da68d4854ea9acca6e9014a323f75f2dd39b197ffab57c1fbd6a906ceb021aad3ee6d7ba7d0181236dd9630ffc452b392f7f71
   languageName: node
   linkType: hard
 
@@ -6435,18 +6435,18 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"markdown-it@npm:12.0.4":
-  version: 12.0.4
-  resolution: "markdown-it@npm:12.0.4"
+"markdown-it@npm:13.0.1":
+  version: 13.0.1
+  resolution: "markdown-it@npm:13.0.1"
   dependencies:
     argparse: ^2.0.1
-    entities: ~2.1.0
-    linkify-it: ^3.0.1
+    entities: ~3.0.1
+    linkify-it: ^4.0.1
     mdurl: ^1.0.1
     uc.micro: ^1.0.5
   bin:
     markdown-it: bin/markdown-it.js
-  checksum: 001451527c165b8cda6636c19228dd8a96ce593c2dd08c3d1380fd5294bd8368a7f167a3107da05327abe98b553d4f0cadec9e19eb3b7d4249369a73ae4399e1
+  checksum: faf5891d389dc433bcf21d3fbff2009beb044b42b117c92f4848899780ca1a2282a209e3ff4672db4afed726a7248304ec473e6e242a7d6498af7113d31974e7
   languageName: node
   linkType: hard
 
@@ -6485,7 +6485,7 @@ fsevents@~2.1.2:
   version: 0.23.1
   resolution: "markdownlint@npm:0.23.1"
   dependencies:
-    markdown-it: 12.0.4
+    markdown-it: 13.0.1
   checksum: e80a903c8c92deb69c24f09c64917aa5e1812cceaadd7411316065722c28de4995a53ac2b29451ff701247556d0e31725ae4a215d3f5e13b8ff2c2b25deadedc
   languageName: node
   linkType: hard
