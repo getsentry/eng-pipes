@@ -149,7 +149,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["debug", "virtual:3a4dedf3f7af41df4edd570c93c4126de67c5e458a3b579d255b1e8423f52c355b4621ca7129f7769a7e7f91c1e0abff031564e672c722042a1e843d1951cc0f#npm:4.3.1"],
             ["gensync", "npm:1.0.0-beta.1"],
             ["json5", "npm:2.2.3"],
-            ["lodash", "npm:4.17.20"],
+            ["lodash", "npm:4.17.21"],
             ["resolve", "patch:resolve@npm%3A1.19.0#~builtin<compat/resolve>::version=1.19.0&hash=07638b"],
             ["semver", "npm:5.7.1"],
             ["source-map", "npm:0.5.7"]
@@ -174,7 +174,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/generator", "npm:7.9.6"],
             ["@babel/types", "npm:7.9.6"],
             ["jsesc", "npm:2.5.2"],
-            ["lodash", "npm:4.17.20"],
+            ["lodash", "npm:4.17.21"],
             ["source-map", "npm:0.5.7"]
           ],
           "linkType": "HARD",
@@ -318,7 +318,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/helper-split-export-declaration", "npm:7.8.3"],
             ["@babel/template", "npm:7.8.6"],
             ["@babel/types", "npm:7.9.6"],
-            ["lodash", "npm:4.17.20"]
+            ["lodash", "npm:4.17.21"]
           ],
           "linkType": "HARD",
         }]
@@ -1023,7 +1023,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@babel/types", "npm:7.9.6"],
             ["debug", "virtual:3a4dedf3f7af41df4edd570c93c4126de67c5e458a3b579d255b1e8423f52c355b4621ca7129f7769a7e7f91c1e0abff031564e672c722042a1e843d1951cc0f#npm:4.3.1"],
             ["globals", "npm:11.12.0"],
-            ["lodash", "npm:4.17.20"]
+            ["lodash", "npm:4.17.21"]
           ],
           "linkType": "HARD",
         }]
@@ -1043,7 +1043,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [
             ["@babel/types", "npm:7.9.6"],
             ["@babel/helper-validator-identifier", "npm:7.9.5"],
-            ["lodash", "npm:4.17.20"],
+            ["lodash", "npm:4.17.21"],
             ["to-fast-properties", "npm:2.0.0"]
           ],
           "linkType": "HARD",
@@ -7721,13 +7721,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["lodash", [
-        ["npm:4.17.20", {
-          "packageLocation": "./.yarn/cache/lodash-npm-4.17.20-c0db62021c-b31afa0973.zip/node_modules/lodash/",
-          "packageDependencies": [
-            ["lodash", "npm:4.17.20"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:4.17.21", {
           "packageLocation": "./.yarn/cache/lodash-npm-4.17.21-6382451519-eb835a2e51.zip/node_modules/lodash/",
           "packageDependencies": [
