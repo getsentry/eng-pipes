@@ -2937,34 +2937,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["ansi-regex", [
-        ["npm:2.1.1", {
-          "packageLocation": "./.yarn/cache/ansi-regex-npm-2.1.1-ddd24d102b-190abd03e4.zip/node_modules/ansi-regex/",
-          "packageDependencies": [
-            ["ansi-regex", "npm:2.1.1"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:3.0.0", {
-          "packageLocation": "./.yarn/cache/ansi-regex-npm-3.0.0-be0b845911-2ad11c416f.zip/node_modules/ansi-regex/",
-          "packageDependencies": [
-            ["ansi-regex", "npm:3.0.0"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:4.1.0", {
-          "packageLocation": "./.yarn/cache/ansi-regex-npm-4.1.0-4a7d8413fe-97aa465953.zip/node_modules/ansi-regex/",
-          "packageDependencies": [
-            ["ansi-regex", "npm:4.1.0"]
-          ],
-          "linkType": "HARD",
-        }],
-        ["npm:5.0.0", {
-          "packageLocation": "./.yarn/cache/ansi-regex-npm-5.0.0-9c076068d9-b1bb4e992a.zip/node_modules/ansi-regex/",
-          "packageDependencies": [
-            ["ansi-regex", "npm:5.0.0"]
-          ],
-          "linkType": "HARD",
-        }],
         ["npm:5.0.1", {
           "packageLocation": "./.yarn/cache/ansi-regex-npm-5.0.1-c963a48615-2aa4bb54ca.zip/node_modules/ansi-regex/",
           "packageDependencies": [
@@ -10223,7 +10195,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/strip-ansi-npm-3.0.1-6aec1365b9-9b974de611.zip/node_modules/strip-ansi/",
           "packageDependencies": [
             ["strip-ansi", "npm:3.0.1"],
-            ["ansi-regex", "npm:2.1.1"]
+            ["ansi-regex", "npm:5.0.1"]
           ],
           "linkType": "HARD",
         }],
@@ -10231,7 +10203,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/strip-ansi-npm-4.0.0-d4de985014-d9186e6c0c.zip/node_modules/strip-ansi/",
           "packageDependencies": [
             ["strip-ansi", "npm:4.0.0"],
-            ["ansi-regex", "npm:3.0.0"]
+            ["ansi-regex", "npm:5.0.1"]
           ],
           "linkType": "HARD",
         }],
@@ -10239,7 +10211,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/strip-ansi-npm-5.2.0-275214c316-bdb5f76ade.zip/node_modules/strip-ansi/",
           "packageDependencies": [
             ["strip-ansi", "npm:5.2.0"],
-            ["ansi-regex", "npm:4.1.0"]
+            ["ansi-regex", "npm:5.0.1"]
           ],
           "linkType": "HARD",
         }],
@@ -10247,7 +10219,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/strip-ansi-npm-6.0.0-904613e9eb-04c3239ede.zip/node_modules/strip-ansi/",
           "packageDependencies": [
             ["strip-ansi", "npm:6.0.0"],
-            ["ansi-regex", "npm:5.0.0"]
+            ["ansi-regex", "npm:5.0.1"]
           ],
           "linkType": "HARD",
         }],
