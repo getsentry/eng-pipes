@@ -1905,13 +1905,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/tar@npm:^6.1.2":
-  version: 6.1.2
-  resolution: "@types/tar@npm:6.1.2"
+"@types/tar@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "@types/tar@npm:6.1.4"
   dependencies:
     "@types/node": "*"
-    minipass: ^3.3.5
-  checksum: 57e625e2db29e3b9c6d8d06774758cf6e4caa2096f4144f7c0fdb2760e1150146d2a86f0eb80b4d2e1ba0ecf07f06303775054c4f4d22bea5d51e8b54cdd0fd8
+    minipass: ^4.0.0
+  checksum: 48a1f6b8665ed03f37f74966cfe991a33d6e85cee28aaa6ef42c7ca8448cdbc1e2ca96b473b6b53f1d7bd91423ae0dcfe54a295607d7ac4b4cbb9dbf167df7fa
   languageName: node
   linkType: hard
 
@@ -6710,12 +6710,10 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
-"minipass@npm:^3.3.5":
-  version: 3.3.5
-  resolution: "minipass@npm:3.3.5"
-  dependencies:
-    yallist: ^4.0.0
-  checksum: f89f02bcaa0e0e4bb4c44ec796008e69fbca62db0aba6ead1bc57d25bdaefdf42102130f4f9ecb7d9c6b6cd35ff7b0c7b97d001d3435da8e629fb68af3aea57e
+"minipass@npm:^4.0.0":
+  version: 4.2.4
+  resolution: "minipass@npm:4.2.4"
+  checksum: c664f2ae4401408d1e7a6e4f50aca45f87b1b0634bc9261136df5c378e313e77355765f73f59c4a5abcadcdf43d83fcd3eb14e4a7cdcce8e36508e2290345753
   languageName: node
   linkType: hard
 
@@ -8148,7 +8146,7 @@ resolve@^1.3.2:
     "@types/jest": ^27.0.3
     "@types/lodash.merge": ^4.6.6
     "@types/node": 12
-    "@types/tar": ^6.1.2
+    "@types/tar": ^6.1.4
     "@typescript-eslint/eslint-plugin": ^5.4.0
     "@typescript-eslint/parser": ^5.4.0
     eslint: ^8.2.0
@@ -8173,7 +8171,7 @@ resolve@^1.3.2:
     pino-pretty: ^4.5.0
     prettier: ^2.4.1
     source-map-support: ^0.5.21
-    tar: ^6.1.11
+    tar: ^6.1.12
     ts-jest: ^27.0.7
     ts-node: ^10.4.0
     typescript: ^4.5.0
@@ -8687,31 +8685,17 @@ resolve@^1.3.2:
   languageName: node
   linkType: hard
 
-"tar@npm:^6.0.2":
-  version: 6.1.0
-  resolution: "tar@npm:6.1.0"
+"tar@npm:^6.0.2, tar@npm:^6.1.12":
+  version: 6.1.13
+  resolution: "tar@npm:6.1.13"
   dependencies:
     chownr: ^2.0.0
     fs-minipass: ^2.0.0
-    minipass: ^3.0.0
+    minipass: ^4.0.0
     minizlib: ^2.1.1
     mkdirp: ^1.0.3
     yallist: ^4.0.0
-  checksum: 0638a405b625263e0c47e97f0ea5e871b1a549da4593e31bf1792bcc83d97c28065ed172669f186744526637ea627a424d519ddd99f3fd52b17ac75f58f43519
-  languageName: node
-  linkType: hard
-
-"tar@npm:^6.1.11":
-  version: 6.1.11
-  resolution: "tar@npm:6.1.11"
-  dependencies:
-    chownr: ^2.0.0
-    fs-minipass: ^2.0.0
-    minipass: ^3.0.0
-    minizlib: ^2.1.1
-    mkdirp: ^1.0.3
-    yallist: ^4.0.0
-  checksum: a04c07bb9e2d8f46776517d4618f2406fb977a74d914ad98b264fc3db0fe8224da5bec11e5f8902c5b9bcb8ace22d95fbe3c7b36b8593b7dfc8391a25898f32f
+  checksum: 8a278bed123aa9f53549b256a36b719e317c8b96fe86a63406f3c62887f78267cea9b22dc6f7007009738509800d4a4dccc444abd71d762287c90f35b002eb1c
   languageName: node
   linkType: hard
 
