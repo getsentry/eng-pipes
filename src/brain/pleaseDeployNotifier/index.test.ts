@@ -420,7 +420,7 @@ describe('pleaseDeployNotifier', function () {
         team_id: 'T018UAQ7YRW',
       },
       api_app_id: 'A017XPC80S2',
-      token: 'jPgd8YIi2F0O0IicFgxLzUNv',
+      token: 'sentrydevtoken',
       container: {
         type: 'message_attachment',
         message_ts: '1614650305.001000',
