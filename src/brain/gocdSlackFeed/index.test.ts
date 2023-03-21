@@ -3,17 +3,27 @@ import merge from 'lodash.merge';
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
 
 import { buildServer } from '@/buildServer';
+import { Color, FEED_ENG_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
 import { Fastify } from '@/types';
+import { INPROGRESS_MSG, SUCCESSFUL_MSG } from '@/utils/gocdHelpers';
+import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { Color, GOCD_ORIGIN, FEED_ENG_CHANNEL_ID } from '@/config';
-import { getUser } from '@api/getUser';
-import { handler, gocdSlackFeed } from '.';
+
+import { gocdSlackFeed, handler } from '.';
 
 jest.mock('@api/getUser');
 
 describe('gocdSlackFeed', function () {
   let fastify: Fastify;
+  const PIPELINE_NAME = 'example_pipeline';
+  const gocdPayload = merge({}, payload, {
+    data: {
+      pipeline: {
+        name: PIPELINE_NAME,
+      },
+    },
+  });
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -38,7 +48,7 @@ describe('gocdSlackFeed', function () {
   it('post message and update on success for auto-deploy', async function () {
     // First Event
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: {
@@ -46,24 +56,26 @@ describe('gocdSlackFeed', function () {
             },
           },
         },
-      }),
+      })
     );
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD auto-deployment started',
       channel: FEED_ENG_CHANNEL_ID,
-      attachments: [{
-        color: Color.OFF_WHITE_TOO,
-        author_name: 'sentryio/getsentry_frontend',
-        text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|has begun>`,
-        footer: `<${GOCD_ORIGIN}/go/tab/build/detail/getsentry_frontend/20/preliminary-checks/1/preliminary-checks|Job Logs>`
-      }],
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          author_name: `sentryio/${PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${INPROGRESS_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+        },
+      ],
     });
 
     let slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: 'sentryio-getsentry_frontend/20@2b0034becc4ab26b985f4c1a08ab068f153c274c',
+      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -71,19 +83,18 @@ describe('gocdSlackFeed', function () {
       },
     });
 
-
     // Second Event
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: {
               'approved-by': 'changes',
-              'result': 'Passed',
+              result: 'Passed',
             },
           },
         },
-      }),
+      })
     );
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
@@ -91,18 +102,20 @@ describe('gocdSlackFeed', function () {
       ts: '1234123.123',
       text: 'GoCD auto-deployment started',
       channel: FEED_ENG_CHANNEL_ID,
-      attachments: [{
-        color: Color.SUCCESS,
-        author_name: 'sentryio/getsentry_frontend',
-        text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|was successful>`,
-        footer: `<${GOCD_ORIGIN}/go/tab/build/detail/getsentry_frontend/20/preliminary-checks/1/preliminary-checks|Job Logs>`
-      }],
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          author_name: `sentryio/${PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${SUCCESSFUL_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+        },
+      ],
     });
 
     slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: 'sentryio-getsentry_frontend/20@2b0034becc4ab26b985f4c1a08ab068f153c274c',
+      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -118,26 +131,26 @@ describe('gocdSlackFeed', function () {
     }));
 
     // First Event
-    await handler(
-      merge({}, payload),
-    );
+    await handler(merge({}, gocdPayload));
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started by <@U018H4DA8N5>',
       channel: FEED_ENG_CHANNEL_ID,
-      attachments: [{
-        color: Color.OFF_WHITE_TOO,
-        author_name: 'sentryio/getsentry_frontend',
-        text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|has begun>`,
-        footer: `<${GOCD_ORIGIN}/go/tab/build/detail/getsentry_frontend/20/preliminary-checks/1/preliminary-checks|Job Logs>`
-      }],
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          author_name: `sentryio/${PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${INPROGRESS_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+        },
+      ],
     });
 
     let slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: 'sentryio-getsentry_frontend/20@2b0034becc4ab26b985f4c1a08ab068f153c274c',
+      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -147,15 +160,15 @@ describe('gocdSlackFeed', function () {
 
     // Second Event
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: {
-              'result': 'Passed',
+              result: 'Passed',
             },
           },
         },
-      }),
+      })
     );
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
@@ -163,18 +176,20 @@ describe('gocdSlackFeed', function () {
       ts: '1234123.123',
       text: 'GoCD deployment started by <@U018H4DA8N5>',
       channel: FEED_ENG_CHANNEL_ID,
-      attachments: [{
-        color: Color.SUCCESS,
-        author_name: 'sentryio/getsentry_frontend',
-        text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/getsentry_frontend/20/preliminary-checks/1|was successful>`,
-        footer: `<${GOCD_ORIGIN}/go/tab/build/detail/getsentry_frontend/20/preliminary-checks/1/preliminary-checks|Job Logs>`
-      }],
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          author_name: `sentryio/${PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${SUCCESSFUL_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+        },
+      ],
     });
 
     slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: 'sentryio-getsentry_frontend/20@2b0034becc4ab26b985f4c1a08ab068f153c274c',
+      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -191,15 +206,15 @@ describe('gocdSlackFeed', function () {
 
     // First Event
     await handler(
-      merge({}, payload, {
+      merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: {
               result: 'This State Is Not Known',
-            }
-          }
-        }
-      }),
+            },
+          },
+        },
+      })
     );
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);

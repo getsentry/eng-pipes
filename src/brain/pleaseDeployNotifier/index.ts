@@ -18,6 +18,7 @@ import {
   getFreightDeployForQueuedCommit,
   getGoCDDeployForQueuedCommit,
 } from '@/utils/db/getDeployForQueuedCommit';
+import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -163,13 +164,13 @@ async function handler({
   const commit = checkRun.head_sha;
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
-  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is ready to deploy`;
+  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
 
   // If the commit is already queued, add that message, otherwise
   // show actions to start the deploy / review it.
   const deployBlocks = await currentDeployBlocks(checkRun, user);
   if (deployBlocks) {
-    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is being deployed`;
+    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${INPROGRESS_MSG}`;
     blocks.push(...deployBlocks);
   } else {
     let deployElement = gocdDeploy(commit);

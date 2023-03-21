@@ -264,6 +264,6 @@ type GoCDJobState = 'Scheduled' | 'Completed';
 
 type GoCDApprovalType = 'success' | 'manual';
 
-type GoCDResultType = 'Passed' | 'Failed' | 'Unknown';
+type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 
-type GoCDStateType = 'Passed' | 'Failed' | 'Building';
+type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';

@@ -5,7 +5,6 @@ import {
   GoCDBuildCause,
   GoCDPipeline,
   GoCDResponse,
-  GoCDStage,
 } from '@types';
 
 import { ClientType } from '@/api/github/clientType';
@@ -14,7 +13,6 @@ import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { gocdevents } from '@/api/gocdevents';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
-  Color,
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
@@ -25,76 +23,35 @@ import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLatestGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
+import {
+  ALL_MESSAGE_SUFFIX,
+  FINAL_STAGE_NAMES,
+  getProgressColor,
+  getProgressSuffix,
+} from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
-const INPROGRESS_MSG = 'is being deployed';
-const DEPLOYED_MSG = 'was deployed';
-const FAILED_MSG = 'failed to deploy';
-
-// GoCD does not provide details about all pipeline stages, so we can't
-// know if a GoCD notification is the last stage in the pipeline or not.
-// We use these names to determine if the deployment is complete or not.
-export const FINAL_STAGE_NAMES = ['deploy', 'deploy-primary'];
-
-function getProgressSuffix(stage: GoCDStage) {
-  switch (stage.result.toLowerCase()) {
-    case 'passed':
-      // If the final stage has passed, return the deployed message
-      if (FINAL_STAGE_NAMES.indexOf(stage.name) >= 0) {
-        return DEPLOYED_MSG;
-      }
-      return INPROGRESS_MSG;
-    case 'failed':
-      return FAILED_MSG;
-    case 'unknown':
-      return INPROGRESS_MSG;
-  }
-  return '';
-}
-
-function getProgressMessage(stage: GoCDStage, message: any) {
-  const progressText = getProgressSuffix(stage);
+function getProgressMessage(pipeline: GoCDPipeline, message: any) {
+  const progressText = getProgressSuffix(pipeline);
   if (!progressText) {
     return '';
   }
 
-  const replaceValues = [
-    INPROGRESS_MSG,
-    DEPLOYED_MSG,
-    FAILED_MSG,
-    'is ready to deploy',
-  ];
   let msg = message.context.text;
-  for (const r of replaceValues) {
+  for (const r of ALL_MESSAGE_SUFFIX) {
     msg = msg.replace(r, progressText);
   }
   return msg;
 }
 
-function getProgressColor(stage: GoCDStage) {
-  switch (stage.result.toLowerCase()) {
-    case 'passed':
-      // If the final stage has passed, return the success color
-      if (FINAL_STAGE_NAMES.indexOf(stage.name) >= 0) {
-        return Color.SUCCESS;
-      }
-      return Color.OFF_WHITE_TOO;
-    case 'unknown':
-      return Color.OFF_WHITE_TOO;
-    default:
-      return Color.DANGER;
-  }
-}
-
 async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
+  const progressText = getProgressMessage(pipeline, message);
+  const progressColor = getProgressColor(pipeline);
+
   const { stage } = pipeline;
-
-  const progressText = getProgressMessage(stage, message);
-  const progressColor = getProgressColor(stage);
-
   const updatedBlocks = message.context.blocks.slice(0, -1);
   const payloadUser = await getUser({ email: stage['approved-by'] });
   const isUserDeploying = message.context.target === payloadUser?.slackUser;
@@ -140,8 +97,8 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
   ];
 
   if (
-    FINAL_STAGE_NAMES.indexOf(stage.name) !== -1 &&
-    stage.result === 'Passed'
+    FINAL_STAGE_NAMES.includes(stage.name) &&
+    stage.result.toLowerCase() === 'passed'
   ) {
     // We want to thread a message only when the commit is deployed
     promises.push(
@@ -201,12 +158,14 @@ async function updateCommitQueue(
 ) {
   const { stage } = pipeline;
 
-  switch (stage.result) {
-    case 'Unknown':
+  switch (stage.result.toLowerCase()) {
+    case 'unknown':
       await queueCommitsForDeploy(commits);
       break;
-    case 'Passed':
-      await clearQueuedCommits(sha);
+    case 'passed':
+      if (FINAL_STAGE_NAMES.includes(stage.name)) {
+        await clearQueuedCommits(sha);
+      }
       break;
     default:
       Sentry.captureException(

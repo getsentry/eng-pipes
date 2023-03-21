@@ -11,6 +11,7 @@ import {
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
+import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocdHelpers';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
@@ -19,7 +20,7 @@ import * as metrics from '@utils/metrics';
 
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
-import { FINAL_STAGE_NAMES, handler, notifyOnGoCDStageEvent } from '.';
+import { handler, notifyOnGoCDStageEvent } from '.';
 
 describe('notifyOnGoCDStageEvent', function () {
   let fastify: Fastify;
@@ -268,7 +269,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "channel_id",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> ${INPROGRESS_MSG}",
         "ts": "1234123.123",
       }
     `);

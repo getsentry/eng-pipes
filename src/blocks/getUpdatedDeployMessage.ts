@@ -1,7 +1,7 @@
 import { FreightPayload } from '@types';
 
-import { FINAL_STAGE_NAMES } from '@/brain/notifyOnGoCDStageEvent';
 import { GOCD_ORIGIN } from '@/config';
+import { FINAL_STAGE_NAMES } from '@/utils/gocdHelpers';
 
 /**
  * Constructs a message for the status of a deploy
