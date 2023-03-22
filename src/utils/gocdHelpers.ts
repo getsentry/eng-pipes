@@ -8,7 +8,7 @@ import {
 
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';
-const FAILED_MSG = 'failed to deploy';
+export const FAILED_MSG = 'failed to deploy';
 const CANCELLED_MSG = 'was cancelled';
 export const SUCCESSFUL_MSG = 'was successful';
 export const READY_TO_DEPLOY = 'is ready to deploy';
