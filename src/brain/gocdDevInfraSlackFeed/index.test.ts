@@ -3,9 +3,14 @@ import merge from 'lodash.merge';
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
 
 import { buildServer } from '@/buildServer';
-import { Color, FEED_DEV_PROD_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
+import {
+  Color,
+  FEED_DEV_PROD_CHANNEL_ID,
+  GOCD_ORIGIN,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+} from '@/config';
 import { Fastify } from '@/types';
-import { FAILED_MSG, SUCCESSFUL_MSG } from '@/utils/gocdHelpers';
+import { FAILED_MSG, INPROGRESS_MSG } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -51,6 +56,7 @@ describe('gocdDevInfraSlackFeed', function () {
       merge({}, gocdPayload, {
         data: {
           pipeline: {
+            name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
             stage: {
               result: 'Failed',
             },
@@ -65,9 +71,9 @@ describe('gocdDevInfraSlackFeed', function () {
       attachments: [
         {
           color: Color.DANGER,
-          author_name: `sentryio/${PIPELINE_NAME}`,
-          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${FAILED_MSG}>`,
-          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+          author_name: `sentryio/${GOCD_SENTRYIO_BE_PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20/preliminary-checks/1|${FAILED_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
         },
       ],
     });
@@ -75,7 +81,7 @@ describe('gocdDevInfraSlackFeed', function () {
     let slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
+      refId: `sentryio-${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -88,6 +94,7 @@ describe('gocdDevInfraSlackFeed', function () {
       merge({}, gocdPayload, {
         data: {
           pipeline: {
+            name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
             stage: {
               result: 'Passed',
             },
@@ -103,10 +110,10 @@ describe('gocdDevInfraSlackFeed', function () {
       channel: FEED_DEV_PROD_CHANNEL_ID,
       attachments: [
         {
-          color: Color.SUCCESS,
-          author_name: `sentryio/${PIPELINE_NAME}`,
-          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${PIPELINE_NAME}/20/preliminary-checks/1|${SUCCESSFUL_MSG}>`,
-          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
+          color: Color.OFF_WHITE_TOO,
+          author_name: `sentryio/${GOCD_SENTRYIO_BE_PIPELINE_NAME}`,
+          text: `step "preliminary-checks" <${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20/preliminary-checks/1|${INPROGRESS_MSG}>`,
+          footer: `<${GOCD_ORIGIN}/go/tab/build/detail/${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20/preliminary-checks/1/preliminary-checks|Job Logs>`,
         },
       ],
     });
@@ -114,7 +121,7 @@ describe('gocdDevInfraSlackFeed', function () {
     slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
-      refId: `sentryio-${PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
+      refId: `sentryio-${GOCD_SENTRYIO_BE_PIPELINE_NAME}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
       channel: 'channel_id',
       ts: '1234123.123',
       context: {
@@ -123,19 +130,41 @@ describe('gocdDevInfraSlackFeed', function () {
     });
   });
 
-  it('do nothing if the progress is not a failure result', async function () {
+  it('do nothing if the result is not a failure', async function () {
     getUser.mockImplementation(() => ({
       email: 'example-user@sentry.io',
       slackUser: 'U018H4DA8N5',
     }));
 
-    // First Event
     await handler(
       merge({}, gocdPayload, {
         data: {
           pipeline: {
             stage: {
+              name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
               result: 'Cancelled',
+            },
+          },
+        },
+      })
+    );
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(0);
+  });
+
+  it('do nothing if the pipeline is not in our filter set', async function () {
+    getUser.mockImplementation(() => ({
+      email: 'example-user@sentry.io',
+      slackUser: 'U018H4DA8N5',
+    }));
+
+    await handler(
+      merge({}, gocdPayload, {
+        data: {
+          pipeline: {
+            stage: {
+              result: 'Failed',
             },
           },
         },

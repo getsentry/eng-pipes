@@ -102,7 +102,7 @@ function getPipelineId(pipeline: GoCDPipeline) {
 async function postUpdateToSlack(pipeline: GoCDPipeline): Promise<void> {
   // Only notify on the getsentry frontend / backend
   // pipelines.
-  if (PIPELINE_FILTER.includes(pipeline.name)) {
+  if (!PIPELINE_FILTER.includes(pipeline.name)) {
     return;
   }
 
