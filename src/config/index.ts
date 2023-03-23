@@ -21,7 +21,7 @@ export const GOCD_ORIGIN =
 export const FEED_ENG_CHANNEL_ID =
   process.env.FEED_ENG_CHANNEL_ID || 'C1BC69PHR';
 export const FEED_DEV_PROD_CHANNEL_ID =
-  process.env.FEED_DEV_PROD_CHANNEL_ID || 'G01F13Y6AQ0';
+  process.env.FEED_DEV_PROD_CHANNEL_ID || 'C01KXF92HNW';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
