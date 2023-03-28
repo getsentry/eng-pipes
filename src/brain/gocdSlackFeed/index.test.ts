@@ -3,7 +3,7 @@ import merge from 'lodash.merge';
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
 
 import { buildServer } from '@/buildServer';
-import { Color, FEED_ENG_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
+import { Color, FEED_DEPLOY_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
 import { Fastify } from '@/types';
 import { INPROGRESS_MSG, SUCCESSFUL_MSG } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
@@ -61,7 +61,7 @@ describe('gocdSlackFeed', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD auto-deployment started',
-      channel: FEED_ENG_CHANNEL_ID,
+      channel: FEED_DEPLOY_CHANNEL_ID,
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -101,7 +101,7 @@ describe('gocdSlackFeed', function () {
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
       ts: '1234123.123',
       text: 'GoCD auto-deployment started',
-      channel: FEED_ENG_CHANNEL_ID,
+      channel: FEED_DEPLOY_CHANNEL_ID,
       attachments: [
         {
           color: Color.SUCCESS,
@@ -136,7 +136,7 @@ describe('gocdSlackFeed', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: FEED_ENG_CHANNEL_ID,
+      channel: FEED_DEPLOY_CHANNEL_ID,
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -175,7 +175,7 @@ describe('gocdSlackFeed', function () {
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
       ts: '1234123.123',
       text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: FEED_ENG_CHANNEL_ID,
+      channel: FEED_DEPLOY_CHANNEL_ID,
       attachments: [
         {
           color: Color.SUCCESS,

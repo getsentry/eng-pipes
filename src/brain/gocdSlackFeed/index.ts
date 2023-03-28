@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/node';
 import { GoCDPipeline, GoCDResponse } from '@types';
 
 import { gocdevents } from '@/api/gocdevents';
-import { FEED_ENG_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
+import { FEED_DEPLOY_CHANNEL_ID, GOCD_ORIGIN } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getProgressColor, getProgressSuffix } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
@@ -62,7 +62,7 @@ async function newSlackMessage(refId, pipeline: GoCDPipeline) {
   const body = await getBodyText(pipeline);
   const message = await bolt.client.chat.postMessage({
     text: body,
-    channel: FEED_ENG_CHANNEL_ID,
+    channel: FEED_DEPLOY_CHANNEL_ID,
     attachments: attachments,
   });
 
@@ -82,7 +82,7 @@ async function newSlackMessage(refId, pipeline: GoCDPipeline) {
 async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
   await bolt.client.chat.update({
     ts: message.ts,
-    channel: FEED_ENG_CHANNEL_ID,
+    channel: FEED_DEPLOY_CHANNEL_ID,
     // NOTE: Using the message context means the message text contains
     // who initiated the deployment (either manual or an auto-deployment).
     text: message.context.text,
