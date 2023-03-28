@@ -18,8 +18,8 @@ export const GOCD_SENTRYIO_BE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'getsentry-backend';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
-export const FEED_ENG_CHANNEL_ID =
-  process.env.FEED_ENG_CHANNEL_ID || 'C1BC69PHR';
+export const FEED_DEPLOY_CHANNEL_ID =
+  process.env.FEED_DEPLOY_CHANNEL_ID || 'C051ED5GLN4';
 export const FEED_DEV_PROD_CHANNEL_ID =
   process.env.FEED_DEV_PROD_CHANNEL_ID || 'C01KXF92HNW';
 
