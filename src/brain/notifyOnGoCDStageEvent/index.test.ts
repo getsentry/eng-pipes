@@ -262,6 +262,7 @@ describe('notifyOnGoCDStageEvent', function () {
       },
     });
 
+    updateMock.mockClear();
     await handler(gocdPayload);
 
     let commits = await db('queued_commits').select('*');
@@ -448,11 +449,11 @@ describe('notifyOnGoCDStageEvent', function () {
       }
     `);
 
-    updateMock.mockClear();
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
 
     // Post message is called when finished
+    updateMock.mockClear();
     await handler(
       merge({}, gocdPayload, {
         data: {
@@ -517,6 +518,7 @@ describe('notifyOnGoCDStageEvent', function () {
       },
     });
 
+    updateMock.mockClear();
     await handler(gocdPayload);
 
     let commits = await db('queued_commits').select('*');
@@ -573,11 +575,11 @@ describe('notifyOnGoCDStageEvent', function () {
       }
     `);
 
-    updateMock.mockClear();
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
 
     // Post message is called when finished
+    updateMock.mockClear();
     await handler(
       merge({}, gocdPayload, {
         data: {
