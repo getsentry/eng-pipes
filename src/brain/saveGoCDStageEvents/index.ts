@@ -52,10 +52,11 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
   const gocdMaterials: Array<GoCDBuildMaterial> = [];
   for (const bc of pipeline['build-cause']) {
     if (!bc.material || bc.material.type != 'git') {
-      throw new Error('Unexpected GoCD build-case material');
+      // The material may be an upstream pipeline
+      continue;
     }
     if (bc.modifications.length == 0) {
-      throw new Error('No GoCD modification for material');
+      continue;
     }
 
     const gitConfig = bc.material['git-configuration'];
@@ -69,6 +70,10 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
       revision: modification.revision,
     });
   }
+  if (gocdMaterials.length == 0) {
+    throw new Error('Failed to find GoCD modification material');
+  }
+
   await db(DB_TABLE_MATERIALS).insert(gocdMaterials);
 }
 

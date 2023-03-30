@@ -167,6 +167,10 @@ async function updateCommitQueue(
         await clearQueuedCommits(sha);
       }
       break;
+    case 'failed':
+    case 'cancelled':
+      await clearQueuedCommits(sha);
+      break;
     default:
       Sentry.captureException(
         new Error(`Unexpected stage result: ${stage.result}`)
@@ -207,9 +211,6 @@ async function filterCommits(octokit, pipeline, commits) {
       (isBackendOnly &&
         pipeline.name == process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME)
     ) {
-      relevantCommitShas.push(sha);
-    } else {
-      // TODO (mattgaunt): DO NOT COMMIT THIS!
       relevantCommitShas.push(sha);
     }
   }
