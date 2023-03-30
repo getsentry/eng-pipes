@@ -101,7 +101,7 @@ describe('notifyOnGoCDStageEvent', function () {
     octokit = await getClient(ClientType.App, 'getsentry');
     octokit.checks.listForRef.mockImplementation(() => ({
       data: {
-        check_runs: [{ name: 'only backend changes', conclusion: 'success' }],
+        check_runs: [{ name: 'only frontend changes', conclusion: 'success' }],
       },
     }));
     // @ts-ignore

@@ -206,10 +206,8 @@ async function filterCommits(octokit, pipeline, commits) {
     // NOTE: We do not handle scenarios where the commit has both
     // frontend and backend changes.
     if (
-      (isFrontendOnly &&
-        pipeline.name == process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME) ||
-      (isBackendOnly &&
-        pipeline.name == process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME)
+      (isFrontendOnly && pipeline.name == GOCD_SENTRYIO_FE_PIPELINE_NAME) ||
+      (isBackendOnly && pipeline.name == GOCD_SENTRYIO_BE_PIPELINE_NAME)
     ) {
       relevantCommitShas.push(sha);
     }
