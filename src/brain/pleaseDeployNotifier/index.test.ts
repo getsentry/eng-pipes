@@ -8,7 +8,11 @@ import {
   DB_TABLE_STAGES,
 } from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
-import { GOCD_ORIGIN, REQUIRED_CHECK_NAME } from '@/config';
+import {
+  GOCD_ORIGIN,
+  GOCD_SENTRYIO_FE_PIPELINE_NAME,
+  REQUIRED_CHECK_NAME,
+} from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { ClientType } from '@api/github/clientType';
@@ -1654,7 +1658,7 @@ Remove "always()" from GHA workflows`,
     });
   });
 
-  it('tells user GoCD deploy is in progress', async function () {
+  it('tells user GoCD frontend deploy is in progress', async function () {
     await queueCommitsForDeploy([
       {
         head_sha: '333333',
@@ -1663,7 +1667,7 @@ Remove "always()" from GHA workflows`,
     ]);
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'example-pipeline-id',
-      pipeline_name: 'example-pipeline',
+      pipeline_name: GOCD_SENTRYIO_FE_PIPELINE_NAME,
       pipeline_counter: 2,
       pipeline_group: 'sentryio',
       pipeline_build_cause: '{}',
@@ -1693,7 +1697,7 @@ Remove "always()" from GHA workflows`,
     });
 
     octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (ref === '333333') {
+      if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return {
           data: {
             check_runs: [
@@ -1771,7 +1775,7 @@ Remove "always()" from GHA workflows`,
               },
               Object {
                 "text": Object {
-                  "text": "U789123 has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/example-stage/3|example-pipeline: Stage 3>)",
+                  "text": "U789123 has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/2/example-stage/3|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 3>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",
@@ -1781,6 +1785,192 @@ Remove "always()" from GHA workflows`,
           },
         ]
       `);
+
+    expect(await db('slack_messages').first('*')).toMatchObject({
+      refId: '333333',
+      channel: 'channel_id',
+      ts: '1234123.123',
+      context: {
+        status: 'undeployed',
+      },
+    });
+  });
+
+  it('asks user to deploy backend while frontend deploy is in progress', async function () {
+    await queueCommitsForDeploy([
+      {
+        head_sha: '333333',
+        sha: '333333',
+      },
+    ]);
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'example-pipeline-id',
+      pipeline_name: GOCD_SENTRYIO_FE_PIPELINE_NAME,
+      pipeline_counter: 2,
+      pipeline_group: 'sentryio',
+      pipeline_build_cause: '{}',
+      stage_name: 'example-stage',
+      stage_counter: 3,
+      stage_approval_type: '',
+      stage_approved_by: 'example.user@sentry.op',
+      stage_state: 'Building',
+      stage_result: '',
+      stage_create_time: 'Nov 4, 2022, 1:33:26 PM',
+      stage_last_transition_time: 'Nov 4, 2022, 1:33:26 PM',
+      stage_jobs: '{}',
+    });
+    await db(DB_TABLE_MATERIALS).insert({
+      stage_material_id: `example-pipeline-id_github.com/getsentry/getsentry_333333`,
+      pipeline_id: 'example-pipeline-id',
+      url: 'github.com/getsentry/getsentry',
+      branch: 'master',
+      revision: '333333',
+    });
+
+    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+      const defaultPayload = require('@test/payloads/github/commit').default;
+      return {
+        data: merge({}, defaultPayload),
+      };
+    });
+
+    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
+      if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
+        return {
+          data: {
+            check_runs: [
+              {
+                name: 'only backend changes',
+                conclusion: 'success',
+              },
+            ],
+          },
+        };
+      }
+      throw new Error(`Unknown commit ref: ${ref}`);
+    });
+
+    await createGitHubEvent(fastify, 'check_run', {
+      repository: {
+        full_name: 'getsentry/getsentry',
+      },
+      check_run: {
+        status: 'completed',
+        conclusion: 'success',
+        name: REQUIRED_CHECK_NAME,
+        head_sha: '333333',
+        output: {
+          title: '',
+          summary: '',
+          text: '',
+          annotations_count: 0,
+          annotations_url: '',
+        },
+      },
+    });
+
+    // First message
+    expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
+      .toMatchInlineSnapshot(`
+      Array [
+        Object {
+          "blocks": Array [
+            Object {
+              "text": Object {
+                "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*getsentry/sentry@88c22a29176df64cfc027637a5ccfd9da1544e9f*>",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "text": Object {
+                "text": "#skipsentry",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "alt_text": "Matej Minar",
+                  "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                  "type": "image",
+                },
+                Object {
+                  "text": "<https://github.com/matejminar|Matej Minar (matejminar)>",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "freight-deploy: getsentry-backend",
+                  "style": "primary",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "Deploy",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "value": "333333",
+                },
+                Object {
+                  "action_id": "view-undeployed-commits-",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "View Undeployed Commits",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "333333",
+                },
+                Object {
+                  "action_id": "mute-slack-deploy",
+                  "confirm": Object {
+                    "confirm": Object {
+                      "text": "Mute",
+                      "type": "plain_text",
+                    },
+                    "deny": Object {
+                      "text": "Cancel",
+                      "type": "plain_text",
+                    },
+                    "text": Object {
+                      "text": "Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
+
+      \`\`\`
+      deploy notifications on
+      \`\`\`
+
+      Or you can visit the App's \\"Home\\" tab in Slack.
+      ",
+                      "type": "mrkdwn",
+                    },
+                    "title": Object {
+                      "text": "Mute deploy notifications?",
+                      "type": "plain_text",
+                    },
+                  },
+                  "style": "danger",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "Mute",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "mute",
+                },
+              ],
+              "type": "actions",
+            },
+          ],
+          "color": "#E7E1EC",
+        },
+      ]
+    `);
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '333333',

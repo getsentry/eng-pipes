@@ -12,7 +12,10 @@ export async function getFreightDeployForQueuedCommit(sha: string) {
     .first();
 }
 
-export async function getGoCDDeployForQueuedCommit(sha: string) {
+export async function getGoCDDeployForQueuedCommit(
+  sha: string,
+  pipeline_name: string
+) {
   const got = await db
     .select('*')
     .from('queued_commits')
@@ -21,7 +24,10 @@ export async function getGoCDDeployForQueuedCommit(sha: string) {
       'queued_commits.head_sha',
       'gocd-stage-materials.revision'
     )
-    .where('queued_commits.sha', sha)
+    .where({
+      'queued_commits.sha': sha,
+      pipeline_name,
+    })
     .rightJoin(
       'gocd-stages',
       'gocd-stage-materials.pipeline_id',

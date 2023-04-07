@@ -12,7 +12,14 @@ import {
 import { gocdDeploy } from '@/blocks/gocdDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
-import { Color, GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
+import {
+  Color,
+  GETSENTRY_REPO,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_FE_PIPELINE_NAME,
+  OWNER,
+  SENTRY_REPO,
+} from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import {
   getFreightDeployForQueuedCommit,
@@ -70,7 +77,8 @@ async function getGoCDDeployBlock(deployInfo, user): Promise<KnownBlock[]> {
 
 async function currentDeployBlocks(
   checkRun,
-  user
+  user,
+  isFrontendOnly
 ): Promise<KnownBlock[] | null> {
   // Look for queued commits and see if current commit is queued
   const freightDeployInfo = await getFreightDeployForQueuedCommit(
@@ -80,7 +88,14 @@ async function currentDeployBlocks(
     return getFreightDeployBlock(freightDeployInfo, user);
   }
 
-  const gocdDeployInfo = await getGoCDDeployForQueuedCommit(checkRun.head_sha);
+  let pipeline_name = GOCD_SENTRYIO_BE_PIPELINE_NAME;
+  if (isFrontendOnly) {
+    pipeline_name = GOCD_SENTRYIO_FE_PIPELINE_NAME;
+  }
+  const gocdDeployInfo = await getGoCDDeployForQueuedCommit(
+    checkRun.head_sha,
+    pipeline_name
+  );
   if (gocdDeployInfo) {
     return getGoCDDeployBlock(gocdDeployInfo, user);
   }
@@ -168,7 +183,11 @@ async function handler({
 
   // If the commit is already queued, add that message, otherwise
   // show actions to start the deploy / review it.
-  const deployBlocks = await currentDeployBlocks(checkRun, user);
+  const deployBlocks = await currentDeployBlocks(
+    checkRun,
+    user,
+    isFrontendOnly
+  );
   if (deployBlocks) {
     text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${INPROGRESS_MSG}`;
     blocks.push(...deployBlocks);
