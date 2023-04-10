@@ -128,7 +128,7 @@ describe('getDeployForQueuedCommit', function () {
 
   describe('getGoCDDeployForQueuedCommit', function () {
     it('return nothing when no queued commit exists', async function () {
-      const got = await getGoCDDeployForQueuedCommit('abc123');
+      const got = await getGoCDDeployForQueuedCommit('abc123', 'example');
       expect(got).toEqual(undefined);
     });
 
@@ -140,7 +140,7 @@ describe('getDeployForQueuedCommit', function () {
         },
       ]);
 
-      const got = await getGoCDDeployForQueuedCommit('abc123');
+      const got = await getGoCDDeployForQueuedCommit('abc123', 'example');
       expect(got).toEqual(undefined);
     });
 
@@ -164,7 +164,7 @@ describe('getDeployForQueuedCommit', function () {
         status: 'unknown',
       });
 
-      const got = await getGoCDDeployForQueuedCommit('abc123');
+      const got = await getGoCDDeployForQueuedCommit('abc123', 'example');
       expect(got).toEqual(undefined);
     });
 
@@ -203,7 +203,7 @@ describe('getDeployForQueuedCommit', function () {
         revision: 'abc123',
       });
 
-      const got = await getGoCDDeployForQueuedCommit('abc123');
+      const got = await getGoCDDeployForQueuedCommit('abc123', 'pipeline-name');
       expect(got).toEqual({
         stage_material_id: `123_github.com/example/example`,
         pipeline_id: 'pipeline-id-123',
