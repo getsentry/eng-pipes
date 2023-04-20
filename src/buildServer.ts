@@ -102,7 +102,7 @@ export async function buildServer(
   server.post(
     '/webhooks/pubsub',
     PubSub.opts,
-    PubSub.notifyTeamsForUntriagedIssues
+    PubSub.notifyProductOwnersForUntriagedIssues
   );
 
   return server;

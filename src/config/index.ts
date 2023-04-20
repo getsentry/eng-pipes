@@ -85,7 +85,7 @@ export enum BuildStatus {
 /**
  * GitHub Triage
  */
-export const TEAM_LABEL_PREFIX = 'Team: ';
+export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const UNROUTED_LABEL = 'Status: Unrouted';
 export const MAX_TRIAGE_DAYS = 2;

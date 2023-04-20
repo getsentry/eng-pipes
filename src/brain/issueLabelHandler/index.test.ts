@@ -30,7 +30,7 @@ describe('issueLabelHandler', function () {
       .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
       .mockReturnValue('2022-12-21T00:00:00.000Z');
     await getLabelsTable().insert({
-      label_name: 'Team: Test',
+      label_name: 'Product Area: Test',
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
@@ -294,9 +294,9 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([]);
     });
 
-    it('removes unrouted label when team label is added', async function () {
+    it('removes unrouted label when product area label is added', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
       expect(octokit.issues._comments).toEqual([
@@ -305,7 +305,7 @@ describe('issueLabelHandler', function () {
       ]);
     });
 
-    it('does not remove unrouted label when label is added that is not a team label', async function () {
+    it('does not remove unrouted label when label is added that is not a product area label', async function () {
       await createIssue('sentry-docs');
       await addLabel('Status: Needs More Information', 'sentry-docs');
       expectUnrouted();
@@ -314,9 +314,9 @@ describe('issueLabelHandler', function () {
       ]);
     });
 
-    it('should try to use label description if team label name does not exist', async function () {
+    it('should try to use label description if product area label name does not exist', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Does Not Exist', 'sentry-docs', 'test');
+      await addLabel('Product Area: Does Not Exist', 'sentry-docs', 'test');
       expectUntriaged();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -324,25 +324,25 @@ describe('issueLabelHandler', function () {
       ]);
     });
 
-    it('should default to route to open source team if team does not exist', async function () {
+    it('should default to route to open source team if product area does not exist', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Does Not Exist', 'sentry-docs');
+      await addLabel('Product Area: Does Not Exist', 'sentry-docs');
       expectUntriaged();
       expectRouted();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Failed to route to Team: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Failed to route to Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
-    it('removes previous Team labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
+    it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
-      await addLabel('Team: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Team: Rerouted');
-      expect(octokit.issues._labels).not.toContain('Team: Test');
+      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
+      expect(octokit.issues._labels).not.toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -352,13 +352,13 @@ describe('issueLabelHandler', function () {
 
     it('should not reroute if Status: Backlog is exists on issue', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
       await addLabel('Status: Backlog', 'sentry-docs');
-      await addLabel('Team: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Team: Rerouted');
-      expect(octokit.issues._labels).toContain('Team: Test');
+      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
+      expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -367,13 +367,13 @@ describe('issueLabelHandler', function () {
 
     it('should not reroute if Status: In Progress exists on issue', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
       await addLabel('Status: In Progress', 'sentry-docs');
-      await addLabel('Team: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Team: Rerouted');
-      expect(octokit.issues._labels).toContain('Team: Test');
+      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
+      expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -382,12 +382,17 @@ describe('issueLabelHandler', function () {
 
     it('should not reroute if issue is closed', async function () {
       await createIssue('sentry-docs');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
-      await addLabel('Team: Rerouted', 'sentry-docs', undefined, 'closed');
-      expect(octokit.issues._labels).toContain('Team: Rerouted');
-      expect(octokit.issues._labels).toContain('Team: Test');
+      await addLabel(
+        'Product Area: Rerouted',
+        'sentry-docs',
+        undefined,
+        'closed'
+      );
+      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
+      expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -412,7 +417,7 @@ describe('issueLabelHandler', function () {
       jest
         .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
         .mockReturnValue('2022-12-21T13:00:00.000Z');
-      await addLabel('Team: Test', 'sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
       expect(octokit.issues._comments).toEqual([

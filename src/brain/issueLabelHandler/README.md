@@ -2,7 +2,7 @@
 
 ## Time to Triage
 
-We track Time to Triage [as an SLO][looker] for the Open Source Team and the
+We track Time to Triage [as an SLO][looker] for the OSPO and the
 EPD org as a whole. The computation is [defined in LookML][implementation]
 based on the `Status: Untriaged` label. The handler in this directory
 implements logic to manipulate the `Status: Untriaged` label in repos that are

@@ -1,6 +1,10 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { TEAM_LABEL_PREFIX, UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
+import {
+  PRODUCT_AREA_LABEL_PREFIX,
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
+} from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { cacheOffices } from '@utils/businessHours';
@@ -18,15 +22,15 @@ export const githubLabelHandler = async ({
     return undefined;
   }
 
-  let teamLabel: undefined | string;
+  let productAreaLabel: undefined | string;
   if (
-    label.name.startsWith(TEAM_LABEL_PREFIX) &&
+    label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
     issue.labels?.some((label) => label.name === UNTRIAGED_LABEL)
   ) {
-    teamLabel = label.name;
+    productAreaLabel = label.name;
   } else if (label.name === UNTRIAGED_LABEL) {
-    teamLabel = issue.labels?.find((label) =>
-      label.name.startsWith(TEAM_LABEL_PREFIX)
+    productAreaLabel = issue.labels?.find((label) =>
+      label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
     )?.name;
   } else if (label.name === UNROUTED_LABEL) {
     bolt.client.chat.postMessage({
@@ -37,7 +41,7 @@ export const githubLabelHandler = async ({
     });
   }
 
-  if (!teamLabel) {
+  if (!productAreaLabel) {
     return undefined;
   }
 
@@ -47,7 +51,7 @@ export const githubLabelHandler = async ({
   const channelsToNotify = (
     await getLabelsTable()
       .where({
-        label_name: teamLabel,
+        label_name: productAreaLabel,
       })
       .select('channel_id')
   ).map((row) => row.channel_id);
@@ -66,9 +70,9 @@ export const githubLabelHandler = async ({
   );
 };
 
-// /notify-for-triage`: List all team label subscriptions
-// /notify-for-triage <name> <office>`: Subscribe to all untriaged issues for `Team: <name>` label
-// /notify-for-triage -<name> <office>`: Unsubscribe from untriaged issues for `Team: <name>` label
+// /notify-for-triage`: List all product area label subscriptions
+// /notify-for-triage <name> <office>`: Subscribe to all untriaged issues for `Product Area: <name>` label
+// /notify-for-triage -<name> <office>`: Unsubscribe from untriaged issues for `Product Area: <name>` label
 export const slackHandler = async ({ command, ack, say, respond, client }) => {
   const pending: Promise<unknown>[] = [];
   // Acknowledge command request
@@ -89,11 +93,11 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         ? `This channel is set to receive notifications for: ${labels.join(
             ', '
           )}`
-        : `This channel is not subscribed to any team notifications.`;
+        : `This channel is not subscribed to any product area notifications.`;
     pending.push(say(response));
   } else {
     const op = args.op || '+';
-    const label_name = `Team: ${args.label}`;
+    const label_name = `Product Area: ${args.label}`;
     const newOffice = args.office;
     const currentOffices =
       (
@@ -213,7 +217,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         // but leaving when they unsubscribe is not sure game.
         break;
     }
-    // Update cache for the offices mapped to each team
+    // Update cache for the offices mapped to each product area
     await cacheOffices(label_name);
   }
   await Promise.all(pending);

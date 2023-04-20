@@ -48,7 +48,7 @@ describe('github webhook', function () {
   beforeAll(async () => {
     await db.migrate.latest();
     await getLabelsTable().insert({
-      label_name: 'Team: Test',
+      label_name: 'Product Area: Test',
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
