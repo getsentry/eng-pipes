@@ -126,18 +126,6 @@ async function handler({
 
   const slackTarget = user?.slackUser;
 
-  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
-  // sha differs, it means that the relevantCommit is on the sentry repo
-  const relevantCommitRepo =
-    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
-
-  // If the commit contains only frontend changes, link user to deploy the
-  // `getsentry-frontend` Freight app
-  const { isFrontendOnly } = await getChangedStack(
-    relevantCommit.sha,
-    relevantCommitRepo
-  );
-
   const blocks = await getBlocksForCommit(relevantCommit);
 
   // Author of commit found
@@ -145,6 +133,15 @@ async function handler({
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
   let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
+
+  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
+  // sha differs, it means that the relevantCommit is on the sentry repo
+  const relevantCommitRepo =
+    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
+  const { isFrontendOnly } = await getChangedStack(
+    relevantCommit.sha,
+    relevantCommitRepo
+  );
 
   // If the commit is already queued, add that message, otherwise
   // show actions to start the deploy / review it.

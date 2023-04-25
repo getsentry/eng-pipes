@@ -78,7 +78,6 @@ describe('pleaseDeployNotifier', function () {
     fastify.close();
     octokit.repos.getCommit.mockClear();
     octokit.repos.compareCommits.mockClear();
-    octokit.checks.listForRef.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
@@ -271,7 +270,7 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('has a button to view undeployed commits in a modal if there is a successful deploy in db', async function () {
-    // The actionViewUndeployedCommits requires a previoud deploy
+    // The actionViewUndeployedCommits requires a previous deploy
     // to get the list of commits that are undeployed.
     await db('gocd-stages').insert({
       pipeline_id: 'pipeline-id-123',
@@ -781,24 +780,6 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('links user to frontend-only deploy from a sentry commit', async function () {
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (
-        repo === 'sentry' &&
-        ref === '88c22a29176df64cfc027637a5ccfd9da1544e9f'
-      ) {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only frontend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      }
-    });
-
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -954,24 +935,6 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('links user to backend-only deploy from a sentry commit', async function () {
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (
-        repo === 'sentry' &&
-        ref === '88c22a29176df64cfc027637a5ccfd9da1544e9f'
-      ) {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only backend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      }
-    });
-
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -1150,21 +1113,6 @@ Remove "always()" from GHA workflows`,
       };
     });
 
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (repo === 'getsentry') {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only frontend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      } else return null;
-    });
-
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -1197,14 +1145,6 @@ Remove "always()" from GHA workflows`,
 
     // Only once because this is a commit on getsentry
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
-
-    // Called once to check if commit is frontend or backend
-    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(1);
-    expect(octokit.checks.listForRef).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      })
-    );
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -1353,21 +1293,6 @@ Remove "always()" from GHA workflows`,
       };
     });
 
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (repo === 'getsentry') {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only backend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      } else return null;
-    });
-
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -1400,14 +1325,6 @@ Remove "always()" from GHA workflows`,
 
     // Only once because this is a commit on getsentry
     expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
-
-    // Called once to check if commit is frontend or backend
-    expect(octokit.checks.listForRef).toHaveBeenCalledTimes(1);
-    expect(octokit.checks.listForRef).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ref: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      })
-    );
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -1533,18 +1450,6 @@ Remove "always()" from GHA workflows`,
   });
 
   it('does not allow frontend deploy if head commit is a backend change', async function () {
-    await db('deploys').insert({
-      external_id: 1,
-      user_id: 1,
-      app_name: 'getsentry-backend',
-      user: 'test@sentry.io',
-      ref: 'master',
-      sha: '333333',
-      previous_sha: '888888',
-      environment: 'production',
-      status: 'finished',
-    });
-
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
@@ -1566,32 +1471,6 @@ Remove "always()" from GHA workflows`,
           },
         }),
       };
-    });
-
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
-      if (ref === '333333') {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only frontend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      } else if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
-        return {
-          data: {
-            check_runs: [
-              {
-                name: 'only backend changes',
-                conclusion: 'success',
-              },
-            ],
-          },
-        };
-      } else return null;
     });
 
     await createGitHubEvent(fastify, 'check_run', {
