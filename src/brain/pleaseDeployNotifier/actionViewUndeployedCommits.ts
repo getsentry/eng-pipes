@@ -1,11 +1,16 @@
 import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_REPO, OWNER } from '@/config';
+import {
+  GETSENTRY_REPO,
+  GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  OWNER,
+} from '@/config';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
+import { getLatestGoCDDeploy } from '@utils/db/getLatestDeploy';
 
 /**
  * Action handler for viewing undeployed commits. This should be useful for users
@@ -53,15 +58,17 @@ export async function actionViewUndeployedCommits({
     },
   });
 
-  const lastDeploy = await getLastSuccessfulDeploy();
-
+  const lastDeploy = await getLatestGoCDDeploy(
+    GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+    GOCD_SENTRYIO_BE_PIPELINE_NAME
+  );
   if (!lastDeploy) {
     // Unable to find last successful deploy... can't continue
     return;
   }
 
   const octokit = await getClient(ClientType.App, OWNER);
-  const base = lastDeploy.sha;
+  const base = lastDeploy.pipeline_build_cause[0].modifications[0].revision;
   const head = payload.value;
 
   // Get all getsentry commits between `base` and `head`
@@ -96,7 +103,7 @@ export async function actionViewUndeployedCommits({
     ({ block_id }) => block_id === action.block_id
   );
   const deployButton = actionsBlock?.elements.find(
-    ({ action_id }) => action_id === 'freight-deploy'
+    ({ action_id }) => action_id === 'gocd-deploy'
   );
 
   const { view } = await viewPromise;

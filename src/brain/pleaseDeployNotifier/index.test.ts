@@ -10,6 +10,8 @@ import {
 import { buildServer } from '@/buildServer';
 import {
   GOCD_ORIGIN,
+  GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
 } from '@/config';
@@ -19,7 +21,7 @@ import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { getLastSuccessfulDeploy } from '@utils/db/getLastSuccessfulDeploy';
+import { getLatestGoCDDeploy } from '@utils/db/getLatestDeploy';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';
@@ -80,7 +82,6 @@ describe('pleaseDeployNotifier', function () {
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
-    await db('deploys').delete();
     await db('queued_commits').delete();
     await db('gocd-stage-materials').delete();
     await db('gocd-stages').delete();
@@ -193,7 +194,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -201,7 +202,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -270,17 +271,96 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('has a button to view undeployed commits in a modal if there is a successful deploy in db', async function () {
-    await db('deploys').insert({
-      external_id: 1,
-      user_id: 1,
-      app_name: 'getsentry-backend',
-      user: 'test@sentry.io',
-      ref: 'master',
-      sha: '333333',
-      previous_sha: '888888',
-      environment: 'production',
-      status: 'finished',
+    // The actionViewUndeployedCommits requires a previoud deploy
+    // to get the list of commits that are undeployed.
+    await db('gocd-stages').insert({
+      pipeline_id: 'pipeline-id-123',
+
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 2,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+
+      stage_name: 'stage-name',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'unknown',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
     });
+    await db('gocd-stage-materials').insert({
+      stage_material_id: `123_github.com/example/example`,
+      pipeline_id: 'pipeline-id-123',
+      url: 'github.com/example/example',
+      branch: 'master',
+      revision: '333333',
+    });
+
+    expect(
+      await getLatestGoCDDeploy(
+        GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+        GOCD_SENTRYIO_BE_PIPELINE_NAME
+      )
+    ).toMatchObject({
+      pipeline_id: 'pipeline-id-123',
+
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 2,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: [
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ],
+
+      stage_name: 'stage-name',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'unknown',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: {},
+    });
+
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
         full_name: 'getsentry/getsentry',
@@ -347,7 +427,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -355,7 +435,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -497,7 +577,7 @@ describe('pleaseDeployNotifier', function () {
                 elements: [
                   {
                     type: 'button',
-                    action_id: 'freight-deploy',
+                    action_id: 'gocd-deploy',
                     text: {
                       type: 'plain_text',
                       text: 'Deploy',
@@ -505,7 +585,7 @@ describe('pleaseDeployNotifier', function () {
                     },
                     style: 'primary',
                     value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-                    url: 'https://freight.getsentry.net/deploy?app=getsentry-backend',
+                    url: GOCD_ORIGIN,
                   },
                   {
                     type: 'button',
@@ -577,11 +657,18 @@ describe('pleaseDeployNotifier', function () {
     });
     expect(actions.actionViewUndeployedCommits).toHaveBeenCalled();
     expect(bolt.client.views.open).toHaveBeenCalled();
-    expect(await getLastSuccessfulDeploy()).toMatchObject({
-      sha: '333333',
-    });
 
-    // Get list of commits
+    // Wait for mock user click of "view undeployed commits" to finish.
+    let wait = true;
+    while (wait) {
+      if (bolt.client.views.update.mock.calls.length > 0) {
+        wait = false;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    // Ensure actionViewUndeployedCommits is querying the expected commit range.
     expect(octokit.repos.compareCommits).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
@@ -666,7 +753,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -674,7 +761,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "455e3db9eb4fa6a1789b70e4045b194f02db0b59",
                 },
               ],
@@ -963,7 +1050,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -971,7 +1058,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -1369,7 +1456,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1377,7 +1464,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                 },
                 Object {
@@ -1582,7 +1669,7 @@ Remove "always()" from GHA workflows`,
               Object {
                 "elements": Array [
                   Object {
-                    "action_id": "freight-deploy: getsentry-backend",
+                    "action_id": "gocd-deploy",
                     "style": "primary",
                     "text": Object {
                       "emoji": true,
@@ -1590,7 +1677,7 @@ Remove "always()" from GHA workflows`,
                       "type": "plain_text",
                     },
                     "type": "button",
-                    "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                    "url": "${GOCD_ORIGIN}",
                     "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
                   },
                   Object {
@@ -1906,7 +1993,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "freight-deploy: getsentry-backend",
+                  "action_id": "gocd-deploy",
                   "style": "primary",
                   "text": Object {
                     "emoji": true,
@@ -1914,7 +2001,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://freight.getsentry.net/deploy?app=getsentry-backend",
+                  "url": "${GOCD_ORIGIN}",
                   "value": "333333",
                 },
                 Object {
