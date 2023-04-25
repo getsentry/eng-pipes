@@ -14,6 +14,8 @@ export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
 export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry-frontend';
+export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =
+  process.env.GOCD_SENTRYIO_BE_PIPELINE_GROUP || 'getsentry-backend';
 export const GOCD_SENTRYIO_BE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'getsentry-backend';
 export const GOCD_ORIGIN =
