@@ -83,19 +83,21 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
   )?.groups;
   if (!args) {
     if (channel_id === TEAM_OSPO_CHANNEL_ID) {
-      const getName = (channel_id: string) => {
+      const getName = async (channel_id: string) =>
         (await client.conversations.info({ channel: channel_id })).channel.name;
-      };
-      const subs = (await getLabelsTable().orderBy('label_name')).map(
-        (row) =>
-          `"Product Area: ${row.label_name}" ⇒ #${getName(row.channel_id)} (${(
-            row.offices || ['no office specified']
-          ).join(', ')})`
+      const allRows = await getLabelsTable().orderBy('label_name');
+      const subs = await Promise.all(
+        allRows.map(async (row) => {
+          const channelName = await getName(row.channel_id);
+          const offices = (row.offices || ['no office specified']).join(', ');
+          return `"Product Area: ${row.label_name}" ⇒ #${channelName} (${offices})`;
+        })
       );
       const response =
         subs.length > 0
           ? `${subs.join('\n')}`
           : `There are no notification subscriptions set up.`;
+      pending.push(say(response));
     } else {
       const labels = (await getLabelsTable().where({ channel_id })).map(
         (row) =>
@@ -109,8 +111,8 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
               ', '
             )}`
           : `This channel is not subscribed to any product area notifications.`;
+      pending.push(say(response));
     }
-    pending.push(say(response));
   } else {
     const op = args.op || '+';
     const label_name = `Product Area: ${args.label}`;
