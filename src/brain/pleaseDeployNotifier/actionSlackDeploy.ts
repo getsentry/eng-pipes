@@ -59,7 +59,7 @@ export async function actionSlackDeploy({ ack, body, client, context }) {
     await client.chat.postEphemeral({
       channel: body.channel?.id || '',
       // @ts-ignore
-      user: payload.user.id,
+      user: body.user.id,
       text: 'There was an error changing your deploy notification preferences',
     });
   }
@@ -70,18 +70,20 @@ export async function actionSlackDeploy({ ack, body, client, context }) {
   }
 
   /**
-   * Update the message to hide Mute button and show Un-mute button
+   * Update the message to hide Mute button and show Un-mute button.
+   * This is needed if the user tries to mute/unmute from a message
+   * with the (un)muteDeployNotificationsButtons shown as an action.
    */
+
   // @ts-ignore
   const { container, message } = body;
-  const { ts, text, attachments, blocks } = message;
+  const { ts, text, attachments } = message;
 
   // Update original message to change mute button to unmute
   await client.chat.update({
     channel: body.channel?.id || '',
     ts,
     text,
-    blocks,
     attachments: updateAttachment(
       attachments,
       container.attachment_id,
