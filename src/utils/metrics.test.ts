@@ -39,7 +39,7 @@ describe('metrics tests', function () {
         number: 1234,
         created_at: null,
         updated_at: null,
-        labels: [{ name: 'Team: Test' }],
+        labels: [{ name: 'Product Area: Test' }],
       },
       label: {
         id: 1234,
@@ -54,12 +54,12 @@ describe('metrics tests', function () {
         .mockImplementation(() => 1487076708000);
       await db.migrate.latest();
       await getLabelsTable().insert({
-        label_name: 'Team: Test',
+        label_name: 'Product Area: Test',
         channel_id: 'CHNLIDRND1',
         offices: ['sfo'],
       });
       await getLabelsTable().insert({
-        label_name: 'Team: Open Source',
+        label_name: 'Product Area: Other',
         channel_id: 'CHNLIDRND1',
         offices: ['sfo'],
       });

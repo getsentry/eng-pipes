@@ -7,8 +7,8 @@ import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   OWNER,
+  PRODUCT_AREA_LABEL_PREFIX,
   SENTRY_REPO,
-  TEAM_LABEL_PREFIX,
   UNTRIAGED_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
@@ -19,7 +19,7 @@ import { db } from '@utils/db';
 
 const DEFAULT_REPOS = [SENTRY_REPO];
 const GH_API_PER_PAGE = 100;
-const DEFAULT_TEAM_LABEL = 'Team: Open Source';
+const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';
 const getChannelLastNotifiedTable = () => db('channel_last_notified');
 
 type PubSubPayload = {
@@ -48,7 +48,7 @@ type IssueSLOInfo = {
   url: string;
   number: number;
   title: string;
-  teamLabel: string;
+  productAreaLabel: string;
   triageBy: string;
   createdAt: string;
 };
@@ -82,11 +82,11 @@ export const opts = {
 const getLabelName = (label?: Issue['labels'][number]) =>
   typeof label === 'string' ? label : label?.name || '';
 
-const getIssueTeamLabel = (issue: Issue) => {
+const getIssueProductAreaLabel = (issue: Issue) => {
   const label = issue.labels.find((label) =>
-    getLabelName(label).startsWith(TEAM_LABEL_PREFIX)
+    getLabelName(label).startsWith(PRODUCT_AREA_LABEL_PREFIX)
   );
-  return getLabelName(label) || DEFAULT_TEAM_LABEL;
+  return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
 };
 
 export const getTriageSLOTimestamp = async (
@@ -125,7 +125,7 @@ export const getTriageSLOTimestamp = async (
 
 export const constructSlackMessage = (
   notificationChannels: Record<string, string[]>,
-  teamToIssuesMap: Record<string, IssueSLOInfo[]>,
+  productAreaToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
@@ -135,8 +135,8 @@ export const constructSlackMessage = (
     const actFastIssues: SlackMessageIssueItem[] = [];
     const triageQueueIssues: SlackMessageIssueItem[] = [];
     if (await isChannelInBusinessHours(channelId, now)) {
-      notificationChannels[channelId].map((team) => {
-        teamToIssuesMap[team].forEach(
+      notificationChannels[channelId].map((productArea) => {
+        productAreaToIssuesMap[productArea].forEach(
           ({ url, number, title, triageBy, createdAt }) => {
             // Escape issue title for < and > characters
             const escapedIssueTitle = title
@@ -411,7 +411,7 @@ export const constructSlackMessage = (
   });
 };
 
-export const notifyTeamsForUntriagedIssues = async (
+export const notifyProductOwnersForUntriagedIssues = async (
   request: FastifyRequest<{ Body: { message: { data: string } } }>,
   reply: FastifyReply
 ) => {
@@ -460,7 +460,7 @@ export const notifyTeamsForUntriagedIssues = async (
       url: issue.html_url,
       number: issue.number,
       title: issue.title,
-      teamLabel: getIssueTeamLabel(issue),
+      productAreaLabel: getIssueProductAreaLabel(issue),
       triageBy: await getTriageSLOTimestamp(octokit, repo, issue.number),
       createdAt: issue.created_at,
     }));
@@ -472,33 +472,33 @@ export const notifyTeamsForUntriagedIssues = async (
     await Promise.all(repos.map(getIssueSLOInfoForRepo))
   ).flat();
 
-  // Get an N-to-N mapping of "Team: *" labels to issues
-  const teamToIssuesMap: Record<string, IssueSLOInfo[]> = {};
-  const teamsToNotify = new Set() as Set<string>;
+  // Get an N-to-N mapping of "Product Area: *" labels to issues
+  const productAreaToIssuesMap: Record<string, IssueSLOInfo[]> = {};
+  const productAreasToNotify = new Set() as Set<string>;
   issuesToNotifyAbout.forEach((data) => {
-    if (data.teamLabel in teamToIssuesMap) {
-      teamToIssuesMap[data.teamLabel].push(data);
+    if (data.productAreaLabel in productAreaToIssuesMap) {
+      productAreaToIssuesMap[data.productAreaLabel].push(data);
     } else {
-      teamToIssuesMap[data.teamLabel] = [data];
-      teamsToNotify.add(data.teamLabel);
+      productAreaToIssuesMap[data.productAreaLabel] = [data];
+      productAreasToNotify.add(data.productAreaLabel);
     }
   });
-  // Get a mapping from Channels to subscribed teams
+  // Get a mapping from Channels to subscribed product areas
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
       .select('label_name', 'channel_id')
-      .whereIn('label_name', Array.from(teamsToNotify))
+      .whereIn('label_name', Array.from(productAreasToNotify))
   ).reduce((res, { label_name, channel_id }) => {
-    const teams = res[channel_id] || [];
-    teams.push(label_name);
-    res[channel_id] = teams;
+    const productAreas = res[channel_id] || [];
+    productAreas.push(label_name);
+    res[channel_id] = productAreas;
     return res;
   }, {});
 
-  // Notify all channels associated with the relevant `Team: *` label per issue
+  // Notify all channels associated with the relevant `Product Area: *` label per issue
   const notifications = constructSlackMessage(
     notificationChannels,
-    teamToIssuesMap,
+    productAreaToIssuesMap,
     now
   );
   // Do all this in parallel and wait till all finish

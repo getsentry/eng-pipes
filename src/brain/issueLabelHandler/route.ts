@@ -5,8 +5,8 @@ import moment from 'moment-timezone';
 import {
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
+  PRODUCT_AREA_LABEL_PREFIX,
   SENTRY_ORG,
-  TEAM_LABEL_PREFIX,
 } from '@/config';
 import {
   calculateSLOViolationRoute,
@@ -17,6 +17,7 @@ import {
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 
+const LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX = 14;
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
 import { ClientType } from '@/api/github/clientType';
@@ -54,7 +55,7 @@ function isNotInARepoWeCareAboutForRouting(payload) {
 
 function isValidLabel(payload) {
   return (
-    !payload.label?.name.startsWith(TEAM_LABEL_PREFIX) ||
+    !payload.label?.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) ||
     payload.issue.labels?.some(
       (label) =>
         label.name === 'Status: Backlog' || label.name === 'Status: In Progress'
@@ -65,7 +66,7 @@ function isValidLabel(payload) {
 
 function shouldLabelBeRemoved(label, target_name) {
   return (
-    (label.name.startsWith('Team: ') && label.name !== target_name) ||
+    (label.name.startsWith('Product Area: ') && label.name !== target_name) ||
     (label.name.startsWith('Status: ') && label.name !== UNTRIAGED_LABEL)
   );
 }
@@ -103,7 +104,7 @@ export async function markUnrouted({
 
   const timeToRouteBy = await calculateSLOViolationRoute(UNROUTED_LABEL);
   const { readableDueByDate, lastOfficeInBusinessHours } =
-    await getReadableTimeStamp(timeToRouteBy, 'Team: Support');
+    await getReadableTimeStamp(timeToRouteBy, 'Product Area: Unknown');
   await octokit.issues.createComment({
     owner,
     repo: payload.repository.name,
@@ -114,10 +115,17 @@ export async function markUnrouted({
   tx.finish();
 }
 
-async function routeIssue(octokit, teamLabelName, teamDescription) {
+async function routeIssue(
+  octokit,
+  productAreaLabelName,
+  productAreaLabelDescription
+) {
   try {
     const strippedTeamName =
-      teamLabelName?.substr(6).replace(' ', '-').toLowerCase() || '';
+      productAreaLabelName
+        ?.substr(LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX)
+        .replace(' ', '-')
+        .toLowerCase() || '';
     await octokit.teams.getByName({
       org: SENTRY_ORG,
       team_slug: strippedTeamName,
@@ -126,7 +134,7 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
   } catch (error) {
     // If the label name doesn't work, try description
     try {
-      const descriptionSlugName = teamDescription || '';
+      const descriptionSlugName = productAreaLabelDescription || '';
       await octokit.teams.getByName({
         org: SENTRY_ORG,
         team_slug: descriptionSlugName,
@@ -134,24 +142,26 @@ async function routeIssue(octokit, teamLabelName, teamDescription) {
       return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     } catch (error) {
       Sentry.captureException(error);
-      return `Failed to route to ${teamLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
+      return `Failed to route to ${productAreaLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
     }
   }
 }
 
-async function getReadableTimeStamp(timeToTriageBy, teamLabelName) {
+async function getReadableTimeStamp(timeToTriageBy, productAreaLabelName) {
   const dueByMoment = moment(timeToTriageBy).utc();
-  const officesForTeam = await getSortedOffices(teamLabelName);
+  const officesForProductArea = await getSortedOffices(productAreaLabelName);
   let lastOfficeInBusinessHours;
-  (officesForTeam.length > 0 ? officesForTeam : ['sfo']).forEach((office) => {
-    if (isTimeInBusinessHours(dueByMoment, office)) {
-      lastOfficeInBusinessHours = office;
+  (officesForProductArea.length > 0 ? officesForProductArea : ['sfo']).forEach(
+    (office) => {
+      if (isTimeInBusinessHours(dueByMoment, office)) {
+        lastOfficeInBusinessHours = office;
+      }
     }
-  });
+  );
   if (lastOfficeInBusinessHours == null) {
     lastOfficeInBusinessHours = 'sfo';
     Sentry.captureMessage(
-      `Unable to find an office in business hours for ${teamLabelName} for time ${timeToTriageBy}`
+      `Unable to find an office in business hours for ${productAreaLabelName} for time ${timeToTriageBy}`
     );
   }
   const officeDateFormat =
@@ -187,16 +197,16 @@ export async function markRouted({
   }
 
   const { issue, label } = payload;
-  const teamLabel = label;
-  const teamLabelName = teamLabel?.name;
+  const productAreaLabel = label;
+  const productAreaLabelName = productAreaLabel?.name;
   // Remove Unrouted label when routed.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
 
-  // When routing, remove all Status and Team labels that currently exist on issue
+  // When routing, remove all Status and Product Area labels that currently exist on issue
   issue.labels?.forEach((label) => {
-    if (shouldLabelBeRemoved(label, teamLabelName)) {
+    if (shouldLabelBeRemoved(label, productAreaLabelName)) {
       labelsToRemove.push(label.name);
     }
   });
@@ -230,19 +240,19 @@ export async function markRouted({
     labels: [UNTRIAGED_LABEL],
   });
 
-  const teamLabelDescription = teamLabel?.description;
+  const productAreaLabelDescription = productAreaLabel?.description;
   const routedTeam = await routeIssue(
     octokit,
-    teamLabelName,
-    teamLabelDescription
+    productAreaLabelName,
+    productAreaLabelDescription
   );
 
   const timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
-    teamLabel,
+    productAreaLabel,
   ]);
 
   const { readableDueByDate, lastOfficeInBusinessHours } =
-    await getReadableTimeStamp(timeToTriageBy, teamLabelName);
+    await getReadableTimeStamp(timeToTriageBy, productAreaLabelName);
   const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`;
   const comment = `${routedTeam}, ${dueBy}`;
   await octokit.issues.createComment({

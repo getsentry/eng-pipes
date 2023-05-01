@@ -13,7 +13,7 @@ type PubSubPayload = {
 ```
 
 This payload will be sent regularly using the [Cloud Scheduler][cloud_scheduler]
-to notify teams about their issues pending triage over [our SLO][process_doc].
+to notify product owners about their issues pending triage over [our SLO][process_doc].
 
 [pubsub]: https://cloud.google.com/run/docs/tutorials/pubsub#integrating-pubsub
 [cloud_scheduler]: https://cloud.google.com/scheduler/docs/tut-pub-sub#create_a_job

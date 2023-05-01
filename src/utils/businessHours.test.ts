@@ -42,22 +42,22 @@ describe('businessHours tests', function () {
   beforeAll(async function () {
     await db.migrate.latest();
     await getLabelsTable().insert({
-      label_name: 'Team: Test',
+      label_name: 'Product Area: Test',
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
     await getLabelsTable().insert({
-      label_name: 'Team: Undefined',
+      label_name: 'Product Area: Undefined',
       channel_id: 'CHNLIDRND1',
       offices: undefined,
     });
     await getLabelsTable().insert({
-      label_name: 'Team: Null',
+      label_name: 'Product Area: Null',
       channel_id: 'CHNLIDRND1',
       offices: null,
     });
     await getLabelsTable().insert({
-      label_name: 'Team: Open Source',
+      label_name: 'Product Area: Other',
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
@@ -112,7 +112,7 @@ describe('businessHours tests', function () {
       it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, async function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           testTimestamps[i].timestamp
         );
         expect(result).toEqual(triageResults[i]);
@@ -121,7 +121,7 @@ describe('businessHours tests', function () {
       it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, async function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           testTimestamps[i].timestamp
         );
         expect(result).toEqual(routingResults[i]);
@@ -131,7 +131,7 @@ describe('businessHours tests', function () {
     it('should handle case when offices is undefined', async function () {
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
-        'Team: Undefined',
+        'Product Area: Undefined',
         '2023-12-18T00:00:00.000Z'
       );
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
@@ -140,7 +140,7 @@ describe('businessHours tests', function () {
     it('should handle case when offices is null', async function () {
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
-        'Team: Null',
+        'Product Area: Null',
         '2023-12-18T00:00:00.000Z'
       );
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
@@ -149,7 +149,7 @@ describe('businessHours tests', function () {
     it('should handle the last day of the month for TTR', async function () {
       const result = await calculateTimeToRespondBy(
         MAX_ROUTE_DAYS,
-        'Team: Test',
+        'Product Area: Test',
         '2023-01-31T00:00:00.000Z'
       );
       expect(result).toEqual('2023-02-01T00:00:00.000Z');
@@ -158,7 +158,7 @@ describe('businessHours tests', function () {
     it('should handle the last day of the year for TTR', async function () {
       const result = await calculateTimeToRespondBy(
         MAX_ROUTE_DAYS,
-        'Team: Test',
+        'Product Area: Test',
         '2022-12-31T00:00:00.000Z'
       );
       expect(result).toEqual('2023-01-04T01:00:00.000Z');
@@ -168,7 +168,7 @@ describe('businessHours tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
@@ -178,7 +178,7 @@ describe('businessHours tests', function () {
       it('should calculate TTR SLO violation for Christmas', async function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
@@ -193,7 +193,7 @@ describe('businessHours tests', function () {
         await slackHandler({ command, ack, say, respond, client });
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2023-10-02T00:00:00.000Z'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
@@ -209,7 +209,7 @@ describe('businessHours tests', function () {
         await slackHandler({ command, ack, say, respond, client });
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2023-10-02T00:00:00.000Z'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
@@ -218,13 +218,13 @@ describe('businessHours tests', function () {
       it('should calculate weekends properly for friday in sfo, weekend in vie', async function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2022-12-17T00:00:00.000Z'
         );
         expect(result).toEqual('2022-12-20T00:00:00.000Z');
       });
 
-      it('should route properly when team is subscribed to sfo, vie, and yyz', async function () {
+      it('should route properly when product area is subscribed to sfo, vie, and yyz', async function () {
         const command = {
           channel_id: 'CHNLIDRND2',
           text: 'Test yyz',
@@ -232,13 +232,13 @@ describe('businessHours tests', function () {
         await slackHandler({ command, ack, say, respond, client });
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2022-12-20T15:30:00.000Z'
         );
         expect(result).toEqual('2022-12-20T23:30:00.000Z');
       });
 
-      it('should triage properly when team is subscribed to sfo, vie, and yyz', async function () {
+      it('should triage properly when product area is subscribed to sfo, vie, and yyz', async function () {
         const command = {
           channel_id: 'CHNLIDRND2',
           text: 'Test yyz',
@@ -246,7 +246,7 @@ describe('businessHours tests', function () {
         await slackHandler({ command, ack, say, respond, client });
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
-          'Team: Test',
+          'Product Area: Test',
           '2022-12-20T15:30:00.000Z'
         );
         expect(result).toEqual('2022-12-21T14:30:00.000Z');
@@ -278,17 +278,17 @@ describe('businessHours tests', function () {
   describe('isChannelInBusinessHours', function () {
     beforeAll(async function () {
       await getLabelsTable().insert({
-        label_name: 'Team: Open Source',
+        label_name: 'Product Area: Other',
         channel_id: 'CHNLIDRND4',
         offices: ['sfo', 'vie'],
       });
       await getLabelsTable().insert({
-        label_name: 'Team: Test',
+        label_name: 'Product Area: Test',
         channel_id: 'CHNLIDRND4',
         offices: ['yyz'],
       });
       await getLabelsTable().insert({
-        label_name: 'Team: Undefined',
+        label_name: 'Product Area: Undefined',
         channel_id: 'CHNLIDRND5',
         offices: undefined,
       });
@@ -377,37 +377,38 @@ describe('businessHours tests', function () {
   describe('calculateSLOViolationTriage', function () {
     it('should not calculate SLO violation if label is not untriaged', async function () {
       const result = await calculateSLOViolationTriage('Status: Test', [
-        { name: 'Team: Test' },
+        { name: 'Product Area: Test' },
       ]);
       expect(result).toEqual(null);
     });
 
     it('should not calculate SLO violation if label is unrouted', async function () {
       const result = await calculateSLOViolationTriage(UNROUTED_LABEL, [
-        { name: 'Team: Test' },
+        { name: 'Product Area: Test' },
       ]);
       expect(result).toEqual(null);
     });
 
     it('should calculate SLO violation if label is untriaged', async function () {
       const result = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
-        { name: 'Team: Test' },
+        { name: 'Product Area: Test' },
       ]);
       expect(result).not.toEqual(null);
     });
 
-    it('should calculate SLO violation if label is assigned to another team', async function () {
-      const result = await calculateSLOViolationTriage('Team: Rerouted', [
-        { name: 'Status: Untriaged' },
-      ]);
+    it('should calculate SLO violation if label is assigned to another product area', async function () {
+      const result = await calculateSLOViolationTriage(
+        'Product Area: Rerouted',
+        [{ name: 'Status: Untriaged' }]
+      );
       expect(result).not.toEqual(null);
     });
   });
 
   describe('getNextAvailableBusinessHourWindow', function () {
-    it('should get open source team timezones if team does not have offices', async function () {
+    it('should get open source product area timezones if product area does not have offices', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Does not exist',
+        'Product Area: Does not exist',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -418,9 +419,9 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get sfo timezones for Team: Test', async function () {
+    it('should get sfo timezones for Product Area: Test', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -431,14 +432,14 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get vie timezone for Team: Test if it has the closest business hours available', async function () {
+    it('should get vie timezone for Product Area: Test if it has the closest business hours available', async function () {
       const command = {
         channel_id: 'CHNLIDRND2',
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-08T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -449,14 +450,14 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get sfo timezone for Team: Test if it has the closest business hours available', async function () {
+    it('should get sfo timezone for Product Area: Test if it has the closest business hours available', async function () {
       const command = {
         channel_id: 'CHNLIDRND2',
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-08T16:30:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -467,14 +468,14 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get yyz timezone for Team: Test if it has the closest business hours available', async function () {
+    it('should get yyz timezone for Product Area: Test if it has the closest business hours available', async function () {
       const command = {
         channel_id: 'CHNLIDRND2',
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-08T16:30:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -485,9 +486,9 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Christmas for team subscribed to vie, yyz, sfo', async function () {
+    it('should return vie hours for Christmas for product area subscribed to vie, yyz, sfo', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2023-12-23T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -498,9 +499,9 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Saturday for team subscribed to vie, yyz, sfo', async function () {
+    it('should return vie hours for Saturday for product area subscribed to vie, yyz, sfo', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-17T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -511,9 +512,9 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Sunday for team subscribed to vie, yyz, sfo', async function () {
+    it('should return vie hours for Sunday for product area subscribed to vie, yyz, sfo', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-18T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -524,14 +525,14 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return yyz hours for Saturday for team subscribed to yyz, sfo', async function () {
+    it('should return yyz hours for Saturday for product area subscribed to yyz, sfo', async function () {
       let command = {
         channel_id: 'CHNLIDRND2',
         text: '-Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
       const { start, end } = await getNextAvailableBusinessHourWindow(
-        'Team: Test',
+        'Product Area: Test',
         moment('2022-12-17T12:00:00.000Z').utc()
       );
       expect(start.valueOf()).toEqual(
@@ -549,38 +550,38 @@ describe('businessHours tests', function () {
   });
 
   describe('getOffices', function () {
-    it('should return empty array if team label is undefined', async function () {
+    it('should return empty array if product area label is undefined', async function () {
       expect(await getOffices(undefined)).toEqual([]);
     });
 
-    it('should return empty array if team offices value is undefined', async function () {
-      expect(await getOffices('Team: Undefined')).toEqual([]);
+    it('should return empty array if product area offices value is undefined', async function () {
+      expect(await getOffices('Product Area: Undefined')).toEqual([]);
     });
 
-    it('should return empty array if team offices value is null', async function () {
-      expect(await getOffices('Team: Null')).toEqual([]);
+    it('should return empty array if product area offices value is null', async function () {
+      expect(await getOffices('Product Area: Null')).toEqual([]);
     });
 
-    it('should get sfo office for team test', async function () {
-      expect(await getOffices('Team: Test')).toEqual(['sfo']);
+    it('should get sfo office for product area test', async function () {
+      expect(await getOffices('Product Area: Test')).toEqual(['sfo']);
     });
 
-    it('should get sfo and vie office for team test if new office is added', async function () {
+    it('should get sfo and vie office for product area test if new office is added', async function () {
       const command = {
         channel_id: 'CHNLIDRND1',
         text: 'Test vie',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Team: Test')).toEqual(['sfo', 'vie']);
+      expect(await getOffices('Product Area: Test')).toEqual(['sfo', 'vie']);
     });
 
-    it('should get vie office for team test if existing office is removed', async function () {
+    it('should get vie office for product area test if existing office is removed', async function () {
       const command = {
         channel_id: 'CHNLIDRND1',
         text: '-Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Team: Test')).toEqual(['vie']);
+      expect(await getOffices('Product Area: Test')).toEqual(['vie']);
     });
 
     it('should get offices from multiple channels', async function () {
@@ -589,7 +590,7 @@ describe('businessHours tests', function () {
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Team: Test')).toEqual(['vie', 'yyz']);
+      expect(await getOffices('Product Area: Test')).toEqual(['vie', 'yyz']);
       command = {
         channel_id: 'CHNLIDRND2',
         text: '-Test yyz',
@@ -599,22 +600,25 @@ describe('businessHours tests', function () {
   });
 
   describe('getSortedOffices', function () {
-    it('should get sfo and vie office in sorted order for team test if new office is added', async function () {
+    it('should get sfo and vie office in sorted order for product area test if new office is added', async function () {
       const command = {
         channel_id: 'CHNLIDRND1',
         text: 'Test sfo',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Team: Test')).toEqual(['vie', 'sfo']);
+      expect(await getSortedOffices('Product Area: Test')).toEqual([
+        'vie',
+        'sfo',
+      ]);
     });
 
-    it('should get sfo, vie, yyz offices in sorted order for team test if new office is added', async function () {
+    it('should get sfo, vie, yyz offices in sorted order for product area test if new office is added', async function () {
       const command = {
         channel_id: 'CHNLIDRND1',
         text: 'Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Team: Test')).toEqual([
+      expect(await getSortedOffices('Product Area: Test')).toEqual([
         'vie',
         'yyz',
         'sfo',
