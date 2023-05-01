@@ -16,6 +16,7 @@ import {
 } from '@utils/businessHours';
 import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
+import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 const LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX = 14;
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
@@ -115,35 +116,20 @@ export async function markUnrouted({
   tx.finish();
 }
 
-async function routeIssue(
-  octokit,
-  productAreaLabelName,
-  productAreaLabelDescription
-) {
+async function routeIssue(octokit, productAreaLabelName) {
   try {
-    const strippedTeamName =
-      productAreaLabelName
-        ?.substr(LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX)
-        .replace(' ', '-')
-        .toLowerCase() || '';
+    const productArea = productAreaLabelName?.substr(
+      LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX
+    );
+    const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
       org: SENTRY_ORG,
-      team_slug: strippedTeamName,
-    });
-    return `Routing to @${SENTRY_ORG}/${strippedTeamName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
+      team_slug: ghTeamSlug,
+    }); // expected to throw if team doesn't exist
+    return `Routing to @${SENTRY_ORG}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   } catch (error) {
-    // If the label name doesn't work, try description
-    try {
-      const descriptionSlugName = productAreaLabelDescription || '';
-      await octokit.teams.getByName({
-        org: SENTRY_ORG,
-        team_slug: descriptionSlugName,
-      });
-      return `Routing to @${SENTRY_ORG}/${descriptionSlugName} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
-    } catch (error) {
-      Sentry.captureException(error);
-      return `Failed to route to ${productAreaLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
-    }
+    Sentry.captureException(error);
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   }
 }
 
@@ -240,12 +226,7 @@ export async function markRouted({
     labels: [UNTRIAGED_LABEL],
   });
 
-  const productAreaLabelDescription = productAreaLabel?.description;
-  const routedTeam = await routeIssue(
-    octokit,
-    productAreaLabelName,
-    productAreaLabelDescription
-  );
+  const routedTeam = await routeIssue(octokit, productAreaLabelName);
 
   const timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
     productAreaLabel,

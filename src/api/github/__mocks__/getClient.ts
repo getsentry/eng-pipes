@@ -56,7 +56,10 @@ function mockClient() {
     },
     teams: {
       getByName: jest.fn(async function (payload) {
-        if (payload.team_slug === 'test' || payload.team_slug === 'rerouted') {
+        if (
+          payload.team_slug === 'product-owners-test' ||
+          payload.team_slug === 'product-owners-rerouted'
+        ) {
           return { status: 200, data: {} };
         }
         throw new MockOctokitError(404);

@@ -95,7 +95,6 @@ describe('issueLabelHandler', function () {
     repo?: string,
     label?: string,
     sender?: string,
-    labelDescription?: string,
     state?: string
   ) {
     repo = repo || 'test-ttt-simple';
@@ -112,7 +111,7 @@ describe('issueLabelHandler', function () {
     };
 
     if (label) {
-      payload.label = { name: label, description: labelDescription };
+      payload.label = { name: label };
     }
     return payload;
   }
@@ -126,17 +125,12 @@ describe('issueLabelHandler', function () {
     );
   }
 
-  async function addLabel(
-    label: string,
-    repo?: string,
-    labelDescription?: string,
-    state?: string
-  ) {
+  async function addLabel(label: string, repo?: string, state?: string) {
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issues.labeled',
-      makePayload(repo, label, undefined, labelDescription, state)
+      makePayload(repo, label, undefined, state)
     );
     octokit.issues.addLabels({ labels: [label] });
   }
@@ -301,7 +295,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -314,16 +308,6 @@ describe('issueLabelHandler', function () {
       ]);
     });
 
-    it('should try to use label description if product area label name does not exist', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Does Not Exist', 'sentry-docs', 'test');
-      expectUntriaged();
-      expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
-      ]);
-    });
-
     it('should default to route to open source team if product area does not exist', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Does Not Exist', 'sentry-docs');
@@ -331,7 +315,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Failed to route to Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Failed to route to @getsentry/product-owners-does-not-exist for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -345,8 +329,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -361,7 +345,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -376,7 +360,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -385,17 +369,12 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
-      await addLabel(
-        'Product Area: Rerouted',
-        'sentry-docs',
-        undefined,
-        'closed'
-      );
+      await addLabel('Product Area: Rerouted', 'sentry-docs', 'closed');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
@@ -422,7 +401,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
       ]);
     });
   });
