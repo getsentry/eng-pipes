@@ -152,7 +152,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         if (result.length > 0) {
           pending.push(
             say(
-              `Set untriaged issue notifications for '${result[0]}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} business hours.`
+              `Set untriaged issue notifications for '${result[0]?.label_name}' on the current channel (${channelInfo.channel.name}). Notifications will come in during ${newOffice} business hours.`
             )
           );
         } else if (!currentOffices.includes(newOffice)) {
