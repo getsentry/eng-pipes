@@ -195,6 +195,25 @@ describe('issueNotifier Tests', function () {
       expect(await getLabelsTable().where({ channel_id })).toEqual([]);
     });
 
+    it('should add new subscription to product area for channel', async function () {
+      const channel_id = channelId(3);
+      const command = {
+        channel_id,
+        text: 'Test sea',
+      };
+      await slackHandler({ command, ack, say, respond, client });
+      expect(say).lastCalledWith(
+        "Set untriaged issue notifications for 'Product Area: Test' on the current channel (test). Notifications will come in during sea business hours."
+      );
+      expect(await getLabelsTable().where({ channel_id })).toMatchObject([
+        {
+          channel_id: 'CHNLIDRND3',
+          label_name: 'Product Area: Test',
+          offices: ['sea'],
+        },
+      ]);
+    });
+
     it('should respond that channel is subscribed to product area test if office is null', async function () {
       const channel_id = channelId(1);
       const command = {
