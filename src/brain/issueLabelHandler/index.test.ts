@@ -315,7 +315,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Failed to route to @getsentry/product-owners-does-not-exist for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
