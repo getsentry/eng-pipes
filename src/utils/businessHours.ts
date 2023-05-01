@@ -9,12 +9,11 @@ import {
   MAX_TRIAGE_DAYS,
   OFFICE_TIME_ZONES,
   PRODUCT_AREA_LABEL_PREFIX,
+  TEAM_OSPO_CHANNEL_ID,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
 } from '@/config';
 import { bolt } from '@api/slack';
-
-const OPEN_SOURCE_PRODUCT_AREA_CHANNEL = 'G01F3FQ0T41';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
@@ -139,7 +138,7 @@ export const isChannelInBusinessHours = async (
     ).channel?.name;
     await bolt.client.chat.postMessage({
       text: `Hey OSPO, looks like #${channelName} doesn't have offices set.`,
-      channel: OPEN_SOURCE_PRODUCT_AREA_CHANNEL,
+      channel: TEAM_OSPO_CHANNEL_ID,
     });
     offices = ['sfo'];
   }
