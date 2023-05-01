@@ -73,9 +73,9 @@ export function getUpdatedGoCDDeployMessage({
   slackUser: string | undefined;
   pipeline: {
     pipeline_name: string;
-    pipeline_counter: Number;
+    pipeline_counter: number;
     stage_name: string;
-    stage_counter: Number;
+    stage_counter: number;
     stage_state: string;
   };
 }) {
