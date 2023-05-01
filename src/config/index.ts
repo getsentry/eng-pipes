@@ -24,6 +24,10 @@ export const FEED_DEPLOY_CHANNEL_ID =
   process.env.FEED_DEPLOY_CHANNEL_ID || 'C051ED5GLN4';
 export const FEED_DEV_PROD_CHANNEL_ID =
   process.env.FEED_DEV_PROD_CHANNEL_ID || 'C01KXF92HNW';
+export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
+  process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
+export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
+  process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';

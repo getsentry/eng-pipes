@@ -2,6 +2,8 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import {
   PRODUCT_AREA_LABEL_PREFIX,
+  SUPPORT_CHANNEL_ID,
+  TEAM_OSPO_CHANNEL_ID,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
 } from '@/config';
@@ -12,8 +14,6 @@ import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
-// currently #discuss-support-open-source
-const SUPPORT_CHANNEL_ID = 'C02KHRNRZ1B';
 
 export const githubLabelHandler = async ({
   payload: { issue, label, repository },
@@ -82,19 +82,37 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
     /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo|ams?)/
   )?.groups;
   if (!args) {
-    const labels = (await getLabelsTable().where({ channel_id })).map(
-      (row) =>
-        `${row.label_name} (${(row.offices || ['no office specified']).join(
-          ', '
-        )})`
-    );
-    const response =
-      labels.length > 0
-        ? `This channel is set to receive notifications for: ${labels.join(
+    if (channel_id === TEAM_OSPO_CHANNEL_ID) {
+      const getName = async (channel_id: string) =>
+        (await client.conversations.info({ channel: channel_id })).channel.name;
+      const allRows = await getLabelsTable().orderBy('label_name');
+      const subs = await Promise.all(
+        allRows.map(async (row) => {
+          const channelName = await getName(row.channel_id);
+          const offices = (row.offices || ['no office specified']).join(', ');
+          return `"${row.label_name}" ⇒ #${channelName} (${offices})`;
+        })
+      );
+      const response =
+        subs.length > 0
+          ? `${subs.join('\n')}`
+          : `There are no notification subscriptions set up.`;
+      pending.push(say(response));
+    } else {
+      const labels = (await getLabelsTable().where({ channel_id })).map(
+        (row) =>
+          `${row.label_name} (${(row.offices || ['no office specified']).join(
             ', '
-          )}`
-        : `This channel is not subscribed to any product area notifications.`;
-    pending.push(say(response));
+          )})`
+      );
+      const response =
+        labels.length > 0
+          ? `This channel is set to receive notifications for: ${labels.join(
+              ', '
+            )}`
+          : `This channel is not subscribed to any product area notifications.`;
+      pending.push(say(response));
+    }
   } else {
     const op = args.op || '+';
     const label_name = `Product Area: ${args.label}`;
