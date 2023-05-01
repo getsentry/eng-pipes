@@ -10,6 +10,7 @@ import { bolt } from '@api/slack';
 import { cacheOffices } from '@utils/businessHours';
 import { db } from '@utils/db';
 import { wrapHandler } from '@utils/wrapHandler';
+import * as Sentry from '@sentry/node';
 
 export const getLabelsTable = () => db('label_to_channel');
 // currently #discuss-support-open-source
