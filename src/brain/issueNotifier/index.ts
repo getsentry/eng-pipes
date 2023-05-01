@@ -90,7 +90,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         allRows.map(async (row) => {
           const channelName = await getName(row.channel_id);
           const offices = (row.offices || ['no office specified']).join(', ');
-          return `"Product Area: ${row.label_name}" ⇒ #${channelName} (${offices})`;
+          return `"${row.label_name}" ⇒ #${channelName} (${offices})`;
         })
       );
       const response =
