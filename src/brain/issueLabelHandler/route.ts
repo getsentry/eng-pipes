@@ -3,10 +3,16 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import {
+  BACKLOG_LABEL,
+  IN_PROGRESS_LABEL,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
   PRODUCT_AREA_LABEL_PREFIX,
   SENTRY_ORG,
+  STATUS_LABEL_PREFIX,
+  UNKNOWN_LABEL,
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
 } from '@/config';
 import {
   calculateSLOViolationRoute,
@@ -18,7 +24,6 @@ import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
-const LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX = 14;
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
 import { ClientType } from '@/api/github/clientType';
@@ -59,7 +64,7 @@ function isValidLabel(payload) {
     !payload.label?.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) ||
     payload.issue.labels?.some(
       (label) =>
-        label.name === 'Status: Backlog' || label.name === 'Status: In Progress'
+        label.name === BACKLOG_LABEL || label.name === IN_PROGRESS_LABEL
     ) ||
     payload.issue.state !== 'open'
   );
@@ -67,8 +72,10 @@ function isValidLabel(payload) {
 
 function shouldLabelBeRemoved(label, target_name) {
   return (
-    (label.name.startsWith('Product Area: ') && label.name !== target_name) ||
-    (label.name.startsWith('Status: ') && label.name !== UNTRIAGED_LABEL)
+    (label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
+      label.name !== target_name) ||
+    (label.name.startsWith(STATUS_LABEL_PREFIX) &&
+      label.name !== UNTRIAGED_LABEL)
   );
 }
 
@@ -105,7 +112,7 @@ export async function markUnrouted({
 
   const timeToRouteBy = await calculateSLOViolationRoute(UNROUTED_LABEL);
   const { readableDueByDate, lastOfficeInBusinessHours } =
-    await getReadableTimeStamp(timeToRouteBy, 'Product Area: Unknown');
+    await getReadableTimeStamp(timeToRouteBy, UNKNOWN_LABEL);
   await octokit.issues.createComment({
     owner,
     repo: payload.repository.name,
@@ -119,7 +126,7 @@ export async function markUnrouted({
 async function routeIssue(octokit, productAreaLabelName) {
   try {
     const productArea = productAreaLabelName?.substr(
-      LENGTH_OF_PRODUCT_AREA_LABEL_PREFIX
+      PRODUCT_AREA_LABEL_PREFIX.length
     );
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
