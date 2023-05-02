@@ -1,5 +1,9 @@
 import { githubEvents } from '@api/github';
 
+import {
+  ensureOneWaitingForLabel,
+  updateCommunityFollowups,
+} from './followups';
 import { markRouted, markUnrouted } from './route';
 import { markTriaged, markUntriaged } from './triage';
 
@@ -14,4 +18,11 @@ export async function issueLabelHandler() {
   githubEvents.on('issues.opened', markUnrouted);
   githubEvents.removeListener('issues.labeled', markRouted);
   githubEvents.on('issues.labeled', markRouted);
+  githubEvents.removeListener(
+    'issue_comment.created',
+    updateCommunityFollowups
+  );
+  githubEvents.on('issue_comment.created', updateCommunityFollowups);
+  githubEvents.removeListener('issues.labeled', ensureOneWaitingForLabel);
+  githubEvents.on('issues.labeled', ensureOneWaitingForLabel);
 }
