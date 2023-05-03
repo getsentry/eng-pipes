@@ -1,8 +1,15 @@
 import { createGitHubEvent } from '@test/utils/github';
 
+import * as helpers from '@/brain/issueLabelHandler/helpers';
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
-import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
+import {
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
+  WAITING_FOR_COMMUNITY_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
+} from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
@@ -135,6 +142,15 @@ describe('issueLabelHandler', function () {
     octokit.issues.addLabels({ labels: [label] });
   }
 
+  async function addComment(repo?: string, username?: string) {
+    await createGitHubEvent(
+      fastify,
+      // @ts-expect-error
+      'issue_comment.created',
+      makePayload(repo, undefined, username)
+    );
+  }
+
   // Expectations
 
   function expectUnrouted() {
@@ -260,17 +276,19 @@ describe('issueLabelHandler', function () {
   });
 
   describe('[routing](https://open.sentry.io/triage/#2-route) test cases', function () {
-    it('adds `Status: Unrouted` to new issues', async function () {
+    it('adds `Status: Unrouted` and `Waiting for: Support` to new issues', async function () {
       await createIssue('sentry-docs');
       expectUnrouted();
+      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
     });
 
-    it('adds `Status: Unrouted` for GTM users', async function () {
+    it('adds `Status: Unrouted` and `Waiting for: Support` for GTM users', async function () {
       await createIssue('sentry-docs', 'Troi');
       expectUnrouted();
+      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
@@ -279,12 +297,14 @@ describe('issueLabelHandler', function () {
     it('skips adding `Status: Unrouted` for internal users', async function () {
       await createIssue('sentry-docs', 'Picard');
       expectRouted();
+      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
     });
 
     it('skips adding `Status: Unrouted` in untracked repos', async function () {
       await createIssue('Pizza Sandwich');
       expectRouted();
+      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
     });
 
@@ -293,6 +313,8 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
+      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -303,6 +325,7 @@ describe('issueLabelHandler', function () {
       await createIssue('sentry-docs');
       await addLabel('Status: Needs More Information', 'sentry-docs');
       expectUnrouted();
+      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
@@ -313,6 +336,8 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Does Not Exist', 'sentry-docs');
       expectUntriaged();
       expectRouted();
+      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
@@ -403,6 +428,86 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
       ]);
+    });
+  });
+
+  describe('followups test cases', function () {
+    const setupIssue = async () => {
+      await createIssue('sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
+    };
+
+    it('should remove `Waiting for: Product Owner` label when another `Waiting for: *` label is added', async function () {
+      await setupIssue();
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Waiting for: Product Owner',
+          'Product Area: Test',
+        ])
+      );
+      await addLabel('Waiting for: Community', 'sentry-docs');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Product Area: Test',
+          'Waiting for: Community',
+        ])
+      );
+      await addLabel('Waiting for: Support', 'sentry-docs');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Product Area: Test',
+          'Waiting for: Support',
+        ])
+      );
+    });
+
+    it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
+      await setupIssue();
+      await addLabel('Waiting for: Community', 'sentry-docs');
+      jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
+      await addComment('sentry-docs', 'Picard');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Product Area: Test',
+          'Waiting for: Community',
+        ])
+      );
+    });
+
+    it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
+      await setupIssue();
+      await addLabel('Waiting for: Community', 'sentry-docs');
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      await addComment('sentry-docs', 'Picard');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Product Area: Test',
+          'Waiting for: Product Owner',
+        ])
+      );
+    });
+
+    it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
+      await setupIssue();
+      await addLabel('Waiting for: Product Owner', 'sentry-docs');
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      await addComment('sentry-docs', 'Picard');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          'Status: Untriaged',
+          'Product Area: Test',
+          'Waiting for: Product Owner',
+        ])
+      );
     });
   });
 });
