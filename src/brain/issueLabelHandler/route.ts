@@ -30,11 +30,7 @@ import {
 import { isFromABot } from '@utils/isFromABot';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set([
-  'sentry',
-  'sentry-docs',
-  'test-sentry-app',
-]);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
 import { ClientType } from '@/api/github/clientType';
 import { getClient } from '@api/github/getClient';

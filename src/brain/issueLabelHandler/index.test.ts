@@ -441,71 +441,71 @@ describe('issueLabelHandler', function () {
       await setupIssue();
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
-          'Waiting for: Product Owner',
+          UNTRIAGED_LABEL,
+          WAITING_FOR_PRODUCT_OWNER_LABEL,
           'Product Area: Test',
         ])
       );
       await addLabel('Waiting for: Community', 'sentry-docs');
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
+          UNTRIAGED_LABEL,
           'Product Area: Test',
-          'Waiting for: Community',
+          WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
       await addLabel('Waiting for: Support', 'sentry-docs');
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
+          UNTRIAGED_LABEL,
           'Product Area: Test',
-          'Waiting for: Support',
+          WAITING_FOR_SUPPORT_LABEL,
         ])
       );
     });
 
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
       await setupIssue();
-      await addLabel('Waiting for: Community', 'sentry-docs');
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
+          UNTRIAGED_LABEL,
           'Product Area: Test',
-          'Waiting for: Community',
+          WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
       await setupIssue();
-      await addLabel('Waiting for: Community', 'sentry-docs');
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       jest
         .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
         .mockReturnValue(false);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
+          UNTRIAGED_LABEL,
           'Product Area: Test',
-          'Waiting for: Product Owner',
+          WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
     });
 
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
       await setupIssue();
-      await addLabel('Waiting for: Product Owner', 'sentry-docs');
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'sentry-docs');
       jest
         .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
         .mockReturnValue(false);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set([
-          'Status: Untriaged',
+          UNTRIAGED_LABEL,
           'Product Area: Test',
-          'Waiting for: Product Owner',
+          WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
     });

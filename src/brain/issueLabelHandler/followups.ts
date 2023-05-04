@@ -3,11 +3,7 @@ import * as Sentry from '@sentry/node';
 
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
-  'sentry',
-  'sentry-docs',
-  'test-sentry-app',
-]);
+const REPOS_TO_TRACK_FOR_TRIAGE = new Set(['sentry', 'sentry-docs']);
 import { ClientType } from '@/api/github/clientType';
 import {
   isNotFromAnExternalOrGTMUser,
