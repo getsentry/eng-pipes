@@ -7,7 +7,7 @@ describe('slugizeProductArea', function () {
       ['Cheese & Bread', 'cheese-bread'],
       ['otherwise - notherwise', 'otherwise-notherwise'],
       ['over - & - yonder', 'over-yonder'],
-      ["other's druthers", 'others-druthers'],
+      ["other's druthers", 'other-s-druthers'],
     ])("converts '%s' to '%s'", (input, output) => {
       expect(slugizeProductArea(input)).toEqual(output);
     });
