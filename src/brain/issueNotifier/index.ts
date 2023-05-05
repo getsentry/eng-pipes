@@ -82,7 +82,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
     /^\s*(?<op>[+-]?)(?<label>.+)\s(?<office>yyz|vie|sea|sfo|ams?)/
   )?.groups;
   if (!args) {
-    if (channel_id === TEAM_OSPO_CHANNEL_ID) {
+    if (channel_id === TEAM_OSPO_CHANNEL_ID || channel === SUPPORT_CHANNEL_ID) {
       const getName = async (channel_id: string) =>
         (await client.conversations.info({ channel: channel_id })).channel.name;
       const allRows = await getLabelsTable().orderBy('label_name');
