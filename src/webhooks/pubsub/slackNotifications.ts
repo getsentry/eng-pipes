@@ -2,12 +2,10 @@ import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { ClientType } from '@/api/github/clientType';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import { OWNER, PRODUCT_AREA_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
-import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -399,11 +397,10 @@ export const constructSlackMessage = (
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
-  repos: string[]
+  repos: string[],
+  octokit: Octokit,
+  now: moment.Moment
 ) => {
-  const octokit = await getClient(ClientType.App, OWNER);
-  const now = moment().utc();
-
   // 1. Get all open, untriaged issues
   // 2. Get all the events for each of the remaining issues
   // 3. Find the latest `label` event for the UNTRIAGED_LABEL

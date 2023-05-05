@@ -119,7 +119,6 @@ describe('issueLabelHandler', function () {
   async function createIssue(repo?: string, username?: string) {
     await createGitHubEvent(
       fastify,
-      // @ts-expect-error
       'issues.opened',
       makePayload(repo, undefined, username)
     );
@@ -128,7 +127,6 @@ describe('issueLabelHandler', function () {
   async function addLabel(label: string, repo?: string, state?: string) {
     await createGitHubEvent(
       fastify,
-      // @ts-expect-error
       'issues.labeled',
       makePayload(repo, label, undefined, state)
     );

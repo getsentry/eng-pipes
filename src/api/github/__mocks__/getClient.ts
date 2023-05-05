@@ -79,6 +79,7 @@ function mockClient() {
       createComment: jest.fn(async function (payload) {
         this._comments.push(payload.body);
       }),
+      update: jest.fn(),
     },
     orgs: {
       checkMembershipForUser: jest.fn(async function (x) {

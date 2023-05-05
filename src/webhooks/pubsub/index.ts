@@ -1,8 +1,11 @@
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import moment from 'moment-timezone';
 
+import { ClientType } from '@/api/github/clientType';
 import { SENTRY_REPO } from '@/config';
 import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
+import { getClient } from '@api/github/getClient';
 
 import { triggerStaleBot } from './stalebot';
 
@@ -40,13 +43,15 @@ export const pubSubHandler = async (
 ) => {
   const tx = Sentry.startTransaction({
     op: 'webhooks',
-    name: 'pubsub.notifyForUntriagedIssues',
+    name: 'pubsub.pubSubHandler',
   });
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
   const repos: string[] = payload.repos || DEFAULT_REPOS;
+  const octokit = await getClient(ClientType.App, OWNER);
+  const now = moment().utc();
 
   // This is to make this endpoint accept different payloads and actions
   // in the future. Ideally, we'd then split out all different event
@@ -56,8 +61,7 @@ export const pubSubHandler = async (
     reply.code(204);
     reply.send();
 
-    await notifyProductOwnersForUntriagedIssues(repos);
-    await triggerStaleBot(repos);
+    await notifyProductOwnersForUntriagedIssues(repos, octokit, now);
     tx.finish();
 
     return;
@@ -66,7 +70,7 @@ export const pubSubHandler = async (
     reply.code(204);
     reply.send();
 
-    await triggerStaleBot(repos);
+    await triggerStaleBot(repos, octokit, now);
     tx.finish();
 
     return;
