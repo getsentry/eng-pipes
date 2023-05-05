@@ -36,6 +36,7 @@ const staleStatusUpdater = async (
             name: STALE_LABEL,
           });
         }
+        return Promise.resolve();
       } else {
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
           return Promise.all([
@@ -61,6 +62,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you l
             }),
           ]);
         }
+        return Promise.resolve();
       }
     })
   );
