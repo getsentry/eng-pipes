@@ -99,11 +99,7 @@ export async function buildServer(
 
   // Endpoint for Google PubSub events
   // TODO: Unify all these webhooks URL patterns!
-  server.post(
-    '/webhooks/pubsub',
-    PubSub.opts,
-    PubSub.notifyProductOwnersForUntriagedIssues
-  );
+  server.post('/webhooks/pubsub', PubSub.opts, PubSub.pubSubHandler);
 
   return server;
 }

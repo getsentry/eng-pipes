@@ -5,7 +5,10 @@ import { getLabelsTable } from '@/brain/issueNotifier';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { constructSlackMessage, getTriageSLOTimestamp } from '.';
+import {
+  constructSlackMessage,
+  getTriageSLOTimestamp,
+} from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
   beforeAll(async function () {

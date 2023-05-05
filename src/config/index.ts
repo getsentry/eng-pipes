@@ -96,6 +96,7 @@ export const IN_PROGRESS_LABEL = 'Status: In Progress';
 export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const UNROUTED_LABEL = 'Status: Unrouted';
 export const UNKNOWN_LABEL = 'Status: Unknown';
+export const STALE_LABEL = 'Status: Stale';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
