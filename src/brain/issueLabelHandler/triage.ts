@@ -36,6 +36,7 @@ const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
   'sentry-dart',
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
+  'sentry-dart-plugin',
 ]);
 import { ClientType } from '@/api/github/clientType';
 import { UNTRIAGED_LABEL } from '@/config';
