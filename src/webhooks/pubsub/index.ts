@@ -360,7 +360,12 @@ export const constructSlackMessage = (
         hasEnoughTimePassedSinceLastNotification &&
         hasEnoughTimePassedSinceIssueCreation;
       const formattedIssues = sortAndFlattenIssuesArray(triageQueueIssues);
-      if (triageQueueIssues.length > 0) {
+      // Only add issues to triage queue if there ard no overdue or act fast issues
+      if (
+        triageQueueIssues.length > 0 &&
+        overdueIssues.length === 0 &&
+        actFastIssues.length === 0
+      ) {
         messageBlocks.push({
           type: 'section',
           fields: [

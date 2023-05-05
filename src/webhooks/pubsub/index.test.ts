@@ -380,26 +380,6 @@ describe('Triage Notification Tests', function () {
             ],
             type: 'section',
           },
-          {
-            fields: [
-              {
-                text: '⏳ *Triage Queue*',
-                type: 'mrkdwn',
-              },
-              { text: '😯', type: 'mrkdwn' },
-            ],
-            type: 'section',
-          },
-          {
-            fields: [
-              {
-                text: '1. <https://test.com/issues/3|#3 &lt;Test Issue 3&gt;>',
-                type: 'mrkdwn',
-              },
-              { text: '1 day left', type: 'mrkdwn' },
-            ],
-            type: 'section',
-          },
         ],
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
@@ -924,29 +904,6 @@ describe('Triage Notification Tests', function () {
             ],
             type: 'section',
           },
-          {
-            fields: [
-              {
-                text: '⏳ *Triage Queue*',
-                type: 'mrkdwn',
-              },
-              {
-                text: '😯',
-                type: 'mrkdwn',
-              },
-            ],
-            type: 'section',
-          },
-          {
-            fields: [
-              {
-                text: '1. <https://test.com/issues/1|#1 Test Issue>',
-                type: 'mrkdwn',
-              },
-              { text: '1 day left', type: 'mrkdwn' },
-            ],
-            type: 'section',
-          },
         ],
         channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
@@ -1003,29 +960,6 @@ describe('Triage Notification Tests', function () {
                 type: 'mrkdwn',
               },
               { text: '2 hours 2 minutes left', type: 'mrkdwn' },
-            ],
-            type: 'section',
-          },
-          {
-            fields: [
-              {
-                text: '⏳ *Triage Queue*',
-                type: 'mrkdwn',
-              },
-              {
-                text: '😯',
-                type: 'mrkdwn',
-              },
-            ],
-            type: 'section',
-          },
-          {
-            fields: [
-              {
-                text: '1. <https://test.com/issues/1|#1 Test Issue>',
-                type: 'mrkdwn',
-              },
-              { text: '1 day left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
