@@ -97,6 +97,10 @@ export const UNTRIAGED_LABEL = 'Status: Untriaged';
 export const UNROUTED_LABEL = 'Status: Unrouted';
 export const UNKNOWN_LABEL = 'Status: Unknown';
 export const STALE_LABEL = 'Status: Stale';
+export const WAITING_FOR_LABEL_PREFIX = 'Waiting for: ';
+export const WAITING_FOR_SUPPORT_LABEL = 'Waiting for: Support';
+export const WAITING_FOR_COMMUNITY_LABEL = 'Waiting for: Community';
+export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
