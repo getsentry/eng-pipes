@@ -3,6 +3,10 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import {
+  isNotFromAnExternalOrGTMUser,
+  shouldSkip,
+} from '@/brain/issueLabelHandler/helpers';
+import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
   OFFICE_TIME_ZONES,
@@ -13,6 +17,9 @@ import {
   UNKNOWN_LABEL,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
+  WAITING_FOR_LABEL_PREFIX,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import {
   calculateSLOViolationRoute,
@@ -20,7 +27,6 @@ import {
   getSortedOffices,
   isTimeInBusinessHours,
 } from '@utils/businessHours';
-import { getOssUserType } from '@utils/getOssUserType';
 import { isFromABot } from '@utils/isFromABot';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
@@ -29,29 +35,8 @@ const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 import { ClientType } from '@/api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
-// Validation Helpers
-
-async function shouldSkip(payload, reasonsToSkip) {
-  // Could do Promise-based async here, but that was getting complicated[1] and
-  // there's not really a performance concern (famous last words).
-  //
-  // [1] https://github.com/getsentry/eng-pipes/pull/212#discussion_r657365585
-
-  for (const skipIf of reasonsToSkip) {
-    if (await skipIf(payload)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 function isAlreadyUnrouted(payload) {
   return payload.issue.labels.some(({ name }) => name === UNROUTED_LABEL);
-}
-
-async function isNotFromAnExternalOrGTMUser(payload) {
-  const type = await getOssUserType(payload);
-  return !(type === 'external' || type === 'gtm');
 }
 
 function isNotInARepoWeCareAboutForRouting(payload) {
@@ -74,7 +59,8 @@ function shouldLabelBeRemoved(label, target_name) {
     (label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
       label.name !== target_name) ||
     (label.name.startsWith(STATUS_LABEL_PREFIX) &&
-      label.name !== UNTRIAGED_LABEL)
+      label.name !== UNTRIAGED_LABEL) ||
+    label.name.startsWith(WAITING_FOR_LABEL_PREFIX)
   );
 }
 
@@ -106,7 +92,7 @@ export async function markUnrouted({
     owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    labels: [UNROUTED_LABEL],
+    labels: [UNROUTED_LABEL, WAITING_FOR_SUPPORT_LABEL],
   });
 
   const timeToRouteBy = await calculateSLOViolationRoute(UNROUTED_LABEL);
@@ -229,7 +215,7 @@ export async function markRouted({
     owner: owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    labels: [UNTRIAGED_LABEL],
+    labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
   const routedTeam = await routeIssue(octokit, productAreaLabelName);
