@@ -5,6 +5,7 @@ import { MockOctokitError } from './mockError';
 
 function mockClient() {
   return {
+    paginate: jest.fn(),
     actions: {
       listWorkflowRunsForRepo: jest.fn(),
       cancelWorkflowRun: jest.fn(),

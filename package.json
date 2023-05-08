@@ -24,8 +24,8 @@
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
-    "test": "GH_WEBHOOK_SECRET=webhooksecret yarn jest --useStderr --runInBand",
-    "test:debug": "GH_WEBHOOK_SECRET=webhooksecret yarn run --inspect jest --runInBand",
+    "test": "yarn jest --useStderr --runInBand",
+    "test:debug": "yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
   },
@@ -69,6 +69,7 @@
     "@types/jest": "^27.0.3",
     "@typescript-eslint/eslint-plugin": "^5.4.0",
     "@typescript-eslint/parser": "^5.4.0",
+    "dotenv": "^16.0.3",
     "eslint": "^8.2.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",

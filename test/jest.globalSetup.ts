@@ -1,6 +1,9 @@
+import * as dotenv from 'dotenv';
 import Knex from 'knex';
 
 import config from '../src/knexfile';
+
+dotenv.config({ path: './.env.test', override: true });
 
 function getDbConnection() {
   return Knex(

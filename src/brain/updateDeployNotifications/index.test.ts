@@ -48,11 +48,9 @@ describe('updateDeployNotifications', function () {
     await pleaseDeployNotifier();
 
     octokit = await getClient(ClientType.App, 'getsentry');
-    octokit.checks.listForRef.mockImplementation(() => ({
-      data: {
-        check_runs: [{ name: 'only backend changes', conclusion: 'success' }],
-      },
-    }));
+    octokit.paginate.mockImplementation(() => {
+      return [{ name: 'only backend changes', conclusion: 'success' }];
+    });
     // @ts-ignore
     octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,
@@ -114,6 +112,7 @@ describe('updateDeployNotifications', function () {
 
   afterEach(async function () {
     fastify.close();
+    octokit.paginate.mockClear();
     octokit.repos.getCommit.mockClear();
     octokit.checks.listForRef.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
@@ -406,11 +405,9 @@ describe('updateDeployNotifications', function () {
 
   it('does not notify frontend commit authors from a backend deploy', async function () {
     const updateMock = bolt.client.chat.update as jest.Mock;
-    octokit.checks.listForRef.mockImplementation(() => ({
-      data: {
-        check_runs: [{ name: 'only frontend changes', conclusion: 'success' }],
-      },
-    }));
+    octokit.paginate.mockImplementation(() => {
+      return [{ name: 'only frontend changes', conclusion: 'success' }];
+    });
 
     await createGitHubEvent(fastify, 'check_run', {
       repository: {
