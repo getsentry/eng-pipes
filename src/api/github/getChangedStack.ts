@@ -25,6 +25,7 @@ export async function getChangedStack(
       owner: OWNER,
       repo,
       ref,
+      per_page: 100,
     });
 
     const checkRuns = check_runs.filter(
