@@ -301,9 +301,9 @@ export async function handler(resBody: GoCDResponse) {
   } catch (err) {
     Sentry.captureException(err);
     console.error(err);
+  } finally {
+    tx.finish();
   }
-
-  tx.finish();
 }
 
 export async function notifyOnGoCDStageEvent() {

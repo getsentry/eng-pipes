@@ -132,16 +132,20 @@ async function handler({
   const commit = checkRun.head_sha;
   const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
-  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
 
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's
   // sha differs, it means that the relevantCommit is on the sentry repo
   const relevantCommitRepo =
     relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
-  const { isFrontendOnly } = await getChangedStack(
+  const { isFrontendOnly, isFullstack } = await getChangedStack(
     relevantCommit.sha,
     relevantCommitRepo
   );
+
+  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
+  if (isFullstack) {
+    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is a full stack change and ready to deploy on both the frontend and backend`;
+  }
 
   // If the commit is already queued, add that message, otherwise
   // show actions to start the deploy / review it.

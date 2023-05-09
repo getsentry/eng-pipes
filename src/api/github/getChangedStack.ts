@@ -21,13 +21,14 @@ export async function getChangedStack(
     // We can save on making extra calls to get GH client
     const octokit = client || (await getClient(ClientType.App, OWNER));
 
-    const { data } = await octokit.checks.listForRef({
+    const check_runs = await octokit.paginate(octokit.checks.listForRef, {
       owner: OWNER,
       repo,
       ref,
+      per_page: 100,
     });
 
-    const checkRuns = data.check_runs.filter(
+    const checkRuns = check_runs.filter(
       ({ name, conclusion }) =>
         conclusion === 'success' &&
         [
@@ -36,6 +37,11 @@ export async function getChangedStack(
           'fullstack changes',
         ].includes(name)
     );
+
+    if (checkRuns.length == 0) {
+      throw new Error(`Failed to identify the type of ${repo} @ ${ref}`);
+    }
+
     const isFrontendOnly = !!checkRuns.find(
       ({ name }) => name === FRONTEND_CHANGE_CHECK_NAME
     );
