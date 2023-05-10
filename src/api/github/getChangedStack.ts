@@ -39,7 +39,9 @@ export async function getChangedStack(
     );
 
     if (checkRuns.length == 0) {
-      throw new Error(`Failed to identify the type of ${repo} @ ${ref}`);
+      // Track this event in case the check status name changes in the future.
+      Sentry.captureMessage(`Failed to identify the type of ${repo} @ ${ref}`);
+      return {};
     }
 
     const isFrontendOnly = !!checkRuns.find(
