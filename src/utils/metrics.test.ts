@@ -16,7 +16,13 @@ jest.mock('@google-cloud/bigquery', () => ({
 }));
 
 import { getLabelsTable } from '@/brain/issueNotifier';
-import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
+import {
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
+  WAITING_FOR_COMMUNITY_LABEL
+} from '@/config';
 import { db } from '@utils/db';
 
 import { insertOss } from './metrics';
@@ -81,6 +87,16 @@ describe('metrics tests', function () {
       });
     });
 
+    it('should calculate triage by timestamp if labeled waiting for product owner', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: '2017-02-16T01:00:00.000Z',
+      });
+    });
+
     it('should calculate route by timestamp if labeled unrouted status', async function () {
       const testPayload = defaultPayload;
       testPayload.label.name = UNROUTED_LABEL;
@@ -91,7 +107,60 @@ describe('metrics tests', function () {
       });
     });
 
-    it('should not calculate route by timestamp if unlabeled untriaged status', async function () {
+    it('should calculate route by timestamp if labeled waiting for support', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_SUPPORT_LABEL;
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: '2017-02-15T01:00:00.000Z',
+        timeToTriageBy: null,
+      });
+    });
+
+    it('should not calculate timestamps if labeled waiting for product community', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_COMMUNITY_LABEL;
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: null,
+      });
+    });
+
+    it('should not calculate timestamps if unlabeled waiting for product community', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_COMMUNITY_LABEL;
+      testPayload.action = 'unlabeled';
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: null,
+      });
+    });
+
+    it('should not calculate timestamps if unlabeled waiting for product owner', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
+      testPayload.action = 'unlabeled';
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: null,
+      });
+    });
+
+    it('should not calculate timestamps if unlabeled waiting for support', async function () {
+      const testPayload = defaultPayload;
+      testPayload.label.name = WAITING_FOR_SUPPORT_LABEL;
+      testPayload.action = 'unlabeled';
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: null,
+      });
+    });
+
+    it('should not calculate timestamps if unlabeled untriaged status', async function () {
       const testPayload = defaultPayload;
       testPayload.label.name = UNTRIAGED_LABEL;
       testPayload.action = 'unlabeled';
@@ -102,7 +171,7 @@ describe('metrics tests', function () {
       });
     });
 
-    it('should not calculate route by timestamp if unlabeled unrouted status', async function () {
+    it('should not calculate timestamps if unlabeled unrouted status', async function () {
       const testPayload = defaultPayload;
       testPayload.label.name = UNROUTED_LABEL;
       testPayload.action = 'unlabeled';
