@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { GoCDBuildMaterial, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
@@ -71,7 +73,16 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
     });
   }
   if (gocdMaterials.length == 0) {
-    throw new Error('Failed to find GoCD modification material');
+    // Track this event in case the check status name changes in the future.
+    Sentry.captureMessage(`Failed to find GoCD modification material`, {
+      extra: {
+        'Pipeline ID': pipeline_id,
+        Pipeline: JSON.stringify(pipeline, null, 2),
+      },
+    });
+    throw new Error(
+      `Failed to find GoCD modification material - ${pipeline_id}`
+    );
   }
 
   await db(DB_TABLE_MATERIALS).insert(gocdMaterials);
