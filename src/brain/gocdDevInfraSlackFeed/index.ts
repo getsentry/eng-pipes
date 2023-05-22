@@ -4,7 +4,7 @@ import { GoCDPipeline, GoCDResponse } from '@types';
 
 import { gocdevents } from '@/api/gocdevents';
 import {
-  FEED_DEV_PROD_CHANNEL_ID,
+  FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
@@ -59,12 +59,12 @@ async function newSlackMessage(refId, pipeline: GoCDPipeline) {
   const body = 'GoCD deployment';
   const message = await bolt.client.chat.postMessage({
     text: body,
-    channel: FEED_DEV_PROD_CHANNEL_ID,
+    channel: FEED_DEV_INFRA_CHANNEL_ID,
     attachments: attachments,
   });
 
   await saveSlackMessage(
-    SlackMessage.FEED_DEV_PROD_GOCD_DEPLOY,
+    SlackMessage.FEED_DEV_INFRA_GOCD_DEPLOY,
     {
       refId,
       channel: `${message.channel}`,
@@ -79,7 +79,7 @@ async function newSlackMessage(refId, pipeline: GoCDPipeline) {
 async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
   await bolt.client.chat.update({
     ts: message.ts,
-    channel: FEED_DEV_PROD_CHANNEL_ID,
+    channel: FEED_DEV_INFRA_CHANNEL_ID,
     // NOTE: Using the message context means the message text contains
     // who initiated the deployment (either manual or an auto-deployment).
     text: message.context.text,
@@ -110,7 +110,7 @@ async function postUpdateToSlack(pipeline: GoCDPipeline): Promise<void> {
 
   // Look for associated slack messages based on pipeline
   const messages = await getSlackMessage(
-    SlackMessage.FEED_DEV_PROD_GOCD_DEPLOY,
+    SlackMessage.FEED_DEV_INFRA_GOCD_DEPLOY,
     [refId]
   );
 

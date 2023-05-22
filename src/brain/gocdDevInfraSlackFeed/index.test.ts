@@ -5,7 +5,7 @@ import payload from '@test/payloads/gocd/gocd-stage-building.json';
 import { buildServer } from '@/buildServer';
 import {
   Color,
-  FEED_DEV_PROD_CHANNEL_ID,
+  FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
@@ -67,7 +67,7 @@ describe('gocdDevInfraSlackFeed', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment',
-      channel: FEED_DEV_PROD_CHANNEL_ID,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
       attachments: [
         {
           color: Color.DANGER,
@@ -107,7 +107,7 @@ describe('gocdDevInfraSlackFeed', function () {
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
       ts: '1234123.123',
       text: 'GoCD deployment',
-      channel: FEED_DEV_PROD_CHANNEL_ID,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
