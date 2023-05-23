@@ -40,7 +40,12 @@ export async function getChangedStack(
 
     if (checkRuns.length == 0) {
       // Track this event in case the check status name changes in the future.
-      Sentry.captureMessage(`Failed to identify the type of ${repo} @ ${ref}`);
+      Sentry.captureMessage(`Failed to identify the type of commit`, {
+        extra: {
+          Commit: `https://github.com/${OWNER}/${repo}/commit/${ref}`,
+          'GH Check Runs': check_runs.map((c) => c.name),
+        },
+      });
       return {};
     }
 
