@@ -1,6 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
+import { ISSUES_PROJECT_NODE_ID, PRODUCT_AREA_FIELD_ID } from '@/config';
 
 import {
   isNotFromAnExternalOrGTMUser,
@@ -64,6 +65,66 @@ function shouldLabelBeRemoved(label, target_name) {
   );
 }
 
+function getProductArea(productAreaLabelName) { 
+  return productAreaLabelName?.substr(
+    PRODUCT_AREA_LABEL_PREFIX.length
+  );
+}
+
+async function addIssueToProject(issueNodeID, octokit) {
+  const addIssueToprojectMutation = `mutation {
+    addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeID}"}) {
+      item {
+        id
+      }
+    }
+  }`
+
+  return await octokit.graphql(addIssueToprojectMutation);
+}
+
+async function getAllProductAreaNodeIDs(octokit) {
+  const queryForProductAreaNodeIDs = `query{
+    node(id: "${PRODUCT_AREA_FIELD_ID}") {
+      ... on ProjectV2SingleSelectField {
+        options {
+          id
+          name
+        }
+      }
+    }
+  }`
+
+  const data = await octokit.graphql(queryForProductAreaNodeIDs);
+  return data.node.options.reduce((acc, {name, id}) => {
+    acc[name] = id;
+    return acc;
+  }, {})
+}
+
+async function modifyProjectIssueProductArea(issueNodeID, productAreaLabelName, octokit) {
+  const productArea = getProductArea(productAreaLabelName);
+  const productAreaNodeIDMapping = await getAllProductAreaNodeIDs(octokit);
+  const addIssueToprojectMutation = `mutation {
+    updateProjectV2ItemFieldValue(
+      input: {
+        projectId: "${ISSUES_PROJECT_NODE_ID}"
+        itemId: "${issueNodeID}"
+        fieldId: "${PRODUCT_AREA_FIELD_ID}"
+        value: {
+          singleSelectOptionId: "${productAreaNodeIDMapping[productArea]}"
+        }
+      }
+    ) {
+      projectV2Item {
+        id
+      }
+    }
+  }`
+
+  await octokit.graphql(addIssueToprojectMutation);
+}
+
 // Markers of State
 
 export async function markUnrouted({
@@ -105,14 +166,14 @@ export async function markUnrouted({
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
 
+  await addIssueToProject(payload.issue.node_id, octokit);
+
   tx.finish();
 }
 
 async function routeIssue(octokit, productAreaLabelName) {
   try {
-    const productArea = productAreaLabelName?.substr(
-      PRODUCT_AREA_LABEL_PREFIX.length
-    );
+    const productArea = getProductArea(productAreaLabelName);
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
       org: SENTRY_ORG,
@@ -234,6 +295,13 @@ export async function markRouted({
     issue_number: payload.issue.number,
     body: comment,
   });
+
+  /**
+   * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
+   * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
+   */
+  const issueNodeId = (await addIssueToProject(payload.issue.node_id, octokit))?.addProjectV2ItemById.item.id;
+  await modifyProjectIssueProductArea(issueNodeId, productAreaLabelName, octokit);
 
   tx.finish();
 }
