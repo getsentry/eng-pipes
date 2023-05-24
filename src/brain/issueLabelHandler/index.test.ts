@@ -274,6 +274,22 @@ describe('issueLabelHandler', function () {
   });
 
   describe('[routing](https://open.sentry.io/triage/#2-route) test cases', function () {
+    let addIssueToProjectSpy, modifyProjectIssueProductAreaSpy;
+    beforeAll(function () {
+      addIssueToProjectSpy = jest
+        .spyOn(helpers, 'addIssueToProject')
+        .mockReturnValue({
+          addProjectV2ItemById: { item: { id: 'PROJECT_ID' } },
+        });
+      modifyProjectIssueProductAreaSpy = jest.spyOn(
+        helpers,
+        'modifyProjectIssueProductArea'
+      );
+    });
+    afterEach(function () {
+      jest.clearAllMocks();
+    });
+
     it('adds `Status: Unrouted` and `Waiting for: Support` to new issues', async function () {
       await createIssue('sentry-docs');
       expectUnrouted();
@@ -281,6 +297,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(addIssueToProjectSpy).toHaveBeenCalled();
     });
 
     it('adds `Status: Unrouted` and `Waiting for: Support` for GTM users', async function () {
@@ -290,6 +307,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(addIssueToProjectSpy).toHaveBeenCalled();
     });
 
     it('skips adding `Status: Unrouted` for internal users', async function () {
@@ -297,6 +315,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Status: Unrouted` in untracked repos', async function () {
@@ -304,6 +323,7 @@ describe('issueLabelHandler', function () {
       expectRouted();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('removes unrouted label when product area label is added', async function () {
@@ -317,6 +337,7 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('does not remove unrouted label when label is added that is not a product area label', async function () {
@@ -327,6 +348,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).not.toHaveBeenCalled();
     });
 
     it('should default to route to open source team if product area does not exist', async function () {
@@ -340,6 +362,7 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
@@ -355,6 +378,7 @@ describe('issueLabelHandler', function () {
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('should not reroute if Status: Backlog is exists on issue', async function () {
@@ -370,6 +394,7 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('should not reroute if Status: In Progress exists on issue', async function () {
@@ -385,6 +410,7 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('should not reroute if issue is closed', async function () {
@@ -399,6 +425,7 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
+      expect(modifyProjectIssueProductAreaSpy).toHaveBeenCalled();
     });
 
     it('uses different timestamp for eu office', async function () {
