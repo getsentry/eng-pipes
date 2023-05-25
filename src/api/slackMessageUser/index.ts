@@ -23,6 +23,7 @@ export async function slackMessageUser(
     return await bolt.client.chat.postMessage({
       ...message,
       channel: slackUser,
+      unfurl_links: false,
     });
   } catch (err) {
     Sentry.setContext('message', message);

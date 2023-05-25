@@ -2,7 +2,6 @@ import * as Sentry from '@sentry/node';
 
 import { GoCDPipeline, GoCDResponse } from '@types';
 
-import { gocdevents } from '@/api/gocdevents';
 import {
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_ORIGIN,
@@ -33,6 +32,7 @@ function getMessageAttachments(pipeline) {
   }/${pipeline.stage.name}/${pipeline.stage.counter}/${
     pipeline.stage.jobs[pipeline.stage.jobs.length - 1].name
   }`;
+
 
   return [
     {
@@ -141,5 +141,5 @@ export async function handler(resBody: GoCDResponse) {
 }
 
 export async function gocdDevInfraSlackFeed() {
-  gocdevents.on('stage', handler);
+  // NOOP
 }

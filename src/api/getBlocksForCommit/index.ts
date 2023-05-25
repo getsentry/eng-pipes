@@ -45,8 +45,7 @@ export async function getBlocksForCommit(
 
   // Slack API will error if this is empty, We could leave this out, but why not try
   // to shame people?
-  const commitBody =
-    commitBodyLines.filter(Boolean).join('\n') || '_<empty commit message>_';
+  const commitBody = commitBodyLines.filter(Boolean).join('\n');
 
   const commitBlocks: KnownBlock[] = [
     {
@@ -56,28 +55,32 @@ export async function getBlocksForCommit(
         text: `<${commit.html_url}|*${commitTitle}*>`,
       },
     },
-    {
+  ];
+
+  if (commitBody) {
+    commitBlocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: commitBody,
       },
-    },
-    {
-      type: 'context',
-      elements: [
-        {
-          type: 'image',
-          image_url: avatarUrl,
-          alt_text: displayName,
-        },
-        {
-          type: 'mrkdwn',
-          text: authorName,
-        },
-      ],
-    },
-  ];
+    });
+  }
+
+  commitBlocks.push({
+    type: 'context',
+    elements: [
+      {
+        type: 'image',
+        image_url: avatarUrl,
+        alt_text: displayName,
+      },
+      {
+        type: 'mrkdwn',
+        text: authorName,
+      },
+    ],
+  });
 
   return commitBlocks;
 }

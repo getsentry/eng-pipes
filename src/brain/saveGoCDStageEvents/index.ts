@@ -1,4 +1,4 @@
-import { GoCDBuildMaterial, GoCDResponse } from '@/types';
+import { DBGoCDBuildMaterial, DBGoCDPipeline, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
 
@@ -39,17 +39,14 @@ export async function handler(resBody: GoCDResponse) {
 
   if (!dbEntry) {
     await db(DB_TABLE_STAGES).insert(gocdpipeline);
-
     await saveBuildMaterials(pipeline_id, pipeline);
-
-    return;
+  } else {
+    await db(DB_TABLE_STAGES).where(constraints).update(gocdpipeline);
   }
-
-  await db(DB_TABLE_STAGES).where(constraints).update(gocdpipeline);
 }
 
 async function saveBuildMaterials(pipeline_id, pipeline) {
-  const gocdMaterials: Array<GoCDBuildMaterial> = [];
+  const gocdMaterials: Array<DBGoCDBuildMaterial> = [];
   for (const bc of pipeline['build-cause']) {
     if (!bc.material || bc.material.type != 'git') {
       // The material may be an upstream pipeline
@@ -71,7 +68,7 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
     });
   }
   if (gocdMaterials.length == 0) {
-    throw new Error('Failed to find GoCD modification material');
+    return;
   }
 
   await db(DB_TABLE_MATERIALS).insert(gocdMaterials);

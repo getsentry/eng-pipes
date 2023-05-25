@@ -25,6 +25,7 @@ export async function getRelevantCommit(ref: string, client?: Octokit) {
     });
 
     if (!commit) {
+      console.log(`REF ${ref} is not in GETSENTRY`);
       return null;
     }
     const commitMatches = commit.commit.message.match(
@@ -33,6 +34,7 @@ export async function getRelevantCommit(ref: string, client?: Octokit) {
     const sentryCommitSha = commitMatches?.[1];
 
     if (!sentryCommitSha) {
+      console.log(`REF ${ref} is not getsentry/sentry message`);
       return commit;
     }
 
@@ -45,7 +47,7 @@ export async function getRelevantCommit(ref: string, client?: Octokit) {
       repo: SENTRY_REPO,
       ref: sentryCommitSha,
     });
-
+    console.log(`REF ${ref} SENTRY_REPO commit => `, data?.sha);
     return data;
   } catch (err) {
     Sentry.captureException(err);

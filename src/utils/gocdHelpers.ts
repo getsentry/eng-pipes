@@ -5,6 +5,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import * as Sentry from '@sentry/node';
 
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';
@@ -53,7 +54,12 @@ export function getProgressSuffix(pipeline: GoCDPipeline) {
     case 'unknown':
       return INPROGRESS_MSG;
   }
-  return '';
+  Sentry.captureMessage(`Unknown pipeline stage result`, {
+    extra: {
+      'Stage Result': stage.result,
+    },
+  });
+  return INPROGRESS_MSG;
 }
 
 export function getProgressColor(pipeline: GoCDPipeline) {

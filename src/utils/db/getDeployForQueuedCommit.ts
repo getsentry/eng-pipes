@@ -1,3 +1,4 @@
+import { DB_TABLE_MATERIALS, DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
 import { db } from '.';
 
 /**
@@ -20,18 +21,18 @@ export async function getGoCDDeployForQueuedCommit(
     .select('*')
     .from('queued_commits')
     .rightJoin(
-      'gocd-stage-materials',
+      DB_TABLE_MATERIALS,
       'queued_commits.head_sha',
-      'gocd-stage-materials.revision'
+      `${DB_TABLE_MATERIALS}.revision`
     )
     .where({
       'queued_commits.sha': sha,
       pipeline_name,
     })
     .rightJoin(
-      'gocd-stages',
-      'gocd-stage-materials.pipeline_id',
-      'gocd-stages.pipeline_id'
+      DB_TABLE_STAGES,
+      `${DB_TABLE_MATERIALS}.pipeline_id`,
+      `${DB_TABLE_STAGES}.pipeline_id`,
     )
     .first();
   return got;

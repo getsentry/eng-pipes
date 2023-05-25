@@ -36,7 +36,7 @@ export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 //
 // Need to do this as we can't convert a string literal union to an array of literals
 export const CHECK_RUN_PROPERTIES = ['id', 'head_sha', 'html_url'] as const;
-export type CheckRunProperty = typeof CHECK_RUN_PROPERTIES[number];
+export type CheckRunProperty = (typeof CHECK_RUN_PROPERTIES)[number];
 export type CheckRunForRequiredChecksText = Pick<CheckRun, CheckRunProperty>;
 
 type TravisRepository = {
@@ -250,13 +250,36 @@ interface GoCDGitConfiguration {
   url: string;
 }
 
-export interface GoCDBuildMaterial {
+export interface DBGoCDBuildMaterial {
   stage_material_id: string;
   pipeline_id: string;
   url: string;
   branch: string;
   revision: string;
 }
+
+export interface DBGoCDPipeline {
+  pipeline_id: string;
+
+  pipeline_name: string;
+  pipeline_counter: string;
+  pipeline_group: string;
+  pipeline_build_cause: Array<GoCDBuildCause>;
+
+  stage_name: string;
+  stage_counter: string;
+  stage_approval_type: string;
+  stage_approved_by: string;
+  stage_state: string;
+  stage_result: string;
+  stage_create_time: string;
+  stage_last_transition_time: string;
+  stage_jobs: Array<GoCDJob>;
+}
+
+export interface DBGoCDLatestDeploy
+  extends DBGoCDPipeline,
+    DBGoCDBuildMaterial {}
 
 type GoCDJobResult = 'Unknown' | 'Passed';
 

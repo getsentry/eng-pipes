@@ -2,100 +2,202 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
+import { getUser } from '@/api/getUser';
 import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
+import { getRelevantCommit } from '@/api/github/getRelevantCommit';
+import { isGetsentryRequiredCheck } from '@/api/github/isGetsentryRequiredCheck';
+import { slackMessageUser } from '@/api/slackMessageUser';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { gocdDeploy } from '@/blocks/gocdDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import {
-  Color,
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-  OWNER,
   SENTRY_REPO,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getGoCDDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
+import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
 import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { getUser } from '@api/getUser';
-import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { bolt } from '@api/slack';
-import { slackMessageUser } from '@api/slackMessageUser';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
 
-async function getGoCDDeployBlock(deployInfo, user): Promise<KnownBlock[]> {
+function deployInProgressBlocks(details): Array<KnownBlock> {
+  const { gocdDeployInfo, user } = details;
+
   return [
     {
       type: 'section',
       text: {
         type: 'mrkdwn',
         text: getUpdatedGoCDDeployMessage({
-          isUserDeploying: deployInfo.stage_approved_by == user.email,
+          isUserDeploying: gocdDeployInfo.stage_approved_by == user.email,
           slackUser: user.slackUser,
-          pipeline: deployInfo,
+          pipeline: gocdDeployInfo,
         }),
       },
     },
   ];
 }
 
-async function currentDeployBlocks(
-  checkRun,
-  user,
-  isFrontendOnly
-): Promise<KnownBlock[] | null> {
-  // Look for queued commits and see if current commit is queued
-  let pipeline_name = GOCD_SENTRYIO_BE_PIPELINE_NAME;
-  if (isFrontendOnly) {
-    pipeline_name = GOCD_SENTRYIO_FE_PIPELINE_NAME;
-  }
-  const gocdDeployInfo = await getGoCDDeployForQueuedCommit(
-    checkRun.head_sha,
-    pipeline_name
-  );
-  if (gocdDeployInfo) {
-    return getGoCDDeployBlock(gocdDeployInfo, user);
-  }
+function deployActionBlocks(details): Array<KnownBlock> {
+  const { check_run: checkRun } = details.payload;
 
-  return null;
+  return [
+    {
+      type: 'actions',
+      elements: [
+        gocdDeploy(checkRun.head_sha),
+        viewUndeployedCommits(checkRun.head_sha),
+        muteDeployNotificationsButton(),
+      ],
+    },
+  ];
 }
 
-async function handler({
+function shouldProcessCheckRun({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'check_run'>) {
   // Make sure this is on `getsentry` and we are examining the aggregate "required check" run
   if (!isGetsentryRequiredCheck({ id, payload, ...rest })) {
-    return;
+    return false;
   }
 
   const { check_run: checkRun } = payload;
-
   // Conclusion can be one of:
   //   success, failure, neutral, cancelled, skipped, timed_out, or action_required
   //
   // Ignore non-"successful" conclusions
-  if (checkRun.conclusion !== 'success') {
-    return;
-  }
+  return checkRun.conclusion === 'success';
+}
+
+async function getRequiredDetails(payload) {
+  const { check_run: checkRun } = payload;
 
   // Find the author of the commit, we should probably link both getsentry? and sentry?
   const relevantCommit = await getRelevantCommit(checkRun.head_sha);
-
   if (!relevantCommit) {
-    Sentry.setContext('checkRun', {
-      head_sha: checkRun.head_sha,
-    });
-    Sentry.captureException(new Error('Unable to find commit'));
+    throw new Error('Failed to find relevant commit');
+  }
+
+  // Message author on slack that their commit is ready to deploy
+  // and send a link to start a deploy
+  const user = await getUser({
+    githubUser: relevantCommit.author?.login,
+    email: relevantCommit.commit.author?.email,
+  });
+
+  if (!user?.slackUser) {
+    throw new Error('Failed to find a slack user');
+  }
+
+  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
+  // sha differs, it means that the relevantCommit is on the sentry repo
+  const relevantCommitRepo =
+    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
+  const changeType = await getChangedStack(
+    relevantCommit.sha,
+    relevantCommitRepo
+  );
+
+  // Look for queued commits and see if current commit is queued
+  let pipeline_name = GOCD_SENTRYIO_BE_PIPELINE_NAME;
+  if (changeType.isFrontendOnly) {
+    pipeline_name = GOCD_SENTRYIO_FE_PIPELINE_NAME;
+  }
+  const gocdDeployInfo = await getGoCDDeployForQueuedCommit(
+    checkRun.head_sha,
+    pipeline_name
+  );
+
+  return {
+    payload,
+    relevantCommit,
+    relevantCommitRepo,
+    user,
+    changeType,
+    gocdDeployInfo,
+  };
+}
+
+async function getBody(details) {
+  const commit = details.relevantCommit.sha;
+  const repo = details.payload.repository;
+  const commitLink = `https://github.com/${repo.full_name}/commits/${commit}`;
+  const commitLinkText = `${commit.slice(0, 7)}`;
+
+  let suffix = READY_TO_DEPLOY;
+  if (details.changeType.isFullstack) {
+    suffix = `is a full stack change and ready to deploy on both the frontend and backend`;
+  }
+  if (details.gocdDeployInfo) {
+    suffix = INPROGRESS_MSG;
+  }
+  return `Your commit ${repo.name}@<${commitLink}|${commitLinkText}> ${suffix}`;
+}
+
+async function postPleaseDeployMessage(
+  event: EmitterWebhookEvent<'check_run'>
+) {
+  const details = await getRequiredDetails(event.payload);
+
+  const text = await getBody(details);
+  const blocks: Array<KnownBlock> = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `🚀 ${text}`,
+      },
+    },
+    {
+      type: 'divider',
+    },
+  ];
+  blocks.push(...(await getBlocksForCommit(details.relevantCommit)));
+
+  // If the commit is already queued, add that message, otherwise
+  // show actions to start the deploy / review it.
+  if (details.gocdDeployInfo) {
+    blocks.push(...deployInProgressBlocks(details));
+  } else {
+    blocks.push(...deployActionBlocks(details));
+  }
+
+  const message = await slackMessageUser(details.user.slackUser, {
+    text,
+    blocks,
+  });
+  if (message) {
+    await saveSlackMessage(
+      SlackMessage.PLEASE_DEPLOY,
+      {
+        refId: details.relevantCommit.sha,
+        channel: `${message.channel}`,
+        ts: `${message.ts}`,
+      },
+      {
+        target: details.user.slackUser,
+        status: 'undeployed',
+        blocks,
+        text,
+      }
+    );
+  }
+}
+
+async function handler(event: EmitterWebhookEvent<'check_run'>) {
+  if (!shouldProcessCheckRun(event)) {
+    console.log(`Not processing check-run`);
     return;
   }
 
@@ -106,102 +208,14 @@ async function handler({
 
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
-  // Message author on slack that their commit is ready to deploy
-  // and send a link to start a deploy
-  const user = await getUser({
-    githubUser: relevantCommit.author?.login,
-    email: relevantCommit.commit.author?.email,
-  });
-
-  if (!user?.slackUser) {
-    Sentry.withScope(async (scope) => {
-      scope.setUser({
-        email: relevantCommit.commit.author?.email,
-      });
-      tx.setStatus('no-user');
-      tx.finish();
-    });
-    return;
+  try {
+    await postPleaseDeployMessage(event);
+  } catch (err) {
+    Sentry.captureException(err);
+    console.error(err);
   }
 
-  const slackTarget = user?.slackUser;
-
-  const blocks = await getBlocksForCommit(relevantCommit);
-
-  // Author of commit found
-  const commit = checkRun.head_sha;
-  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
-  const commitLinkText = `${commit.slice(0, 7)}`;
-
-  // checkRun.head_sha will always be from getsentry, so if relevantCommit's
-  // sha differs, it means that the relevantCommit is on the sentry repo
-  const relevantCommitRepo =
-    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
-  const { isFrontendOnly, isFullstack } = await getChangedStack(
-    relevantCommit.sha,
-    relevantCommitRepo
-  );
-
-  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
-  if (isFullstack) {
-    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is a full stack change and ready to deploy on both the frontend and backend`;
-  }
-
-  // If the commit is already queued, add that message, otherwise
-  // show actions to start the deploy / review it.
-  const deployBlocks = await currentDeployBlocks(
-    checkRun,
-    user,
-    isFrontendOnly
-  );
-  if (deployBlocks) {
-    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${INPROGRESS_MSG}`;
-    blocks.push(...deployBlocks);
-  } else {
-    blocks.push({
-      type: 'actions',
-      elements: [
-        gocdDeploy(commit),
-        viewUndeployedCommits(commit),
-        muteDeployNotificationsButton(),
-      ],
-    });
-  }
-
-  const message = await slackMessageUser(slackTarget, {
-    text,
-    attachments: [
-      {
-        color: Color.OFF_WHITE_TOO,
-        blocks,
-      },
-    ],
-  });
-
-  if (message) {
-    await saveSlackMessage(
-      SlackMessage.PLEASE_DEPLOY,
-      {
-        refId: commit,
-        channel: `${message.channel}`,
-        ts: `${message.ts}`,
-      },
-      {
-        target: slackTarget,
-        status: 'undeployed',
-        blocks,
-        text,
-      }
-    );
-  }
-
-  Sentry.withScope(async (scope) => {
-    scope.setUser({
-      id: slackTarget,
-      email: relevantCommit.commit.author?.email,
-    });
-    tx.finish();
-  });
+  tx.finish();
 }
 
 export async function pleaseDeployNotifier() {

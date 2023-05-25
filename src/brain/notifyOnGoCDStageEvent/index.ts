@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 
 import {
   CompareCommits,
+  DBGoCDPipeline,
   GoCDBuildCause,
   GoCDPipeline,
   GoCDResponse,
@@ -105,6 +106,7 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
       bolt.client.chat.postMessage({
         thread_ts: message.ts,
         channel: message.channel,
+        unfurl_links: false,
         text: `Your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications`,
       })
     );
@@ -136,19 +138,6 @@ async function updateSlack(
   return messages.map(async (message) => {
     await updateSlackMessage(message, pipeline);
   });
-}
-
-async function getLatestDeploy(pipeline: GoCDPipeline): Promise<null | any> {
-  try {
-    // Retrieves the latest/previous deploy for either
-    // `getsentry-backend` or `getsentry-frontend` to see which
-    // commits are going out.
-    return await getLatestGoCDDeploy(pipeline.group, pipeline.name);
-  } catch (err) {
-    Sentry.captureException(err);
-    console.error(err);
-  }
-  return null;
 }
 
 async function updateCommitQueue(
@@ -203,6 +192,7 @@ async function filterCommits(octokit, pipeline, commits) {
       relevantRepo
     );
 
+    console.log(`Frontend: ${isFrontendOnly} Backend: ${isBackendOnly}`);
     // NOTE: We do not handle scenarios where the commit has both
     // frontend and backend changes.
     if (
@@ -263,12 +253,14 @@ export async function handler(resBody: GoCDResponse) {
     pipeline.name !== GOCD_SENTRYIO_FE_PIPELINE_NAME &&
     pipeline.name !== GOCD_SENTRYIO_BE_PIPELINE_NAME
   ) {
+    console.log(`Bad pipeline name`);
     return;
   }
 
   // This is not a getsentry deploy.
   const sha = getGetsentrySHA(pipeline['build-cause']);
   if (!sha) {
+    console.log(`No SHA`);
     return;
   }
 
@@ -282,17 +274,25 @@ export async function handler(resBody: GoCDResponse) {
   const octokit = await getClient(ClientType.App, OWNER);
 
   try {
-    const latestDeploy = await getLatestDeploy(pipeline);
+    const latestDeploy = await getLatestGoCDDeploy(
+      pipeline.group,
+      pipeline.name
+    );
     const commits = await getCommitsInDeployment(
       octokit,
       sha,
-      latestDeploy?.sha
+      latestDeploy?.revision
+    );
+    console.log(
+      `All Commits => `,
+      commits.map((c) => c.sha)
     );
     const relevantCommitShas: string[] = await filterCommits(
       octokit,
       pipeline,
       commits
     );
+    console.log(`relevantCommitShas => `, relevantCommitShas);
 
     await Promise.all([
       updateCommitQueue(pipeline, sha, commits),
