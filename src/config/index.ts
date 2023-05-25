@@ -28,6 +28,8 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
+export const DISABLE_GITHUB_METRICS =
+  process.env.DISABLE_GITHUB_METRICS == 'true';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';

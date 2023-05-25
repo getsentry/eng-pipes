@@ -1,3 +1,4 @@
+import { DISABLE_GITHUB_METRICS } from '@/config';
 import { githubEvents } from '@api/github';
 import { wrapHandler } from '@utils/wrapHandler';
 
@@ -9,6 +10,10 @@ const ossHandler = wrapHandler('metrics.oss', ossMetrics);
 const sentryHandler = wrapHandler('metrics.sentry', sentryMetrics);
 
 export async function githubMetrics() {
+  if (DISABLE_GITHUB_METRICS) {
+    return;
+  }
+
   githubEvents.removeListener('check_run', sentryHandler);
   githubEvents.on('check_run', sentryHandler);
 
