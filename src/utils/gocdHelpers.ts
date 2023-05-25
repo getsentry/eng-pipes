@@ -1,4 +1,4 @@
-import { GoCDPipeline } from '@types';
+import { DBGoCDDeployment, GoCDPipeline } from '@types';
 
 import {
   Color,
@@ -76,4 +76,20 @@ export function getProgressColor(pipeline: GoCDPipeline) {
     default:
       return Color.DANGER;
   }
+}
+
+export function firstMaterialSHA(
+  deploy: DBGoCDDeployment | undefined
+): string | void {
+  if (!deploy) {
+    return;
+  }
+  if (deploy.pipeline_build_cause.length == 0) {
+    return;
+  }
+  const bc = deploy.pipeline_build_cause[0];
+  if (bc.modifications.length == 0) {
+    return;
+  }
+  return bc.modifications[0].revision;
 }

@@ -250,12 +250,31 @@ interface GoCDGitConfiguration {
   url: string;
 }
 
-export interface GoCDBuildMaterial {
+export interface DBGoCDBuildMaterial {
   stage_material_id: string;
   pipeline_id: string;
   url: string;
   branch: string;
   revision: string;
+}
+
+export interface DBGoCDDeployment {
+  pipeline_id: string;
+
+  pipeline_name: string;
+  pipeline_counter: string;
+  pipeline_group: string;
+  pipeline_build_cause: Array<GoCDBuildCause>;
+
+  stage_name: string;
+  stage_counter: string;
+  stage_approval_type: string;
+  stage_approved_by: string;
+  stage_state: string;
+  stage_result: string;
+  stage_create_time: string;
+  stage_last_transition_time: string;
+  stage_jobs: Array<GoCDJob>;
 }
 
 type GoCDJobResult = 'Unknown' | 'Passed';

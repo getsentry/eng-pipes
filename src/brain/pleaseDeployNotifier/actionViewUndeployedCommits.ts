@@ -7,6 +7,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   OWNER,
 } from '@/config';
+import { firstMaterialSHA } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getClient } from '@api/github/getClient';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
@@ -68,7 +69,11 @@ export async function actionViewUndeployedCommits({
   }
 
   const octokit = await getClient(ClientType.App, OWNER);
-  const base = lastDeploy.pipeline_build_cause[0].modifications[0].revision;
+  const base = firstMaterialSHA(lastDeploy);
+  if (!base) {
+    // Failed to get base sha
+    return;
+  }
   const head = payload.value;
 
   // Get all getsentry commits between `base` and `head`

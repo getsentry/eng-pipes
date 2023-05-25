@@ -26,6 +26,7 @@ import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
   FINAL_STAGE_NAMES,
+  firstMaterialSHA,
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
@@ -136,19 +137,6 @@ async function updateSlack(
   return messages.map(async (message) => {
     await updateSlackMessage(message, pipeline);
   });
-}
-
-async function getLatestDeploy(pipeline: GoCDPipeline): Promise<null | any> {
-  try {
-    // Retrieves the latest/previous deploy for either
-    // `getsentry-backend` or `getsentry-frontend` to see which
-    // commits are going out.
-    return await getLatestGoCDDeploy(pipeline.group, pipeline.name);
-  } catch (err) {
-    Sentry.captureException(err);
-    console.error(err);
-  }
-  return null;
 }
 
 async function updateCommitQueue(
@@ -282,11 +270,14 @@ export async function handler(resBody: GoCDResponse) {
   const octokit = await getClient(ClientType.App, OWNER);
 
   try {
-    const latestDeploy = await getLatestDeploy(pipeline);
+    const latestDeploy = await getLatestGoCDDeploy(
+      pipeline.group,
+      pipeline.name
+    );
     const commits = await getCommitsInDeployment(
       octokit,
       sha,
-      latestDeploy?.sha
+      firstMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(
       octokit,
