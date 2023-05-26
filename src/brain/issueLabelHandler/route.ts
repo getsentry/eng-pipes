@@ -23,6 +23,7 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
+  PRODUCT_AREA_UNKNOWN,
 } from '@/config';
 import {
   calculateSLOViolationRoute,
@@ -30,7 +31,6 @@ import {
   getSortedOffices,
   isTimeInBusinessHours,
 } from '@utils/businessHours';
-import { isFromABot } from '@utils/isFromABot';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
@@ -88,13 +88,16 @@ export async function markUnrouted({
     return;
   }
 
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
+
   // New issues get an Unrouted label.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   await octokit.issues.addLabels({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
+    repo: repo,
+    issue_number: issueNumber,
     labels: [UNROUTED_LABEL, WAITING_FOR_SUPPORT_LABEL],
   });
 
@@ -103,12 +106,12 @@ export async function markUnrouted({
     await getReadableTimeStamp(timeToRouteBy, UNKNOWN_LABEL);
   await octokit.issues.createComment({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
+    repo: repo,
+    issue_number: issueNumber,
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
 
-  await addIssueToProject(payload.issue.node_id, octokit);
+  await addIssueToProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   tx.finish();
 }
@@ -170,7 +173,6 @@ export async function markRouted({
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
-    isFromABot,
     isValidLabel,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
@@ -179,7 +181,7 @@ export async function markRouted({
 
   const { issue, label } = payload;
   const productAreaLabel = label;
-  const productAreaLabelName = productAreaLabel?.name;
+  const productAreaLabelName = productAreaLabel?.name || PRODUCT_AREA_UNKNOWN;
   // Remove Unrouted label when routed.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
@@ -242,8 +244,7 @@ export async function markRouted({
    * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
-  const issueNodeId = (await addIssueToProject(payload.issue.node_id, octokit))
-    ?.addProjectV2ItemById.item.id;
+  const issueNodeId: string = await addIssueToProject(payload.issue.node_id, payload.repository.name, payload.issue.number, octokit);
   await modifyProjectIssueProductArea(
     issueNodeId,
     productAreaLabelName,

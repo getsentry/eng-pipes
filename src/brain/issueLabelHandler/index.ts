@@ -6,6 +6,7 @@ import {
 } from './followups';
 import { markRouted, markUnrouted } from './route';
 import { markTriaged, markUntriaged } from './triage';
+import { syncLabelsWithProjectField } from './project'
 
 // Install.
 
@@ -25,4 +26,6 @@ export async function issueLabelHandler() {
   githubEvents.on('issue_comment.created', updateCommunityFollowups);
   githubEvents.removeListener('issues.labeled', ensureOneWaitingForLabel);
   githubEvents.on('issues.labeled', ensureOneWaitingForLabel);
+  githubEvents.removeListener('projects_v2_item.edited', syncLabelsWithProjectField);
+  githubEvents.on('projects_v2_item.edited', syncLabelsWithProjectField);
 }

@@ -43,7 +43,7 @@
     "@octokit/plugin-retry": "^3.0.9",
     "@octokit/rest": "^18.12.0",
     "@octokit/types": "^6.34.0",
-    "@octokit/webhooks": "^9.18.0",
+    "@octokit/webhooks": "^11.0.0",
     "@sentry/integrations": "^6.16.1",
     "@sentry/node": "^6.16.1",
     "@sentry/tracing": "^6.16.1",

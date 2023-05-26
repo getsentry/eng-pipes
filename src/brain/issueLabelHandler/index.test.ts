@@ -9,6 +9,8 @@ import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
+  ISSUES_PROJECT_NODE_ID,
+  PRODUCT_AREA_FIELD_ID,
 } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
@@ -52,6 +54,7 @@ describe('issueLabelHandler', function () {
       },
     };
     ack = jest.fn();
+    jest.spyOn(helpers, 'getAllProductAreaNodeIds').mockReturnValue({ "Product Area: Test": 1, "Product Area: Does Not Exist": 2 })
   });
 
   afterAll(async function () {
@@ -146,6 +149,28 @@ describe('issueLabelHandler', function () {
       // @ts-expect-error
       'issue_comment.created',
       makePayload(repo, undefined, username)
+    );
+  }
+
+  async function editProjectField(projectNodeId?: string, fieldNodeId?: string) {
+    const projectPayload = {
+      organization: { login: 'test-org' },
+      projects_v2_item: {
+        project_node_id: projectNodeId || "test-project-node-id",
+        node_id: "test-node-id",
+        content_node_id: "test-content-node-id"
+      },
+      changes: {
+        field_value: {
+          field_node_id: fieldNodeId
+        }
+      }
+    }
+    await createGitHubEvent(
+      fastify,
+      // @ts-expect-error
+      'projects_v2_item.edited',
+      projectPayload
     );
   }
 
@@ -284,7 +309,7 @@ describe('issueLabelHandler', function () {
       modifyProjectIssueProductAreaSpy = jest.spyOn(
         helpers,
         'modifyProjectIssueProductArea'
-      );
+      ).mockImplementation(jest.fn());
     });
     afterEach(function () {
       jest.clearAllMocks();
@@ -535,4 +560,38 @@ describe('issueLabelHandler', function () {
       );
     });
   });
+
+  describe('projects test cases', function () {
+    let getProductAreaFromProjectFieldSpy, getIssueDetailsFromNodeIdSpy, octokitIssuesSpy;
+    beforeAll(function () {
+        getProductAreaFromProjectFieldSpy = jest.spyOn(helpers, 'getProductAreaFromProjectField')
+        getIssueDetailsFromNodeIdSpy = jest.spyOn(helpers, 'getIssueDetailsFromNodeId');
+        octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels')
+    });
+    afterEach(function () {
+      jest.clearAllMocks();
+    });
+    it('should ignore project event if it is not issues project', async function () {
+      await editProjectField();
+      expect(getProductAreaFromProjectFieldSpy).not.toHaveBeenCalled();
+      expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
+      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+    });
+
+    it('should ignore project event if it is issues project but not product area field id', async function () {
+      await editProjectField(ISSUES_PROJECT_NODE_ID);
+      expect(getProductAreaFromProjectFieldSpy).not.toHaveBeenCalled();
+      expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
+      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+    });
+
+    it('should not ignore project event if it is issues project and product field id', async function () {
+      getProductAreaFromProjectFieldSpy.mockReturnValue("Test");
+      await editProjectField(ISSUES_PROJECT_NODE_ID, PRODUCT_AREA_FIELD_ID);
+      expect(getProductAreaFromProjectFieldSpy).toHaveBeenCalled();
+      expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
+      expect(octokitIssuesSpy).toHaveBeenCalled();
+      expect(octokit.issues._labels).toContain("Product Area: Test");
+    });
+  })
 });

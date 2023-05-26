@@ -40,7 +40,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/plugin-retry", "npm:3.0.9"],
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
-            ["@octokit/webhooks", "npm:9.18.0"],
+            ["@octokit/webhooks", "npm:11.0.0"],
             ["@sentry/integrations", "npm:6.16.1"],
             ["@sentry/node", "npm:6.16.1"],
             ["@sentry/tracing", "npm:6.16.1"],
@@ -1637,6 +1637,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],
           "linkType": "HARD",
         }],
+        ["npm:17.2.0", {
+          "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-17.2.0-e9456595e7-29995e34f9.zip/node_modules/@octokit/openapi-types/",
+          "packageDependencies": [
+            ["@octokit/openapi-types", "npm:17.2.0"]
+          ],
+          "linkType": "HARD",
+        }],
         ["npm:4.0.4", {
           "packageLocation": "./.yarn/cache/@octokit-openapi-types-npm-4.0.4-09c848b833-a8a4fbb125.zip/node_modules/@octokit/openapi-types/",
           "packageDependencies": [
@@ -1775,6 +1782,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["once", "npm:1.4.0"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:3.0.3", {
+          "packageLocation": "./.yarn/cache/@octokit-request-error-npm-3.0.3-cbba4d6220-5db0b51473.zip/node_modules/@octokit/request-error/",
+          "packageDependencies": [
+            ["@octokit/request-error", "npm:3.0.3"],
+            ["@octokit/types", "npm:9.2.3"],
+            ["deprecation", "npm:2.3.1"],
+            ["once", "npm:1.4.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["@octokit/rest", [
@@ -1814,35 +1831,43 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/openapi-types", "npm:4.0.4"]
           ],
           "linkType": "HARD",
+        }],
+        ["npm:9.2.3", {
+          "packageLocation": "./.yarn/cache/@octokit-types-npm-9.2.3-7489397f39-6806413089.zip/node_modules/@octokit/types/",
+          "packageDependencies": [
+            ["@octokit/types", "npm:9.2.3"],
+            ["@octokit/openapi-types", "npm:17.2.0"]
+          ],
+          "linkType": "HARD",
         }]
       ]],
       ["@octokit/webhooks", [
-        ["npm:9.18.0", {
-          "packageLocation": "./.yarn/cache/@octokit-webhooks-npm-9.18.0-3a1e5ffdd8-e8348b0486.zip/node_modules/@octokit/webhooks/",
+        ["npm:11.0.0", {
+          "packageLocation": "./.yarn/cache/@octokit-webhooks-npm-11.0.0-f012393647-4b29728232.zip/node_modules/@octokit/webhooks/",
           "packageDependencies": [
-            ["@octokit/webhooks", "npm:9.18.0"],
-            ["@octokit/request-error", "npm:2.0.5"],
-            ["@octokit/webhooks-methods", "npm:2.0.0"],
-            ["@octokit/webhooks-types", "npm:4.15.0"],
+            ["@octokit/webhooks", "npm:11.0.0"],
+            ["@octokit/request-error", "npm:3.0.3"],
+            ["@octokit/webhooks-methods", "npm:3.0.2"],
+            ["@octokit/webhooks-types", "npm:6.11.0"],
             ["aggregate-error", "npm:3.1.0"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@octokit/webhooks-methods", [
-        ["npm:2.0.0", {
-          "packageLocation": "./.yarn/cache/@octokit-webhooks-methods-npm-2.0.0-b902c12ff9-42f87ccb93.zip/node_modules/@octokit/webhooks-methods/",
+        ["npm:3.0.2", {
+          "packageLocation": "./.yarn/cache/@octokit-webhooks-methods-npm-3.0.2-aef5410bbe-4608d6a394.zip/node_modules/@octokit/webhooks-methods/",
           "packageDependencies": [
-            ["@octokit/webhooks-methods", "npm:2.0.0"]
+            ["@octokit/webhooks-methods", "npm:3.0.2"]
           ],
           "linkType": "HARD",
         }]
       ]],
       ["@octokit/webhooks-types", [
-        ["npm:4.15.0", {
-          "packageLocation": "./.yarn/cache/@octokit-webhooks-types-npm-4.15.0-874e395a58-4610622ab6.zip/node_modules/@octokit/webhooks-types/",
+        ["npm:6.11.0", {
+          "packageLocation": "./.yarn/cache/@octokit-webhooks-types-npm-6.11.0-9ff8a7bb7c-af35ac7a3d.zip/node_modules/@octokit/webhooks-types/",
           "packageDependencies": [
-            ["@octokit/webhooks-types", "npm:4.15.0"]
+            ["@octokit/webhooks-types", "npm:6.11.0"]
           ],
           "linkType": "HARD",
         }]
@@ -9760,7 +9785,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/plugin-retry", "npm:3.0.9"],
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
-            ["@octokit/webhooks", "npm:9.18.0"],
+            ["@octokit/webhooks", "npm:11.0.0"],
             ["@sentry/integrations", "npm:6.16.1"],
             ["@sentry/node", "npm:6.16.1"],
             ["@sentry/tracing", "npm:6.16.1"],

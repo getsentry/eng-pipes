@@ -90,6 +90,7 @@ export enum BuildStatus {
  * GitHub Triage
  */
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
+export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
 export const STATUS_LABEL_PREFIX = 'Status: ';
 export const BACKLOG_LABEL = 'Status: Backlog';
 export const IN_PROGRESS_LABEL = 'Status: In Progress';

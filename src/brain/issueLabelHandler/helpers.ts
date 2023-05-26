@@ -4,6 +4,8 @@ import {
   PRODUCT_AREA_LABEL_PREFIX,
 } from '@/config';
 import { getOssUserType } from '@utils/getOssUserType';
+import { Octokit } from '@octokit/rest';
+import * as Sentry from '@sentry/node';
 
 // Validation Helpers
 
@@ -21,7 +23,7 @@ export async function shouldSkip(payload, reasonsToSkip) {
   return false;
 }
 
-export async function isNotFromAnExternalOrGTMUser(payload) {
+export async function isNotFromAnExternalOrGTMUser(payload: object) {
   const type = await getOssUserType(payload);
   return !(type === 'external' || type === 'gtm');
 }
@@ -30,19 +32,24 @@ export function getProductArea(productAreaLabelName) {
   return productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
 }
 
-export async function addIssueToProject(issueNodeID, octokit) {
+export async function addIssueToProject(issueNodeId: string | undefined, repo: string, issueNumber: number, octokit: Octokit): Promise<string>{
+  if (issueNodeId == null) {
+    Sentry.captureException(`Issue node id is not defined for ${repo}/${issueNumber}`);
+  }
   const addIssueToprojectMutation = `mutation {
-  addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeID}"}) {
+  addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeId}"}) {
       item {
         id
       }
     }
   }`;
 
-  return await octokit.graphql(addIssueToprojectMutation);
+  const response: any = await octokit.graphql(addIssueToprojectMutation);
+
+  return response.addProjectV2ItemById.item.id;
 }
 
-async function getAllProductAreaNodeIDs(octokit) {
+export async function getAllProductAreaNodeIds(octokit: Octokit) {
   const queryForProductAreaNodeIDs = `query{
     node(id: "${PRODUCT_AREA_FIELD_ID}") {
       ... on ProjectV2SingleSelectField {
@@ -54,20 +61,20 @@ async function getAllProductAreaNodeIDs(octokit) {
     }
   }`;
 
-  const data = await octokit.graphql(queryForProductAreaNodeIDs);
-  return data.node.options.reduce((acc, { name, id }) => {
+  const response: any = await octokit.graphql(queryForProductAreaNodeIDs);
+  return response.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
     return acc;
   }, {});
 }
 
 export async function modifyProjectIssueProductArea(
-  issueNodeID,
-  productAreaLabelName,
-  octokit
+  issueNodeID: string,
+  productAreaLabelName: string,
+  octokit: Octokit
 ) {
   const productArea = getProductArea(productAreaLabelName);
-  const productAreaNodeIDMapping = await getAllProductAreaNodeIDs(octokit);
+  const productAreaNodeIDMapping = await getAllProductAreaNodeIds(octokit);
   const addIssueToprojectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
@@ -86,4 +93,46 @@ export async function modifyProjectIssueProductArea(
   }`;
 
   await octokit.graphql(addIssueToprojectMutation);
+}
+
+export async function getProductAreaFromProjectField(issueNodeId: string, octokit: Octokit) {
+  const query = `query{
+    node(id: "${issueNodeId}") {
+        ... on ProjectV2Item {
+          id
+          fieldValueByName(name: "Product Area") {
+            ... on ProjectV2ItemFieldSingleSelectValue {
+              name
+              field {
+                ... on ProjectV2FieldCommon {
+                  name
+                }
+              }
+            }
+          }
+        }
+      }
+    }`;
+
+  const response: any = await octokit.graphql(query);
+  return response?.node.fieldValueByName?.name;
+}
+
+export async function getIssueDetailsFromNodeId(issueNodeId: string, octokit: Octokit) {
+  const query = `query {
+    node(id:"${issueNodeId}") {
+      ... on Issue {
+        number,
+        repository {
+          name
+        }
+      }
+    }
+  }`;
+
+  const response: any = await octokit.graphql(query);
+  return {
+    number: response?.node.number,
+    repo: response?.node.repository?.name
+  }
 }
