@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { GoCDBuildMaterial, GoCDResponse } from '@/types';
+import { DBGoCDBuildMaterial, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
 
@@ -51,7 +51,7 @@ export async function handler(resBody: GoCDResponse) {
 }
 
 async function saveBuildMaterials(pipeline_id, pipeline) {
-  const gocdMaterials: Array<GoCDBuildMaterial> = [];
+  const gocdMaterials: Array<DBGoCDBuildMaterial> = [];
   for (const bc of pipeline['build-cause']) {
     if (!bc.material || bc.material.type != 'git') {
       // The material may be an upstream pipeline

@@ -1,3 +1,6 @@
+import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
+import { DBGoCDDeployment } from '@/types';
+
 import { db } from '.';
 
 export async function getLatestDeploy(app_name: string) {
@@ -16,10 +19,10 @@ export async function getLatestDeploy(app_name: string) {
 export async function getLatestGoCDDeploy(
   pipeline_group: string,
   pipeline_name: string
-) {
+): Promise<DBGoCDDeployment | undefined> {
   return await db
     .select('*')
-    .from('gocd-stages')
+    .from(DB_TABLE_STAGES)
     .where({
       pipeline_group,
       pipeline_name,
