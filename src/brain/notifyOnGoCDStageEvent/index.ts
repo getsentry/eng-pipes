@@ -1,3 +1,4 @@
+import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import {
@@ -203,8 +204,12 @@ async function filterCommits(octokit, pipeline, commits) {
   return relevantCommitShas;
 }
 
-async function getCommitsInDeployment(octokit, sha, prevsha) {
-  if (prevsha) {
+async function getCommitsInDeployment(
+  octokit: Octokit,
+  sha: string,
+  prevsha: string | null
+): Promise<CompareCommits['commits']> {
+  if (prevsha && prevsha !== sha) {
     const { data } = await octokit.repos.compareCommits({
       owner: OWNER,
       repo: GETSENTRY_REPO,

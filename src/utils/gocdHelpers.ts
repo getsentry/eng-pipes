@@ -80,16 +80,16 @@ export function getProgressColor(pipeline: GoCDPipeline) {
 
 export function firstMaterialSHA(
   deploy: DBGoCDDeployment | undefined
-): string | void {
+): string | null {
   if (!deploy) {
-    return;
+    return null;
   }
   if (deploy.pipeline_build_cause.length == 0) {
-    return;
+    return null;
   }
   const bc = deploy.pipeline_build_cause[0];
   if (bc.modifications.length == 0) {
-    return;
+    return null;
   }
   return bc.modifications[0].revision;
 }
