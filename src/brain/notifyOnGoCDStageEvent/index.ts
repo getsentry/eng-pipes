@@ -235,7 +235,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
 }
 
 /**
- * This handler listens to Freight for deploys of `getsentry` to production.
+ * This handler listens to GoCD for deploys of `getsentry` to production.
  * Users receive a Slack notification when their commit passes CI and is ready
  * to deploy.  This will update those Slack messages telling them that their
  * commit has been queued to be deployed (if applicable).
@@ -300,6 +300,16 @@ export async function handler(resBody: GoCDResponse) {
 export async function notifyOnGoCDStageEvent() {
   gocdevents.on('stage', handler);
 
-  // TODO (mattgaunt): Figure out where open-sentry-release-* needs to live,
-  // either here or in updateDeployNotifications or ....
+  bolt.action(/open-sentry-release-(.*)/, async ({ ack, body, context }) => {
+    await ack();
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
+      Sentry.startTransaction({
+        op: 'slack.action',
+        name: `open-sentry-release-${context.actionIdMatches[1]}`,
+      }).finish();
+    });
+  });
 }

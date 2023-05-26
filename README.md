@@ -3,7 +3,7 @@
 This repo contains automation infrastructure for the engineering organization, including:
 
 - CI tooling used in [sentry](https://github.com/getsentry/sentry) and [getsentry](https://github.com/getsentry/sentry) development
-- metrics collection and aggregation (for e.g. GitHub, and Freight)
+- metrics collection and aggregation (for e.g. GitHub)
 - a Slack integration to provide tools through Slack
 
 Read the README in the `src/` directory for information on the code structure.
