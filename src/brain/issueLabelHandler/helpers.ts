@@ -69,7 +69,7 @@ export async function getAllProductAreaNodeIds(octokit: Octokit) {
 }
 
 export async function modifyProjectIssueProductArea(
-  issueNodeID: string,
+  itemId: string,
   productAreaLabelName: string,
   octokit: Octokit
 ) {
@@ -79,7 +79,7 @@ export async function modifyProjectIssueProductArea(
     updateProjectV2ItemFieldValue(
       input: {
         projectId: "${ISSUES_PROJECT_NODE_ID}"
-        itemId: "${issueNodeID}"
+        itemId: "${itemId}"
         fieldId: "${PRODUCT_AREA_FIELD_ID}"
         value: {
           singleSelectOptionId: "${productAreaNodeIDMapping[productArea]}"

@@ -244,9 +244,9 @@ export async function markRouted({
    * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
-  const issueNodeId: string = await addIssueToProject(payload.issue.node_id, payload.repository.name, payload.issue.number, octokit);
+  const itemId: string = await addIssueToProject(payload.issue.node_id, payload.repository.name, payload.issue.number, octokit);
   await modifyProjectIssueProductArea(
-    issueNodeId,
+    itemId,
     productAreaLabelName,
     octokit
   );
