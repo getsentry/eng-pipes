@@ -109,8 +109,8 @@ export const MAX_ROUTE_DAYS = 1;
  * Issues Someone Else Cares About Project
  */
 
-export const ISSUES_PROJECT_NODE_ID = "PVT_kwDOABVQ184AOGW8";
-export const PRODUCT_AREA_FIELD_ID = "PVTSSF_lADOABVQ184AOGW8zgJEBno";
+export const ISSUES_PROJECT_NODE_ID = process.env.ISSUES_PROJECT_NODE_ID || "PVT_kwDOABVQ184AOGW8";
+export const PRODUCT_AREA_FIELD_ID = process.env.PRODUCT_AREA_FIELD_ID || "PVTSSF_lADOABVQ184AOGW8zgJEBno";
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
