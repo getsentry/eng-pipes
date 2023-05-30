@@ -7,15 +7,15 @@ import { ClientType } from '@/api/github/clientType';
 import { PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { shouldSkip } from '@/brain/issueLabelHandler/helpers';
 
-function checkForIssuesProject(payload) {
+function isNotInAProjectWeCareAbout(payload) {
     return payload?.projects_v2_item?.project_node_id !== ISSUES_PROJECT_NODE_ID;
 }
 
-function checkForProductAreaField(payload) {
+function isNotAProjectFieldWeCareAbout(payload) {
     return payload?.changes?.field_value?.field_node_id !== PRODUCT_AREA_FIELD_ID;
 }
 
-function checkForProjectItemNodeId(payload) {
+function isMissingNodeId(payload) {
     return payload?.projects_v2_item?.node_id == null || payload?.projects_v2_item?.content_node_id == null;
 }
 
@@ -31,9 +31,9 @@ export async function syncLabelsWithProjectField({
 
 
     const reasonsToDoNothing = [
-        checkForIssuesProject,
-        checkForProductAreaField,
-        checkForProjectItemNodeId
+        isNotInAProjectWeCareAbout,
+        isNotAProjectFieldWeCareAbout,
+        isMissingNodeId,
     ]
     if (await shouldSkip(payload, reasonsToDoNothing)) {
         return;
