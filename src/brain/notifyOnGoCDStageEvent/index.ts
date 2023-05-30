@@ -1,3 +1,4 @@
+import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import {
@@ -21,7 +22,7 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLatestGoCDDeploy } from '@/utils/db/getLatestDeploy';
+import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
@@ -203,8 +204,12 @@ async function filterCommits(octokit, pipeline, commits) {
   return relevantCommitShas;
 }
 
-async function getCommitsInDeployment(octokit, sha, prevsha) {
-  if (prevsha) {
+async function getCommitsInDeployment(
+  octokit: Octokit,
+  sha: string,
+  prevsha: string | null
+): Promise<CompareCommits['commits']> {
+  if (prevsha && prevsha !== sha) {
     const { data } = await octokit.repos.compareCommits({
       owner: OWNER,
       repo: GETSENTRY_REPO,
@@ -270,7 +275,7 @@ export async function handler(resBody: GoCDResponse) {
   const octokit = await getClient(ClientType.App, OWNER);
 
   try {
-    const latestDeploy = await getLatestGoCDDeploy(
+    const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
       pipeline.name
     );
