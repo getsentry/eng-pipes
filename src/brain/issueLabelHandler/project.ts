@@ -5,13 +5,14 @@ import { getIssueDetailsFromNodeId, getProductAreaFromProjectField } from './hel
 import { getClient } from '@api/github/getClient';
 import { ClientType } from '@/api/github/clientType';
 import { PRODUCT_AREA_LABEL_PREFIX } from '@/config';
+import { shouldSkip } from '@/brain/issueLabelHandler/helpers';
 
 function checkForIssuesProject(payload) {
-    return payload?.projects_v2_item?.project_node_id === ISSUES_PROJECT_NODE_ID;
+    return payload?.projects_v2_item?.project_node_id !== ISSUES_PROJECT_NODE_ID;
 }
 
 function checkForProductAreaField(payload) {
-    return payload?.changes?.field_value?.field_node_id === PRODUCT_AREA_FIELD_ID;
+    return payload?.changes?.field_value?.field_node_id !== PRODUCT_AREA_FIELD_ID;
 }
 
 function checkForProjectItemNodeId(payload) {
@@ -28,7 +29,13 @@ export async function syncLabelsWithProjectField({
         name: 'issueLabelHandler.syncLabelsWithProjectField',
     });
 
-    if (!checkForIssuesProject(payload) || !checkForProductAreaField(payload)|| checkForProjectItemNodeId(payload)) {
+
+    const reasonsToDoNothing = [
+        checkForIssuesProject,
+        checkForProductAreaField,
+        checkForProjectItemNodeId
+    ]
+    if (await shouldSkip(payload, reasonsToDoNothing)) {
         return;
     }
 
