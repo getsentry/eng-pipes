@@ -26,6 +26,7 @@ describe('slackMessageUser', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
       channel: 'U1234',
       text: 'Testing',
+      unfurl_links: false,
     });
   });
 

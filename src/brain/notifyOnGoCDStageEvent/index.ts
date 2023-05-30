@@ -22,7 +22,7 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLatestGoCDDeploy } from '@/utils/db/getLatestDeploy';
+import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
@@ -275,7 +275,7 @@ export async function handler(resBody: GoCDResponse) {
   const octokit = await getClient(ClientType.App, OWNER);
 
   try {
-    const latestDeploy = await getLatestGoCDDeploy(
+    const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
       pipeline.name
     );
