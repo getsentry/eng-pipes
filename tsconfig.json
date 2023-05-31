@@ -17,7 +17,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
+    "baseUrl": "./",
     "paths": {
       "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
       "@/*": ["src/*"],
