@@ -1,11 +1,11 @@
 import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
-import { BuildStatus, Color } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { CheckRun } from '@/types';
-import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
-import { bolt } from '@api/slack';
+import { bolt } from '../../api/slack';
+import { BuildStatus, Color } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { CheckRun } from '../../types';
+import { updateRequiredCheck } from '../../utils/db/updateRequiredCheck';
 
 import { getTextParts } from './getTextParts';
 

@@ -1,4 +1,4 @@
-import { BuildStatus } from '@/config';
+import { BuildStatus } from '../../config';
 
 export const OK_CONCLUSIONS = [
   BuildStatus.SUCCESS,

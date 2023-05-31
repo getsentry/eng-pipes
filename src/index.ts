@@ -1,5 +1,3 @@
-import 'module-alias/register';
-
 import * as Sentry from '@sentry/node';
 
 import { buildServer } from './buildServer';

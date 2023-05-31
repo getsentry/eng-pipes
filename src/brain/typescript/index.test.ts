@@ -1,12 +1,11 @@
-import { createSlackAppMention } from '@test/utils/createSlackAppMention';
-
-import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { createSlackAppMention } from '../../../test/utils/createSlackAppMention';
+import { bolt } from '../../api/slack';
+import { buildServer } from '../../buildServer';
 
 import getProgress from './getProgress';
 import { typescript } from '.';
 
-jest.mock('@api/slack');
+jest.mock('../../api/slack');
 
 jest.mock('./getProgress', () =>
   jest.fn(() => ({

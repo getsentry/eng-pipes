@@ -1,4 +1,4 @@
-import { buildServer } from '@/buildServer';
+import { buildServer } from './buildServer';
 
 describe('index', function () {
   let fastify;

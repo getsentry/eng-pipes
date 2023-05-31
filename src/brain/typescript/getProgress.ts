@@ -1,6 +1,6 @@
-import { ClientType } from '@/api/github/clientType';
-import { OWNER, SENTRY_REPO } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { OWNER, SENTRY_REPO } from '../../config';
 
 /**
  * Paths that we do not intend to convert to ts

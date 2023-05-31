@@ -1,8 +1,8 @@
-import { SlackMessage } from '@/config/slackMessage';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import { db } from '@utils/db';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { SlackMessage } from '../../config/slackMessage';
+import { db } from '../../utils/db';
+import { saveSlackMessage } from '../../utils/db/saveSlackMessage';
 
 import { getFailureMessages } from './getFailureMessages';
 

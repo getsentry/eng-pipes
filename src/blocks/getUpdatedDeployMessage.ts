@@ -1,5 +1,5 @@
-import { GOCD_ORIGIN } from '@/config';
-import { FINAL_STAGE_NAMES } from '@/utils/gocdHelpers';
+import { GOCD_ORIGIN } from '../config';
+import { FINAL_STAGE_NAMES } from '../utils/gocdHelpers';
 
 function getSubject(isUserDeploying, slackUser) {
   if (isUserDeploying) {

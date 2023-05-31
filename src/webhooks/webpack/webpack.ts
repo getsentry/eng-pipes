@@ -1,6 +1,6 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { insertAssetSize } from '@utils/metrics';
+import { insertAssetSize } from '../../utils/metrics';
 
 import { verifyWebhook } from './verifyWebhook';
 

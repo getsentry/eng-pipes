@@ -1,17 +1,17 @@
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
+import { getBlocksForCommit } from '../../api/getBlocksForCommit';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { getRelevantCommit } from '../../api/github/getRelevantCommit';
 import {
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   OWNER,
-} from '@/config';
-import { firstMaterialSHA } from '@/utils/gocdHelpers';
-import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { getClient } from '@api/github/getClient';
-import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
+} from '../../config';
+import { getLastGetSentryGoCDDeploy } from '../../utils/db/getLatestDeploy';
+import { firstMaterialSHA } from '../../utils/gocdHelpers';
 
 /**
  * Action handler for viewing undeployed commits. This should be useful for users

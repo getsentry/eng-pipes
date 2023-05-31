@@ -1,6 +1,6 @@
-import { CheckRun } from '@/types';
-import { Annotation } from '@/types';
-import { db } from '@/utils/db';
+import { CheckRun } from '../../types';
+import { Annotation } from '../../types';
+import { db } from '../../utils/db';
 
 interface RecordFailuresParams {
   checkRun: CheckRun;

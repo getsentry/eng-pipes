@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `../../utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -17,23 +17,23 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import merge from 'lodash.merge';
 
-import { createGitHubEvent } from '@test/utils/github';
-
-import { buildServer } from '@/buildServer';
+import defaultPayload from '../../../test/payloads/github/commit';
+import { createGitHubEvent } from '../../../test/utils/github';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { bolt } from '../../api/slack';
+import { buildServer } from '../../buildServer';
 import {
   BuildStatus,
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { db } from '@/utils/db';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import { bolt } from '@api/slack';
-import * as getFailureMessages from '@utils/db/getFailureMessages';
-import { getTimestamp } from '@utils/db/getTimestamp';
-import * as saveSlackMessage from '@utils/db/saveSlackMessage';
-import { TARGETS } from '@utils/metrics';
+} from '../../config';
+import { Fastify } from '../../types';
+import { db } from '../../utils/db';
+import * as getFailureMessages from '../../utils/db/getFailureMessages';
+import { getTimestamp } from '../../utils/db/getTimestamp';
+import * as saveSlackMessage from '../../utils/db/saveSlackMessage';
+import { TARGETS } from '../../utils/metrics';
 
 import { requiredChecks } from '.';
 
@@ -69,7 +69,6 @@ describe('requiredChecks', function () {
     octokit = await getClient(ClientType.App, 'getsentry');
 
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
           data: merge({}, defaultPayload, {
@@ -385,7 +384,6 @@ describe('requiredChecks', function () {
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           author: {
@@ -698,7 +696,6 @@ describe('requiredChecks', function () {
 
   it('saves state of a failed check, and updates slack message when it is passing again (ignoring any following failed tests)', async function () {
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           author: {

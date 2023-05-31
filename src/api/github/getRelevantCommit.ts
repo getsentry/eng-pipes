@@ -1,9 +1,10 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '../../config';
+
+import { ClientType } from './clientType';
+import { getClient } from './getClient';
 
 /**
  * Attempts to find the relevant commit for a SHA

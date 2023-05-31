@@ -69,7 +69,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lodash.merge", "npm:4.6.2"],
             ["markdownlint-cli", "npm:0.27.1"],
             ["middie", "npm:5.3.0"],
-            ["module-alias", "npm:2.2.2"],
             ["moment-timezone", "npm:0.5.39"],
             ["nodemon", "npm:2.0.7"],
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],
@@ -8178,15 +8177,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
-      ["module-alias", [
-        ["npm:2.2.2", {
-          "packageLocation": "./.yarn/cache/module-alias-npm-2.2.2-576bd37c03-4b5543f834.zip/node_modules/module-alias/",
-          "packageDependencies": [
-            ["module-alias", "npm:2.2.2"]
-          ],
-          "linkType": "HARD",
-        }]
-      ]],
       ["moment", [
         ["npm:2.29.4", {
           "packageLocation": "./.yarn/cache/moment-npm-2.29.4-902943305d-0ec3f9c2bc.zip/node_modules/moment/",
@@ -9814,7 +9804,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lodash.merge", "npm:4.6.2"],
             ["markdownlint-cli", "npm:0.27.1"],
             ["middie", "npm:5.3.0"],
-            ["module-alias", "npm:2.2.2"],
             ["moment-timezone", "npm:0.5.39"],
             ["nodemon", "npm:2.0.7"],
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],

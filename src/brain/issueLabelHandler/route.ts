@@ -18,7 +18,7 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
+} from '../../config';
 import {
   addIssueToProject,
   getProductArea,
@@ -36,8 +36,8 @@ import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
-import { ClientType } from '@/api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
 
 function isAlreadyUnrouted(payload) {
   return payload.issue.labels.some(({ name }) => name === UNROUTED_LABEL);

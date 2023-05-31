@@ -1,23 +1,22 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
-import { createGitHubEvent } from '@test/utils/github';
-
-import { buildServer } from '@/buildServer';
+import githubCommitPayload from '../../../test/payloads/github/commit';
+import payload from '../../../test/payloads/gocd/gocd-stage-building.json';
+import { createGitHubEvent } from '../../../test/utils/github';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { bolt } from '../../api/slack';
+import { buildServer } from '../../buildServer';
 import {
   GETSENTRY_BOT_ID,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocdHelpers';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import * as metrics from '@utils/metrics';
-
+} from '../../config';
+import { Fastify } from '../../types';
+import { db } from '../../utils/db';
+import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '../../utils/gocdHelpers';
+import * as metrics from '../../utils/metrics';
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
 import { handler, notifyOnGoCDStageEvent } from '.';
@@ -133,10 +132,9 @@ describe('notifyOnGoCDStageEvent', function () {
     }));
 
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
-          data: merge({}, defaultPayload, {
+          data: merge({}, githubCommitPayload, {
             commit: {
               author: {
                 name: 'mars',
@@ -157,7 +155,7 @@ describe('notifyOnGoCDStageEvent', function () {
         };
       }
 
-      return { data: merge({}, defaultPayload, { sha: HEAD_SHA }) };
+      return { data: merge({}, githubCommitPayload, { sha: HEAD_SHA }) };
     });
   });
 

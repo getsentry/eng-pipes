@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import moment from 'moment-timezone';
 
-import { OWNER, STALE_LABEL } from '@/config';
+import { OWNER, STALE_LABEL } from '../../config';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;

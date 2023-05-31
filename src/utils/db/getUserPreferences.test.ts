@@ -1,4 +1,4 @@
-import { db } from '@utils/db';
+import { db } from '../../utils/db';
 
 import { getUserPreferences } from './getUserPreferences';
 

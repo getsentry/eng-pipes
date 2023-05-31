@@ -1,8 +1,8 @@
 import moment from 'moment-timezone';
 
-import { STALE_LABEL } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { STALE_LABEL } from '../../config';
 
 import { triggerStaleBot } from './stalebot';
 

@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { GETSENTRY_REPO, OWNER, REQUIRED_CHECK_NAME } from '@/config';
+import { GETSENTRY_REPO, OWNER, REQUIRED_CHECK_NAME } from '../../../config';
 
 /**
  * Checks payload to see if:

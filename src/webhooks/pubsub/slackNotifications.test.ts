@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { bolt } from '../../api/slack';
+import { getLabelsTable } from '../../brain/issueNotifier';
+import { db } from '../../utils/db';
 
 import {
   constructSlackMessage,

@@ -3,7 +3,8 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
+import { bolt } from '../api/slack';
+import { getLabelsTable } from '../brain/issueNotifier';
 import {
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
@@ -14,8 +15,7 @@ import {
   UNTRIAGED_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { bolt } from '@api/slack';
+} from '../config';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
@@ -54,7 +54,10 @@ export async function calculateTimeToRespondBy(
 
 export async function calculateSLOViolationTriage(target_name, labels) {
   // calculate time to triage for issues that come in with untriaged label
-  if (target_name === UNTRIAGED_LABEL || target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
+  if (
+    target_name === UNTRIAGED_LABEL ||
+    target_name === WAITING_FOR_PRODUCT_OWNER_LABEL
+  ) {
     const productArea = labels?.find((label) =>
       label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
     )?.name;
@@ -63,7 +66,11 @@ export async function calculateSLOViolationTriage(target_name, labels) {
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
-    labels?.some((label) => label.name === UNTRIAGED_LABEL || label.name === WAITING_FOR_PRODUCT_OWNER_LABEL)
+    labels?.some(
+      (label) =>
+        label.name === UNTRIAGED_LABEL ||
+        label.name === WAITING_FOR_PRODUCT_OWNER_LABEL
+    )
   ) {
     return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, target_name);
   }
@@ -71,7 +78,10 @@ export async function calculateSLOViolationTriage(target_name, labels) {
 }
 
 export async function calculateSLOViolationRoute(target_name) {
-  if (target_name === UNROUTED_LABEL || target_name === WAITING_FOR_SUPPORT_LABEL) {
+  if (
+    target_name === UNROUTED_LABEL ||
+    target_name === WAITING_FOR_SUPPORT_LABEL
+  ) {
     return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Product Area: Unknown');
   }
   return null;

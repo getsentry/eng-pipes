@@ -15,15 +15,15 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import { getLabelsTable } from '@/brain/issueNotifier';
+import { getLabelsTable } from '../brain/issueNotifier';
 import {
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
+  WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-  WAITING_FOR_COMMUNITY_LABEL
-} from '@/config';
-import { db } from '@utils/db';
+} from '../config';
+import { db } from '../utils/db';
 
 import { insertOss } from './metrics';
 

@@ -1,6 +1,6 @@
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { bolt } from '../../api/slack';
+import { SLACK_PROFILE_ID_GITHUB } from '../../config';
+import { db } from '../../utils/db';
 
 import { getUser } from './';
 

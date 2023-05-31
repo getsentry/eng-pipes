@@ -1,8 +1,7 @@
-import { hydrateGitHubEventAndPayload } from '@test/utils/github';
-
-import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { hydrateGitHubEventAndPayload } from '../../../test/utils/github';
+import { bolt } from '../../api/slack';
+import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '../../config';
+import { db } from '../../utils/db';
 
 import { getLabelsTable, githubLabelHandler, slackHandler } from '.';
 

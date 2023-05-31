@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { insert } from '@utils/metrics';
+import { insert } from '../../utils/metrics';
 
 const CHECK_STATUS_MAP = {
   in_progress: 'started',

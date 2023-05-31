@@ -1,5 +1,5 @@
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../api/github/clientType';
+import { getClient } from '../api/github/getClient';
 
 import { getOssUserType } from './getOssUserType';
 

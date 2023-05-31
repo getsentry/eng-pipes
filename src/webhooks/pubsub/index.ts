@@ -2,10 +2,10 @@ import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
-import { ClientType } from '@/api/github/clientType';
-import { OWNER, SENTRY_REPO } from '@/config';
-import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { OWNER, SENTRY_REPO } from '../../config';
+import { notifyProductOwnersForUntriagedIssues } from '../../webhooks/pubsub/slackNotifications';
 
 import { triggerStaleBot } from './stalebot';
 

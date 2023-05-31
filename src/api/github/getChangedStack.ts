@@ -1,9 +1,10 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import { OWNER } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { OWNER } from '../../config';
+
+import { ClientType } from './clientType';
+import { getClient } from './getClient';
 
 const FRONTEND_CHANGE_CHECK_NAME = 'only frontend changes';
 const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';

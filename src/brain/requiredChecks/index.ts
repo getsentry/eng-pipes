@@ -1,10 +1,10 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { githubEvents } from '@api/github';
-import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
-import { getSlackMessage } from '@utils/db/getSlackMessage';
+import { githubEvents } from '../../api/github';
+import { isGetsentryRequiredCheck } from '../../api/github/isGetsentryRequiredCheck';
+import { BuildStatus } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { getSlackMessage } from '../../utils/db/getSlackMessage';
 
 import { OK_CONCLUSIONS } from './constants';
 import { handleNewFailedBuild } from './handleNewFailedBuild';
@@ -43,7 +43,7 @@ async function handler({
   // failure (from a different commit)
   if (
     isCheckSuccessful &&
-    (!dbCheck || dbCheck.context.status !== BuildStatus.FAILURE)
+    (!dbCheck || dbCheck.context['status'] !== BuildStatus.FAILURE)
   ) {
     return await resolveOtherFailure({
       checkRun,
@@ -58,7 +58,7 @@ async function handler({
   //
 
   // If the current commit was already failing then we don't need to do anything
-  if (dbCheck && dbCheck.context.status === BuildStatus.FAILURE) {
+  if (dbCheck && dbCheck.context['status'] === BuildStatus.FAILURE) {
     return;
   }
 

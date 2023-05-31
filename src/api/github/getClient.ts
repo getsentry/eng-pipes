@@ -2,7 +2,7 @@ import { createAppAuth } from '@octokit/auth-app';
 import { retry } from '@octokit/plugin-retry';
 import { Octokit } from '@octokit/rest';
 
-import { GH_USER_TOKEN } from '@/config/index';
+import { GH_USER_TOKEN } from '../../config';
 
 import { ClientType } from './clientType';
 

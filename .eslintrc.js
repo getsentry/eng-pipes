@@ -35,12 +35,6 @@ module.exports = {
           // Packages `react` related packages come first.
           ['^@?\\w'],
 
-          ['^(@types)(/.*|$)'],
-
-          ['^(@test)(/.*|$)'],
-
-          ['^@(|app|api|utils)(/.*|$)'],
-
           // Parent imports. Put `..` last.
           ['^\\.\\.(?!/?$)', '^\\.\\./?$'],
 

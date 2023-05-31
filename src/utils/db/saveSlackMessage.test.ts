@@ -1,4 +1,4 @@
-import { SlackMessage } from '@/config/slackMessage';
+import { SlackMessage } from '../../config/slackMessage';
 
 import { saveSlackMessage } from './saveSlackMessage';
 import { db } from '.';
