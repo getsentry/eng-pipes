@@ -83,7 +83,7 @@ export async function modifyProjectIssueProductArea(
 ) {
   const productArea = getProductArea(productAreaLabelName);
   const productAreaNodeIDMapping = await getAllProductAreaNodeIds(octokit);
-  const addIssueToprojectMutation = `mutation {
+  const addIssueToProjectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
         projectId: "${ISSUES_PROJECT_NODE_ID}"
@@ -100,7 +100,7 @@ export async function modifyProjectIssueProductArea(
     }
   }`;
 
-  await octokit.graphql(addIssueToprojectMutation);
+  await octokit.graphql(addIssueToProjectMutation);
 }
 
 export async function getProductAreaFromProjectField(
