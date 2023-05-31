@@ -7,6 +7,7 @@ import {
   IN_PROGRESS_LABEL,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
+  PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   SENTRY_ORG,
@@ -22,7 +23,7 @@ import {
   addIssueToProject,
   getProductArea,
   isNotFromAnExternalOrGTMUser,
-  modifyProjectIssueProductArea,
+  modifyProjectIssueField,
   shouldSkip,
 } from '@/utils/githubEventHelpers';
 import {
@@ -247,7 +248,12 @@ export async function markRouted({
     payload.issue.number,
     octokit
   );
-  await modifyProjectIssueProductArea(itemId, productAreaLabelName, octokit);
+  await modifyProjectIssueField(
+    itemId,
+    productAreaLabelName,
+    PRODUCT_AREA_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }

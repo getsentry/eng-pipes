@@ -76,9 +76,10 @@ export async function getAllProductAreaNodeIds(octokit: Octokit) {
   }, {});
 }
 
-export async function modifyProjectIssueProductArea(
+export async function modifyProjectIssueField(
   itemId: string,
   productAreaLabelName: string,
+  fieldId: string,
   octokit: Octokit
 ) {
   const productArea = getProductArea(productAreaLabelName);
@@ -88,7 +89,7 @@ export async function modifyProjectIssueProductArea(
       input: {
         projectId: "${ISSUES_PROJECT_NODE_ID}"
         itemId: "${itemId}"
-        fieldId: "${PRODUCT_AREA_FIELD_ID}"
+        fieldId: "${fieldId}"
         value: {
           singleSelectOptionId: "${productAreaNodeIDMapping[productArea]}"
         }
