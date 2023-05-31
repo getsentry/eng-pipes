@@ -1,17 +1,16 @@
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
-import { ReposGetCommit } from '@types';
-
-import { jobStatuses } from '@/blocks/jobStatuses';
-import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
-import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { bolt } from '@api/slack';
-import { getFailureMessages } from '@utils/db/getFailureMessages';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
+import { getBlocksForCommit } from '../../api/getBlocksForCommit';
+import { getRelevantCommit } from '../../api/github/getRelevantCommit';
+import { bolt } from '../../api/slack';
+import { jobStatuses } from '../../blocks/jobStatuses';
+import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { ReposGetCommit } from '../../types';
+import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '../../types';
+import { getFailureMessages } from '../../utils/db/getFailureMessages';
+import { saveSlackMessage } from '../../utils/db/saveSlackMessage';
 
 import { OK_CONCLUSIONS } from './constants';
 import { getAnnotations } from './getAnnotations';

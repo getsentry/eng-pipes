@@ -1,5 +1,5 @@
-import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { db } from '@utils/db';
+import { db } from '../../utils/db';
+import { queueCommitsForDeploy } from '../../utils/db/queueCommitsForDeploy';
 
 import { getGoCDDeployForQueuedCommit } from './getDeployForQueuedCommit';
 

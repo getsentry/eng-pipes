@@ -1,12 +1,12 @@
 /* eslint-env jest */
-jest.mock('@api/slack');
-jest.mock('@api/github/getClient');
-jest.mock('@utils/loadBrain');
+jest.mock('../src/api/slack');
+jest.mock('../src/api/github/getClient');
+jest.mock('../src/utils/loadBrain');
 
 // Force tests use a specific set of values for config and
 // ignore the process.env values.
-jest.mock('@/config', () => {
-  const originalModule = jest.requireActual('@/config');
+jest.mock('../src/config', () => {
+  const originalModule = jest.requireActual('../src/config');
   return {
     ...originalModule,
     OWNER: 'getsentry',

@@ -1,4 +1,4 @@
-import { REQUIRED_CHECK_NAME } from '@/config';
+import { REQUIRED_CHECK_NAME } from '../../../config';
 
 import { isGetsentryRequiredCheck } from '.';
 

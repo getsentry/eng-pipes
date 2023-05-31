@@ -1,7 +1,7 @@
-import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_REPO, OWNER } from '@/config';
-import { Annotation } from '@/types';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { GETSENTRY_REPO, OWNER } from '../../config';
+import { Annotation } from '../../types';
 
 import { extractRunId } from './extractRunId';
 

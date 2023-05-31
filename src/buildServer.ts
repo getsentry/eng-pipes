@@ -2,19 +2,17 @@ import { createNodeMiddleware } from '@octokit/webhooks';
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
-import { WebhookRouter } from '@webhooks';
 import fastify from 'fastify';
 import fastifyFormBody from 'fastify-formbody';
 import middie from 'middie';
 
-import { Fastify } from '@types';
-
-import { githubEvents } from '@api/github';
-import { bolt } from '@api/slack';
-import { loadBrain } from '@utils/loadBrain';
-
+import { githubEvents } from './api/github';
+import { bolt } from './api/slack';
+import { loadBrain } from './utils/loadBrain';
 import * as PubSub from './webhooks/pubsub';
 import { SENTRY_DSN } from './config';
+import { Fastify } from './types';
+import { WebhookRouter } from './webhooks';
 
 export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {

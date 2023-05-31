@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { insertOss } from '@utils/metrics';
+import { insertOss } from '../../utils/metrics';
 
 /**
  * GitHub webhooks handler for OSS metrics

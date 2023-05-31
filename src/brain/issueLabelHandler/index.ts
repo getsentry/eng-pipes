@@ -1,4 +1,4 @@
-import { githubEvents } from '@api/github';
+import { githubEvents } from '../../api/github';
 
 import {
   ensureOneWaitingForLabel,

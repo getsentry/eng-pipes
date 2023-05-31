@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
+} from '../../brain/issueLabelHandler/helpers';
 import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
@@ -20,20 +20,20 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
+} from '../../config';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   getSortedOffices,
   isTimeInBusinessHours,
-} from '@utils/businessHours';
-import { isFromABot } from '@utils/isFromABot';
-import { slugizeProductArea } from '@utils/slugizeProductArea';
+} from '../../utils/businessHours';
+import { isFromABot } from '../../utils/isFromABot';
+import { slugizeProductArea } from '../../utils/slugizeProductArea';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
 
-import { ClientType } from '@/api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
 
 function isAlreadyUnrouted(payload) {
   return payload.issue.labels.some(({ name }) => name === UNROUTED_LABEL);

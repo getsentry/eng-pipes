@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `../../utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -17,17 +17,16 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import moment from 'moment-timezone';
 
-import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
+import { bolt } from '../api/slack';
+import { getLabelsTable, slackHandler } from '../brain/issueNotifier';
 import {
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-  WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+} from '../config';
+import { db } from '../utils/db';
 
 import {
   calculateSLOViolationRoute,
@@ -272,7 +271,9 @@ describe('businessHours tests', function () {
     });
 
     it('should not calculate SLO violation if label is waiting for product owner', async function () {
-      const result = await calculateSLOViolationRoute(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      const result = await calculateSLOViolationRoute(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
       expect(result).toEqual(null);
     });
 
@@ -404,9 +405,10 @@ describe('businessHours tests', function () {
     });
 
     it('should calculate SLO violation if label is waiting for product owner', async function () {
-      const result = await calculateSLOViolationTriage(WAITING_FOR_PRODUCT_OWNER_LABEL, [
-        { name: 'Product Area: Test' },
-      ]);
+      const result = await calculateSLOViolationTriage(
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        [{ name: 'Product Area: Test' }]
+      );
       expect(result).not.toEqual(null);
     });
 

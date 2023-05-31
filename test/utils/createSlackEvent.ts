@@ -1,7 +1,9 @@
-import { getSlackEvent } from '@test/utils/getSlackEvent';
+import merge from 'lodash.merge';
 
-import { Fastify } from '@/types';
-import { createSignature } from '@utils/createSignature';
+import { Fastify } from '../../src/types';
+import { createSignature } from '../../src/utils/createSignature';
+
+import { getSlackEvent } from './getSlackEvent';
 
 function createSlackSignature(payload, timestamp) {
   return createSignature(
@@ -37,15 +39,28 @@ export async function createSlackEvent(
   event: string,
   payload?: Record<string, any>
 ) {
-  const now = +new Date();
-
   const fullPayload = {
     ...DEFAULT_PAYLOAD,
     event: getSlackEvent(event, payload),
   };
+  return injectEvent(fastify, fullPayload);
+}
 
+export async function createBasicSlackEvent(
+  fastify: Fastify,
+  event: string,
+  payload?: Record<string, any>
+) {
+  const fullPayload = {
+    ...DEFAULT_PAYLOAD,
+    event: merge({ type: event }, payload),
+  };
+  return injectEvent(fastify, fullPayload);
+}
+
+async function injectEvent(fastify: Fastify, fullPayload: Record<string, any>) {
+  const now = +new Date();
   const signature = createSlackSignature(fullPayload, now);
-
   return await fastify.inject({
     method: 'POST',
     url: '/apps/slack/events',

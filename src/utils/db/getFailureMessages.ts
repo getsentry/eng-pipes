@@ -1,10 +1,9 @@
-import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_REPO, OWNER } from '@/config';
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { getClient } from '@api/github/getClient';
-import { db } from '@utils/db';
-import { getTimestamp } from '@utils/db/getTimestamp';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { BuildStatus, GETSENTRY_REPO, OWNER } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { db } from '../../utils/db';
+import { getTimestamp } from '../../utils/db/getTimestamp';
 
 /**
  * Getsentry is considered to be "failing" if we have a failed status check

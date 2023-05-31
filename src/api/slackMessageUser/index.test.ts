@@ -1,5 +1,5 @@
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { bolt } from '../../api/slack';
+import { db } from '../../utils/db';
 
 import { slackMessageUser } from './';
 

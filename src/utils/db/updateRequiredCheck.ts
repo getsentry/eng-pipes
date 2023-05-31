@@ -1,7 +1,6 @@
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { CheckRun } from '@/types';
-
+import { BuildStatus } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { CheckRun } from '../../types';
 import { insertBuildFailure } from '../metrics';
 
 import { saveSlackMessage } from './saveSlackMessage';

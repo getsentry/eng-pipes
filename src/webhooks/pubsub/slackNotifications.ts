@@ -2,12 +2,16 @@ import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
-import { OWNER, PRODUCT_AREA_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
-import { Issue } from '@/types';
-import { isChannelInBusinessHours } from '@/utils/businessHours';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { bolt } from '../../api/slack';
+import { getLabelsTable } from '../../brain/issueNotifier';
+import {
+  OWNER,
+  PRODUCT_AREA_LABEL_PREFIX,
+  UNTRIAGED_LABEL,
+} from '../../config';
+import { Issue } from '../../types';
+import { isChannelInBusinessHours } from '../../utils/businessHours';
+import { db } from '../../utils/db';
 
 const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';

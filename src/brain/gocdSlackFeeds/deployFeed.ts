@@ -1,15 +1,15 @@
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
-import { getUser } from '@/api/getUser';
-import { bolt } from '@/api/slack';
-import * as slackblocks from '@/blocks/slackBlocks';
-import { GOCD_ORIGIN } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline, GoCDResponse } from '@/types';
-import { getSlackMessage } from '@/utils/db/getSlackMessage';
-import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { getProgressColor } from '@/utils/gocdHelpers';
+import { getUser } from '../../api/getUser';
+import { bolt } from '../../api/slack';
+import * as slackblocks from '../../blocks/slackBlocks';
+import { GOCD_ORIGIN } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { GoCDPipeline, GoCDResponse } from '../../types';
+import { getSlackMessage } from '../../utils/db/getSlackMessage';
+import { saveSlackMessage } from '../../utils/db/saveSlackMessage';
+import { getProgressColor } from '../../utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;

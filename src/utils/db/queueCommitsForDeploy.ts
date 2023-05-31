@@ -1,4 +1,4 @@
-import { CompareCommits } from '@types';
+import { CompareCommits } from '../../types';
 
 import { db } from '.';
 

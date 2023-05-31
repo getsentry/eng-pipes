@@ -1,17 +1,16 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
-
-import * as slackblocks from '@/blocks/slackBlocks';
-import { Color } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline } from '@/types';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import payload from '../../../test/payloads/gocd/gocd-stage-building.json';
+import { bolt } from '../../api/slack';
+import * as slackblocks from '../../blocks/slackBlocks';
+import { Color } from '../../config';
+import { SlackMessage } from '../../config/slackMessage';
+import { GoCDPipeline } from '../../types';
+import { db } from '../../utils/db';
 
 import { DeployFeed } from './deployFeed';
 
-jest.mock('@api/getUser');
+jest.mock('../../api/getUser');
 
 describe('DeployFeed', () => {
   beforeAll(async function () {

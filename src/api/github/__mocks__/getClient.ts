@@ -1,5 +1,5 @@
-import MockCompareCommits from '@test/compareCommits.json';
-import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
+import MockCompareCommits from '../../../../test/compareCommits.json';
+import { workflow_run_job } from '../../../../test/payloads/github/workflow_run_job';
 
 import { MockOctokitError } from './mockError';
 

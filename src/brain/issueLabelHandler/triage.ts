@@ -4,8 +4,8 @@ import * as Sentry from '@sentry/node';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
-import { isFromABot } from '@utils/isFromABot';
+} from '../../brain/issueLabelHandler/helpers';
+import { isFromABot } from '../../utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
   'arroyo',
@@ -41,9 +41,9 @@ const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
   'sentry-dotnet',
   'sentry-dart-plugin',
 ]);
-import { ClientType } from '@/api/github/clientType';
-import { UNTRIAGED_LABEL } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import { UNTRIAGED_LABEL } from '../../config';
 
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);

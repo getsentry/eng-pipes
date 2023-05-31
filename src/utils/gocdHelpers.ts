@@ -1,10 +1,9 @@
-import { DBGoCDDeployment, GoCDPipeline } from '@types';
-
 import {
   Color,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-} from '@/config';
+} from '../config';
+import { DBGoCDDeployment, GoCDPipeline } from '../types';
 
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';

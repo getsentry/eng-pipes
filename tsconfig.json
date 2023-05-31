@@ -17,17 +17,7 @@
     "esModuleInterop": true,
     "declaration": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
-    "paths": {
-      "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
-      "@/*": ["src/*"],
-      "@api/*": ["src/api/*"],
-      "@test/*": ["test/*"],
-      "@types": ["src/types"],
-      "@utils/*": ["src/utils/*"],
-      "@webhooks": ["src/webhooks"],
-      "@webhooks/*": ["src/webhooks/*"]
-    }
+    "baseUrl": "."
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],
   "exclude": ["**/*.test.ts", "**/__mocks__/**"],

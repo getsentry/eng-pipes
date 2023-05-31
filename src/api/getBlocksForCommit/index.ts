@@ -1,7 +1,6 @@
 import { KnownBlock } from '@slack/types';
 
-import { ReposGetCommit } from '@types';
-
+import { ReposGetCommit } from '../../types';
 import { getUser } from '../getUser';
 
 type Options = {

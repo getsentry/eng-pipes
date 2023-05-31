@@ -1,20 +1,20 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { isFromABot } from '@utils/isFromABot';
+import { isFromABot } from '../../utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(['sentry', 'sentry-docs']);
-import { ClientType } from '@/api/github/clientType';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
+} from '../../brain/issueLabelHandler/helpers';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-} from '@/config';
-import { getClient } from '@api/github/getClient';
+} from '../../config';
 
 function isNotInARepoWeCareAboutForTriage(payload) {
   return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);

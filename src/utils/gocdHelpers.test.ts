@@ -1,4 +1,4 @@
-import { firstMaterialSHA } from '@/utils/gocdHelpers';
+import { firstMaterialSHA } from '../utils/gocdHelpers';
 
 describe('firstMaterialSHA', () => {
   it('return nothing for no deploy', async function () {

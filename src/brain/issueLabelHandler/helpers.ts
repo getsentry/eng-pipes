@@ -1,4 +1,4 @@
-import { getOssUserType } from '@utils/getOssUserType';
+import { getOssUserType } from '../../utils/getOssUserType';
 
 // Validation Helpers
 

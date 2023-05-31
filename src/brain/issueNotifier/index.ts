@@ -1,17 +1,17 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
+import { githubEvents } from '../../api/github';
+import { bolt } from '../../api/slack';
 import {
   PRODUCT_AREA_LABEL_PREFIX,
   SUPPORT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
-} from '@/config';
-import { githubEvents } from '@api/github';
-import { bolt } from '@api/slack';
-import { cacheOffices } from '@utils/businessHours';
-import { db } from '@utils/db';
-import { wrapHandler } from '@utils/wrapHandler';
+} from '../../config';
+import { cacheOffices } from '../../utils/businessHours';
+import { db } from '../../utils/db';
+import { wrapHandler } from '../../utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
 

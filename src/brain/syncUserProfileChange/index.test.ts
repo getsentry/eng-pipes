@@ -1,9 +1,8 @@
-import { createSlackEvent } from '@test/utils/createSlackEvent';
-
-import { buildServer } from '@/buildServer';
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+import { createBasicSlackEvent } from '../../../test/utils/createSlackEvent';
+import { bolt } from '../../api/slack';
+import { buildServer } from '../../buildServer';
+import { SLACK_PROFILE_ID_GITHUB } from '../../config';
+import { db } from '../../utils/db';
 
 import { syncUserProfileChange } from '.';
 
@@ -31,7 +30,7 @@ describe('syncUserProfileChange', function () {
   });
 
   it('does not fetch GitHub profile field on `user_change` if custom profile field is in event', async function () {
-    const resp = await createSlackEvent(fastify, 'user_change', {
+    const resp = await createBasicSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
         is_email_confirmed: true,
@@ -57,7 +56,7 @@ describe('syncUserProfileChange', function () {
   });
 
   it('does not update db if email is not from sentry.io', async function () {
-    const resp = await createSlackEvent(fastify, 'user_change', {
+    const resp = await createBasicSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
         is_email_confirmed: true,
@@ -74,7 +73,7 @@ describe('syncUserProfileChange', function () {
   });
 
   it('does not update db if email is not confirmed', async function () {
-    const resp = await createSlackEvent(fastify, 'user_change', {
+    const resp = await createBasicSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
         is_email_confirmed: false,
@@ -91,7 +90,7 @@ describe('syncUserProfileChange', function () {
   });
 
   it('does not update db if user account is deleted', async function () {
-    const resp = await createSlackEvent(fastify, 'user_change', {
+    const resp = await createBasicSlackEvent(fastify, 'user_change', {
       user: {
         id: 'U789123',
         is_email_confirmed: true,

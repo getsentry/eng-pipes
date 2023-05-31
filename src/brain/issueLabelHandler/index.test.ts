@@ -1,22 +1,21 @@
-import { createGitHubEvent } from '@test/utils/github';
-
-import * as helpers from '@/brain/issueLabelHandler/helpers';
-import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
-import { buildServer } from '@/buildServer';
+import { createGitHubEvent } from '../../../test/utils/github';
+import { defaultErrorHandler, githubEvents } from '../../api/github';
+import { MockOctokitError } from '../../api/github/__mocks__/mockError';
+import { ClientType } from '../../api/github/clientType';
+import { getClient } from '../../api/github/getClient';
+import * as helpers from '../../brain/issueLabelHandler/helpers';
+import { getLabelsTable, slackHandler } from '../../brain/issueNotifier';
+import { buildServer } from '../../buildServer';
 import {
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { Fastify } from '@/types';
-import { defaultErrorHandler, githubEvents } from '@api/github';
-import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import * as businessHourFunctions from '@utils/businessHours';
-import { db } from '@utils/db';
+} from '../../config';
+import { Fastify } from '../../types';
+import * as businessHourFunctions from '../../utils/businessHours';
+import { db } from '../../utils/db';
 
 import { issueLabelHandler } from '.';
 
