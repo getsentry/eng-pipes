@@ -1,15 +1,18 @@
 import * as Sentry from '@sentry/node';
-import { KnownBlock } from '@slack/types';
+import { KnownBlock, MessageAttachment, MrkdwnElement } from '@slack/types';
 
 import { getUser } from '@/api/getUser';
+import { ClientType } from '@/api/github/clientType';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { GOCD_ORIGIN } from '@/config';
+import { GETSENTRY_REPO, GOCD_ORIGIN, OWNER } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline, GoCDResponse } from '@/types';
+import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
+import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getSlackMessage } from '@/utils/db/getSlackMessage';
 import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { getProgressColor } from '@/utils/gocdHelpers';
+import { firstMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
+import { getClient } from '@api/github/getClient';
 
 export class DeployFeed {
   private feedName: string;
@@ -60,7 +63,93 @@ export class DeployFeed {
     return null;
   }
 
-  getShaBlock(pipeline): KnownBlock | undefined {
+  basicCommitsInDeployBlock(compareURL): MrkdwnElement {
+    return slackblocks.markdown(`<${compareURL}|Commits being deployed>`);
+  }
+
+  async getSentryRevisions(
+    owner: string,
+    repo: string,
+    prevDeploySHA: string,
+    currentDeploySHA
+  ) {
+    const octokit = await getClient(ClientType.App, OWNER);
+    const responses = await Promise.all([
+      octokit.repos.getContent({
+        owner,
+        repo,
+        path: 'sentry-version',
+        ref: prevDeploySHA,
+      }),
+      octokit.repos.getContent({
+        owner,
+        repo,
+        path: 'sentry-version',
+        ref: currentDeploySHA,
+      }),
+    ]);
+    return responses.map((r) => {
+      if (!('content' in r.data)) {
+        throw new Error('Repo content not in response.');
+      }
+      if (!('encoding' in r.data)) {
+        throw new Error('Repo encoding not in response.');
+      }
+      if (r.data.encoding !== 'base64') {
+        throw new Error(`Unexpected repo content encoding: ${r.data.encoding}`);
+      }
+      const buff = Buffer.from(r.data.content, 'base64');
+      return buff.toString('ascii').trim();
+    });
+  }
+
+  async getCommitsInDeployBlock(
+    pipeline: GoCDPipeline,
+    modification: GoCDModification,
+    org: string,
+    repo: string
+  ): Promise<MrkdwnElement | undefined> {
+    const latestDeploy = await getLastGetSentryGoCDDeploy(
+      pipeline.group,
+      pipeline.name
+    );
+    if (!latestDeploy) {
+      return;
+    }
+
+    const latestSHA = firstMaterialSHA(latestDeploy);
+    if (!latestSHA) {
+      return;
+    }
+
+    const compareURL = `https://github.com/${org}/${repo}/compare/${latestSHA}..${modification.revision}`;
+    if (repo !== GETSENTRY_REPO) {
+      return this.basicCommitsInDeployBlock(compareURL);
+    }
+
+    try {
+      // Getsentry comparisons are that useful since the majority of
+      // development is on the sentry repo
+      const shas = await this.getSentryRevisions(
+        org,
+        repo,
+        latestSHA,
+        modification.revision
+      );
+
+      if (shas[0] && shas[1] && shas[0] != shas[1]) {
+        const sentryCompareURL = `https://github.com/${org}/sentry/compare/${shas[0]}..${shas[1]}`;
+        return slackblocks.markdown(
+          `Commits being deployed: <${compareURL}|getsentry> | <${sentryCompareURL}|sentry>`
+        );
+      }
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+    return this.basicCommitsInDeployBlock(compareURL);
+  }
+
+  async getShaBlock(pipeline: GoCDPipeline): Promise<KnownBlock | undefined> {
     const buildCause = pipeline['build-cause'];
     if (!buildCause || buildCause.length == 0) {
       return;
@@ -79,27 +168,37 @@ export class DeployFeed {
     const sha = modification.revision.slice(0, 12);
     const gitConfig = bc.material['git-configuration'];
     const match = this.parseGitHubURL(gitConfig.url);
+
+    const block: KnownBlock = {
+      type: 'context',
+      elements: [],
+    };
     if (!match) {
       // Lo-fi version of just the commit SHA, no linking to GitHub since we
       // don't know the URL.
-      return {
-        type: 'context',
-        elements: [
-          slackblocks.markdown('Deploying'),
-          slackblocks.markdown(`${gitConfig.url} @ ${sha}`),
-        ],
-      };
-    }
-
-    return {
-      type: 'context',
-      elements: [
+      block.elements.push(
+        slackblocks.markdown('Deploying'),
+        slackblocks.markdown(`${gitConfig.url} @ ${sha}`)
+      );
+    } else {
+      block.elements.push(
         slackblocks.markdown('Deploying'),
         slackblocks.markdown(
           `<https://github.com/${match.org}/${match.repo}/commits/${modification.revision}|${match.repo}@${sha}>`
-        ),
-      ],
-    };
+        )
+      );
+
+      const commitsBlock = await this.getCommitsInDeployBlock(
+        pipeline,
+        modification,
+        match.org,
+        match.repo
+      );
+      if (commitsBlock) {
+        block.elements.push(commitsBlock);
+      }
+    }
+    return block;
   }
 
   stageMessage(pipeline: GoCDPipeline): string {
@@ -126,13 +225,13 @@ export class DeployFeed {
     return '❓';
   }
 
-  getMessageBlocks(pipeline: GoCDPipeline): Array<KnownBlock> {
+  async getMessageBlocks(pipeline: GoCDPipeline): Promise<Array<KnownBlock>> {
     const blocks: Array<KnownBlock> = [
       slackblocks.section(
         slackblocks.markdown(`*${pipeline.group}/${pipeline.name}*`)
       ),
     ];
-    const shaBlock = this.getShaBlock(pipeline);
+    const shaBlock = await this.getShaBlock(pipeline);
     if (shaBlock) {
       blocks.push(shaBlock);
     }
@@ -160,12 +259,14 @@ export class DeployFeed {
   // Attachments are largely deprecated, however slack does not offer a way
   // to add the color to the side of a block, which is extremely helpful for
   // our deploy messages.
-  getMessageAttachment(pipeline: GoCDPipeline) {
+  async getMessageAttachment(
+    pipeline: GoCDPipeline
+  ): Promise<MessageAttachment> {
     const progressColor = getProgressColor(pipeline);
 
     return {
       color: progressColor,
-      blocks: this.getMessageBlocks(pipeline),
+      blocks: await this.getMessageBlocks(pipeline),
     };
   }
 
@@ -193,7 +294,7 @@ export class DeployFeed {
     }
 
     const body = await this.getBodyText(pipeline);
-    const attachment = this.getMessageAttachment(pipeline);
+    const attachment = await this.getMessageAttachment(pipeline);
     const message = await bolt.client.chat.postMessage({
       text: body,
       channel: this.slackChannelID,
@@ -214,14 +315,14 @@ export class DeployFeed {
     );
   }
 
-  async updateSlackMessage(message: any, pipeline: GoCDPipeline) {
+  async updateSlackMessage(message: any, attachment: MessageAttachment) {
     await bolt.client.chat.update({
       ts: message.ts,
       channel: this.slackChannelID,
       // NOTE: Using the message context means the message text contains
       // who initiated the deployment (either manual or an auto-deployment).
       text: message.context.text,
-      attachments: [this.getMessageAttachment(pipeline)],
+      attachments: [attachment],
     });
   }
 
@@ -245,9 +346,12 @@ export class DeployFeed {
     if (!messages.length) {
       await this.newSlackMessage(refId, pipeline);
     } else {
-      messages.forEach(async (message) => {
-        await this.updateSlackMessage(message, pipeline);
-      });
+      const attachment = await this.getMessageAttachment(pipeline);
+      await Promise.all(
+        messages.map((message) => {
+          return this.updateSlackMessage(message, attachment);
+        })
+      );
     }
   }
 }

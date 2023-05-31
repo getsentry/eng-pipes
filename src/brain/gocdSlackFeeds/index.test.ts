@@ -58,7 +58,7 @@ describe('gocdSlackFeeds', function () {
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
 
-    const wantMsg = {
+    const wantPostMsg = {
       text: 'GoCD deployment started',
       attachments: [
         {
@@ -88,13 +88,26 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    const calls = bolt.client.chat.postMessage.mock.calls;
-    calls.sort((a, b) => a.channel < b.channel);
-    expect(calls[0][0]).toMatchObject(
-      merge({}, wantMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+
+    const sortMessages = (ao, bo) => {
+      const a = ao[0].channel;
+      const b = bo[0].channel;
+      if (a < b) {
+        return 1;
+      }
+      if (a > b) {
+        return -1;
+      }
+      return 0;
+    };
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
-    expect(calls[1][0]).toMatchObject(
-      merge({}, wantMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    expect(postCalls[1][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
     );
 
     let slackMessages = await db('slack_messages').select('*');
@@ -124,12 +137,10 @@ describe('gocdSlackFeeds', function () {
         },
       })
     );
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
-    expect(bolt.client.chat.update).toHaveBeenCalledTimes(2);
-    expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
+
+    const wantUpdate = {
       ts: '1234123.123',
       text: 'GoCD deployment started',
-      channel: FEED_DEPLOY_CHANNEL_ID,
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -157,7 +168,17 @@ describe('gocdSlackFeeds', function () {
           ],
         },
       ],
-    });
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(2);
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    updateCalls.sort(sortMessages);
+    expect(updateCalls[0][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(updateCalls[1][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
 
     slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(2);

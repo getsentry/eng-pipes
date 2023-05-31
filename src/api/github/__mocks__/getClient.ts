@@ -1,6 +1,8 @@
 import MockCompareCommits from '@test/compareCommits.json';
 import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
 
+import { ClientType } from '../clientType';
+
 import { MockOctokitError } from './mockError';
 
 function mockClient() {
@@ -104,6 +106,8 @@ function mockClient() {
 
       listPullRequestsAssociatedWithCommit: jest.fn(),
 
+      getContent: jest.fn(),
+
       compareCommits: jest.fn(({ base, head }) => {
         // If base is older than head, then status will be ahead
         // For tests it might be easier to think of base/head as incrementing
@@ -153,13 +157,25 @@ function mockClient() {
   };
 }
 
-const mocks = {};
+let userMock;
+const appMocks = {};
 
-export async function getClient(org?: string) {
-  if (mocks[org]) {
-    return mocks[org];
+export async function getClient(type: ClientType, org?: string) {
+  if (type == ClientType.User) {
+    if (userMock) {
+      return userMock;
+    }
+    userMock = mockClient();
+    return userMock;
+  } else if (type == ClientType.App) {
+    if (!org) {
+      throw Error('Org required for mock getClient()');
+    }
+    if (appMocks[org]) {
+      return appMocks[org];
+    }
+
+    appMocks[org] = mockClient();
+    return appMocks[org];
   }
-
-  mocks[org] = mockClient();
-  return mocks[org];
 }

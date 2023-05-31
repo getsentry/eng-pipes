@@ -94,7 +94,7 @@ export interface GoCDBuildCause {
   modifications: Array<GoCDModification>;
 }
 
-interface GoCDModification {
+export interface GoCDModification {
   revision: string;
   'modified-time': string;
 }
