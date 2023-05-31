@@ -36,7 +36,7 @@ describe('projectsHandler', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await projectsHandler();
-    octokit = await getClient(ClientType.App, 'Enterprise');
+    octokit = await getClient(ClientType.App, 'test-org');
   });
 
   afterEach(async function () {
