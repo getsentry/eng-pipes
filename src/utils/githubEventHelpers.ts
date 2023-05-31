@@ -1,11 +1,12 @@
+import { Octokit } from '@octokit/rest';
+import * as Sentry from '@sentry/node';
+
 import {
   ISSUES_PROJECT_NODE_ID,
   PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
 } from '@/config';
 import { getOssUserType } from '@utils/getOssUserType';
-import { Octokit } from '@octokit/rest';
-import * as Sentry from '@sentry/node';
 
 // Validation Helpers
 
@@ -32,9 +33,16 @@ export function getProductArea(productAreaLabelName) {
   return productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
 }
 
-export async function addIssueToProject(issueNodeId: string | undefined, repo: string, issueNumber: number, octokit: Octokit): Promise<string>{
+export async function addIssueToProject(
+  issueNodeId: string | undefined,
+  repo: string,
+  issueNumber: number,
+  octokit: Octokit
+): Promise<string> {
   if (issueNodeId == null) {
-    Sentry.captureException(`Issue node id is not defined for ${repo}/${issueNumber}`);
+    Sentry.captureException(
+      `Issue node id is not defined for ${repo}/${issueNumber}`
+    );
   }
   const addIssueToprojectMutation = `mutation {
   addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeId}"}) {
@@ -95,7 +103,10 @@ export async function modifyProjectIssueProductArea(
   await octokit.graphql(addIssueToprojectMutation);
 }
 
-export async function getProductAreaFromProjectField(issueNodeId: string, octokit: Octokit) {
+export async function getProductAreaFromProjectField(
+  issueNodeId: string,
+  octokit: Octokit
+) {
   const query = `query{
     node(id: "${issueNodeId}") {
         ... on ProjectV2Item {
@@ -118,7 +129,10 @@ export async function getProductAreaFromProjectField(issueNodeId: string, octoki
   return response?.node.fieldValueByName?.name;
 }
 
-export async function getIssueDetailsFromNodeId(issueNodeId: string, octokit: Octokit) {
+export async function getIssueDetailsFromNodeId(
+  issueNodeId: string,
+  octokit: Octokit
+) {
   const query = `query {
     node(id:"${issueNodeId}") {
       ... on Issue {
@@ -133,6 +147,6 @@ export async function getIssueDetailsFromNodeId(issueNodeId: string, octokit: Oc
   const response: any = await octokit.graphql(query);
   return {
     number: response?.node.number,
-    repo: response?.node.repository?.name
-  }
+    repo: response?.node.repository?.name,
+  };
 }

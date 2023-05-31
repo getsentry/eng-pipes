@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
+} from '@/utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set([

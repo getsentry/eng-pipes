@@ -3,18 +3,12 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import {
-  addIssueToProject,
-  getProductArea,
-  isNotFromAnExternalOrGTMUser,
-  modifyProjectIssueProductArea,
-  shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
-import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
   PRODUCT_AREA_LABEL_PREFIX,
+  PRODUCT_AREA_UNKNOWN,
   SENTRY_ORG,
   STATUS_LABEL_PREFIX,
   UNKNOWN_LABEL,
@@ -23,8 +17,14 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-  PRODUCT_AREA_UNKNOWN,
 } from '@/config';
+import {
+  addIssueToProject,
+  getProductArea,
+  isNotFromAnExternalOrGTMUser,
+  modifyProjectIssueProductArea,
+  shouldSkip,
+} from '@/utils/githubEventHelpers';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
@@ -171,10 +171,7 @@ export async function markRouted({
     name: 'issueLabelHandler.markRouted',
   });
 
-  const reasonsToSkip = [
-    isNotInARepoWeCareAboutForRouting,
-    isValidLabel,
-  ];
+  const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
   if (await shouldSkip(payload, reasonsToSkip)) {
     return;
   }
@@ -244,12 +241,13 @@ export async function markRouted({
    * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
-  const itemId: string = await addIssueToProject(payload.issue.node_id, payload.repository.name, payload.issue.number, octokit);
-  await modifyProjectIssueProductArea(
-    itemId,
-    productAreaLabelName,
+  const itemId: string = await addIssueToProject(
+    payload.issue.node_id,
+    payload.repository.name,
+    payload.issue.number,
     octokit
   );
+  await modifyProjectIssueProductArea(itemId, productAreaLabelName, octokit);
 
   tx.finish();
 }
