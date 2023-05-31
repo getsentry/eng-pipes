@@ -87,6 +87,7 @@ export enum BuildStatus {
  * GitHub Triage
  */
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
+export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
 export const STATUS_LABEL_PREFIX = 'Status: ';
 export const BACKLOG_LABEL = 'Status: Backlog';
 export const IN_PROGRESS_LABEL = 'Status: In Progress';
@@ -100,6 +101,13 @@ export const WAITING_FOR_COMMUNITY_LABEL = 'Waiting for: Community';
 export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
+
+/**
+ * Issues Someone Else Cares About Project
+ */
+
+export const ISSUES_PROJECT_NODE_ID = process.env.ISSUES_PROJECT_NODE_ID || "PVT_kwDOABVQ184AOGW8";
+export const PRODUCT_AREA_FIELD_ID = process.env.PRODUCT_AREA_FIELD_ID || "PVTSSF_lADOABVQ184AOGW8zgJEBno";
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership

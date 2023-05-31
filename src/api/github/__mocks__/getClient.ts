@@ -66,6 +66,7 @@ function mockClient() {
         throw new MockOctokitError(404);
       }),
     },
+    graphql: jest.fn(),
     issues: {
       _labels: new Set([]),
       _comments: [],

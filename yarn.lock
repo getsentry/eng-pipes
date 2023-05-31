@@ -1146,6 +1146,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/openapi-types@npm:^17.2.0":
+  version: 17.2.0
+  resolution: "@octokit/openapi-types@npm:17.2.0"
+  checksum: 29995e34f98d9d64ba234d64a7ae9486c66d2bb6ac0d30d9a42decdbb4b03b13e811769b1e1505a1748ff20c22d35724985e6c128cd11a3f14f8322201520093
+  languageName: node
+  linkType: hard
+
 "@octokit/openapi-types@npm:^4.0.3":
   version: 4.0.4
   resolution: "@octokit/openapi-types@npm:4.0.4"
@@ -1195,7 +1202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/request-error@npm:^2.0.0, @octokit/request-error@npm:^2.0.2":
+"@octokit/request-error@npm:^2.0.0":
   version: 2.0.5
   resolution: "@octokit/request-error@npm:2.0.5"
   dependencies:
@@ -1214,6 +1221,17 @@ __metadata:
     deprecation: ^2.0.0
     once: ^1.4.0
   checksum: baec2b5700498be01b4d958f9472cb776b3f3b0ea52924323a07e7a88572e24cac2cdf7eb04a0614031ba346043558b47bea2d346e98f0e8385b4261f138ef18
+  languageName: node
+  linkType: hard
+
+"@octokit/request-error@npm:^3.0.0":
+  version: 3.0.3
+  resolution: "@octokit/request-error@npm:3.0.3"
+  dependencies:
+    "@octokit/types": ^9.0.0
+    deprecation: ^2.0.0
+    once: ^1.4.0
+  checksum: 5db0b514732686b627e6ed9ef1ccdbc10501f1b271a9b31f784783f01beee70083d7edcfeb35fbd7e569fa31fdd6762b1ff6b46101700d2d97e7e48e749520d0
   languageName: node
   linkType: hard
 
@@ -1286,29 +1304,38 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/webhooks-methods@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "@octokit/webhooks-methods@npm:2.0.0"
-  checksum: 42f87ccb93d05b314a12e99c717523cef290c896719e95cdb9349aee4be453d42c3a4286ee9de67f88946d048b29ae31c2f98875df0c6d5da662e94554acab56
-  languageName: node
-  linkType: hard
-
-"@octokit/webhooks-types@npm:4.15.0":
-  version: 4.15.0
-  resolution: "@octokit/webhooks-types@npm:4.15.0"
-  checksum: 4610622ab6d73657437cf19809e4f0a7d21afb556b3e3005adc9d92b4316e49307fbd8caa8339b9c12402693f229c070776330e23b7308ee36cc847ed449730b
-  languageName: node
-  linkType: hard
-
-"@octokit/webhooks@npm:^9.18.0":
-  version: 9.18.0
-  resolution: "@octokit/webhooks@npm:9.18.0"
+"@octokit/types@npm:^9.0.0":
+  version: 9.2.3
+  resolution: "@octokit/types@npm:9.2.3"
   dependencies:
-    "@octokit/request-error": ^2.0.2
-    "@octokit/webhooks-methods": ^2.0.0
-    "@octokit/webhooks-types": 4.15.0
+    "@octokit/openapi-types": ^17.2.0
+  checksum: 6806413089f20a8302237ef85aa2e83bace7499e95fdc3db2d304f9e6dc6e87fb6766452f92e08ddf475046b69753e11beabaeff6733c38bdaf3e21dfd7d3341
+  languageName: node
+  linkType: hard
+
+"@octokit/webhooks-methods@npm:^3.0.0":
+  version: 3.0.2
+  resolution: "@octokit/webhooks-methods@npm:3.0.2"
+  checksum: 4608d6a394bd94846301b709f44adc2bde0f43517840c49d235e3cb355986e2e9736d60b4a39c3492b31c06d10401f32cab878ec83e83b890606f58619cad5ef
+  languageName: node
+  linkType: hard
+
+"@octokit/webhooks-types@npm:6.11.0":
+  version: 6.11.0
+  resolution: "@octokit/webhooks-types@npm:6.11.0"
+  checksum: af35ac7a3d8d95bf9906fb3a8f6075cf9cb10707c79444fa82df2d64596125f515a35a4995b4548b84ee042c7c1b1cc120e05ece4a197af541a52f154bf4bcce
+  languageName: node
+  linkType: hard
+
+"@octokit/webhooks@npm:^11.0.0":
+  version: 11.0.0
+  resolution: "@octokit/webhooks@npm:11.0.0"
+  dependencies:
+    "@octokit/request-error": ^3.0.0
+    "@octokit/webhooks-methods": ^3.0.0
+    "@octokit/webhooks-types": 6.11.0
     aggregate-error: ^3.1.0
-  checksum: e8348b0486d128a0b876deb5c6f3a5288b205e6b4b2cf6186d37b906bd27bce5aadcc986240cb5a2d4816d61fc9cced31b97bf64d109b4920fea681d4ef11e54
+  checksum: 4b29728232fbb8f5404cb416eec34c05faa3362065b2c4c345a45a487b67001cfa41ea0aabcda4ef7ac12da92988e71b1add1afa5f06c7fcdff2d9710070d796
   languageName: node
   linkType: hard
 
@@ -8118,7 +8145,7 @@ resolve@^1.3.2:
     "@octokit/plugin-retry": ^3.0.9
     "@octokit/rest": ^18.12.0
     "@octokit/types": ^6.34.0
-    "@octokit/webhooks": ^9.18.0
+    "@octokit/webhooks": ^11.0.0
     "@sentry/integrations": ^6.16.1
     "@sentry/node": ^6.16.1
     "@sentry/tracing": ^6.16.1
