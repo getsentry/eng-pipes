@@ -227,18 +227,23 @@ describe('issueLabelHandler', function () {
       await createIssue();
       expectUntriaged();
       expectAdding();
+      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
     });
 
     it('adds `Status: Untriaged` for GTM users', async function () {
       await createIssue(undefined, 'Troi');
       expectUntriaged();
       expectAdding();
+      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
     });
 
     it('skips adding `Status: Untriaged` in untracked repos', async function () {
       await createIssue('other-repo');
       expectTriaged();
       expectNoAdding();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('skips adding `Status: Untriaged` when added during creation', async function () {
@@ -246,12 +251,18 @@ describe('issueLabelHandler', function () {
       await createIssue(undefined, 'Picard');
       expectUntriaged();
       expectNoAdding();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('skips adding `Status: Untriaged` for internal users', async function () {
       await createIssue(undefined, 'Picard');
       expectTriaged();
       expectNoAdding();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     // removing
@@ -261,12 +272,18 @@ describe('issueLabelHandler', function () {
       await addLabel('Cheeseburger Pie');
       expectTriaged();
       expectRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('skips removing `Status: Untriaged` when its not present', async function () {
       await addLabel('Cheeseburger Pie');
       expectTriaged();
       expectNoRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('skips removing `Status: Untriaged` when adding `Status: Untriaged`', async function () {
@@ -274,6 +291,9 @@ describe('issueLabelHandler', function () {
       await addLabel(UNTRIAGED_LABEL);
       expectUntriaged();
       expectNoRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('skips removing `Status: Untriaged` in untracked repos', async function () {
@@ -281,6 +301,9 @@ describe('issueLabelHandler', function () {
       await addLabel('Cheeseburger Pie', 'other-repo');
       expectUntriaged();
       expectNoRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it('gracefully handles race with other remover of `Status: Untriaged`', async function () {
@@ -290,6 +313,9 @@ describe('issueLabelHandler', function () {
       expectNoError();
       expectTriaged();
       expectRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
 
     it("doesn't handle non-404 errors when removing `Status: Untriaged`", async function () {
@@ -299,6 +325,9 @@ describe('issueLabelHandler', function () {
       expectError(400);
       expectUntriaged();
       expectRemoval();
+      expect(octokit.issues._labels).not.toContain(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
     });
   });
 
