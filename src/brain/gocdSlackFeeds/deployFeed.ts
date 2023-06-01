@@ -5,7 +5,7 @@ import { getUser } from '@/api/getUser';
 import { ClientType } from '@/api/github/clientType';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { GETSENTRY_REPO, GOCD_ORIGIN, OWNER } from '@/config';
+import { GETSENTRY_REPO, GOCD_ORIGIN, OWNER, SENTRY_REPO } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
@@ -103,6 +103,10 @@ export class DeployFeed {
     });
   }
 
+  compareURL(org: string, repo: string, prevRef: string, ref: string) {
+    return `https://github.com/${org}/${repo}/compare/${prevRef}...${ref}`;
+  }
+
   async getCommitsInDeployBlock(
     pipeline: GoCDPipeline,
     modification: GoCDModification,
@@ -122,7 +126,12 @@ export class DeployFeed {
       return;
     }
 
-    const compareURL = `https://github.com/${org}/${repo}/compare/${latestSHA}..${modification.revision}`;
+    const compareURL = this.compareURL(
+      org,
+      repo,
+      latestSHA,
+      modification.revision
+    );
     if (repo !== GETSENTRY_REPO) {
       return this.basicCommitsInDeployBlock(compareURL);
     }
@@ -138,7 +147,12 @@ export class DeployFeed {
       );
 
       if (shas[0] && shas[1] && shas[0] != shas[1]) {
-        const sentryCompareURL = `https://github.com/${org}/sentry/compare/${shas[0]}..${shas[1]}`;
+        const sentryCompareURL = this.compareURL(
+          org,
+          SENTRY_REPO,
+          shas[0],
+          shas[1]
+        );
         return slackblocks.markdown(
           `Commits being deployed: <${compareURL}|getsentry> | <${sentryCompareURL}|sentry>`
         );

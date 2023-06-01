@@ -493,7 +493,7 @@ describe('DeployFeed', () => {
                   '<https://github.com/getsentry/example/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|example@2b0034becc4a>'
                 ),
                 slackblocks.markdown(
-                  '<https://github.com/getsentry/example/compare/111111..2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
+                  '<https://github.com/getsentry/example/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
                 ),
               ],
             },
@@ -622,7 +622,7 @@ describe('DeployFeed', () => {
                   '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
                 ),
                 slackblocks.markdown(
-                  'Commits being deployed: <https://github.com/getsentry/getsentry/compare/111111..2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry> | <https://github.com/getsentry/sentry/compare/222222..333333|sentry>'
+                  'Commits being deployed: <https://github.com/getsentry/getsentry/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry> | <https://github.com/getsentry/sentry/compare/222222...333333|sentry>'
                 ),
               ],
             },
@@ -732,7 +732,7 @@ describe('DeployFeed', () => {
                   '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
                 ),
                 slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/compare/111111..2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
+                  '<https://github.com/getsentry/getsentry/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
                 ),
               ],
             },
