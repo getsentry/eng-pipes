@@ -28,6 +28,8 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
+export const DISABLE_GITHUB_METRICS =
+  process.env.DISABLE_GITHUB_METRICS == 'true';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
@@ -64,11 +66,6 @@ export const SLACK_BOT_USER_ACCESS_TOKEN =
   process.env.SLACK_BOT_USER_ACCESS_TOKEN || '';
 export const SLACK_SIGNING_SECRET = process.env.SLACK_SIGNING_SECRET || '';
 
-/**
- * Freight
- */
-export const FREIGHT_HOST = 'https://freight.getsentry.net';
-
 export enum BuildStatus {
   SUCCESS = 'success',
   NEUTRAL = 'neutral',
@@ -90,6 +87,7 @@ export enum BuildStatus {
  * GitHub Triage
  */
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
+export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
 export const STATUS_LABEL_PREFIX = 'Status: ';
 export const BACKLOG_LABEL = 'Status: Backlog';
 export const IN_PROGRESS_LABEL = 'Status: In Progress';
@@ -103,6 +101,13 @@ export const WAITING_FOR_COMMUNITY_LABEL = 'Waiting for: Community';
 export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
+
+/**
+ * Issues Someone Else Cares About Project
+ */
+
+export const ISSUES_PROJECT_NODE_ID = process.env.ISSUES_PROJECT_NODE_ID || "PVT_kwDOABVQ184AOGW8";
+export const PRODUCT_AREA_FIELD_ID = process.env.PRODUCT_AREA_FIELD_ID || "PVTSSF_lADOABVQ184AOGW8zgJEBno";
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership

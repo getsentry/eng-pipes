@@ -1,3 +1,4 @@
+import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import {
@@ -21,11 +22,12 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLatestGoCDDeploy } from '@/utils/db/getLatestDeploy';
+import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
   FINAL_STAGE_NAMES,
+  firstMaterialSHA,
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
@@ -138,19 +140,6 @@ async function updateSlack(
   });
 }
 
-async function getLatestDeploy(pipeline: GoCDPipeline): Promise<null | any> {
-  try {
-    // Retrieves the latest/previous deploy for either
-    // `getsentry-backend` or `getsentry-frontend` to see which
-    // commits are going out.
-    return await getLatestGoCDDeploy(pipeline.group, pipeline.name);
-  } catch (err) {
-    Sentry.captureException(err);
-    console.error(err);
-  }
-  return null;
-}
-
 async function updateCommitQueue(
   pipeline: GoCDPipeline,
   sha: string,
@@ -215,8 +204,12 @@ async function filterCommits(octokit, pipeline, commits) {
   return relevantCommitShas;
 }
 
-async function getCommitsInDeployment(octokit, sha, prevsha) {
-  if (prevsha) {
+async function getCommitsInDeployment(
+  octokit: Octokit,
+  sha: string,
+  prevsha: string | null
+): Promise<CompareCommits['commits']> {
+  if (prevsha && prevsha !== sha) {
     const { data } = await octokit.repos.compareCommits({
       owner: OWNER,
       repo: GETSENTRY_REPO,
@@ -247,7 +240,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
 }
 
 /**
- * This handler listens to Freight for deploys of `getsentry` to production.
+ * This handler listens to GoCD for deploys of `getsentry` to production.
  * Users receive a Slack notification when their commit passes CI and is ready
  * to deploy.  This will update those Slack messages telling them that their
  * commit has been queued to be deployed (if applicable).
@@ -282,11 +275,14 @@ export async function handler(resBody: GoCDResponse) {
   const octokit = await getClient(ClientType.App, OWNER);
 
   try {
-    const latestDeploy = await getLatestDeploy(pipeline);
+    const latestDeploy = await getLastGetSentryGoCDDeploy(
+      pipeline.group,
+      pipeline.name
+    );
     const commits = await getCommitsInDeployment(
       octokit,
       sha,
-      latestDeploy?.sha
+      firstMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(
       octokit,
@@ -309,6 +305,16 @@ export async function handler(resBody: GoCDResponse) {
 export async function notifyOnGoCDStageEvent() {
   gocdevents.on('stage', handler);
 
-  // TODO (mattgaunt): Figure out where open-sentry-release-* needs to live,
-  // either here or in updateDeployNotifications or ....
+  bolt.action(/open-sentry-release-(.*)/, async ({ ack, body, context }) => {
+    await ack();
+    Sentry.withScope(async (scope) => {
+      scope.setUser({
+        id: body.user.id,
+      });
+      Sentry.startTransaction({
+        op: 'slack.action',
+        name: `open-sentry-release-${context.actionIdMatches[1]}`,
+      }).finish();
+    });
+  });
 }

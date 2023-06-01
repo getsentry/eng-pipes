@@ -10,14 +10,14 @@ const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
 ]);
 import { ClientType } from '@/api/github/clientType';
 import {
-  isNotFromAnExternalOrGTMUser,
-  shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
-import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
+import {
+  isNotFromAnExternalOrGTMUser,
+  shouldSkip,
+} from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
 
 function isNotInARepoWeCareAboutForTriage(payload) {

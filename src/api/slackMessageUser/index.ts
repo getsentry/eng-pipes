@@ -22,6 +22,7 @@ export async function slackMessageUser(
     // @ts-ignore
     return await bolt.client.chat.postMessage({
       ...message,
+      unfurl_links: false,
       channel: slackUser,
     });
   } catch (err) {

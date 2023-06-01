@@ -1,6 +1,4 @@
-import * as Sentry from '@sentry/node';
-
-import { GoCDBuildMaterial, GoCDResponse } from '@/types';
+import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
 
@@ -50,8 +48,8 @@ export async function handler(resBody: GoCDResponse) {
   await db(DB_TABLE_STAGES).where(constraints).update(gocdpipeline);
 }
 
-async function saveBuildMaterials(pipeline_id, pipeline) {
-  const gocdMaterials: Array<GoCDBuildMaterial> = [];
+async function saveBuildMaterials(pipeline_id: string, pipeline: GoCDPipeline) {
+  const gitMaterials: Array<DBGoCDBuildMaterial> = [];
   for (const bc of pipeline['build-cause']) {
     if (!bc.material || bc.material.type != 'git') {
       // The material may be an upstream pipeline
@@ -64,7 +62,7 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
     const gitConfig = bc.material['git-configuration'];
     const modification = bc.modifications[0];
 
-    gocdMaterials.push({
+    gitMaterials.push({
       stage_material_id: `${pipeline_id}_${gitConfig.url}_${modification.revision}`,
       pipeline_id: pipeline_id,
       url: gitConfig.url,
@@ -72,20 +70,12 @@ async function saveBuildMaterials(pipeline_id, pipeline) {
       revision: modification.revision,
     });
   }
-  if (gocdMaterials.length == 0) {
-    // Track this event in case the check status name changes in the future.
-    Sentry.captureMessage(`Failed to find GoCD modification material`, {
-      extra: {
-        'Pipeline ID': pipeline_id,
-        Pipeline: JSON.stringify(pipeline, null, 2),
-      },
-    });
-    throw new Error(
-      `Failed to find GoCD modification material - ${pipeline_id}`
-    );
+
+  if (gitMaterials.length == 0) {
+    return;
   }
 
-  await db(DB_TABLE_MATERIALS).insert(gocdMaterials);
+  await db(DB_TABLE_MATERIALS).insert(gitMaterials);
 }
 
 export async function saveGoCDStageEvents() {

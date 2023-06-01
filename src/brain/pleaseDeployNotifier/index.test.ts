@@ -21,7 +21,9 @@ import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { getLatestGoCDDeploy } from '@utils/db/getLatestDeploy';
+import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
+
+import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';
@@ -300,11 +302,11 @@ describe('pleaseDeployNotifier', function () {
         },
       ]),
 
-      stage_name: 'stage-name',
+      stage_name: FINAL_STAGE_NAMES[0],
       stage_counter: 1,
       stage_approval_type: '',
       stage_approved_by: '',
-      stage_state: 'unknown',
+      stage_state: 'Passed',
       stage_result: 'unknown',
       stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
       stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
@@ -319,7 +321,7 @@ describe('pleaseDeployNotifier', function () {
     });
 
     expect(
-      await getLatestGoCDDeploy(
+      await getLastGetSentryGoCDDeploy(
         GOCD_SENTRYIO_BE_PIPELINE_GROUP,
         GOCD_SENTRYIO_BE_PIPELINE_NAME
       )
@@ -350,11 +352,11 @@ describe('pleaseDeployNotifier', function () {
         },
       ],
 
-      stage_name: 'stage-name',
+      stage_name: FINAL_STAGE_NAMES[0],
       stage_counter: 1,
       stage_approval_type: '',
       stage_approved_by: '',
-      stage_state: 'unknown',
+      stage_state: 'Passed',
       stage_result: 'unknown',
       stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
       stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),

@@ -3,15 +3,13 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import {
-  isNotFromAnExternalOrGTMUser,
-  shouldSkip,
-} from '@/brain/issueLabelHandler/helpers';
-import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
+  PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
+  PRODUCT_AREA_UNKNOWN,
   SENTRY_ORG,
   STATUS_LABEL_PREFIX,
   UNKNOWN_LABEL,
@@ -22,12 +20,18 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import {
+  addIssueToProject,
+  getProductArea,
+  isNotFromAnExternalOrGTMUser,
+  modifyProjectIssueField,
+  shouldSkip,
+} from '@/utils/githubEventHelpers';
+import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   getSortedOffices,
   isTimeInBusinessHours,
 } from '@utils/businessHours';
-import { isFromABot } from '@utils/isFromABot';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
@@ -85,13 +89,16 @@ export async function markUnrouted({
     return;
   }
 
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
+
   // New issues get an Unrouted label.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   await octokit.issues.addLabels({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
+    repo: repo,
+    issue_number: issueNumber,
     labels: [UNROUTED_LABEL, WAITING_FOR_SUPPORT_LABEL],
   });
 
@@ -100,19 +107,19 @@ export async function markUnrouted({
     await getReadableTimeStamp(timeToRouteBy, UNKNOWN_LABEL);
   await octokit.issues.createComment({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
+    repo: repo,
+    issue_number: issueNumber,
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
+
+  await addIssueToProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   tx.finish();
 }
 
 async function routeIssue(octokit, productAreaLabelName) {
   try {
-    const productArea = productAreaLabelName?.substr(
-      PRODUCT_AREA_LABEL_PREFIX.length
-    );
+    const productArea = getProductArea(productAreaLabelName);
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
       org: SENTRY_ORG,
@@ -165,18 +172,14 @@ export async function markRouted({
     name: 'issueLabelHandler.markRouted',
   });
 
-  const reasonsToSkip = [
-    isNotInARepoWeCareAboutForRouting,
-    isFromABot,
-    isValidLabel,
-  ];
+  const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
   if (await shouldSkip(payload, reasonsToSkip)) {
     return;
   }
 
   const { issue, label } = payload;
   const productAreaLabel = label;
-  const productAreaLabelName = productAreaLabel?.name;
+  const productAreaLabelName = productAreaLabel?.name || PRODUCT_AREA_UNKNOWN;
   // Remove Unrouted label when routed.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
@@ -234,6 +237,23 @@ export async function markRouted({
     issue_number: payload.issue.number,
     body: comment,
   });
+
+  /**
+   * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
+   * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
+   */
+  const itemId: string = await addIssueToProject(
+    payload.issue.node_id,
+    payload.repository.name,
+    payload.issue.number,
+    octokit
+  );
+  await modifyProjectIssueField(
+    itemId,
+    productAreaLabelName,
+    PRODUCT_AREA_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }

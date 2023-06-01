@@ -391,14 +391,16 @@ describe('saveGoCDStageEvents.handler', function () {
     });
   });
 
-  it('throw if there are no git materials', async function () {
+  it('only save pipeline if there are no git materials', async function () {
     const payload = merge({}, buildingPayload);
     payload.data.pipeline['build-cause'] = [];
 
-    const t = async () => {
-      await saveGoCDStageEvents.handler(payload);
-    };
-    expect(t).rejects.toThrow('Failed to find GoCD modification material');
+    await saveGoCDStageEvents.handler(payload);
+
+    // 1x Check if pipeline exists
+    // 1x Insert pipeline
+    // 0x Insert materials and revision
+    expect(dbMock).toHaveBeenCalledTimes(2);
   });
 });
 
