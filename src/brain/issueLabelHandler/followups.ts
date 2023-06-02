@@ -48,6 +48,7 @@ export async function updateCommunityFollowups({
     isNotWaitingForCommunity,
     isFromABot,
   ];
+
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
@@ -82,7 +83,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const reasonsToDoNothing = [isFromABot];
+  const reasonsToDoNothing = [ isFromABot, isNotInARepoWeCareAboutForFollowups ];
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
