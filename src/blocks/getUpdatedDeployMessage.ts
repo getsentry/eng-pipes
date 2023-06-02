@@ -5,7 +5,10 @@ function getSubject(isUserDeploying, slackUser) {
   if (isUserDeploying) {
     return 'You have';
   }
-  return `${slackUser} has`;
+  if (slackUser) {
+    return `<@${slackUser}> has`;
+  }
+  return 'GoCD has';
 }
 
 export function getUpdatedGoCDDeployMessage({
