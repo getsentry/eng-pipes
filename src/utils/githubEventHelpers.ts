@@ -33,7 +33,7 @@ export function getProductArea(productAreaLabelName) {
   return productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
 }
 
-export async function addIssueToProject(
+export async function addIssueToGlobalIssuesProject(
   issueNodeId: string | undefined,
   repo: string,
   issueNumber: number,
@@ -44,7 +44,7 @@ export async function addIssueToProject(
       `Issue node id is not defined for ${repo}/${issueNumber}`
     );
   }
-  const addIssueToprojectMutation = `mutation {
+  const addIssueToGlobalIssuesProjectMutation = `mutation {
   addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeId}"}) {
       item {
         id
@@ -52,7 +52,7 @@ export async function addIssueToProject(
     }
   }`;
 
-  const response: any = await octokit.graphql(addIssueToprojectMutation);
+  const response: any = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
 
   return response.addProjectV2ItemById.item.id;
 }
@@ -84,7 +84,7 @@ export async function modifyProjectIssueField(
 ) {
   const productArea = getProductArea(productAreaLabelName);
   const productAreaNodeIDMapping = await getAllProductAreaNodeIds(octokit);
-  const addIssueToProjectMutation = `mutation {
+  const addIssueToGlobalIssuesProjectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
         projectId: "${ISSUES_PROJECT_NODE_ID}"
@@ -101,7 +101,7 @@ export async function modifyProjectIssueField(
     }
   }`;
 
-  await octokit.graphql(addIssueToProjectMutation);
+  await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
 }
 
 export async function getProductAreaFromProjectField(

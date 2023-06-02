@@ -11,7 +11,7 @@ import { SENTRY_REPOS } from '@/config';
 import { ClientType } from '@/api/github/clientType';
 import { UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
-import { addIssueToProject } from '@/utils/githubEventHelpers';
+import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_REPOS);
 
@@ -65,7 +65,7 @@ export async function markUntriaged({
     labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  await addIssueToProject(payload.issue.node_id, repo, issueNumber, octokit);
+  await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   tx.finish();
 }

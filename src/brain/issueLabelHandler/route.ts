@@ -21,7 +21,7 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import {
-  addIssueToProject,
+  addIssueToGlobalIssuesProject,
   getProductArea,
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
@@ -113,7 +113,7 @@ export async function markUnrouted({
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
 
-  await addIssueToProject(payload.issue.node_id, repo, issueNumber, octokit);
+  await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   tx.finish();
 }
@@ -243,7 +243,7 @@ export async function markRouted({
    * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
-  const itemId: string = await addIssueToProject(
+  const itemId: string = await addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     payload.repository.name,
     payload.issue.number,

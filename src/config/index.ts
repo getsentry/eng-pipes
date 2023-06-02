@@ -135,7 +135,7 @@ export const SENTRY_REPOS = [
   'sentry-dart',
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
-  'sentry-dart-plugin'
+  'sentry-dart-plugin',
 ];
 
 /**
