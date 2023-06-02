@@ -3,9 +3,10 @@ import * as Sentry from '@sentry/node';
 
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_TRIAGE = new Set(['sentry', 'sentry-docs']);
 import { ClientType } from '@/api/github/clientType';
 import {
+  SENTRY_MONOREPOS,
+  SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -16,8 +17,10 @@ import {
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
 
-function isNotInARepoWeCareAboutForTriage(payload) {
-  return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
+const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([...SENTRY_REPOS, ...SENTRY_MONOREPOS]);
+
+function isNotInARepoWeCareAboutForFollowups(payload) {
+  return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
 }
 
 function isNotWaitingForCommunity(payload) {
@@ -40,11 +43,12 @@ export async function updateCommunityFollowups({
   });
 
   const reasonsToDoNothing = [
-    isNotInARepoWeCareAboutForTriage,
+    isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
     isNotWaitingForCommunity,
     isFromABot,
   ];
+
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
@@ -79,7 +83,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const reasonsToDoNothing = [isFromABot];
+  const reasonsToDoNothing = [ isFromABot, isNotInARepoWeCareAboutForFollowups ];
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }

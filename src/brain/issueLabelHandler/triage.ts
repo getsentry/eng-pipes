@@ -6,44 +6,14 @@ import {
   shouldSkip,
 } from '@/utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
+import { SENTRY_REPOS } from '@/config';
 
-const REPOS_TO_TRACK_FOR_TRIAGE = new Set([
-  'arroyo',
-  'cdc',
-  'craft',
-  'relay',
-  'responses',
-  'self-hosted',
-  'sentry-native',
-  'snuba',
-  'snuba-sdk',
-  'symbolic',
-  'symbolicator',
-  'test-ttt-simple',
-  'wal2json',
-
-  // Web team, T1
-  'sentry-javascript',
-  'sentry-python',
-  'sentry-php',
-  'sentry-laravel',
-  'sentry-symfony',
-  'sentry-ruby',
-
-  // Mobile team, T1
-  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
-  'sentry-cocoa',
-  'sentry-java',
-  'sentry-react-native',
-  'sentry-unity',
-  'sentry-dart',
-  'sentry-android-gradle-plugin',
-  'sentry-dotnet',
-  'sentry-dart-plugin',
-]);
 import { ClientType } from '@/api/github/clientType';
-import { UNTRIAGED_LABEL } from '@/config';
+import { UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
 import { getClient } from '@api/github/getClient';
+import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
+
+const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_REPOS);
 
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);
@@ -85,13 +55,17 @@ export async function markUntriaged({
   // New issues get an Untriaged label.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
 
   await octokit.issues.addLabels({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
-    labels: [UNTRIAGED_LABEL],
+    repo: repo,
+    issue_number: issueNumber,
+    labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
+
+  await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   tx.finish();
 }
