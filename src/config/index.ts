@@ -102,6 +102,42 @@ export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
+export const SENTRY_MONOREPOS = [ 'sentry', 'sentry-docs' ];
+export const SENTRY_REPOS = [
+  'arroyo',
+  'cdc',
+  'craft',
+  'relay',
+  'responses',
+  'self-hosted',
+  'sentry-native',
+  'snuba',
+  'snuba-sdk',
+  'symbolic',
+  'symbolicator',
+  'test-ttt-simple',
+  'wal2json',
+
+  // Web team, T1
+  'sentry-javascript',
+  'sentry-python',
+  'sentry-php',
+  'sentry-laravel',
+  'sentry-symfony',
+  'sentry-ruby',
+
+  // Mobile team, T1
+  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
+  'sentry-cocoa',
+  'sentry-java',
+  'sentry-react-native',
+  'sentry-unity',
+  'sentry-dart',
+  'sentry-android-gradle-plugin',
+  'sentry-dotnet',
+  'sentry-dart-plugin'
+];
+
 /**
  * Issues Someone Else Cares About Project
  */

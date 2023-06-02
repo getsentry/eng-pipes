@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
+  SENTRY_MONOREPOS,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
   PRODUCT_AREA_FIELD_ID,
@@ -34,7 +35,7 @@ import {
 } from '@utils/businessHours';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set(['sentry', 'sentry-docs']);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
 
 import { ClientType } from '@/api/github/clientType';
 import { getClient } from '@api/github/getClient';

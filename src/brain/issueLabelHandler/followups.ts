@@ -3,45 +3,10 @@ import * as Sentry from '@sentry/node';
 
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
-  'sentry',
-  'sentry-docs',
-  'arroyo',
-  'cdc',
-  'craft',
-  'relay',
-  'responses',
-  'self-hosted',
-  'sentry-native',
-  'snuba',
-  'snuba-sdk',
-  'symbolic',
-  'symbolicator',
-  'test-ttt-simple',
-  'wal2json',
-
-  // Web team, T1
-  'sentry-javascript',
-  'sentry-python',
-  'sentry-php',
-  'sentry-laravel',
-  'sentry-symfony',
-  'sentry-ruby',
-
-  // Mobile team, T1
-  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
-  'sentry-cocoa',
-  'sentry-java',
-  'sentry-react-native',
-  'sentry-unity',
-  'sentry-dart',
-  'sentry-android-gradle-plugin',
-  'sentry-dotnet',
-  'sentry-dart-plugin',
-  'test-sentry-app',
-]);
 import { ClientType } from '@/api/github/clientType';
 import {
+  SENTRY_MONOREPOS,
+  SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -51,6 +16,8 @@ import {
   shouldSkip,
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
+
+const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([...SENTRY_REPOS, ...SENTRY_MONOREPOS]);
 
 function isNotInARepoWeCareAboutForFollowups(payload) {
   return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);

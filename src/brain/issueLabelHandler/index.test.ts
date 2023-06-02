@@ -223,11 +223,24 @@ describe('issueLabelHandler', function () {
 
   // Test cases
   describe('triage test cases', function () {
+    let addIssueToProjectSpy;
+    beforeAll(function () {
+      addIssueToProjectSpy = jest
+        .spyOn(helpers, 'addIssueToProject')
+        .mockReturnValue({
+          addProjectV2ItemById: { item: { id: 'PROJECT_ID' } },
+        });
+    });
+    afterEach(function () {
+      jest.clearAllMocks();
+    });
+
     it('adds `Status: Untriaged` to new issues', async function () {
       await createIssue();
       expectUntriaged();
       expectAdding();
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(addIssueToProjectSpy).toHaveBeenCalled();
     });
 
     it('adds `Status: Untriaged` for GTM users', async function () {
@@ -235,6 +248,7 @@ describe('issueLabelHandler', function () {
       expectUntriaged();
       expectAdding();
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(addIssueToProjectSpy).toHaveBeenCalled();
     });
 
     it('skips adding `Status: Untriaged` in untracked repos', async function () {
@@ -244,6 +258,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Status: Untriaged` when added during creation', async function () {
@@ -254,6 +269,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Status: Untriaged` for internal users', async function () {
@@ -263,6 +279,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     // removing
@@ -275,6 +292,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips removing `Status: Untriaged` when its not present', async function () {
@@ -284,6 +302,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips removing `Status: Untriaged` when adding `Status: Untriaged`', async function () {
@@ -294,6 +313,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips removing `Status: Untriaged` in untracked repos', async function () {
@@ -304,6 +324,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it('gracefully handles race with other remover of `Status: Untriaged`', async function () {
@@ -316,6 +337,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
 
     it("doesn't handle non-404 errors when removing `Status: Untriaged`", async function () {
@@ -328,6 +350,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(
         WAITING_FOR_PRODUCT_OWNER_LABEL
       );
+      expect(addIssueToProjectSpy).not.toHaveBeenCalled();
     });
   });
 
