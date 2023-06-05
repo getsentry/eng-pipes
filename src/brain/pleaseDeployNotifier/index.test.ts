@@ -1740,7 +1740,7 @@ Remove "always()" from GHA workflows`,
               },
               Object {
                 "text": Object {
-                  "text": "U789123 has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/2/example-stage/3|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 3>)",
+                  "text": "<@U789123> has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/2/example-stage/3|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 3>)",
                   "type": "mrkdwn",
                 },
                 "type": "section",

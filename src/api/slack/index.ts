@@ -25,6 +25,6 @@ bolt.error((error) => {
 
   if (process.env.NODE_ENV !== 'production') {
     // @ts-ignore
-    console.error(error.original || error);
+    console.error(`Slack error occurred: `, error);
   }
 });

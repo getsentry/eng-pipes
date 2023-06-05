@@ -16,7 +16,7 @@ describe('getUpdatedGoCDDeployMessage', function () {
       currentUser: 'diff-user',
       stage_name: 'example-stage',
       state: 'Building',
-      want: `diff-user has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
+      want: `<@diff-user> has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
 
     // Passed an intermediate stage
@@ -30,7 +30,7 @@ describe('getUpdatedGoCDDeployMessage', function () {
       currentUser: 'diff-user',
       stage_name: 'example-stage',
       state: 'Passed',
-      want: `diff-user has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
+      want: `<@diff-user> has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
 
     // Passed final stage
@@ -44,7 +44,7 @@ describe('getUpdatedGoCDDeployMessage', function () {
       currentUser: 'diff-user',
       stage_name: FINAL_STAGE_NAMES[0],
       state: 'Passed',
-      want: `diff-user has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
+      want: `<@diff-user> has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
     },
 
     // Unknown / Failed
@@ -58,7 +58,7 @@ describe('getUpdatedGoCDDeployMessage', function () {
       currentUser: 'diff-user',
       stage_name: 'example-stage',
       state: 'Other',
-      want: `diff-user has failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
+      want: `<@diff-user> has failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/undefined/example-stage/3|example-pipeline: Stage 3>)`,
     },
   ];
 

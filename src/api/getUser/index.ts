@@ -21,6 +21,16 @@ type GetUserParams = Parameters<typeof findUser>[0];
  *  - or, if a `github` param was passed, use that
  */
 export async function getUser({ email, slackUser, githubUser }: GetUserParams) {
+  if (process.env.FORCE_GET_USER_BY_SLACK_ID) {
+    console.warn(
+      'Overriding getUser() with slack user ID:',
+      process.env.FORCE_GET_USER_BY_SLACK_ID
+    );
+    slackUser = process.env.FORCE_GET_USER_BY_SLACK_ID;
+    email = undefined;
+    githubUser = undefined;
+  }
+
   // Only allow looking up via `@sentry.io` emails
   if (email && !email.endsWith('@sentry.io')) {
     email = undefined;
