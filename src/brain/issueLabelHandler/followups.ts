@@ -26,7 +26,7 @@ function isNotInARepoWeCareAboutForFollowups(payload) {
   return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
 }
 
-function isWaitingForLabel(payload) {
+function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
 }
 
@@ -101,7 +101,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const reasonsToDoNothing = [ isNotInARepoWeCareAboutForFollowups, isWaitingForLabel ];
+  const reasonsToDoNothing = [ isNotInARepoWeCareAboutForFollowups, isNotWaitingForLabel ];
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
