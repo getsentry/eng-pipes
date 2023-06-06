@@ -7,6 +7,7 @@ import {
   GoCDPipeline,
   GoCDResponse,
 } from '@types';
+import { GoCDStageData } from '@types';
 
 import { ClientType } from '@/api/github/clientType';
 import { getChangedStack } from '@/api/github/getChangedStack';
@@ -248,7 +249,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
  * (Exported for tests)
  */
 export async function handler(resBody: GoCDResponse) {
-  const { pipeline } = resBody.data;
+  const { pipeline } = resBody.data as GoCDStageData;
 
   // Only notify on the getsentry frontend / backend
   // pipelines.

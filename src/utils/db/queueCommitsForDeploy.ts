@@ -9,6 +9,10 @@ import { db } from '.';
 export async function queueCommitsForDeploy(
   commits: CompareCommits['commits']
 ) {
+  if (commits.length == 0) {
+    return;
+  }
+
   const { sha: head_sha } = commits[commits.length - 1];
   return await db('queued_commits').insert(
     commits.map((commit) => ({
