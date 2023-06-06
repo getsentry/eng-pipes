@@ -13,7 +13,6 @@ import { ClientType } from '@/api/github/clientType';
 import {
   UNTRIAGED_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-  WAITING_FOR_SUPPORT_LABEL,
   STATUS_FIELD_ID,
 } from '@/config';
 import { getClient } from '@api/github/getClient';
@@ -75,7 +74,7 @@ export async function markUntriaged({
 
   await modifyProjectIssueField(
     itemId,
-    WAITING_FOR_SUPPORT_LABEL,
+    WAITING_FOR_PRODUCT_OWNER_LABEL,
     STATUS_FIELD_ID,
     octokit
   );
