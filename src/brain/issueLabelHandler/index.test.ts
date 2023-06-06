@@ -52,7 +52,7 @@ describe('issueLabelHandler', function () {
       },
     };
     ack = jest.fn();
-    jest.spyOn(helpers, 'getAllProductAreaNodeIds').mockReturnValue({
+    jest.spyOn(helpers, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
     });
@@ -428,7 +428,7 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
-      expect(modifyProjectIssueFieldSpy).not.toHaveBeenCalled();
+      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
     it('should default to route to open source team if product area does not exist', async function () {
