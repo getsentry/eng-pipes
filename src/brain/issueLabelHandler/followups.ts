@@ -1,26 +1,28 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { isFromABot } from '@utils/isFromABot';
-
 import { ClientType } from '@/api/github/clientType';
 import {
   SENTRY_MONOREPOS,
   SENTRY_REPOS,
+  STATUS_FIELD_ID,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-  STATUS_FIELD_ID,
 } from '@/config';
 import {
-  isNotFromAnExternalOrGTMUser,
-  shouldSkip,
-  modifyProjectIssueField,
   addIssueToGlobalIssuesProject,
+  isNotFromAnExternalOrGTMUser,
+  modifyProjectIssueField,
+  shouldSkip,
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
+import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([...SENTRY_REPOS, ...SENTRY_MONOREPOS]);
+const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
+  ...SENTRY_REPOS,
+  ...SENTRY_MONOREPOS,
+]);
 
 function isNotInARepoWeCareAboutForFollowups(payload) {
   return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
@@ -28,6 +30,11 @@ function isNotInARepoWeCareAboutForFollowups(payload) {
 
 function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
+}
+
+function isContractor(payload) {
+  // Contractors are outside collaborators on GitHub
+  return payload.comment.author_association === 'COLLABORATOR';
 }
 
 // Markers of State
@@ -45,6 +52,7 @@ export async function updateCommunityFollowups({
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
+    isContractor,
     isFromABot,
   ];
 
@@ -57,13 +65,11 @@ export async function updateCommunityFollowups({
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
-  const isWaitingForCommunityLabelOnIssue =
-      payload.issue.labels?.find(
-        ({ name }) =>
-          name === WAITING_FOR_COMMUNITY_LABEL
-      )?.name
+  const isWaitingForCommunityLabelOnIssue = payload.issue.labels?.find(
+    ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
+  )?.name;
 
-  if(isWaitingForCommunityLabelOnIssue) {
+  if (isWaitingForCommunityLabelOnIssue) {
     await octokit.issues.removeLabel({
       owner,
       repo: repo,
@@ -79,7 +85,12 @@ export async function updateCommunityFollowups({
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+  const itemId: string = await addIssueToGlobalIssuesProject(
+    payload.issue.node_id,
+    repo,
+    issueNumber,
+    octokit
+  );
 
   await modifyProjectIssueField(
     itemId,
@@ -101,7 +112,10 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const reasonsToDoNothing = [ isNotInARepoWeCareAboutForFollowups, isNotWaitingForLabel ];
+  const reasonsToDoNothing = [
+    isNotInARepoWeCareAboutForFollowups,
+    isNotWaitingForLabel,
+  ];
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
@@ -115,11 +129,9 @@ export async function ensureOneWaitingForLabel({
   // @ts-ignore
   const labelName = label.name;
 
-  const labelToRemove =
-    issue.labels?.find(
-      ({ name }) =>
-        name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
-    )?.name;
+  const labelToRemove = issue.labels?.find(
+    ({ name }) => name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
+  )?.name;
   if (labelToRemove != null) {
     await octokit.issues.removeLabel({
       owner: owner,
@@ -129,14 +141,14 @@ export async function ensureOneWaitingForLabel({
     });
   }
 
-  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
-
-  await modifyProjectIssueField(
-    itemId,
-    labelName,
-    STATUS_FIELD_ID,
+  const itemId: string = await addIssueToGlobalIssuesProject(
+    payload.issue.node_id,
+    repo,
+    issueNumber,
     octokit
   );
+
+  await modifyProjectIssueField(itemId, labelName, STATUS_FIELD_ID, octokit);
 
   tx.finish();
 }
