@@ -111,6 +111,7 @@ export async function ensureOneWaitingForLabel({
   const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
+  // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
   // @ts-ignore
   const labelName = label.name;
 
