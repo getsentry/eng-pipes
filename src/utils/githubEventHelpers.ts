@@ -3,8 +3,6 @@ import * as Sentry from '@sentry/node';
 
 import {
   ISSUES_PROJECT_NODE_ID,
-  PRODUCT_AREA_FIELD_ID,
-  PRODUCT_AREA_LABEL_PREFIX,
 } from '@/config';
 import { getOssUserType } from '@utils/getOssUserType';
 
@@ -27,10 +25,6 @@ export async function shouldSkip(payload, reasonsToSkip) {
 export async function isNotFromAnExternalOrGTMUser(payload: object) {
   const type = await getOssUserType(payload);
   return !(type === 'external' || type === 'gtm');
-}
-
-export function getProductArea(productAreaLabelName) {
-  return productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
 }
 
 export async function addIssueToGlobalIssuesProject(
@@ -57,9 +51,9 @@ export async function addIssueToGlobalIssuesProject(
   return response.addProjectV2ItemById.item.id;
 }
 
-export async function getAllProductAreaNodeIds(octokit: Octokit) {
-  const queryForProductAreaNodeIDs = `query{
-    node(id: "${PRODUCT_AREA_FIELD_ID}") {
+export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit: Octokit) {
+  const queryForPrjectFieldNodeIDs = `query{
+    node(id: "${projectFieldId}") {
       ... on ProjectV2SingleSelectField {
         options {
           id
@@ -69,8 +63,8 @@ export async function getAllProductAreaNodeIds(octokit: Octokit) {
     }
   }`;
 
-  const response: any = await octokit.graphql(queryForProductAreaNodeIDs);
-  return response.node.options.reduce((acc, { name, id }) => {
+  const response: any = await octokit.graphql(queryForPrjectFieldNodeIDs);
+  return response?.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
     return acc;
   }, {});
@@ -78,12 +72,11 @@ export async function getAllProductAreaNodeIds(octokit: Octokit) {
 
 export async function modifyProjectIssueField(
   itemId: string,
-  productAreaLabelName: string,
+  projectFieldOption: string,
   fieldId: string,
   octokit: Octokit
 ) {
-  const productArea = getProductArea(productAreaLabelName);
-  const productAreaNodeIDMapping = await getAllProductAreaNodeIds(octokit);
+  const projectFieldNodeIDMapping = await getAllProjectFieldNodeIds(fieldId, octokit);
   const addIssueToGlobalIssuesProjectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
@@ -91,7 +84,7 @@ export async function modifyProjectIssueField(
         itemId: "${itemId}"
         fieldId: "${fieldId}"
         value: {
-          singleSelectOptionId: "${productAreaNodeIDMapping[productArea]}"
+          singleSelectOptionId: "${projectFieldNodeIDMapping[projectFieldOption]}"
         }
       }
     ) {
@@ -104,15 +97,16 @@ export async function modifyProjectIssueField(
   await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
 }
 
-export async function getProductAreaFromProjectField(
+export async function getKeyValueFromProjectField(
   issueNodeId: string,
+  fieldName: string,
   octokit: Octokit
 ) {
   const query = `query{
     node(id: "${issueNodeId}") {
         ... on ProjectV2Item {
           id
-          fieldValueByName(name: "Product Area") {
+          fieldValueByName(name: "${fieldName}") {
             ... on ProjectV2ItemFieldSingleSelectValue {
               name
               field {

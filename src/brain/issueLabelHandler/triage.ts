@@ -4,12 +4,17 @@ import * as Sentry from '@sentry/node';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
+  modifyProjectIssueField,
 } from '@/utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 import { SENTRY_REPOS } from '@/config';
 
 import { ClientType } from '@/api/github/clientType';
-import { UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
+import {
+  UNTRIAGED_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  STATUS_FIELD_ID,
+} from '@/config';
 import { getClient } from '@api/github/getClient';
 import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
 
@@ -65,7 +70,14 @@ export async function markUntriaged({
     labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+
+  await modifyProjectIssueField(
+    itemId,
+    WAITING_FOR_PRODUCT_OWNER_LABEL,
+    STATUS_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }

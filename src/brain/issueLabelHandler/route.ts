@@ -19,10 +19,10 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
+  STATUS_FIELD_ID,
 } from '@/config';
 import {
   addIssueToGlobalIssuesProject,
-  getProductArea,
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
@@ -113,14 +113,21 @@ export async function markUnrouted({
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
 
-  await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+
+  await modifyProjectIssueField(
+    itemId,
+    WAITING_FOR_SUPPORT_LABEL,
+    STATUS_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }
 
 async function routeIssue(octokit, productAreaLabelName) {
   try {
-    const productArea = getProductArea(productAreaLabelName);
+    const productArea = productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
       org: SENTRY_ORG,
@@ -249,10 +256,18 @@ export async function markRouted({
     payload.issue.number,
     octokit
   );
+  const productArea = productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
   await modifyProjectIssueField(
     itemId,
-    productAreaLabelName,
+    productArea,
     PRODUCT_AREA_FIELD_ID,
+    octokit
+  );
+
+  await modifyProjectIssueField(
+    itemId,
+    WAITING_FOR_PRODUCT_OWNER_LABEL,
+    STATUS_FIELD_ID,
     octokit
   );
 

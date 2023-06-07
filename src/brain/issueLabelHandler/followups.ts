@@ -10,10 +10,13 @@ import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
+  STATUS_FIELD_ID,
 } from '@/config';
 import {
   isNotFromAnExternalOrGTMUser,
   shouldSkip,
+  modifyProjectIssueField,
+  addIssueToGlobalIssuesProject,
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
 
@@ -23,11 +26,8 @@ function isNotInARepoWeCareAboutForFollowups(payload) {
   return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
 }
 
-function isNotWaitingForCommunity(payload) {
-  const { issue } = payload;
-  return !issue?.labels.some(
-    ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
-  );
+function isNotWaitingForLabel(payload) {
+  return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
 }
 
 // Markers of State
@@ -45,7 +45,6 @@ export async function updateCommunityFollowups({
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
-    isNotWaitingForCommunity,
     isFromABot,
   ];
 
@@ -55,20 +54,39 @@ export async function updateCommunityFollowups({
 
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
 
-  await octokit.issues.removeLabel({
-    owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
-    name: WAITING_FOR_COMMUNITY_LABEL,
-  });
+  const isWaitingForCommunityLabelOnIssue =
+      payload.issue.labels?.find(
+        ({ name }) =>
+          name === WAITING_FOR_COMMUNITY_LABEL
+      )?.name
+
+  if(isWaitingForCommunityLabelOnIssue) {
+    await octokit.issues.removeLabel({
+      owner,
+      repo: repo,
+      issue_number: issueNumber,
+      name: WAITING_FOR_COMMUNITY_LABEL,
+    });
+  }
 
   await octokit.issues.addLabels({
     owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
+    repo: repo,
+    issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
+
+  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+
+  await modifyProjectIssueField(
+    itemId,
+    WAITING_FOR_PRODUCT_OWNER_LABEL,
+    STATUS_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }
@@ -83,7 +101,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const reasonsToDoNothing = [ isFromABot, isNotInARepoWeCareAboutForFollowups ];
+  const reasonsToDoNothing = [ isNotInARepoWeCareAboutForFollowups, isNotWaitingForLabel ];
   if (await shouldSkip(payload, reasonsToDoNothing)) {
     return;
   }
@@ -91,20 +109,34 @@ export async function ensureOneWaitingForLabel({
   const { issue, label } = payload;
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
+  // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
+  // @ts-ignore
+  const labelName = label.name;
 
-  if (label?.name.startsWith(WAITING_FOR_LABEL_PREFIX)) {
-    const labelToRemove =
-      issue.labels?.find(
-        ({ name }) =>
-          name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != label?.name
-      )?.name || '';
+  const labelToRemove =
+    issue.labels?.find(
+      ({ name }) =>
+        name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
+    )?.name;
+  if (labelToRemove != null) {
     await octokit.issues.removeLabel({
       owner: owner,
-      repo: payload.repository.name,
-      issue_number: payload.issue.number,
+      repo: repo,
+      issue_number: issueNumber,
       name: labelToRemove,
     });
   }
+
+  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
+
+  await modifyProjectIssueField(
+    itemId,
+    labelName,
+    STATUS_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }

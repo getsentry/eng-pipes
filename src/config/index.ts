@@ -144,6 +144,7 @@ export const SENTRY_REPOS = [
 
 export const ISSUES_PROJECT_NODE_ID = process.env.ISSUES_PROJECT_NODE_ID || "PVT_kwDOABVQ184AOGW8";
 export const PRODUCT_AREA_FIELD_ID = process.env.PRODUCT_AREA_FIELD_ID || "PVTSSF_lADOABVQ184AOGW8zgJEBno";
+export const STATUS_FIELD_ID = process.env.STATUS_FIELD_ID || "PVTSSF_lADOABVQ184AOGW8zgI_7g0";
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
