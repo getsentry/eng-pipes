@@ -30,6 +30,13 @@ function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
 }
 
+function isNotWaitingForCommunity(payload) {
+  const { issue } = payload;
+  return !issue?.labels.some(
+    ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
+  );
+}
+
 // Markers of State
 
 export async function updateCommunityFollowups({
@@ -45,6 +52,7 @@ export async function updateCommunityFollowups({
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
+    isNotWaitingForCommunity,
     isFromABot,
   ];
 
