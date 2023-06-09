@@ -27,6 +27,17 @@ export async function isNotFromAnExternalOrGTMUser(payload: object) {
   return !(type === 'external' || type === 'gtm');
 }
 
+async function sendQuery(query: string, data: object, octokit: Octokit) {
+  let response: any;
+  try {
+    response = await octokit.graphql(query);
+  } catch (err) {
+    Sentry.setContext('data', data);
+    Sentry.captureException(err);
+  }
+  return response;
+}
+
 export async function addIssueToGlobalIssuesProject(
   issueNodeId: string | undefined,
   repo: string,
@@ -46,17 +57,11 @@ export async function addIssueToGlobalIssuesProject(
     }
   }`;
 
-  let response: any;
-
-  try {
-    response = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
-  } catch (err) {
-    Sentry.setContext('data', {
-      repo: repo,
-      issueNumber: issueNumber
-    });
-    Sentry.captureException(err);
+  const data = {
+    repo,
+    issueNumber,
   }
+  const response = await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
 
   return response.addProjectV2ItemById.item.id;
 }
@@ -73,16 +78,10 @@ export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit:
     }
   }`;
 
-  let response: any;
-
-  try {
-    response = await octokit.graphql(queryForProjectFieldNodeIDs);
-  } catch (err) {
-    Sentry.setContext('data', {
-      projectFieldId: projectFieldId
-    });
-    Sentry.captureException(err);
+  const data = {
+    projectFieldId,
   }
+  const response = await sendQuery(queryForProjectFieldNodeIDs, data, octokit);
 
   return response?.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
@@ -114,17 +113,12 @@ export async function modifyProjectIssueField(
       }
     }
   }`;
-  try {
-    await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
-  } catch (err) {
-    Sentry.setContext('data', {
-      itemId: itemId,
-      fieldId: fieldId,
-      projectFieldOption: projectFieldOption,
-      singleSelectOptionId: singleSelectOptionId,
-    });
-    Sentry.captureException(err);
+  const data = {
+    itemId,
+    projectFieldOption,
+    fieldId,
   }
+  await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
 }
 
 export async function getKeyValueFromProjectField(
@@ -150,17 +144,12 @@ export async function getKeyValueFromProjectField(
       }
     }`;
 
-  let response: any;
-
-  try {
-    response = await octokit.graphql(query);
-  } catch (err) {
-    Sentry.setContext('data', {
-      issueNodeId: issueNodeId,
-      fieldName: fieldName,
-    });
-    Sentry.captureException(err);
+  const data = {
+    issueNodeId,
+    fieldName,
   }
+  const response = await sendQuery(query, data, octokit);
+
   return response?.node.fieldValueByName?.name;
 }
 
@@ -179,15 +168,11 @@ export async function getIssueDetailsFromNodeId(
     }
   }`;
 
-  let response: any;
-  try {
-    response = await octokit.graphql(query);
-  } catch(err) {
-    Sentry.setContext('data', {
-      issueNodeId: issueNodeId,
-    });
-    Sentry.captureException(err);
+  const data = {
+    issueNodeId,
   }
+  const response = await sendQuery(query, data, octokit);
+
   return {
     number: response?.node.number,
     repo: response?.node.repository?.name,
