@@ -130,5 +130,14 @@ describe('projectsHandler', function () {
       expect(octokitIssuesSpy).toHaveBeenCalled();
       expect(octokit.issues._labels).toContain('Waiting for: Community');
     });
+
+    it('should handle project event if field value is unset', async function () {
+      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      getKeyValueFromProjectFieldSpy.mockReturnValue(undefined);
+      await editProjectField(ISSUES_PROJECT_NODE_ID, STATUS_FIELD_ID);
+      expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
+      expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
+      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+    });
   });
 });

@@ -67,6 +67,12 @@ export async function syncLabelsWithProjectField({
     fieldName,
     octokit
   );
+
+  // Single select field value has been unset, so don't do anything
+  if (fieldValue == null) {
+    return;
+  }
+
   const issueInfo = await getIssueDetailsFromNodeId(
     payload.projects_v2_item.content_node_id,
     octokit

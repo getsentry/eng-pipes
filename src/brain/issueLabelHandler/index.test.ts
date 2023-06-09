@@ -160,31 +160,6 @@ describe('issueLabelHandler', function () {
     );
   }
 
-  async function editProjectField(
-    projectNodeId?: string,
-    fieldNodeId?: string
-  ) {
-    const projectPayload = {
-      organization: { login: 'test-org' },
-      projects_v2_item: {
-        project_node_id: projectNodeId || 'test-project-node-id',
-        node_id: 'test-node-id',
-        content_node_id: 'test-content-node-id',
-      },
-      changes: {
-        field_value: {
-          field_node_id: fieldNodeId,
-        },
-      },
-    };
-    await createGitHubEvent(
-      fastify,
-      // @ts-expect-error
-      'projects_v2_item.edited',
-      projectPayload
-    );
-  }
-
   // Expectations
 
   function expectUnrouted() {
@@ -595,11 +570,19 @@ describe('issueLabelHandler', function () {
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
+
+    it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
+      await setupIssue();
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      await addLabel(WAITING_FOR_SUPPORT_LABEL, 'sentry-docs')
+      await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set([
           UNTRIAGED_LABEL,
           'Product Area: Test',
-          WAITING_FOR_COMMUNITY_LABEL,
+          WAITING_FOR_SUPPORT_LABEL
         ])
       );
     });
