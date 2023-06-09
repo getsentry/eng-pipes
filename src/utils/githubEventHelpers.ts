@@ -46,7 +46,17 @@ export async function addIssueToGlobalIssuesProject(
     }
   }`;
 
-  const response: any = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  let response: any;
+
+  try {
+    response = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  } catch (err) {
+    Sentry.setContext('data', {
+      repo: repo,
+      issueNumber: issueNumber
+    });
+    Sentry.captureException(err);
+  }
 
   return response.addProjectV2ItemById.item.id;
 }
@@ -63,7 +73,17 @@ export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit:
     }
   }`;
 
-  const response: any = await octokit.graphql(queryForPrjectFieldNodeIDs);
+  let response: any;
+
+  try {
+    response = await octokit.graphql(queryForPrjectFieldNodeIDs);
+  } catch (err) {
+    Sentry.setContext('data', {
+      projectFieldId: projectFieldId
+    });
+    Sentry.captureException(err);
+  }
+
   return response?.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
     return acc;
@@ -77,6 +97,7 @@ export async function modifyProjectIssueField(
   octokit: Octokit
 ) {
   const projectFieldNodeIDMapping = await getAllProjectFieldNodeIds(fieldId, octokit);
+  const singleSelectOptionId = projectFieldNodeIDMapping[projectFieldOption];
   const addIssueToGlobalIssuesProjectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
@@ -84,7 +105,7 @@ export async function modifyProjectIssueField(
         itemId: "${itemId}"
         fieldId: "${fieldId}"
         value: {
-          singleSelectOptionId: "${projectFieldNodeIDMapping[projectFieldOption]}"
+          singleSelectOptionId: "${singleSelectOptionId}"
         }
       }
     ) {
@@ -93,8 +114,17 @@ export async function modifyProjectIssueField(
       }
     }
   }`;
-
-  await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  try {
+    await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  } catch (err) {
+    Sentry.setContext('data', {
+      itemId: itemId,
+      fieldId: fieldId,
+      projectFieldOption: projectFieldOption,
+      singleSelectOptionId: singleSelectOptionId,
+    });
+    Sentry.captureException(err);
+  }
 }
 
 export async function getKeyValueFromProjectField(
@@ -120,7 +150,17 @@ export async function getKeyValueFromProjectField(
       }
     }`;
 
-  const response: any = await octokit.graphql(query);
+  let response: any;
+
+  try {
+    response = await octokit.graphql(query);
+  } catch (err) {
+    Sentry.setContext('data', {
+      issueNodeId: issueNodeId,
+      fieldName: fieldName,
+    });
+    Sentry.captureException(err);
+  }
   return response?.node.fieldValueByName?.name;
 }
 
@@ -139,7 +179,15 @@ export async function getIssueDetailsFromNodeId(
     }
   }`;
 
-  const response: any = await octokit.graphql(query);
+  let response: any;
+  try {
+    response = await octokit.graphql(query);
+  } catch(err) {
+    Sentry.setContext('data', {
+      issueNodeId: issueNodeId,
+    });
+    Sentry.captureException(err);
+  }
   return {
     number: response?.node.number,
     repo: response?.node.repository?.name,
