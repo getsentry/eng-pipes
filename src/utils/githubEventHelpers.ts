@@ -62,7 +62,7 @@ export async function addIssueToGlobalIssuesProject(
 }
 
 export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit: Octokit) {
-  const queryForPrjectFieldNodeIDs = `query{
+  const queryForProjectFieldNodeIDs = `query{
     node(id: "${projectFieldId}") {
       ... on ProjectV2SingleSelectField {
         options {
@@ -76,7 +76,7 @@ export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit:
   let response: any;
 
   try {
-    response = await octokit.graphql(queryForPrjectFieldNodeIDs);
+    response = await octokit.graphql(queryForProjectFieldNodeIDs);
   } catch (err) {
     Sentry.setContext('data', {
       projectFieldId: projectFieldId
