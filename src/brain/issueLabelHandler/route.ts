@@ -16,10 +16,8 @@ import {
   UNKNOWN_LABEL,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
-  WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-  STATUS_FIELD_ID,
 } from '@/config';
 import {
   addIssueToGlobalIssuesProject,
@@ -59,13 +57,13 @@ function isValidLabel(payload) {
   );
 }
 
-function shouldLabelBeRemoved(label, target_name) {
+function shouldLabelBeRemoved(labelName, target_name) {
   return (
-    (label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
-      label.name !== target_name) ||
-    (label.name.startsWith(STATUS_LABEL_PREFIX) &&
-      label.name !== UNTRIAGED_LABEL) ||
-    label.name.startsWith(WAITING_FOR_LABEL_PREFIX)
+    (labelName.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
+      labelName !== target_name) ||
+    (labelName.startsWith(STATUS_LABEL_PREFIX) &&
+      labelName !== UNTRIAGED_LABEL) ||
+    labelName === WAITING_FOR_SUPPORT_LABEL
   );
 }
 
@@ -112,15 +110,6 @@ export async function markUnrouted({
     issue_number: issueNumber,
     body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=${timeToRouteBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`,
   });
-
-  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
-
-  await modifyProjectIssueField(
-    itemId,
-    WAITING_FOR_SUPPORT_LABEL,
-    STATUS_FIELD_ID,
-    octokit
-  );
 
   tx.finish();
 }
@@ -192,11 +181,12 @@ export async function markRouted({
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
+  const labelNames = issue?.labels?.map(label => label.name) || [];
 
   // When routing, remove all Status and Product Area labels that currently exist on issue
-  issue.labels?.forEach((label) => {
-    if (shouldLabelBeRemoved(label, productAreaLabelName)) {
-      labelsToRemove.push(label.name);
+  labelNames.forEach((labelName) => {
+    if (shouldLabelBeRemoved(labelName, productAreaLabelName)) {
+      labelsToRemove.push(labelName);
     }
   });
 
@@ -226,8 +216,18 @@ export async function markRouted({
     owner: owner,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
-    labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
+    labels: [UNTRIAGED_LABEL],
   });
+
+  // Only retriage issues if support is routing
+  if (labelNames.includes(WAITING_FOR_SUPPORT_LABEL)) {
+    await octokit.issues.addLabels({
+      owner: owner,
+      repo: payload.repository.name,
+      issue_number: payload.issue.number,
+      labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
+    });
+  }
 
   const routedTeam = await routeIssue(octokit, productAreaLabelName);
 
@@ -261,13 +261,6 @@ export async function markRouted({
     itemId,
     productArea,
     PRODUCT_AREA_FIELD_ID,
-    octokit
-  );
-
-  await modifyProjectIssueField(
-    itemId,
-    WAITING_FOR_PRODUCT_OWNER_LABEL,
-    STATUS_FIELD_ID,
     octokit
   );
 

@@ -128,6 +128,7 @@ export async function ensureOneWaitingForLabel({
       ({ name }) =>
         name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
     )?.name;
+
   if (labelToRemove != null) {
     await octokit.issues.removeLabel({
       owner: owner,

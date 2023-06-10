@@ -48,7 +48,7 @@ export async function addIssueToGlobalIssuesProject(
 
   const response: any = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
 
-  return response.addProjectV2ItemById.item.id;
+  return response?.addProjectV2ItemById.item.id;
 }
 
 export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit: Octokit) {

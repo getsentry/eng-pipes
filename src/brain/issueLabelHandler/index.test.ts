@@ -349,6 +349,8 @@ describe('issueLabelHandler', function () {
       await createIssue('sentry-docs');
       expectUnrouted();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      // Simulate GitHub adding Waiting for Support Label to send webhook
+      await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
@@ -359,6 +361,8 @@ describe('issueLabelHandler', function () {
       await createIssue('sentry-docs', 'Troi');
       expectUnrouted();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      // Simulate GitHub adding Waiting for Support Label to send webhook
+      await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
@@ -400,6 +404,8 @@ describe('issueLabelHandler', function () {
       await addLabel('Status: Needs More Information', 'sentry-docs');
       expectUnrouted();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      // Simulate GitHub adding Waiting for Support Label to send webhook
+      await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
       ]);
@@ -428,6 +434,24 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Rerouted', 'sentry-docs');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).not.toContain('Product Area: Test');
+      expect(octokit.issues._comments).toEqual([
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+      ]);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
+    });
+
+    it('should not reapply label `Waiting for: Product Owner` if issue changes product areas and is not waiting for support', async function () {
+      await createIssue('sentry-docs');
+      await addLabel('Product Area: Test', 'sentry-docs');
+      expectUntriaged();
+      expectRouted();
+      await addLabel('Waiting for: Community', 'sentry-docs');
+      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
+      expect(octokit.issues._labels).toContain('Waiting for: Community');
+      expect(octokit.issues._labels).not.toContain('Waiting for: Product Owner');
       expect(octokit.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
