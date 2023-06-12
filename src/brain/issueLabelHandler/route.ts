@@ -182,6 +182,7 @@ export async function markRouted({
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
   const labelNames = issue?.labels?.map(label => label.name) || [];
+  const isBeingRoutedBySupport = labelNames.includes(WAITING_FOR_SUPPORT_LABEL);
 
   // When routing, remove all Status and Product Area labels that currently exist on issue
   labelNames.forEach((labelName) => {
@@ -220,7 +221,7 @@ export async function markRouted({
   });
 
   // Only retriage issues if support is routing
-  if (labelNames.includes(WAITING_FOR_SUPPORT_LABEL)) {
+  if (isBeingRoutedBySupport) {
     await octokit.issues.addLabels({
       owner: owner,
       repo: payload.repository.name,
