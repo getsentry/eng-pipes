@@ -144,12 +144,19 @@ describe('issueLabelHandler', function () {
     octokit.issues.addLabels({ labels: [label] });
   }
 
-  async function addComment(repo?: string, username?: string) {
+  async function addComment(
+    repo?: string,
+    username?: string,
+    membership?: string
+  ) {
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issue_comment.created',
-      makePayload(repo, undefined, username)
+      {
+        ...makePayload(repo, undefined, username),
+        comment: { author_association: membership },
+      }
     );
   }
 
@@ -580,6 +587,13 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
+    });
+
+    it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
+      await setupIssue();
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
+      jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
+      await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
     });
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {

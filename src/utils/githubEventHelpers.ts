@@ -27,6 +27,17 @@ export async function isNotFromAnExternalOrGTMUser(payload: object) {
   return !(type === 'external' || type === 'gtm');
 }
 
+async function sendQuery(query: string, data: object, octokit: Octokit) {
+  let response: any;
+  try {
+    response = await octokit.graphql(query);
+  } catch (err) {
+    Sentry.setContext('data', data);
+    Sentry.captureException(err);
+  }
+  return response;
+}
+
 export async function addIssueToGlobalIssuesProject(
   issueNodeId: string | undefined,
   repo: string,
@@ -46,13 +57,17 @@ export async function addIssueToGlobalIssuesProject(
     }
   }`;
 
-  const response: any = await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  const data = {
+    repo,
+    issueNumber,
+  }
+  const response = await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
 
   return response?.addProjectV2ItemById.item.id;
 }
 
 export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit: Octokit) {
-  const queryForPrjectFieldNodeIDs = `query{
+  const queryForProjectFieldNodeIDs = `query{
     node(id: "${projectFieldId}") {
       ... on ProjectV2SingleSelectField {
         options {
@@ -63,7 +78,11 @@ export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit:
     }
   }`;
 
-  const response: any = await octokit.graphql(queryForPrjectFieldNodeIDs);
+  const data = {
+    projectFieldId,
+  }
+  const response = await sendQuery(queryForProjectFieldNodeIDs, data, octokit);
+
   return response?.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
     return acc;
@@ -77,6 +96,7 @@ export async function modifyProjectIssueField(
   octokit: Octokit
 ) {
   const projectFieldNodeIDMapping = await getAllProjectFieldNodeIds(fieldId, octokit);
+  const singleSelectOptionId = projectFieldNodeIDMapping[projectFieldOption];
   const addIssueToGlobalIssuesProjectMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
@@ -84,7 +104,7 @@ export async function modifyProjectIssueField(
         itemId: "${itemId}"
         fieldId: "${fieldId}"
         value: {
-          singleSelectOptionId: "${projectFieldNodeIDMapping[projectFieldOption]}"
+          singleSelectOptionId: "${singleSelectOptionId}"
         }
       }
     ) {
@@ -93,8 +113,12 @@ export async function modifyProjectIssueField(
       }
     }
   }`;
-
-  await octokit.graphql(addIssueToGlobalIssuesProjectMutation);
+  const data = {
+    itemId,
+    projectFieldOption,
+    fieldId,
+  }
+  await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
 }
 
 export async function getKeyValueFromProjectField(
@@ -120,7 +144,12 @@ export async function getKeyValueFromProjectField(
       }
     }`;
 
-  const response: any = await octokit.graphql(query);
+  const data = {
+    issueNodeId,
+    fieldName,
+  }
+  const response = await sendQuery(query, data, octokit);
+
   return response?.node.fieldValueByName?.name;
 }
 
@@ -139,7 +168,11 @@ export async function getIssueDetailsFromNodeId(
     }
   }`;
 
-  const response: any = await octokit.graphql(query);
+  const data = {
+    issueNodeId,
+  }
+  const response = await sendQuery(query, data, octokit);
+
   return {
     number: response?.node.number,
     repo: response?.node.repository?.name,
