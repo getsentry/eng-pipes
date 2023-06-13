@@ -105,7 +105,7 @@ export async function modifyProjectIssueField(
     octokit
   );
   const singleSelectOptionId = projectFieldNodeIDMapping[projectFieldOption];
-  const addIssueToGlobalIssuesProjectMutation = `mutation {
+  const modifyProjectIssueFieldMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
         projectId: "${ISSUES_PROJECT_NODE_ID}"
@@ -125,8 +125,40 @@ export async function modifyProjectIssueField(
     itemId,
     projectFieldOption,
     fieldId,
-  };
-  await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
+  }
+  await sendQuery(modifyProjectIssueFieldMutation, data, octokit);
+}
+
+export async function modifyDueByDate(
+  itemId: string,
+  projectFieldOption: string,
+  fieldId: string,
+  octokit: Octokit
+) {
+
+  const modifyDueByDateMutation = `mutation {
+    updateProjectV2ItemFieldValue(
+      input: {
+        projectId: "${ISSUES_PROJECT_NODE_ID}"
+        itemId: "${itemId}"
+        fieldId: "${fieldId}"
+        value: {
+          text: "${projectFieldOption}"
+        }
+      }
+    ) {
+      projectV2Item {
+        id
+      }
+    }
+  }`;
+
+  const data = {
+    itemId,
+    projectFieldOption,
+    fieldId,
+  }
+  await sendQuery(modifyDueByDateMutation, data, octokit);
 }
 
 export async function getKeyValueFromProjectField(

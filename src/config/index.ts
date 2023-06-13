@@ -147,6 +147,8 @@ export const PRODUCT_AREA_FIELD_ID =
   process.env.PRODUCT_AREA_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgJEBno';
 export const STATUS_FIELD_ID =
   process.env.STATUS_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgI_7g0';
+export const RESPONSE_DUE_DATE_FIELD_ID =
+  process.env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg';
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
