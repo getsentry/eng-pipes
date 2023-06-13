@@ -1,5 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
+import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
 import {
@@ -9,15 +10,21 @@ import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
+  RESPONSE_DUE_DATE_FIELD_ID,
+  UNTRIAGED_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
+  UNROUTED_LABEL,
 } from '@/config';
 import {
   addIssueToGlobalIssuesProject,
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
+  modifyDueByDate,
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
+import { calculateSLOViolationTriage, calculateSLOViolationRoute } from '@utils/businessHours';
 
 const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
   ...SENTRY_REPOS,
@@ -140,6 +147,7 @@ export async function ensureOneWaitingForLabel({
   const labelToRemove = issue.labels?.find(
     ({ name }) => name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
   )?.name;
+
   if (labelToRemove != null) {
     await octokit.issues.removeLabel({
       owner: owner,
@@ -157,6 +165,24 @@ export async function ensureOneWaitingForLabel({
   );
 
   await modifyProjectIssueField(itemId, labelName, STATUS_FIELD_ID, octokit);
+
+  let timeToTriageBy
+  if (labelName === WAITING_FOR_PRODUCT_OWNER_LABEL) {
+    timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, issue.labels) || moment().toISOString();
+  }
+  else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
+    timeToTriageBy = await calculateSLOViolationRoute(UNROUTED_LABEL) || moment().toISOString()
+  }
+  else{
+    timeToTriageBy = "";
+  }
+
+  await modifyDueByDate(
+    itemId,
+    timeToTriageBy,
+    RESPONSE_DUE_DATE_FIELD_ID,
+    octokit
+  );
 
   tx.finish();
 }
