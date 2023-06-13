@@ -63,7 +63,7 @@ export async function addIssueToGlobalIssuesProject(
   }
   const response = await sendQuery(addIssueToGlobalIssuesProjectMutation, data, octokit);
 
-  return response.addProjectV2ItemById.item.id;
+  return response?.addProjectV2ItemById.item.id;
 }
 
 export async function getAllProjectFieldNodeIds(projectFieldId: string, octokit: Octokit) {
