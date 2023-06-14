@@ -8,6 +8,8 @@ import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
+  STATUS_FIELD_ID,
+  RESPONSE_DUE_DATE_FIELD_ID,
 } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
@@ -209,9 +211,7 @@ describe('issueLabelHandler', function () {
     beforeAll(function () {
       addIssueToGlobalIssuesProjectSpy = jest
         .spyOn(helpers, 'addIssueToGlobalIssuesProject')
-        .mockReturnValue({
-          addProjectV2ItemById: { item: { id: 'PROJECT_ID' } },
-        });
+        .mockReturnValue('itemId');
     });
     afterEach(function () {
       jest.clearAllMocks();
@@ -359,7 +359,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -371,7 +371,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -400,8 +400,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -414,7 +414,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -427,8 +427,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -442,9 +442,9 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).not.toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -462,9 +462,9 @@ describe('issueLabelHandler', function () {
         'Waiting for: Product Owner'
       );
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -479,8 +479,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -495,8 +495,8 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -510,41 +510,27 @@ describe('issueLabelHandler', function () {
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).toContain('Product Area: Test');
       expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T00:00:00.000Z>Tuesday, December 20th at 4:00 pm</time> (sfo)**. ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
-    });
-
-    it('uses different timestamp for eu office', async function () {
-      await createIssue('sentry-docs');
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test vie',
-      };
-      const client = {
-        conversations: {
-          info: jest
-            .fn()
-            .mockReturnValue({ channel: { name: 'test', is_member: true } }),
-          join: jest.fn(),
-        },
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      jest
-        .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
-        .mockReturnValue('2022-12-21T13:00:00.000Z');
-      await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
-      expect(octokit.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
-      ]);
     });
   });
 
   describe('followups test cases', function () {
+    let modifyProjectIssueFieldSpy, modifyDueByDateSpy, addIssueToGlobalIssuesProjectSpy;
+    beforeAll(function () {
+      modifyProjectIssueFieldSpy = jest
+        .spyOn(helpers, 'modifyProjectIssueField')
+        .mockImplementation(jest.fn());
+      modifyDueByDateSpy = jest.spyOn(helpers, 'modifyDueByDate').mockImplementation(jest.fn());
+      addIssueToGlobalIssuesProjectSpy = jest
+        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .mockReturnValue('itemId');
+    })
+    afterEach(function () {
+      jest.clearAllMocks();
+    })
     const setupIssue = async () => {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
@@ -575,6 +561,8 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_SUPPORT_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_SUPPORT_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-20T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
 
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
@@ -589,6 +577,8 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_COMMUNITY_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
 
     it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
@@ -596,6 +586,15 @@ describe('issueLabelHandler', function () {
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          UNTRIAGED_LABEL,
+          'Product Area: Test',
+          WAITING_FOR_COMMUNITY_LABEL,
+        ])
+      );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_COMMUNITY_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
@@ -612,6 +611,8 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_SUPPORT_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_SUPPORT_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-20T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
@@ -628,6 +629,10 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
+      // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_PRODUCT_OWNER_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-21T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
 
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
@@ -644,6 +649,8 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_PRODUCT_OWNER_LABEL, STATUS_FIELD_ID, octokit);
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-21T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
     });
   });
 });
