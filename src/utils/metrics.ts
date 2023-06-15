@@ -333,8 +333,8 @@ export async function insertOss(
 ###### Dry Run: BigQuery Insert ######
   Dataset: ${targetConfig.dataset}
   Table: ${targetConfig.table}
-  Schema: ${objectToSchema(targetConfig.schema)}
-  Data: ${data}
+  Schema: ${JSON.stringify(objectToSchema(targetConfig.schema))}
+  Data: ${JSON.stringify(data)}
 ######################################`);
     return;
   }
