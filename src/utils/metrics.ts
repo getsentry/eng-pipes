@@ -170,6 +170,15 @@ export async function _insert(
   data: Record<string, any>,
   targetConfig: TargetConfig
 ) {
+  if (process.env.DRY_RUN) {
+    /* eslint-disable no-console */
+    console.log(`\n🌸🌸🌸🌸🌸 Dry Run: BigQuery Insert Into ${targetConfig.dataset}.${targetConfig.table} 🌸🌸🌸🌸🌸`);
+    console.log('\nData:', data);
+    console.log('\nSchema:', objectToSchema(targetConfig.schema));
+    /* eslint-enable no-console */
+    return;
+  }
+
   const tx = Sentry.getCurrentHub()?.getScope()?.getTransaction();
   const span = tx?.startChild({
     op: 'bigquery',
@@ -324,19 +333,6 @@ export async function insertOss(
   } else {
     // Unknown payload event, ignoring...
     return {};
-  }
-
-  if (process.env.DRY_RUN) {
-    const targetConfig = TARGETS.oss;
-    // eslint-disable-next-line
-    console.log(`
-###### Dry Run: BigQuery Insert ######
-  Dataset: ${targetConfig.dataset}
-  Table: ${targetConfig.table}
-  Schema: ${JSON.stringify(objectToSchema(targetConfig.schema))}
-  Data: ${JSON.stringify(data)}
-######################################`);
-    return;
   }
   return await _insert(data, TARGETS.oss);
 }
