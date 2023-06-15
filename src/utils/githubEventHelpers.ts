@@ -125,7 +125,7 @@ export async function modifyProjectIssueField(
     itemId,
     projectFieldOption,
     fieldId,
-  }
+  };
   await sendQuery(modifyProjectIssueFieldMutation, data, octokit);
 }
 
@@ -135,7 +135,6 @@ export async function modifyDueByDate(
   fieldId: string,
   octokit: Octokit
 ) {
-
   const modifyDueByDateMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
@@ -157,7 +156,7 @@ export async function modifyDueByDate(
     itemId,
     projectFieldOption,
     fieldId,
-  }
+  };
   await sendQuery(modifyDueByDateMutation, data, octokit);
 }
 

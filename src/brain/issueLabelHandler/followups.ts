@@ -4,27 +4,30 @@ import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
 import {
+  RESPONSE_DUE_DATE_FIELD_ID,
   SENTRY_MONOREPOS,
   SENTRY_REPOS,
   STATUS_FIELD_ID,
+  UNROUTED_LABEL,
+  UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-  RESPONSE_DUE_DATE_FIELD_ID,
-  UNTRIAGED_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-  UNROUTED_LABEL,
 } from '@/config';
 import {
   addIssueToGlobalIssuesProject,
   isNotFromAnExternalOrGTMUser,
+  modifyDueByDate,
   modifyProjectIssueField,
   shouldSkip,
-  modifyDueByDate,
 } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
+import {
+  calculateSLOViolationRoute,
+  calculateSLOViolationTriage,
+} from '@utils/businessHours';
 import { isFromABot } from '@utils/isFromABot';
-import { calculateSLOViolationTriage, calculateSLOViolationRoute } from '@utils/businessHours';
 
 const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
   ...SENTRY_REPOS,
@@ -166,20 +169,22 @@ export async function ensureOneWaitingForLabel({
 
   await modifyProjectIssueField(itemId, labelName, STATUS_FIELD_ID, octokit);
 
-  let timeToTriageBy
+  let timeToRespondBy;
   if (labelName === WAITING_FOR_PRODUCT_OWNER_LABEL) {
-    timeToTriageBy = await calculateSLOViolationTriage(UNTRIAGED_LABEL, issue.labels) || moment().toISOString();
-  }
-  else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
-    timeToTriageBy = await calculateSLOViolationRoute(UNROUTED_LABEL) || moment().toISOString()
-  }
-  else{
-    timeToTriageBy = "";
+    timeToRespondBy =
+      (await calculateSLOViolationTriage(UNTRIAGED_LABEL, issue.labels)) ||
+      moment().toISOString();
+  } else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
+    timeToRespondBy =
+      (await calculateSLOViolationRoute(UNROUTED_LABEL)) ||
+      moment().toISOString();
+  } else {
+    timeToRespondBy = '';
   }
 
   await modifyDueByDate(
     itemId,
-    timeToTriageBy,
+    timeToRespondBy,
     RESPONSE_DUE_DATE_FIELD_ID,
     octokit
   );

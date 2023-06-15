@@ -3,13 +3,13 @@ import { createGitHubEvent } from '@test/utils/github';
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
+  RESPONSE_DUE_DATE_FIELD_ID,
+  STATUS_FIELD_ID,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-  STATUS_FIELD_ID,
-  RESPONSE_DUE_DATE_FIELD_ID,
 } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
@@ -518,19 +518,23 @@ describe('issueLabelHandler', function () {
   });
 
   describe('followups test cases', function () {
-    let modifyProjectIssueFieldSpy, modifyDueByDateSpy, addIssueToGlobalIssuesProjectSpy;
+    let modifyProjectIssueFieldSpy,
+      modifyDueByDateSpy,
+      addIssueToGlobalIssuesProjectSpy;
     beforeAll(function () {
       modifyProjectIssueFieldSpy = jest
         .spyOn(helpers, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
-      modifyDueByDateSpy = jest.spyOn(helpers, 'modifyDueByDate').mockImplementation(jest.fn());
+      modifyDueByDateSpy = jest
+        .spyOn(helpers, 'modifyDueByDate')
+        .mockImplementation(jest.fn());
       addIssueToGlobalIssuesProjectSpy = jest
         .spyOn(helpers, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('itemId');
-    })
+    });
     afterEach(function () {
       jest.clearAllMocks();
-    })
+    });
     const setupIssue = async () => {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
@@ -561,8 +565,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_SUPPORT_LABEL,
         ])
       );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_SUPPORT_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-20T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_SUPPORT_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
@@ -577,8 +591,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_COMMUNITY_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_COMMUNITY_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
@@ -593,8 +617,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_COMMUNITY_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_COMMUNITY_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
@@ -611,8 +645,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_SUPPORT_LABEL,
         ])
       );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_SUPPORT_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-20T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_SUPPORT_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
@@ -631,8 +675,18 @@ describe('issueLabelHandler', function () {
       );
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_PRODUCT_OWNER_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-21T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-21T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
@@ -649,8 +703,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith('itemId', WAITING_FOR_PRODUCT_OWNER_LABEL, STATUS_FIELD_ID, octokit);
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith('itemId', '2022-12-21T00:00:00.000Z', RESPONSE_DUE_DATE_FIELD_ID, octokit);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-21T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
   });
 });
