@@ -3,9 +3,18 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
-import { OWNER, PRODUCT_AREA_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
+import {
+  BACKLOG_LABEL,
+  OWNER,
+  PRODUCT_AREA_LABEL_PREFIX,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+} from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
+import {
+  addIssueToGlobalIssuesProject,
+  getIssueDueDateFromProject,
+} from '@/utils/githubEventHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -74,38 +83,41 @@ const getIssueProductAreaLabel = (issue: Issue) => {
   return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
 };
 
+// TODO: Remove this once Status: Backlog is gone.
+const filterIssuesOnBacklog = (issue: Issue) => {
+  return (
+    issue.labels.find((label) => {
+      getLabelName(label) === BACKLOG_LABEL;
+    }) === undefined
+  );
+};
+
 export const getTriageSLOTimestamp = async (
   octokit: Octokit,
   repo: string,
-  issue_number: number
+  issueNumber: number,
+  issueNodeId: string
 ) => {
-  const issues = await octokit.paginate(octokit.issues.listComments, {
-    owner: OWNER,
+  const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
+    issueNodeId,
     repo,
-    issue_number,
-    per_page: GH_API_PER_PAGE,
-  });
-
-  const routingEvents = issues.filter(
-    (event) =>
-      // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
+    issueNumber,
+    octokit
   );
-  const lastRouteComment = routingEvents[routingEvents.length - 1];
-  // use regex to parse the timestamp from the bot comment
-  const parseBodyForDatetime = lastRouteComment?.body?.match(
-    /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
-  )?.groups;
-  if (!parseBodyForDatetime?.timestamp) {
+  const dueByDate = await getIssueDueDateFromProject(
+    issueNodeIdInProject,
+    octokit
+  );
+  if (!moment(dueByDate).isValid()) {
     // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(
       new Error(
-        `Could not parse timestamp from comments for ${repo}/issues/${issue_number}`
+        `Could not parse timestamp from comments for ${repo}/issues/${issueNumber}`
       )
     );
     return moment().toISOString();
   }
-  return parseBodyForDatetime.timestamp;
+  return dueByDate;
 };
 
 export const constructSlackMessage = (
@@ -417,18 +429,25 @@ export const notifyProductOwnersForUntriagedIssues = async (
       owner: OWNER,
       repo,
       state: 'open',
-      labels: UNTRIAGED_LABEL,
+      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
       per_page: GH_API_PER_PAGE,
     });
 
-    const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
-      url: issue.html_url,
-      number: issue.number,
-      title: issue.title,
-      productAreaLabel: getIssueProductAreaLabel(issue),
-      triageBy: await getTriageSLOTimestamp(octokit, repo, issue.number),
-      createdAt: issue.created_at,
-    }));
+    const issuesWithSLOInfo = untriagedIssues
+      .filter(filterIssuesOnBacklog)
+      .map(async (issue) => ({
+        url: issue.html_url,
+        number: issue.number,
+        title: issue.title,
+        productAreaLabel: getIssueProductAreaLabel(issue),
+        triageBy: await getTriageSLOTimestamp(
+          octokit,
+          repo,
+          issue.number,
+          issue.node_id
+        ),
+        createdAt: issue.created_at,
+      }));
 
     return Promise.all(issuesWithSLOInfo);
   };

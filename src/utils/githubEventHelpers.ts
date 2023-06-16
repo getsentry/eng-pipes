@@ -192,6 +192,31 @@ export async function getKeyValueFromProjectField(
   return response?.node.fieldValueByName?.name;
 }
 
+export async function getIssueDueDateFromProject(
+  issueNodeId: string,
+  octokit: Octokit
+) {
+  const query = `query{
+    node(id: "${issueNodeId}") {
+        ... on ProjectV2Item {
+          id
+          fieldValueByName(name: "Respond By") {
+            ... on ProjectV2ItemFieldTextValue {
+              text
+            }
+          }
+        }
+      }
+    }`;
+
+  const data = {
+    issueNodeId,
+  };
+  const response = await sendQuery(query, data, octokit);
+
+  return response?.node.fieldValueByName?.text;
+}
+
 export async function getIssueDetailsFromNodeId(
   issueNodeId: string,
   octokit: Octokit
