@@ -1,11 +1,7 @@
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import {
-  ISSUES_PROJECT_NODE_ID,
-  PRODUCT_AREA_FIELD_ID,
-  STATUS_FIELD_ID,
-} from '@/config';
+import { ISSUES_PROJECT_NODE_ID, PRODUCT_AREA_FIELD_ID, STATUS_FIELD_ID } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { ClientType } from '@api/github/clientType';

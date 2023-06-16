@@ -3,10 +3,10 @@ import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
 import {
-  ISSUES_PROJECT_NODE_ID,
-  PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
   STATUS_FIELD_ID,
+  ISSUES_PROJECT_NODE_ID,
+  PRODUCT_AREA_FIELD_ID,
 } from '@/config';
 import { shouldSkip } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
@@ -20,19 +20,17 @@ function isNotInAProjectWeCareAbout(payload) {
 }
 
 function isNotAProjectFieldWeCareAbout(payload) {
-  return (
-    payload?.changes?.field_value?.field_node_id !== PRODUCT_AREA_FIELD_ID &&
-    payload?.changes?.field_value?.field_node_id !== STATUS_FIELD_ID
-  );
+  return payload?.changes?.field_value?.field_node_id !== PRODUCT_AREA_FIELD_ID && payload?.changes?.field_value?.field_node_id !== STATUS_FIELD_ID;
 }
 
 function getFieldName(payload) {
   if (payload?.changes?.field_value?.field_node_id === PRODUCT_AREA_FIELD_ID) {
-    return 'Product Area';
-  } else if (payload?.changes?.field_value?.field_node_id === STATUS_FIELD_ID) {
-    return 'Status';
+    return "Product Area";
   }
-  return '';
+  else if (payload?.changes?.field_value?.field_node_id === STATUS_FIELD_ID) {
+    return "Status";
+  }
+  return "";
 }
 
 function isMissingNodeId(payload) {
@@ -84,11 +82,7 @@ export async function syncLabelsWithProjectField({
     owner,
     repo: issueInfo.repo,
     issue_number: issueInfo.number,
-    labels: [
-      `${
-        fieldName === 'Product Area' ? PRODUCT_AREA_LABEL_PREFIX : ''
-      }${fieldValue}`,
-    ],
+    labels: [`${fieldName === "Product Area" ? PRODUCT_AREA_LABEL_PREFIX : ""}${fieldValue}`],
   });
 
   tx.finish();
