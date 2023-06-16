@@ -1,21 +1,22 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import { SENTRY_REPOS } from '@/config';
-import {
-  STATUS_FIELD_ID,
-  UNTRIAGED_LABEL,
-  WAITING_FOR_PRODUCT_OWNER_LABEL,
-} from '@/config';
 import {
   isNotFromAnExternalOrGTMUser,
-  modifyProjectIssueField,
   shouldSkip,
+  modifyProjectIssueField,
 } from '@/utils/githubEventHelpers';
-import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
-import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
+import { SENTRY_REPOS } from '@/config';
+
+import { ClientType } from '@/api/github/clientType';
+import {
+  UNTRIAGED_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  STATUS_FIELD_ID,
+} from '@/config';
+import { getClient } from '@api/github/getClient';
+import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_REPOS);
 
@@ -69,12 +70,7 @@ export async function markUntriaged({
     labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    payload.issue.node_id,
-    repo,
-    issueNumber,
-    octokit
-  );
+  const itemId: string = await addIssueToGlobalIssuesProject(payload.issue.node_id, repo, issueNumber, octokit);
 
   await modifyProjectIssueField(
     itemId,
