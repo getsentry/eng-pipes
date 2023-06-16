@@ -69,7 +69,7 @@ Optional database configuration
 
 #### Production Secrets
 
-These envronment vars are used for deploying to GCP
+These environment vars are used for deploying to GCP
 
 - `GOOGLE_SERVICE_ACCOUNT_EMAIL` - Google service account email
 - `GOOGLE_APPLICATION_CREDENTIALS` - Google service account private key
@@ -92,40 +92,73 @@ You'll also need to create a private key for the service account (it should down
 
 ## Testing your changes
 
-NOTE: This steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
+NOTE: These steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
 
-1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost
-    - `ngrok config add-authtoken <Your Ngrok Auth Token>`
-    - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io`) and save it for step 6
-2. Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
+1.  Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost.
+    - If you haven't already, sign up for an ngrok account and grab the auth token from [the setup page](https://dashboard.ngrok.com/get-started/setup).
+    - `ngrok config add-authtoken <YOUR_NGROK_AUTH_TOKEN>`
+    - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io` henceforth referred to as `NGROK_INSTANCE`) and save it for step 6
+1.  Create a new Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
     - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
-3. Create a [new Slack App][slack_app] that matches the settings of the production app
-    - The prompt will ask you to associate to a workspace (use the new workspace)
-4. Create a [new GitHub App](https://github.com/settings/apps/new)
-    - Set the webhook to your ngrok tunnel with the GH route (e.g. `https://your.ngrok.io/webhooks/github`)
-    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
-    - Push to your fork and see events coming in
-5. Follow the steps of "Development & tests" to get the server running
-    - It will fail if you don't have all the env variables defined
-6. In order for your Slack app to work, you need to match the settings to the production Slack app. Run the following command and copy the output into the
-slack apps App Manifest.
+1.  Create a [new Slack App][slack_app] that matches the settings of the production app
+    - The prompt will ask you to associate to a workspace (use the new workspace you made in step 2)
+1.  In order for your Slack app to work, you need to match the settings to the production Slack app. Run the following command and copy the output into the slack app's App Manifest, making sure to use https:// URLs instead of http:// ones.
 
     ```shell
-    sed 's|<NGROK_URL>|https://<Your Ngrok URL ID>.ngrok.io|g' ./.slack-manifest.example
+    sed 's|<NGROK_URL>|https://<NGROK_INSTANCE>.ngrok.io|g' ./.slack-manifest.example
     ```
 
-    - Make sure to use https:// URLs instead of http:// ones
-    - Some of the settings will need to be verified before they get save
-      - This means that you will need to update your `.env` file with the settings from your Slack app
-      - Reload your server for the new env vars to apply and resend the verification payloads
-      - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
-    - On your new Slack workspace begin a conversation with the bot
-    - You should see your localhost app respond with 200 status code
-    - Congratulations!
+    If you have `jq` installed and wish to avoid some manual copy-pasting, the following mini-script will also achieve the same effect once `ngrok http` is running in another terminal:
 
-NOTE: ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
+    ```shell
+    sed "s|<NGROK_URL>|$( curl -s localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')|g" ./.slack-manifest.example | pbcopy
+    ```
 
-NOTE: Github lets you see web hooks events it recently delivered and even redeliver them if needed.
+    - Some of the settings will need to be verified before they get saved
+    - This means that you will need to update your `.env` file with the settings from your Slack app
+    - Reload your server for the new env vars to apply and resend the verification payloads
+    - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
+
+1.  Create a new GitHub repository at `<YOUR_GITHUB_USERNAME>/eng-pipes-dev`.
+1.  Create a [new GitHub App](https://github.com/settings/apps/new)
+    - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
+    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
+    - Go to the `Permissions & events` sidebar menu entry of the GitHub app configuration, and grant maximum non-`Admin` access (`Read and write` where possible, `Read only` everywhere else) for every line in `Repository permissions` (NOTE: We use a more constrained permission-set in production, but for initial setup enabling maximal permissions is fine; permissions can be whittled down later as needed.)
+    - For `Organization permissions`, grant `Read and write` for `Members` and `Projects`
+    - In the `Subscribe to events` section, check every possible box
+1.  Go to `Install App` in the sidebar menu of the GitHub app configuration, and install the app for your GitHub account.
+    - When prompted, choose `Only select repositories`, and pick only the `eng-pipes-dev` repository you created in step 4
+1.  Follow the steps of the "Development & tests" section below to get the server running.
+    - It will fail if you don't have all the correct env variables defined
+1.  Verify that the Slack -> eng-pipes server pipeline works
+
+    - On your new Slack workspace, send a message to the bot
+    - You should see your localhost app respond with a 200 status code:
+
+    ![success!](/docs/successful_slack_message.png 'Successful Slack message forwarding')
+
+1.  Verify that the GitHub -> eng-pipes server pipeline works
+
+    - In your `eng-pipes-dev` GitHub repository, create a new issue
+    - You should see your localhost app response with a 200 status code:
+
+    ![success!](/docs/successful_github_event.png 'Successful GitHub webhook reception')
+
+Congratulations, you're all setup!
+
+### Quality-of-life tips
+
+- ngrok gives you a [localhost interface](http://127.0.0.1:4040/inspect/http) to see events coming and to replay them.
+
+- If you have an ngrok Pro account, you can define your own domain, saving you a round trip of having to update the Slack manifest and restarting your server to ingest the autogenerated ngrok domain. You can do this by setting the `--domain` flag when you invoke like so:
+
+```shell
+ngrok http 3000 --domain your-fun-unique-subdomain.ngrok.io
+```
+
+- GitHub lets you see web hooks events it recently delivered and even redeliver them if needed. Simply go to the `Advanced` section of your GitHub app's settings page, select the event of interest from `Recent Deliveries`, and click the `Redeliver` button to send it again.
+
+- If BigQuery is producing a bunch of logspam for you, try adding `DRY_RUN=1` to your `.env` file.
 
 ## Development & tests
 
