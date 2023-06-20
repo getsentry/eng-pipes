@@ -6,7 +6,7 @@ import { GH_USER_TOKEN } from '@/config/index';
 
 import { ClientType } from './clientType';
 
-const _INSTALLATION_CACHE = new Map();
+const _CLIENTS_BY_ORG = new Map();
 
 function _getAppClient(installationId?: number) {
   const OctokitWithRetries = Octokit.plugin(retry);
@@ -66,17 +66,26 @@ export async function getClient(type: ClientType, org: string | null) {
       );
     }
 
-    const appClient = _getAppClient();
+    let client = _CLIENTS_BY_ORG.get(org);
+    if (client === undefined) {
 
-    // Cache the installation ID as it should never change
-    if (_INSTALLATION_CACHE.has(org)) {
-      return _getAppClient(_INSTALLATION_CACHE.get(org));
+      // Bootstrap with a client not bound to an org.
+      const appClient = _getAppClient();
+
+      // Use the unbound client to hydrate a client bound to an org.
+      const installation = await appClient.apps.getOrgInstallation({ org });
+      client = _getAppClient(installation.data.id);
+
+      // The docs say it's safe for client instances to be long-lived:
+      //
+      // > Additionally, the SDK will take care of regenerating an installation
+      // > access token for you so you don't need to worry about the one hour
+      // > expiration.
+      //
+      // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
+
+      _CLIENTS_BY_ORG.set(org, client);
     }
-
-    // Not sure if we can cache the octokit instance - installation tokens expire
-    // after an hour, but octokit client may be able to handle this properly.
-    const installation = await appClient.apps.getOrgInstallation({ org });
-    _INSTALLATION_CACHE.set(org, installation.data.id);
-    return _getAppClient(installation.data.id);
+    return client;
   }
 }
