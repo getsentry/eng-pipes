@@ -7,10 +7,9 @@ import { GH_USER_TOKEN } from '@/config/index';
 import { ClientType } from './clientType';
 
 const _CLIENTS_BY_ORG = new Map();
+const OctokitWithRetries = Octokit.plugin(retry);
 
 function _getAppClient(installationId?: number) {
-  const OctokitWithRetries = Octokit.plugin(retry);
-
   const auth = {
     // Initialize GitHub App with id:private_key pair and generate JWT which is used for
     appId: Number(process.env.GH_APP_IDENTIFIER),
@@ -30,8 +29,6 @@ function _getAppClient(installationId?: number) {
 }
 
 function _getUserClient() {
-  const OctokitWithRetries = Octokit.plugin(retry);
-
   return new OctokitWithRetries({
     auth: GH_USER_TOKEN,
   });
