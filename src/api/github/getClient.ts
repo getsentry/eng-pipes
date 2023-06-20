@@ -58,7 +58,7 @@ export async function getClient(type: ClientType, org: string | null) {
       );
     }
 
-    const auth: AuthInfo = {
+    const auth: AppAuthStrategyOptions = {
       appId: Number(process.env.GH_APP_IDENTIFIER),
       privateKey: process.env.GH_APP_SECRET_KEY?.replace(/\\n/g, '\n'),
     };
