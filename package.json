@@ -20,6 +20,8 @@
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",
     "dev": "yarn clean && NODE_ENV=development nodemon --ignore '*.test.ts' --watch src/ -e ts --exec \"yarn start:clean\"",
+    "inspect:clean": "yarn build && yarn inspect",
+    "inspect": "NODE_ENV=development node --inspect --async-stack-traces ./lib/index.js",
     "migrate": "yarn knex --knexfile ./src/knexfile.ts",
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
