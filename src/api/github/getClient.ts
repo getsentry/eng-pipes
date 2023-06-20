@@ -9,28 +9,23 @@ import { ClientType } from './clientType';
 const _CLIENTS_BY_ORG = new Map();
 const OctokitWithRetries = Octokit.plugin(retry);
 
-function _getAppClient(installationId?: number) {
-  const auth = {
-    // Initialize GitHub App with id:private_key pair and generate JWT which is used for
-    appId: Number(process.env.GH_APP_IDENTIFIER),
-    privateKey: process.env.GH_APP_SECRET_KEY?.replace(/\\n/g, '\n'),
-
-    // We are doing this convoluted spread because `createAppAuth` will throw if
-    // `installationId` is a key in `auth` object. Functionally, nothing
-    // changes, but now throws if `installationId` is undefined (and present in
-    // `auth` object)
-    ...(installationId ? { installationId } : {}),
-  };
-
-  return new OctokitWithRetries({
-    authStrategy: createAppAuth,
-    auth,
-  });
+interface AppAuthStrategyOptions {
+  // I didn't find something great in @octokit/types.
+  appId: number;
+  privateKey: string;
+  installationId?: number;
 }
 
 function _getUserClient() {
   return new OctokitWithRetries({
     auth: GH_USER_TOKEN,
+  });
+}
+
+function _getAppClient(auth: AppAuthStrategyOptions) {
+  return new OctokitWithRetries({
+    authStrategy: createAppAuth,
+    auth,
   });
 }
 
@@ -63,15 +58,20 @@ export async function getClient(type: ClientType, org: string | null) {
       );
     }
 
+    const auth: AppAuthStrategyOptions = {
+      appId: Number(process.env.GH_APP_IDENTIFIER),
+      privateKey: process.env.GH_APP_SECRET_KEY?.replace(/\\n/g, '\n'),
+    };
+
     let client = _CLIENTS_BY_ORG.get(org);
     if (client === undefined) {
-
       // Bootstrap with a client not bound to an org.
-      const appClient = _getAppClient();
+      const appClient = _getAppClient(auth);
 
       // Use the unbound client to hydrate a client bound to an org.
       const installation = await appClient.apps.getOrgInstallation({ org });
-      client = _getAppClient(installation.data.id);
+      auth.installationId = installation.data.id;
+      client = _getAppClient(auth);
 
       // The docs say it's safe for client instances to be long-lived:
       //
