@@ -36,6 +36,15 @@ describe('Triage Notification Tests', function () {
   });
   describe('getTriageSLOTimestamp', function () {
     let getIssueDueDateFromProjectSpy;
+    const sampleComment = {
+      user: {
+        type: 'Bot',
+        login: 'getsantry[bot]',
+      },
+      body: `Routing to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/
+        #3-triage), due by **<time datetime=2023-01-05T16:00:00.000Z>Thu Jan 05 2023 16:00:00 GMT+0000</time>**.`,
+      created_at: '2022-12-27T21:14:14Z',
+    };
     beforeAll(function () {
       jest
         .spyOn(githubEventHelpers, 'addIssueToGlobalIssuesProject')
@@ -49,11 +58,32 @@ describe('Triage Notification Tests', function () {
       jest.clearAllMocks();
     });
 
+    it('should fall back to trying to route by issue comment if project field has undefined timestamp', async function () {
+      const octokit = {
+        paginate: (a, b) => a(b),
+        issues: { listComments: () => [sampleComment] },
+      };
+      // Unfortunately, no good way to test GH graphql api so mocking out this function
+      getIssueDueDateFromProjectSpy.mockReturnValue(undefined);
+      expect(await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')).toEqual(
+        '2023-01-05T16:00:00.000Z');
+    });
+
+    it('should fall back to trying to route by issue comment if project field has invalid timestamp', async function () {
+      const octokit = {
+        paginate: (a, b) => a(b),
+        issues: { listComments: () => [sampleComment] },
+      };
+      getIssueDueDateFromProjectSpy.mockReturnValue('');
+      expect(await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')).toEqual(
+        '2023-01-05T16:00:00.000Z');
+    });
+
     it('should return date populated in project field', async function () {
       const octokit = {
         paginate: (a, b) => a(b),
+        issues: { listComments: () => [] },
       };
-      // Unfortunately, no good way to test GH graphql api so mocking out this function
       getIssueDueDateFromProjectSpy.mockReturnValue('2023-01-05T16:00:00.000Z');
       expect(
         await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
@@ -62,6 +92,7 @@ describe('Triage Notification Tests', function () {
     it('should return current time if unable to parse random string in project field', async function () {
       const octokit = {
         paginate: (a, b) => a(b),
+        issues: { listComments: () => [] },
       };
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('randomstring');
@@ -77,6 +108,7 @@ describe('Triage Notification Tests', function () {
     it('should return current time if unable to parse empty string in project field', async function () {
       const octokit = {
         paginate: (a, b) => a(b),
+        issues: { listComments: () => [] },
       };
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('');

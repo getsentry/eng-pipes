@@ -108,14 +108,35 @@ export const getTriageSLOTimestamp = async (
     issueNodeIdInProject,
     octokit
   );
-  if (!moment(dueByDate).isValid()) {
-    // Throw an exception if we have trouble parsing the timestamp
-    Sentry.captureException(
-      new Error(
-        `Could not parse timestamp from comments for ${repo}/issues/${issueNumber}`
-      )
+  if (dueByDate == null || !moment(dueByDate).isValid()) {
+    // TODO: delete week of Jun 26
+    const issues = await octokit.paginate(octokit.issues.listComments, {
+      owner: OWNER,
+      repo,
+      issue_number: issueNumber,
+      per_page: GH_API_PER_PAGE,
+    });
+    const routingEvents = issues.filter(
+      (event) =>
+        // @ts-ignore - We _know_ a `label` property exists on `labeled` events
+        event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
     );
-    return moment().toISOString();
+    const lastRouteComment = routingEvents[routingEvents.length - 1];
+    // use regex to parse the timestamp from the bot comment
+    const parseBodyForDatetime = lastRouteComment?.body?.match(
+      /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
+    )?.groups;
+
+    if(!parseBodyForDatetime?.timestamp) {
+      // Throw an exception if we have trouble parsing the timestamp
+      Sentry.captureException(
+        new Error(
+          `Could not parse timestamp from comments for ${repo}/issues/${issueNumber}`
+        )
+      );
+      return moment().toISOString();
+    }
+    return parseBodyForDatetime.timestamp;
   }
   return dueByDate;
 };
