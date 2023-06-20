@@ -127,7 +127,7 @@ export const getTriageSLOTimestamp = async (
       /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
     )?.groups;
 
-    if(!parseBodyForDatetime?.timestamp) {
+    if (!parseBodyForDatetime?.timestamp) {
       // Throw an exception if we have trouble parsing the timestamp
       Sentry.captureException(
         new Error(

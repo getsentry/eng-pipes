@@ -65,8 +65,9 @@ describe('Triage Notification Tests', function () {
       };
       // Unfortunately, no good way to test GH graphql api so mocking out this function
       getIssueDueDateFromProjectSpy.mockReturnValue(undefined);
-      expect(await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')).toEqual(
-        '2023-01-05T16:00:00.000Z');
+      expect(
+        await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
+      ).toEqual('2023-01-05T16:00:00.000Z');
     });
 
     it('should fall back to trying to route by issue comment if project field has invalid timestamp', async function () {
@@ -75,8 +76,9 @@ describe('Triage Notification Tests', function () {
         issues: { listComments: () => [sampleComment] },
       };
       getIssueDueDateFromProjectSpy.mockReturnValue('');
-      expect(await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')).toEqual(
-        '2023-01-05T16:00:00.000Z');
+      expect(
+        await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
+      ).toEqual('2023-01-05T16:00:00.000Z');
     });
 
     it('should return date populated in project field', async function () {
