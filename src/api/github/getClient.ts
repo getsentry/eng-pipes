@@ -9,13 +9,19 @@ import { ClientType } from './clientType';
 const _CLIENTS_BY_ORG = new Map();
 const OctokitWithRetries = Octokit.plugin(retry);
 
+interface AuthInfo {
+  appId: number;
+  privateKey: string;
+  installationId?: number;
+}
+
 function _getUserClient() {
   return new OctokitWithRetries({
     auth: GH_USER_TOKEN,
   });
 }
 
-function _getAppClient(auth) {
+function _getAppClient(auth: AuthInfo) {
   return new OctokitWithRetries({
     authStrategy: createAppAuth,
     auth,
@@ -51,7 +57,7 @@ export async function getClient(type: ClientType, org: string | null) {
       );
     }
 
-    const auth = {
+    const auth: AuthInfo = {
       appId: Number(process.env.GH_APP_IDENTIFIER),
       privateKey: process.env.GH_APP_SECRET_KEY?.replace(/\\n/g, '\n'),
     };
