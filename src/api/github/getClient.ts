@@ -10,7 +10,7 @@ const _CLIENTS_BY_ORG = new Map();
 const OctokitWithRetries = Octokit.plugin(retry);
 
 interface AppAuthStrategyOptions {
-	// I didn't find something great in @octokit/types.
+  // I didn't find something great in @octokit/types.
   appId: number;
   privateKey: string;
   installationId?: number;
