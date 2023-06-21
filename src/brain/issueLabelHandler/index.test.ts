@@ -534,9 +534,9 @@ describe('issueLabelHandler', function () {
         },
       };
       await slackHandler({ command, ack, say, respond, client });
-      jest
-        .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
-        .mockReturnValue('2022-12-21T13:00:00.000Z');
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T13:00:00.000Z'
+      );
       await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
@@ -544,6 +544,9 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
       ]);
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T00:00:00.000Z'
+      );
     });
   });
 
