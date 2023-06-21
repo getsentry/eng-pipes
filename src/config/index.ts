@@ -37,7 +37,6 @@ export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
 
 // Slack profile IDs
 export const SLACK_PROFILE_ID_GITHUB = 'XfEJ1CLM1C';
-export const SLACK_BOT_APP_ID = process.env.SLACK_BOT_APP_ID || '';
 
 // Note, these are Sentry palette colors
 export enum Color {
