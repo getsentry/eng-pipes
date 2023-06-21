@@ -5,12 +5,12 @@ import moment from 'moment-timezone';
 import {
   BACKLOG_LABEL,
   IN_PROGRESS_LABEL,
-  SENTRY_MONOREPOS,
   OFFICE_TIME_ZONES,
   OFFICES_24_HOUR,
   PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
+  SENTRY_MONOREPOS,
   SENTRY_ORG,
   STATUS_LABEL_PREFIX,
   UNKNOWN_LABEL,
@@ -116,7 +116,9 @@ export async function markUnrouted({
 
 async function routeIssue(octokit, productAreaLabelName) {
   try {
-    const productArea = productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
+    const productArea = productAreaLabelName?.substr(
+      PRODUCT_AREA_LABEL_PREFIX.length
+    );
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
       org: SENTRY_ORG,
@@ -181,7 +183,7 @@ export async function markRouted({
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
-  const labelNames = issue?.labels?.map(label => label.name) || [];
+  const labelNames = issue?.labels?.map((label) => label.name) || [];
   const isBeingRoutedBySupport = labelNames.includes(WAITING_FOR_SUPPORT_LABEL);
 
   // When routing, remove all Status and Product Area labels that currently exist on issue
@@ -257,7 +259,9 @@ export async function markRouted({
     payload.issue.number,
     octokit
   );
-  const productArea = productAreaLabelName?.substr(PRODUCT_AREA_LABEL_PREFIX.length);
+  const productArea = productAreaLabelName?.substr(
+    PRODUCT_AREA_LABEL_PREFIX.length
+  );
   await modifyProjectIssueField(
     itemId,
     productArea,

@@ -172,7 +172,9 @@ export async function _insert(
 ) {
   if (process.env.DRY_RUN) {
     /* eslint-disable no-console */
-    console.log(`\n🌸🌸🌸🌸🌸 Dry Run: BigQuery Insert Into ${targetConfig.dataset}.${targetConfig.table} 🌸🌸🌸🌸🌸`);
+    console.log(
+      `\n🌸🌸🌸🌸🌸 Dry Run: BigQuery Insert Into ${targetConfig.dataset}.${targetConfig.table} 🌸🌸🌸🌸🌸`
+    );
     console.log('\nData:', data);
     console.log('\nSchema:', objectToSchema(targetConfig.schema));
     /* eslint-enable no-console */
