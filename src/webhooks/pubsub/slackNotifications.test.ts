@@ -293,6 +293,91 @@ describe('Triage Notification Tests', function () {
         text: '👋 Triage Reminder ⏰',
       });
     });
+    // TODO(https://github.com/getsentry/eng-pipes/issues/409): Test reproducing breakage in #409,
+    // fix will land in subsequent commit.
+    it('should sort issues before numbering them', async function () {
+      const notificationChannels = {
+        channel1: ['Product Area: Test', 'Product Area: Other'],
+      };
+      // Note that these issues come in in reverse order.
+      const productAreaToIssuesMap = {
+        'Product Area: Other': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            productAreaLabel: 'Product Area: Other',
+            triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+        'Product Area: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            productAreaLabel: 'Product Area: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T21:00:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, productAreaToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              text: 'Hey! You have some tickets to triage:',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            type: 'divider',
+          },
+          {
+            fields: [
+              {
+                text: '🚨 *Overdue*',
+                type: 'mrkdwn',
+              },
+              {
+                text: '😰',
+                type: 'mrkdwn',
+              },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+        ],
+        channel: 'channel1',
+        text: '👋 Triage Reminder ⏰',
+      });
+    });
     it('should strip issue of < and > characters in slack message', async function () {
       const notificationChannels = {
         channel1: ['Product Area: Test'],
