@@ -67,6 +67,36 @@ function shouldLabelBeRemoved(labelName, target_name) {
   );
 }
 
+async function getReadableTimeStamp(timeToTriageBy, productAreaLabelName) {
+  const dueByMoment = moment(timeToTriageBy).utc();
+  const officesForProductArea = await getSortedOffices(productAreaLabelName);
+  let lastOfficeInBusinessHours;
+  (officesForProductArea.length > 0 ? officesForProductArea : ['sfo']).forEach(
+    (office) => {
+      if (isTimeInBusinessHours(dueByMoment, office)) {
+        lastOfficeInBusinessHours = office;
+      }
+    }
+  );
+  if (lastOfficeInBusinessHours == null) {
+    lastOfficeInBusinessHours = 'sfo';
+    Sentry.captureMessage(
+      `Unable to find an office in business hours for ${productAreaLabelName} for time ${timeToTriageBy}`
+    );
+  }
+  const officeDateFormat =
+    lastOfficeInBusinessHours &&
+    OFFICES_24_HOUR.includes(lastOfficeInBusinessHours)
+      ? 'dddd, MMMM Do [at] HH:mm'
+      : 'dddd, MMMM Do [at] h:mm a';
+  return {
+    readableDueByDate: dueByMoment
+      .tz(OFFICE_TIME_ZONES[lastOfficeInBusinessHours])
+      .format(officeDateFormat),
+    lastOfficeInBusinessHours,
+  };
+}
+
 // Markers of State
 
 export async function markUnrouted({
@@ -104,6 +134,7 @@ export async function markUnrouted({
   const timeToRouteBy = await calculateSLOViolationRoute(UNROUTED_LABEL);
   const { readableDueByDate, lastOfficeInBusinessHours } =
     await getReadableTimeStamp(timeToRouteBy, UNKNOWN_LABEL);
+
   await octokit.issues.createComment({
     owner,
     repo: repo,
@@ -129,36 +160,6 @@ async function routeIssue(octokit, productAreaLabelName) {
     Sentry.captureException(error);
     return `Failed to route for ${productAreaLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage)`;
   }
-}
-
-async function getReadableTimeStamp(timeToTriageBy, productAreaLabelName) {
-  const dueByMoment = moment(timeToTriageBy).utc();
-  const officesForProductArea = await getSortedOffices(productAreaLabelName);
-  let lastOfficeInBusinessHours;
-  (officesForProductArea.length > 0 ? officesForProductArea : ['sfo']).forEach(
-    (office) => {
-      if (isTimeInBusinessHours(dueByMoment, office)) {
-        lastOfficeInBusinessHours = office;
-      }
-    }
-  );
-  if (lastOfficeInBusinessHours == null) {
-    lastOfficeInBusinessHours = 'sfo';
-    Sentry.captureMessage(
-      `Unable to find an office in business hours for ${productAreaLabelName} for time ${timeToTriageBy}`
-    );
-  }
-  const officeDateFormat =
-    lastOfficeInBusinessHours &&
-    OFFICES_24_HOUR.includes(lastOfficeInBusinessHours)
-      ? 'dddd, MMMM Do [at] HH:mm'
-      : 'dddd, MMMM Do [at] h:mm a';
-  return {
-    readableDueByDate: dueByMoment
-      .tz(OFFICE_TIME_ZONES[lastOfficeInBusinessHours])
-      .format(officeDateFormat),
-    lastOfficeInBusinessHours,
-  };
 }
 
 export async function markRouted({
@@ -242,6 +243,7 @@ export async function markRouted({
     await getReadableTimeStamp(timeToTriageBy, productAreaLabelName);
   const dueBy = `due by **<time datetime=${timeToTriageBy}>${readableDueByDate}</time> (${lastOfficeInBusinessHours})**. ⏲️`;
   const comment = `${routedTeam}, ${dueBy}`;
+
   await octokit.issues.createComment({
     owner,
     repo: payload.repository.name,

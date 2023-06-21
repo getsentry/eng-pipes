@@ -1,8 +1,12 @@
+import moment from 'moment-timezone';
+
 import { createGitHubEvent } from '@test/utils/github';
 
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
+  RESPONSE_DUE_DATE_FIELD_ID,
+  STATUS_FIELD_ID,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
@@ -25,15 +29,16 @@ describe('issueLabelHandler', function () {
   let octokit;
   const errors = jest.fn();
   let say, respond, client, ack;
+  let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
 
   beforeAll(async function () {
     await db.migrate.latest();
     githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
-    jest
+    calculateSLOViolationRouteSpy = jest
       .spyOn(businessHourFunctions, 'calculateSLOViolationRoute')
       .mockReturnValue('2022-12-20T00:00:00.000Z');
-    jest
+    calculateSLOViolationTriageSpy = jest
       .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
       .mockReturnValue('2022-12-21T00:00:00.000Z');
     await getLabelsTable().insert({
@@ -209,9 +214,7 @@ describe('issueLabelHandler', function () {
     beforeAll(function () {
       addIssueToGlobalIssuesProjectSpy = jest
         .spyOn(helpers, 'addIssueToGlobalIssuesProject')
-        .mockReturnValue({
-          addProjectV2ItemById: { item: { id: 'PROJECT_ID' } },
-        });
+        .mockReturnValue('itemId');
     });
     afterEach(function () {
       jest.clearAllMocks();
@@ -531,9 +534,9 @@ describe('issueLabelHandler', function () {
         },
       };
       await slackHandler({ command, ack, say, respond, client });
-      jest
-        .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
-        .mockReturnValue('2022-12-21T13:00:00.000Z');
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T13:00:00.000Z'
+      );
       await addLabel('Product Area: Test', 'sentry-docs');
       expectUntriaged();
       expectRouted();
@@ -541,10 +544,30 @@ describe('issueLabelHandler', function () {
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route), due by **<time datetime=2022-12-20T00:00:00.000Z>Monday, December 19th at 4:00 pm</time> (sfo)**. ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage), due by **<time datetime=2022-12-21T13:00:00.000Z>Wednesday, December 21st at 14:00</time> (vie)**. ⏲️',
       ]);
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T00:00:00.000Z'
+      );
     });
   });
 
   describe('followups test cases', function () {
+    let modifyProjectIssueFieldSpy,
+      modifyDueByDateSpy,
+      addIssueToGlobalIssuesProjectSpy;
+    beforeAll(function () {
+      modifyProjectIssueFieldSpy = jest
+        .spyOn(helpers, 'modifyProjectIssueField')
+        .mockImplementation(jest.fn());
+      modifyDueByDateSpy = jest
+        .spyOn(helpers, 'modifyDueByDate')
+        .mockImplementation(jest.fn());
+      addIssueToGlobalIssuesProjectSpy = jest
+        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .mockReturnValue('itemId');
+    });
+    afterEach(function () {
+      jest.clearAllMocks();
+    });
     const setupIssue = async () => {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
@@ -575,6 +598,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_SUPPORT_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_SUPPORT_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
@@ -589,6 +624,18 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_COMMUNITY_LABEL,
         ])
       );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_COMMUNITY_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
@@ -596,6 +643,25 @@ describe('issueLabelHandler', function () {
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
+      expect(octokit.issues._labels).toEqual(
+        new Set([
+          UNTRIAGED_LABEL,
+          'Product Area: Test',
+          WAITING_FOR_COMMUNITY_LABEL,
+        ])
+      );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_COMMUNITY_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
     });
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
@@ -611,6 +677,18 @@ describe('issueLabelHandler', function () {
           'Product Area: Test',
           WAITING_FOR_SUPPORT_LABEL,
         ])
+      );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_SUPPORT_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
       );
     });
 
@@ -628,6 +706,74 @@ describe('issueLabelHandler', function () {
           WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
       );
+      // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-21T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
+    });
+
+    it('should modify time to respond by when adding `Waiting for: Product Owner` label when calculateSLOViolationTriage returns null', async function () {
+      await setupIssue();
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      calculateSLOViolationTriageSpy.mockReturnValue(null);
+      jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
+      // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2023-06-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
+      // Restore old mock return value used throughout the file
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T00:00:00.000Z'
+      );
+    });
+
+    it('should modify time to respond by when adding `Waiting for: Support` label when calculateSLOViolationTriage returns null', async function () {
+      await createIssue('sentry-docs');
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      calculateSLOViolationRouteSpy.mockReturnValue(null);
+      jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
+      // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
+      await addLabel(WAITING_FOR_SUPPORT_LABEL);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_SUPPORT_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2023-06-20T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
+      );
+      // Restore old mock return value used throughout the file
+      calculateSLOViolationTriageSpy.mockReturnValue(
+        '2022-12-21T00:00:00.000Z'
+      );
     });
 
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
@@ -643,6 +789,18 @@ describe('issueLabelHandler', function () {
           'Product Area: Test',
           WAITING_FOR_PRODUCT_OWNER_LABEL,
         ])
+      );
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        STATUS_FIELD_ID,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        '2022-12-21T00:00:00.000Z',
+        RESPONSE_DUE_DATE_FIELD_ID,
+        octokit
       );
     });
   });
