@@ -160,6 +160,15 @@ ngrok http 3000 --domain your-fun-unique-subdomain.ngrok.io
 
 - If BigQuery is producing a bunch of logspam for you, try adding `DRY_RUN=1` to your `.env` file.
 
+- If you open this project in VSCode, you can attach the built-in debugger to a running server.
+  Rather than using `yarn dev` from the command line, instead open VSCode and select `Debug: Start Debugging` from the command palette:
+
+![startup](/docs/debugger_startup.png 'Start the debugger')
+
+You should hit any breakpoints you set in the code:
+
+![running](/docs/debugger_running.png 'Running debugger paused in the main function')
+
 ## Development & tests
 
 Follow the steps in the '''Setup''' section before running these steps:
