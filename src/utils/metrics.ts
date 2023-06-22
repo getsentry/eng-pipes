@@ -170,7 +170,8 @@ export async function _insert(
   data: Record<string, any>,
   targetConfig: TargetConfig
 ) {
-  if (process.env.DRY_RUN) {
+  // DRY_RUN ready through env variable will be a string, so we need to be more explicit here.
+  if (process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true') {
     /* eslint-disable no-console */
     console.log(
       `\n🌸🌸🌸🌸🌸 Dry Run: BigQuery Insert Into ${targetConfig.dataset}.${targetConfig.table} 🌸🌸🌸🌸🌸`
