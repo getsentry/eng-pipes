@@ -200,7 +200,7 @@ ngrok http 3000 --domain your-fun-unique-subdomain.ngrok.io
 
 - GitHub lets you see web hooks events it recently delivered and even redeliver them if needed. Simply go to the `Advanced` section of your GitHub app's settings page, select the event of interest from `Recent Deliveries`, and click the `Redeliver` button to send it again.
 
-- If BigQuery is producing a bunch of logspam for you, try adding `DRY_RUN=1` to your `.env` file.
+- If BigQuery is producing a bunch of logspam for you, try adding `DRY_RUN=true` to your `.env` file.
 
 - If you open this project in VSCode, you can attach the built-in debugger to a running server.
   Rather than using `yarn dev` from the command line, instead open VSCode and select `Debug: Start Debugging` from the command palette:

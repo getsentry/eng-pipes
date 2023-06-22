@@ -31,7 +31,7 @@ export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS == 'true';
 export const DRY_RUN =
-  process.env.DRY_RUN == 'true' || process.env.DRY_RUN == '1';
+  process.env.DRY_RUN == 'true';
 export const PROJECT =
   process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 

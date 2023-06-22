@@ -170,7 +170,6 @@ export async function _insert(
   data: Record<string, any>,
   targetConfig: TargetConfig
 ) {
-  // DRY_RUN read through env variable will be a string, so we need to be more explicit here.
   if (DRY_RUN) {
     /* eslint-disable no-console */
     console.log(
