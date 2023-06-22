@@ -22,6 +22,7 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
+import { DRY_RUN } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
@@ -33,6 +34,10 @@ import { githubMetrics as metrics } from '.';
 
 jest.spyOn(dbFunctions, 'insert');
 jest.spyOn(dbFunctions, 'insertOss');
+jest.mock('@/config', () => {
+  const actualEnvVariables = jest.requireActual('@/config');
+  return { ...actualEnvVariables, DRY_RUN: true };
+});
 
 const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
   ([name, type]) => ({
@@ -76,10 +81,10 @@ describe('github webhook', function () {
   });
 
   it('does not call insert on dry run', async function () {
-    process.env.DRY_RUN = '1';
+    DRY_RUN = true;
     await createGitHubEvent(fastify, 'pull_request');
     expect(mockInsert).not.toHaveBeenCalled();
-    delete process.env.DRY_RUN;
+    DRY_RUN = false;
   });
 
   it('correctly inserts github pull request created webhook', async function () {

@@ -30,6 +30,10 @@ export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS == 'true';
+export const DRY_RUN =
+  process.env.DRY_RUN == 'true' || process.env.DRY_RUN == '1';
+export const PROJECT =
+  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
@@ -104,9 +108,15 @@ export const MAX_ROUTE_DAYS = 1;
 // Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_MONOREPOS` if it has actually been set
 // in the instantiating environment.
 export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
-export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO ? [ PERSONAL_TEST_REPO ] : [];
+export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
+  ? [PERSONAL_TEST_REPO]
+  : [];
 
-export const SENTRY_MONOREPOS = [ 'sentry', 'sentry-docs', ...PERSONAL_TEST_REPOS ];
+export const SENTRY_MONOREPOS = [
+  'sentry',
+  'sentry-docs',
+  ...PERSONAL_TEST_REPOS,
+];
 export const SENTRY_REPOS = [
   'arroyo',
   'cdc',

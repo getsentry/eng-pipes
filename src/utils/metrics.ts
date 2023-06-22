@@ -1,14 +1,14 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
+import { DRY_RUN, PROJECT } from '@/config';
+
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
 } from './businessHours';
 import { getOssUserType } from './getOssUserType';
 
-const PROJECT =
-  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
 function objectToSchema(obj: Record<string, any>) {
@@ -171,7 +171,7 @@ export async function _insert(
   targetConfig: TargetConfig
 ) {
   // DRY_RUN read through env variable will be a string, so we need to be more explicit here.
-  if (process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true') {
+  if (DRY_RUN) {
     /* eslint-disable no-console */
     console.log(
       `\n🌸🌸🌸🌸🌸 Dry Run: BigQuery Insert Into ${targetConfig.dataset}.${targetConfig.table} 🌸🌸🌸🌸🌸`
