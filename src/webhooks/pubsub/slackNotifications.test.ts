@@ -278,7 +278,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
@@ -288,7 +288,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '2. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
               { text: '0 minutes overdue', type: 'mrkdwn' },
@@ -297,6 +297,222 @@ describe('Triage Notification Tests', function () {
           },
         ],
         channel: 'channel2',
+        text: '👋 Triage Reminder ⏰',
+      });
+    });
+    it('should sort issues before assigning ordinals to them', async function () {
+      const notificationChannels = {
+        channel1: ['Product Area: Test', 'Product Area: Other'],
+      };
+
+      // Note that these issues come in in reverse order.
+      const productAreaToIssuesMap = {
+        'Product Area: Other': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue',
+            productAreaLabel: 'Product Area: Other',
+            triageBy: '2022-12-12T20:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+        'Product Area: Test': [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            productAreaLabel: 'Product Area: Test',
+            triageBy: '2022-12-12T21:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T21:00:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, productAreaToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              text: 'Hey! You have some tickets to triage:',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            type: 'divider',
+          },
+          {
+            fields: [
+              {
+                text: '🚨 *Overdue*',
+                type: 'mrkdwn',
+              },
+              {
+                text: '😰',
+                type: 'mrkdwn',
+              },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 hour 0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '2. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '0 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+        ],
+        channel: 'channel1',
+        text: '👋 Triage Reminder ⏰',
+      });
+    });
+    it('should maintain independent and properly sorted ordinals for adjacent issue lists', async function () {
+      const notificationChannels = {
+        channel1: ['Product Area: Test', 'Product Area: Other'],
+      };
+
+      // Note that the orders of the two lists are flipped relative to one another: one is
+      // ascending, the other is descending. This let's us validate that the final ordinal
+      // assignment is done independent of the ordering of the array we receive.
+      const productAreaToIssuesMap = {
+        'Product Area: Test': [
+          {
+            url: 'https://test.com/issues/3',
+            number: 3,
+            title: 'Test Issue Overdue',
+            productAreaLabel: 'Product Area: Test',
+            triageBy: '2022-12-12T15:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue Almost Due',
+            productAreaLabel: 'Product Area: Test',
+            triageBy: '2022-12-12T19:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+        'Product Area: Other': [
+          {
+            url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Open Source Issue Almost Due',
+            productAreaLabel: 'Product Area: Other',
+            triageBy: '2022-12-12T18:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+          {
+            url: 'https://test.com/issues/4',
+            number: 4,
+            title: 'Open Source Issue Overdue',
+            productAreaLabel: 'Product Area: Other',
+            triageBy: '2022-12-12T16:00:00.000Z',
+            createdAt: '2022-12-10T21:00:00.000Z',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T16:58:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(
+        constructSlackMessage(notificationChannels, productAreaToIssuesMap, now)
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              text: 'Hey! You have some tickets to triage:',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            type: 'divider',
+          },
+          {
+            fields: [
+              {
+                text: '🚨 *Overdue*',
+                type: 'mrkdwn',
+              },
+              { text: '😰', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/3|#3 Test Issue Overdue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 hour 58 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '2. <https://test.com/issues/4|#4 Open Source Issue Overdue>',
+                type: 'mrkdwn',
+              },
+              { text: '58 minutes overdue', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '⌛️ *Act fast!*',
+                type: 'mrkdwn',
+              },
+              {
+                text: '😨',
+                type: 'mrkdwn',
+              },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue Almost Due>',
+                type: 'mrkdwn',
+              },
+              { text: '1 hour 2 minutes left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '2. <https://test.com/issues/1|#1 Test Issue Almost Due>',
+                type: 'mrkdwn',
+              },
+              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+        ],
+        channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
     });
@@ -537,7 +753,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '3 hours 0 minutes left', type: 'mrkdwn' },
@@ -547,7 +763,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '2. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
               { text: '4 hours 0 minutes left', type: 'mrkdwn' },
@@ -732,7 +948,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '2. <https://test.com/issues/2|#2 Open Source Issue>',
+                text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
               { text: '1 day left', type: 'mrkdwn' },
@@ -742,7 +958,7 @@ describe('Triage Notification Tests', function () {
           {
             fields: [
               {
-                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                text: '2. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
               { text: '1 day left', type: 'mrkdwn' },

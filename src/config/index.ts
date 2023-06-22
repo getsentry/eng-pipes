@@ -101,7 +101,12 @@ export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
-export const SENTRY_MONOREPOS = ['sentry', 'sentry-docs'];
+// Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_MONOREPOS` if it has actually been set
+// in the instantiating environment.
+export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
+export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO ? [ PERSONAL_TEST_REPO ] : [];
+
+export const SENTRY_MONOREPOS = [ 'sentry', 'sentry-docs', ...PERSONAL_TEST_REPOS ];
 export const SENTRY_REPOS = [
   'arroyo',
   'cdc',
