@@ -99,6 +99,7 @@ const filterIssuesOnBacklog = (issue: Issue) => {
       getLabelName(label) === BACKLOG_LABEL;
     }) === undefined
   );
+}
 
 // Note that the `ordinal` field is the literal number that will show up, not the index in the
 // owning array. For example, it is the caller's responsibility to offset the 0-indexed entries of
