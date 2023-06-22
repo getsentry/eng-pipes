@@ -1,3 +1,5 @@
+import { RESPONSE_DUE_DATE_FIELD_ID } from '@/config';
+
 import * as githubEventHelpers from './githubEventHelpers';
 
 describe('githubEventHelpers', function () {
@@ -59,7 +61,18 @@ describe('githubEventHelpers', function () {
   it('getIssueDueDateFromProject should return timestamp from project', async function () {
     const octokit = {
       graphql: jest.fn().mockReturnValue({
-        node: { fieldValueByName: { text: '2023-06-23T18:00:00.000Z' } },
+        node: {
+          fieldValues: {
+            nodes: [
+              {},
+              {},
+              {
+                text: '2023-06-23T18:00:00.000Z',
+                field: { id: RESPONSE_DUE_DATE_FIELD_ID },
+              },
+            ],
+          },
+        },
       }),
     };
     expect(

@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { ISSUES_PROJECT_NODE_ID } from '@/config';
+import { ISSUES_PROJECT_NODE_ID, RESPONSE_DUE_DATE_FIELD_ID } from '@/config';
 import { getOssUserType } from '@utils/getOssUserType';
 
 // Validation Helpers
@@ -198,23 +198,36 @@ export async function getIssueDueDateFromProject(
 ) {
   const query = `query{
     node(id: "${issueNodeId}") {
-        ... on ProjectV2Item {
-          id
-          fieldValueByName(name: "Respond By") {
+      ... on ProjectV2Item {
+        id
+        fieldValues(first: 50) {
+          nodes {
             ... on ProjectV2ItemFieldTextValue {
+              id
               text
+              field {
+                ... on ProjectV2Field {
+                  id
+                  name
+                }
+              }
             }
           }
         }
       }
-    }`;
+    }
+  }`;
 
   const data = {
     issueNodeId,
   };
   const response = await sendQuery(query, data, octokit);
-
-  return response?.node.fieldValueByName?.text;
+  // When the response due date is empty, the node doesn't exist so we default to empty string
+  const issueDueDateInfoNode =
+    response?.node.fieldValues.nodes.find(
+      (item) => item.field?.id === RESPONSE_DUE_DATE_FIELD_ID
+    ) || '';
+  return issueDueDateInfoNode.text;
 }
 
 export async function getIssueDetailsFromNodeId(
