@@ -104,9 +104,15 @@ export const MAX_ROUTE_DAYS = 1;
 // Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_MONOREPOS` if it has actually been set
 // in the instantiating environment.
 export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
-export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO ? [ PERSONAL_TEST_REPO ] : [];
+export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
+  ? [PERSONAL_TEST_REPO]
+  : [];
 
-export const SENTRY_MONOREPOS = [ 'sentry', 'sentry-docs', ...PERSONAL_TEST_REPOS ];
+export const SENTRY_MONOREPOS = [
+  'sentry',
+  'sentry-docs',
+  ...PERSONAL_TEST_REPOS,
+];
 export const SENTRY_REPOS = [
   'arroyo',
   'cdc',
