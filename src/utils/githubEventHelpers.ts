@@ -196,7 +196,7 @@ export async function getIssueDueDateFromProject(
   issueNodeId: string,
   octokit: Octokit
 ) {
-    // Use fieldValues (and iterate) instead of fieldValuesByName in case the name ever changes
+  // Use fieldValues (and iterate) instead of fieldValuesByName in case the name ever changes
   const query = `query{
     node(id: "${issueNodeId}") {
       ... on ProjectV2Item {
