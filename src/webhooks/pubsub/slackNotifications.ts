@@ -27,7 +27,7 @@ type SlackMessageUnorderedIssueItem = {
   triageBy: string;
   issueLink: string;
   timeLeft: string;
-}
+};
 
 // Like the above, but the numerical prefix to each row now has a correct numerical ordering.
 type SlackMessageOrderedIssueItem = {
@@ -91,7 +91,6 @@ const getIssueProductAreaLabel = (issue: Issue) => {
   return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
 };
 
-
 // TODO: Remove this once Status: Backlog is gone.
 const filterIssuesOnBacklog = (issue: Issue) => {
   return (
@@ -113,12 +112,12 @@ const addOrderingToSlackMessageItem = (
       // Issue title and link
       {
         text: `${ordinal}. ${item.issueLink}`,
-        type: "mrkdwn",
+        type: 'mrkdwn',
       },
       // Time until issue is due
       {
         text: item.timeLeft,
-        type: "mrkdwn",
+        type: 'mrkdwn',
       },
     ],
   };
@@ -285,7 +284,7 @@ export const constructSlackMessage = (
           }
         );
       });
-  
+
       const sortAndFlattenIssuesArray = (issues) =>
         issues
           .sort(
@@ -296,7 +295,7 @@ export const constructSlackMessage = (
             return addOrderingToSlackMessageItem(item, index + 1).fields;
           })
           .flat();
-  
+
       const messageBlocks: SlackMessageBlocks[] = [
         {
           type: 'header',
