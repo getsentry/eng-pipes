@@ -1,18 +1,12 @@
 import { createAppAuth } from '@octokit/auth-app';
 
 import { GH_USER_TOKEN } from '@/config/index';
+import { AppAuthStrategyOptions, GH_APP_AUTH_OPTIONS } from '@/config/index';
 
 import { ClientType } from './clientType';
 import { OctokitWithRetries } from './octokitWithRetries';
 
 const _CLIENTS_BY_ORG = new Map();
-
-interface AppAuthStrategyOptions {
-  // I didn't find something great in @octokit/types.
-  appId: number;
-  privateKey: string;
-  installationId?: number;
-}
 
 function _getUserClient() {
   return new OctokitWithRetries({
@@ -43,22 +37,18 @@ export async function getClient(type: ClientType, org: string | null) {
     }
     return _getUserClient();
   } else {
-    if (!process.env.GH_APP_SECRET_KEY) {
-      throw new Error('GH_APP_SECRET_KEY not defined');
-    }
-    if (!process.env.GH_APP_IDENTIFIER) {
-      throw new Error('GH_APP_IDENTIFIER not defined');
-    }
     if (org == null) {
       throw new Error(
         'Must pass org to `getClient` if getting an app scoped client.'
       );
     }
 
-    const auth: AppAuthStrategyOptions = {
-      appId: Number(process.env.GH_APP_IDENTIFIER),
-      privateKey: process.env.GH_APP_SECRET_KEY?.replace(/\\n/g, '\n'),
-    };
+    const auth = GH_APP_AUTH_OPTIONS.get('__tmp_org_placeholder__');
+    if (auth === undefined) {
+      throw new Error(
+        `No GitHub app configured in the environment` // TODO: for org '${org}'.`
+      );
+    }
 
     let client = _CLIENTS_BY_ORG.get(org);
     if (client === undefined) {

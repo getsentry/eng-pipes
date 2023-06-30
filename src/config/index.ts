@@ -174,6 +174,35 @@ export const RESPONSE_DUE_DATE_FIELD_ID =
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
 
 /**
+ * App auth strategy options. For branding purposes, we have one app per org
+ * (getsantry for getsentry, covecod for codecov, etc). Down in getClient we
+ * will instantiate a GitHub octokit client for each org the first time we need
+ * it, then cache it for the duration of our server process as it seems to be
+ * smart enough to renew auth tokens as needed. When we do that, we will set
+ * installationId. Here in config we need to populate the appId and privateKey
+ * from the environment.
+ *
+ * TODO: Expand from a single app/org to multiple. First we need to clean up
+ * getClient calls to use a dynamic owner/org instead of OWNER as defined above.
+ */
+
+export interface AppAuthStrategyOptions {
+  // I didn't find something great in @octokit/types.
+  appId: number;
+  privateKey: string;
+  installationId?: number;
+}
+
+export const GH_APP_AUTH_OPTIONS = new Map<string, AppAuthStrategyOptions>();
+
+if (process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY) {
+  GH_APP_AUTH_OPTIONS.set('__tmp_org_placeholder__', {
+    appId: Number(process.env.GH_APP_IDENTIFIER),
+    privateKey: process.env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
+  });
+}
+
+/**
  * Business Hours by Office
  */
 
