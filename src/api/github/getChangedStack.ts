@@ -12,14 +12,9 @@ const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';
  * Given a commit and repo, check GitHub Checks to see what type of changes
  * were made in the commit (frontend, backend, fullstack)
  */
-export async function getChangedStack(
-  ref: string,
-  repo: string,
-  client?: Octokit
-) {
+export async function getChangedStack(ref: string, repo: string) {
   try {
-    // We can save on making extra calls to get GH client
-    const octokit = client || (await getClient(ClientType.App, OWNER));
+    const octokit = await getClient(ClientType.App, OWNER);
 
     const check_runs = await octokit.paginate(octokit.checks.listForRef, {
       owner: OWNER,
