@@ -29,7 +29,12 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
 export const DISABLE_GITHUB_METRICS =
-  process.env.DISABLE_GITHUB_METRICS == 'true';
+  process.env.DISABLE_GITHUB_METRICS == 'true' ||
+  process.env.DISABLE_GITHUB_METRICS == '1';
+export const DRY_RUN =
+  process.env.DRY_RUN == 'true' || process.env.DRY_RUN == '1';
+export const PROJECT =
+  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
