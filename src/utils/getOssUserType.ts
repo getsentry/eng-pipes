@@ -29,7 +29,6 @@ export async function getOssUserType(
   }
 
   const org = owner.login;
-  const octokit = await getClient(ClientType.User, org);
   const username = payload.sender.login;
 
   const cachedResult = _USER_CACHE.get(username);
@@ -53,6 +52,8 @@ export async function getOssUserType(
   let type: UserType | null = null;
   let status: number | null;
   let check: 'Org' | 'Team';
+
+  const octokit = await getClient(ClientType.User);
 
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   check = 'Org';
