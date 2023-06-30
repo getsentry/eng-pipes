@@ -3,9 +3,18 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
-import { OWNER, PRODUCT_AREA_LABEL_PREFIX, UNTRIAGED_LABEL } from '@/config';
+import {
+  BACKLOG_LABEL,
+  OWNER,
+  PRODUCT_AREA_LABEL_PREFIX,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+} from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
+import {
+  addIssueToGlobalIssuesProject,
+  getIssueDueDateFromProject,
+} from '@/utils/githubEventHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -13,7 +22,15 @@ const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';
 const getChannelLastNotifiedTable = () => db('channel_last_notified');
 
-type SlackMessageIssueItem = {
+// An item with all of its relevant properties stringified as markdown.
+type SlackMessageUnorderedIssueItem = {
+  triageBy: string;
+  issueLink: string;
+  timeLeft: string;
+}
+
+// Like the above, but the numerical prefix to each row now has a correct numerical ordering.
+type SlackMessageOrderedIssueItem = {
   triageBy: string;
   fields: [
     // Issue title and link
@@ -74,38 +91,86 @@ const getIssueProductAreaLabel = (issue: Issue) => {
   return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
 };
 
+
+// TODO: Remove this once Status: Backlog is gone.
+const filterIssuesOnBacklog = (issue: Issue) => {
+  return (
+    issue.labels.find((label) => getLabelName(label) === BACKLOG_LABEL) ==
+    undefined
+  );
+};
+
+// Note that the `ordinal` field is the literal number that will show up, not the index in the
+// owning array. For example, it is the caller's responsibility to offset the 0-indexed entries of
+// an array if a 1-indexed list is what we want the user to see (it almost always is).
+const addOrderingToSlackMessageItem = (
+  item: SlackMessageUnorderedIssueItem,
+  ordinal: number
+): SlackMessageOrderedIssueItem => {
+  return {
+    triageBy: item.triageBy,
+    fields: [
+      // Issue title and link
+      {
+        text: `${ordinal}. ${item.issueLink}`,
+        type: "mrkdwn",
+      },
+      // Time until issue is due
+      {
+        text: item.timeLeft,
+        type: "mrkdwn",
+      },
+    ],
+  };
+};
+
 export const getTriageSLOTimestamp = async (
   octokit: Octokit,
   repo: string,
-  issue_number: number
+  issueNumber: number,
+  issueNodeId: string
 ) => {
-  const issues = await octokit.paginate(octokit.issues.listComments, {
-    owner: OWNER,
+  const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
+    issueNodeId,
     repo,
-    issue_number,
-    per_page: GH_API_PER_PAGE,
-  });
-
-  const routingEvents = issues.filter(
-    (event) =>
-      // @ts-ignore - We _know_ a `label` property exists on `labeled` events
-      event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
+    issueNumber,
+    octokit
   );
-  const lastRouteComment = routingEvents[routingEvents.length - 1];
-  // use regex to parse the timestamp from the bot comment
-  const parseBodyForDatetime = lastRouteComment?.body?.match(
-    /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
-  )?.groups;
-  if (!parseBodyForDatetime?.timestamp) {
-    // Throw an exception if we have trouble parsing the timestamp
-    Sentry.captureException(
-      new Error(
-        `Could not parse timestamp from comments for ${repo}/issues/${issue_number}`
-      )
+  const dueByDate = await getIssueDueDateFromProject(
+    issueNodeIdInProject,
+    octokit
+  );
+  if (dueByDate == null || !moment(dueByDate).isValid()) {
+    // TODO: delete week of Jun 26
+    const issues = await octokit.paginate(octokit.issues.listComments, {
+      owner: OWNER,
+      repo,
+      issue_number: issueNumber,
+      per_page: GH_API_PER_PAGE,
+    });
+    const routingEvents = issues.filter(
+      (event) =>
+        // @ts-ignore - We _know_ a `label` property exists on `labeled` events
+        event.user.type === 'Bot' && event.user.login === 'getsantry[bot]'
     );
-    return moment().toISOString();
+    const lastRouteComment = routingEvents[routingEvents.length - 1];
+    // use regex to parse the timestamp from the bot comment
+    const parseBodyForDatetime = lastRouteComment?.body?.match(
+      /<time datetime=(?<timestamp>\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)>/
+    )?.groups;
+
+    if (!parseBodyForDatetime?.timestamp) {
+      // Throw an exception if we have trouble parsing the timestamp
+      Sentry.captureException(
+        new Error(
+          `Could not parse timestamp from comments for ${repo}/issues/${issueNumber}`
+        )
+      );
+      return moment().toISOString();
+    }
+    return parseBodyForDatetime.timestamp;
   }
-  return parseBodyForDatetime.timestamp;
+  return dueByDate;
 };
 
 export const constructSlackMessage = (
@@ -116,9 +181,9 @@ export const constructSlackMessage = (
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
     let hasEnoughTimePassedSinceIssueCreation = false;
-    const overdueIssues: SlackMessageIssueItem[] = [];
-    const actFastIssues: SlackMessageIssueItem[] = [];
-    const triageQueueIssues: SlackMessageIssueItem[] = [];
+    const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
+    const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
+    const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
     if (await isChannelInBusinessHours(channelId, now)) {
       notificationChannels[channelId].map((productArea) => {
         productAreaToIssuesMap[productArea].forEach(
@@ -141,15 +206,8 @@ export const constructSlackMessage = (
                   : `${daysLeft * -1} days`;
               overdueIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      overdueIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  { text: `${daysText} overdue`, type: 'mrkdwn' },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${daysText} overdue`,
               });
             } else if (hoursLeft < -4) {
               const hoursText =
@@ -158,15 +216,8 @@ export const constructSlackMessage = (
                   : `${hoursLeft * -1} hours`;
               overdueIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      overdueIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  { text: `${hoursText} overdue`, type: 'mrkdwn' },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${hoursText} overdue`,
               });
             } else if (hoursLeft <= -1) {
               const minutesText =
@@ -179,18 +230,8 @@ export const constructSlackMessage = (
                   : `${hoursLeft * -1} hours`;
               overdueIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      overdueIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  {
-                    text: `${hoursText} ${minutesText} overdue`,
-                    type: 'mrkdwn',
-                  },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${hoursText} ${minutesText} overdue`,
               });
             } else if (hoursLeft == 0 && minutesLeft <= 0) {
               const minutesText =
@@ -199,15 +240,8 @@ export const constructSlackMessage = (
                   : `${minutesLeft * -1} minutes`;
               overdueIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      overdueIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  { text: `${minutesText} overdue`, type: 'mrkdwn' },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${minutesText} overdue`,
               });
             } else if (hoursLeft == 0 && minutesLeft >= 0) {
               const minutesText =
@@ -216,15 +250,8 @@ export const constructSlackMessage = (
                   : `${minutesLeft} minutes`;
               actFastIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      actFastIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  { text: `${minutesText} left`, type: 'mrkdwn' },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${minutesText} left`,
               });
             } else if (hoursLeft <= 4) {
               const minutesText =
@@ -235,58 +262,41 @@ export const constructSlackMessage = (
                 hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
               actFastIssues.push({
                 triageBy,
-                fields: [
-                  {
-                    text: `${
-                      actFastIssues.length + 1
-                    }. <${url}|#${number} ${escapedIssueTitle}>`,
-                    type: 'mrkdwn',
-                  },
-                  { text: `${hoursText} ${minutesText} left`, type: 'mrkdwn' },
-                ],
+                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                timeLeft: `${hoursText} ${minutesText} left`,
               });
             } else {
               if (daysLeft < 1) {
                 triageQueueIssues.push({
                   triageBy,
-                  fields: [
-                    {
-                      text: `${
-                        triageQueueIssues.length + 1
-                      }. <${url}|#${number} ${escapedIssueTitle}>`,
-                      type: 'mrkdwn',
-                    },
-                    { text: `${hoursLeft} hours left`, type: 'mrkdwn' },
-                  ],
+                  issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                  timeLeft: `${hoursLeft} hours left`,
                 });
               } else {
                 const daysText =
                   daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
                 triageQueueIssues.push({
                   triageBy,
-                  fields: [
-                    {
-                      text: `${
-                        triageQueueIssues.length + 1
-                      }. <${url}|#${number} ${escapedIssueTitle}>`,
-                      type: 'mrkdwn',
-                    },
-                    { text: `${daysText} left`, type: 'mrkdwn' },
-                  ],
+                  issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+                  timeLeft: `${daysText} left`,
                 });
               }
             }
           }
         );
       });
+  
       const sortAndFlattenIssuesArray = (issues) =>
         issues
           .sort(
             (a, b) =>
               moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
           )
-          .map((item) => item.fields)
+          .map((item, index) => {
+            return addOrderingToSlackMessageItem(item, index + 1).fields;
+          })
           .flat();
+  
       const messageBlocks: SlackMessageBlocks[] = [
         {
           type: 'header',
@@ -417,18 +427,25 @@ export const notifyProductOwnersForUntriagedIssues = async (
       owner: OWNER,
       repo,
       state: 'open',
-      labels: UNTRIAGED_LABEL,
+      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
       per_page: GH_API_PER_PAGE,
     });
 
-    const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
-      url: issue.html_url,
-      number: issue.number,
-      title: issue.title,
-      productAreaLabel: getIssueProductAreaLabel(issue),
-      triageBy: await getTriageSLOTimestamp(octokit, repo, issue.number),
-      createdAt: issue.created_at,
-    }));
+    const issuesWithSLOInfo = untriagedIssues
+      .filter(filterIssuesOnBacklog)
+      .map(async (issue) => ({
+        url: issue.html_url,
+        number: issue.number,
+        title: issue.title,
+        productAreaLabel: getIssueProductAreaLabel(issue),
+        triageBy: await getTriageSLOTimestamp(
+          octokit,
+          repo,
+          issue.number,
+          issue.node_id
+        ),
+        createdAt: issue.created_at,
+      }));
 
     return Promise.all(issuesWithSLOInfo);
   };
