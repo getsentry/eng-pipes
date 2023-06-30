@@ -87,7 +87,7 @@ export async function actionViewUndeployedCommits({
   // Get the "relevant" commits from either sentry or getsentry
   // We include `base` here as `compareCommits` does not
   const relevantCommits = await Promise.all(
-    data.commits.map(({ sha }) => getRelevantCommit(sha, octokit))
+    data.commits.map(({ sha }) => getRelevantCommit(sha))
   );
 
   const commitBlocks = (
