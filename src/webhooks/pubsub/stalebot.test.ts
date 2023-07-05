@@ -41,7 +41,7 @@ describe('Stalebot Tests', function () {
     expect(octokit.issues._comments).toEqual([
       `This issue has gone three weeks without activity. In another week, I will close it.
 
-But! If you comment or otherwise update it, I will reset the clock, and if you label it \`Status: Backlog\` or \`Status: In Progress\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
 
 ----
 
@@ -82,7 +82,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you l
     expect(octokit.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
 
-But! If you comment or otherwise update it, I will reset the clock, and if you label it \`Status: Backlog\` or \`Status: In Progress\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
 
 ----
 
