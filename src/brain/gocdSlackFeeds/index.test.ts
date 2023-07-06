@@ -8,6 +8,7 @@ import {
   Color,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
+  FEED_ENGINEERING_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
@@ -41,12 +42,13 @@ describe('gocdSlackFeeds', function () {
     await db('slack_messages').delete();
   });
 
-  it('post and update message to both feeds', async function () {
+  it('post and update message to all feeds', async function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
           name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
           stage: {
+            name: 'deploy-canary',
             result: 'Failed',
           },
         },
@@ -56,7 +58,7 @@ describe('gocdSlackFeeds', function () {
     // First Event
     await handler(gocdPayload);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
 
     const wantPostMsg = {
       text: 'GoCD deployment started',
@@ -78,9 +80,9 @@ describe('gocdSlackFeeds', function () {
             slackblocks.divider(),
             {
               elements: [
-                slackblocks.markdown('❌ *preliminary-checks*'),
+                slackblocks.markdown('❌ *deploy-canary*'),
                 slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/preliminary-checks/1|Failed>'
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Failed>'
                 ),
               ],
             },
@@ -88,7 +90,7 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
 
     const sortMessages = (ao, bo) => {
       const a = ao[0].channel;
@@ -107,11 +109,14 @@ describe('gocdSlackFeeds', function () {
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[1][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
     );
 
     let slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(2);
+    expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
@@ -123,6 +128,7 @@ describe('gocdSlackFeeds', function () {
     };
     expect(slackMessages[0]).toMatchObject(wantSlack);
     expect(slackMessages[1]).toMatchObject(wantSlack);
+    expect(slackMessages[2]).toMatchObject(wantSlack);
 
     // Second Event
     await handler(
@@ -159,9 +165,9 @@ describe('gocdSlackFeeds', function () {
             slackblocks.divider(),
             {
               elements: [
-                slackblocks.markdown('✅ *preliminary-checks*'),
+                slackblocks.markdown('✅ *deploy-canary*'),
                 slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/preliminary-checks/1|Passed>'
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Passed>'
                 ),
               ],
             },
@@ -169,19 +175,22 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
-    expect(bolt.client.chat.update).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
     );
 
     slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(2);
+    expect(slackMessages).toHaveLength(3);
   });
 
   it('post message to feed-deploy only for passing pipeline', async function () {
