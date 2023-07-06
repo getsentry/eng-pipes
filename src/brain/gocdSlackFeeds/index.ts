@@ -51,11 +51,14 @@ const engineeringFeed = new DeployFeed({
   channelID: FEED_ENGINEERING_CHANNEL_ID,
   msgType: SlackMessage.FEED_ENGINGEERING_DEPLOY,
   pipelineFilter: (pipeline) => {
+    // We only want to log the getsentry FE and BE pipelines
     if (!ENGINEERING_PIPELINE_FILTER.includes(pipeline.name)) {
       return false;
     }
 
-    if (pipeline.stage.name.toLowerCase().indexOf('deploy') === -1) {
+    // We only care about raising an error if the deploy-canary or
+    // deploy-primary stages have failed.
+    if (!pipeline.stage.name.toLowerCase().includes('deploy-')) {
       return false;
     }
 
