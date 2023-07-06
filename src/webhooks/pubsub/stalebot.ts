@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import moment from 'moment-timezone';
 
-import { OWNER, STALE_LABEL } from '@/config';
+import { OWNER, STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL } from '@/config';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
@@ -54,7 +54,7 @@ const staleStatusUpdater = async (
                 isPullRequest ? 'pull request' : 'issue'
               } has gone three weeks without activity. In another week, I will close it.
 
-But! If you comment or otherwise update it, I will reset the clock, and if you label it \`Status: Backlog\` or \`Status: In Progress\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
 
 ----
 
@@ -73,13 +73,13 @@ export const triggerStaleBot = async (
   octokit: Octokit,
   now: moment.Moment
 ) => {
-  // Get all open issues and pull requests
+  // Get all open issues and pull requests that are Waiting for Community
   repos.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {
       owner: OWNER,
       repo,
       state: 'open',
-      // labels: WAITING_FOR_COMMUNITY_LABEL,
+      labels: WAITING_FOR_COMMUNITY_LABEL,
       per_page: GH_API_PER_PAGE,
     });
     await staleStatusUpdater(repo, issues, octokit, now);
