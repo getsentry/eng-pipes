@@ -242,6 +242,56 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('post message to feed-deploy only for failing checks', async function () {
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'checks',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/checks/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it('post message to feed-deploy only misc pipeline', async function () {
     const gocdPayload = merge({}, payload, {
       data: {
