@@ -7,7 +7,6 @@ export const DEFAULT_PORT = 3000;
 
 export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-export const SENTRY_ORG = 'getsentry';
 export const GETSENTRY_ORG = process.env.GETSENTRY_ORG || 'getsentry';
 export const SENTRY_REPO = process.env.SENTRY_REPO || 'sentry';
 export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
