@@ -1,6 +1,6 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { GETSENTRY_REPO, OWNER, REQUIRED_CHECK_NAME } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO, REQUIRED_CHECK_NAME } from '@/config';
 
 /**
  * Checks payload to see if:
@@ -12,7 +12,7 @@ export function isGetsentryRequiredCheck({
   payload,
 }: EmitterWebhookEvent<'check_run'>) {
   // Only on `getsentry` repo
-  if (payload.repository?.full_name !== `${OWNER}/${GETSENTRY_REPO}`) {
+  if (payload.repository?.full_name !== `${GETSENTRY_ORG}/${GETSENTRY_REPO}`) {
     return false;
   }
 

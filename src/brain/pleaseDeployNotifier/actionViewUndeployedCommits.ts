@@ -2,10 +2,10 @@ import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
 import {
+  GETSENTRY_ORG,
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
-  OWNER,
 } from '@/config';
 import { firstMaterialSHA } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
@@ -68,7 +68,7 @@ export async function actionViewUndeployedCommits({
     return;
   }
 
-  const octokit = await getClient(ClientType.App, OWNER);
+  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
   const base = firstMaterialSHA(lastDeploy);
   if (!base) {
     // Failed to get base sha
@@ -78,7 +78,7 @@ export async function actionViewUndeployedCommits({
 
   // Get all getsentry commits between `base` and `head`
   const { data } = await octokit.repos.compareCommits({
-    owner: OWNER,
+    owner: GETSENTRY_ORG,
     repo: GETSENTRY_REPO,
     base,
     head,

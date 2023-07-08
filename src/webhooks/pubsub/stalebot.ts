@@ -1,7 +1,11 @@
 import { Octokit } from '@octokit/rest';
 import moment from 'moment-timezone';
 
-import { OWNER, STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL } from '@/config';
+import {
+  GETSENTRY_ORG,
+  STALE_LABEL,
+  WAITING_FOR_COMMUNITY_LABEL,
+} from '@/config';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
@@ -23,14 +27,14 @@ const staleStatusUpdater = async (
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
           // Interestingly enough, this api works for both issues and pull requests
           return octokit.issues.update({
-            owner: OWNER,
+            owner: GETSENTRY_ORG,
             repo: repo,
             issue_number: issue.number,
             state: 'closed',
           });
         } else if (now.diff(issue.updated_at, 'days') < DAYS_BEFORE_CLOSE) {
           return octokit.issues.removeLabel({
-            owner: OWNER,
+            owner: GETSENTRY_ORG,
             repo: repo,
             issue_number: issue.number,
             name: STALE_LABEL,
@@ -41,13 +45,13 @@ const staleStatusUpdater = async (
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
           return Promise.all([
             octokit.issues.addLabels({
-              owner: OWNER,
+              owner: GETSENTRY_ORG,
               repo: repo,
               issue_number: issue.number,
               labels: [STALE_LABEL],
             }),
             octokit.issues.createComment({
-              owner: OWNER,
+              owner: GETSENTRY_ORG,
               repo: repo,
               issue_number: issue.number,
               body: `This ${
@@ -76,7 +80,7 @@ export const triggerStaleBot = async (
   // Get all open issues and pull requests that are Waiting for Community
   repos.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo,
       state: 'open',
       labels: WAITING_FOR_COMMUNITY_LABEL,

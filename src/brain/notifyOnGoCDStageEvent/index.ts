@@ -15,10 +15,10 @@ import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { gocdevents } from '@/api/gocdevents';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
+  GETSENTRY_ORG,
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-  OWNER,
   SENTRY_REPO,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -212,7 +212,7 @@ async function getCommitsInDeployment(
 ): Promise<CompareCommits['commits']> {
   if (prevsha && prevsha !== sha) {
     const { data } = await octokit.repos.compareCommits({
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo: GETSENTRY_REPO,
       head: sha,
       base: prevsha,
@@ -220,7 +220,7 @@ async function getCommitsInDeployment(
     return data.commits;
   }
   const resp = await octokit.repos.getCommit({
-    owner: OWNER,
+    owner: GETSENTRY_ORG,
     repo: GETSENTRY_REPO,
     ref: sha,
   });
@@ -233,7 +233,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
       continue;
     }
     const url = bc.material['git-configuration'].url;
-    if (url.indexOf(`${OWNER}/${GETSENTRY_REPO}`) != -1) {
+    if (url.indexOf(`${GETSENTRY_ORG}/${GETSENTRY_REPO}`) != -1) {
       return bc.modifications[0].revision;
     }
   }
@@ -273,7 +273,7 @@ export async function handler(resBody: GoCDResponse) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const octokit = await getClient(ClientType.App, OWNER);
+  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
 
   try {
     const latestDeploy = await getLastGetSentryGoCDDeploy(

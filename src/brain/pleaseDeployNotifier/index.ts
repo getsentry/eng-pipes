@@ -10,10 +10,10 @@ import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsB
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import {
   Color,
+  GETSENTRY_ORG,
   GETSENTRY_REPO,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-  OWNER,
   SENTRY_REPO,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -130,7 +130,7 @@ async function handler({
 
   // Author of commit found
   const commit = checkRun.head_sha;
-  const commitLink = `https://github.com/${OWNER}/${GETSENTRY_REPO}/commits/${commit}`;
+  const commitLink = `https://github.com/${GETSENTRY_ORG}/${GETSENTRY_REPO}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
 
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's

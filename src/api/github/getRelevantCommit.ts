@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_REPO, OWNER, SENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO, SENTRY_REPO } from '@/config';
 import { getClient } from '@api/github/getClient';
 
 /**
@@ -13,11 +13,11 @@ import { getClient } from '@api/github/getClient';
  */
 export async function getRelevantCommit(ref: string) {
   try {
-    const octokit = await getClient(ClientType.App, OWNER);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
 
     // Attempt to get the getsentry commit first
     const { data: commit } = await octokit.repos.getCommit({
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo: GETSENTRY_REPO,
       ref,
     });
@@ -39,7 +39,7 @@ export async function getRelevantCommit(ref: string) {
     //
     // In this case, fetch the sentry commit to display
     const { data } = await octokit.repos.getCommit({
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo: SENTRY_REPO,
       ref: sentryCommitSha,
     });

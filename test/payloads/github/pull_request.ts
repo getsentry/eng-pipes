@@ -405,7 +405,7 @@ const payload = {
         href: 'https://api.github.com/repos/Codertocat/Hello-World/statuses/ec26c3e57ca3a959ca5aad62de7213c562f8c821',
       },
     },
-    author_association: 'OWNER',
+    author_association: 'GETSENTRY_ORG',
     draft: false,
     merged: false,
     mergeable: null,
