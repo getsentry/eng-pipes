@@ -1,13 +1,11 @@
 import { createAppAuth } from '@octokit/auth-app';
-import { retry } from '@octokit/plugin-retry';
-import { Octokit } from '@octokit/rest';
 
 import { GH_USER_TOKEN } from '@/config/index';
 
 import { ClientType } from './clientType';
+import { OctokitWithRetries } from './octokitWithRetries';
 
 const _CLIENTS_BY_ORG = new Map();
-const OctokitWithRetries = Octokit.plugin(retry);
 
 interface AppAuthStrategyOptions {
   // I didn't find something great in @octokit/types.
@@ -43,7 +41,6 @@ export async function getClient(type: ClientType, org: string | null) {
     if (!GH_USER_TOKEN) {
       throw new Error('GH_USER_TOKEN not defined');
     }
-
     return _getUserClient();
   } else {
     if (!process.env.GH_APP_SECRET_KEY) {
