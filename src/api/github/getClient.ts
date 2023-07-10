@@ -26,7 +26,7 @@ function _getAppClient(auth: AppAuthStrategyOptions) {
  *
  * Only org is required, as we can assume the GH App is installed org-wide.
  */
-export async function getClient(type: ClientType, org: string | null) {
+export async function getClient(type: ClientType, org?: string | null) {
   if (process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true') {
     return _getUserClient();
   }

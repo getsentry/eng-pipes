@@ -1,4 +1,3 @@
-import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
