@@ -3,11 +3,7 @@ import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
 import { SENTRY_REPOS } from '@/config';
-import {
-  STATUS_FIELD_ID,
-  UNTRIAGED_LABEL,
-  WAITING_FOR_PRODUCT_OWNER_LABEL,
-} from '@/config';
+import { STATUS_FIELD_ID, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
 import {
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
@@ -24,27 +20,29 @@ function isAlreadyUntriaged(payload) {
 }
 
 function isAlreadyTriaged(payload) {
-  return !payload.issue.labels.some(({ name }) => name === UNTRIAGED_LABEL);
+  return !payload.issue.labels.some(
+    ({ name }) => name === WAITING_FOR_PRODUCT_OWNER_LABEL
+  );
 }
 
 function isNotInARepoWeCareAboutForTriage(payload) {
   return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
 }
 
-function isTheUntriagedLabel(payload) {
-  return payload.label?.name === UNTRIAGED_LABEL;
+function isWaitingForProductOwnerLabel(payload) {
+  return payload.label?.name === WAITING_FOR_PRODUCT_OWNER_LABEL;
 }
 
 // Markers of State
 
-export async function markUntriaged({
+export async function markWaitingForProductOwner({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.markUntriaged',
+    name: 'issueLabelHandler.markWaitingforProductOwner',
   });
 
   const reasonsToSkipTriage = [
@@ -66,7 +64,7 @@ export async function markUntriaged({
     owner,
     repo: repo,
     issue_number: issueNumber,
-    labels: [UNTRIAGED_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
+    labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
   const itemId: string = await addIssueToGlobalIssuesProject(
@@ -86,20 +84,20 @@ export async function markUntriaged({
   tx.finish();
 }
 
-export async function markTriaged({
+export async function markNotWaitingForProductOwner({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.markTriaged',
+    name: 'issueLabelHandler.markNotWaitingForProductOwner',
   });
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForTriage,
     isFromABot,
-    isTheUntriagedLabel,
+    isWaitingForProductOwnerLabel,
     isAlreadyTriaged,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
@@ -114,7 +112,7 @@ export async function markTriaged({
       owner: owner,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
-      name: UNTRIAGED_LABEL,
+      name: WAITING_FOR_PRODUCT_OWNER_LABEL,
     });
   } catch (error) {
     // @ts-expect-error

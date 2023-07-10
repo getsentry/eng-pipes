@@ -4,8 +4,8 @@ import {
   PRODUCT_AREA_LABEL_PREFIX,
   SUPPORT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
@@ -25,14 +25,16 @@ export const githubLabelHandler = async ({
   let productAreaLabel: undefined | string;
   if (
     label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
-    issue.labels?.some((label) => label.name === UNTRIAGED_LABEL)
+    issue.labels?.some(
+      (label) => label.name === WAITING_FOR_PRODUCT_OWNER_LABEL
+    )
   ) {
     productAreaLabel = label.name;
-  } else if (label.name === UNTRIAGED_LABEL) {
+  } else if (label.name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     productAreaLabel = issue.labels?.find((label) =>
       label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
     )?.name;
-  } else if (label.name === UNROUTED_LABEL) {
+  } else if (label.name === WAITING_FOR_SUPPORT_LABEL) {
     bolt.client.chat.postMessage({
       text: `⏲ Issue ready to route: <${issue.html_url}|#${issue.number} ${issue.title}>`,
       channel: SUPPORT_CHANNEL_ID,

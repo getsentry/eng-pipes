@@ -21,8 +21,6 @@ import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import {
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
@@ -267,7 +265,9 @@ describe('businessHours tests', function () {
     });
 
     it('should not calculate SLO violation if label is untriaged', async function () {
-      const result = await calculateSLOViolationRoute(UNTRIAGED_LABEL);
+      const result = await calculateSLOViolationRoute(
+        WAITING_FOR_PRODUCT_OWNER_LABEL
+      );
       expect(result).toEqual(null);
     });
 
@@ -279,7 +279,9 @@ describe('businessHours tests', function () {
     });
 
     it('should calculate SLO violation if label is unrouted', async function () {
-      const result = await calculateSLOViolationRoute(UNROUTED_LABEL);
+      const result = await calculateSLOViolationRoute(
+        WAITING_FOR_SUPPORT_LABEL
+      );
       expect(result).not.toEqual(null);
     });
   });
@@ -392,16 +394,18 @@ describe('businessHours tests', function () {
     });
 
     it('should not calculate SLO violation if label is unrouted', async function () {
-      const result = await calculateSLOViolationTriage(UNROUTED_LABEL, [
-        { name: 'Product Area: Test' },
-      ]);
+      const result = await calculateSLOViolationTriage(
+        WAITING_FOR_SUPPORT_LABEL,
+        [{ name: 'Product Area: Test' }]
+      );
       expect(result).toEqual(null);
     });
 
     it('should calculate SLO violation if label is untriaged', async function () {
-      const result = await calculateSLOViolationTriage(UNTRIAGED_LABEL, [
-        { name: 'Product Area: Test' },
-      ]);
+      const result = await calculateSLOViolationTriage(
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        [{ name: 'Product Area: Test' }]
+      );
       expect(result).not.toEqual(null);
     });
 
@@ -416,7 +420,7 @@ describe('businessHours tests', function () {
     it('should calculate SLO violation if label is assigned to another product area for untriaged label', async function () {
       const result = await calculateSLOViolationTriage(
         'Product Area: Rerouted',
-        [{ name: UNTRIAGED_LABEL }]
+        [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL }]
       );
       expect(result).not.toEqual(null);
     });
