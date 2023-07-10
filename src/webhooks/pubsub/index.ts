@@ -3,18 +3,16 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG, SENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG } from '@/config';
 import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
 import { getClient } from '@api/github/getClient';
 
 import { triggerStaleBot } from './stalebot';
 
-const DEFAULT_REPOS = [SENTRY_REPO];
-
 type PubSubPayload = {
   name: string;
+  repos: string[];
   slo?: number;
-  repos?: string[];
 };
 
 export const opts = {
@@ -58,11 +56,11 @@ export const pubSubHandler = async (
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
-  if (func === undefined) {
+  if (func === undefined || !payload.repos || !payload.repos.length) {
     func = async () => {}; // no-op
     code = 400;
   } else {
-    repos = payload.repos || DEFAULT_REPOS;
+    repos = payload.repos;
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
   }
