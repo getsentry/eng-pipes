@@ -54,7 +54,7 @@ export const pubSubHandler = async (
     now,
     code = 204;
   let func = new Map([
-    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssue],
+    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
