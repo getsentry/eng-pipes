@@ -77,7 +77,6 @@ These environment vars are used for deploying to GCP
 And finally, for Sentry releases
 
 - `SENTRY_AUTH_TOKEN` - Auth token used to create releases
-- `SENTRY_ORG` - the Sentry organization
 - `SENTRY_PROJECT` - the Sentry project id
 
 ### Google Cloud Platform
@@ -94,21 +93,21 @@ You'll also need to create a private key for the service account (it should down
 
 NOTE: These steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
 
-1.  Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost.
+1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost.
 
     - If you haven't already, sign up for an ngrok account and grab the auth token from [the setup page](https://dashboard.ngrok.com/get-started/setup).
     - `ngrok config add-authtoken <YOUR_NGROK_AUTH_TOKEN>`
     - `ngrok http 3000` --> Grab the URL ngrok gives you (e.g. `https://6a88fe29c5cc.ngrok.io` henceforth referred to as `NGROK_INSTANCE`) and save it for step 6
 
-1.  Create a new personal Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
+1. Create a new personal Slack workspace from the Slack app (e.g. `Sentry (testing)`). Do not use the Sentry workspace!
 
     - This workspace should be using your `@sentry.io` account otherwise you'll have a bunch of issues due to the built-in `@sentry.io` checks in this app.
 
-1.  Create a [new personal Slack App][slack_app] that matches the settings of the production app
+1. Create a [new personal Slack App][slack_app] that matches the settings of the production app
 
     - The prompt will ask you to associate to a workspace (use the new workspace you made in step 2)
 
-1.  In order for your Slack app to work, you need to match the settings to the production Slack app. Run the following command and copy the output into the slack app's App Manifest, making sure to use https:// URLs instead of http:// ones.
+1. In order for your Slack app to work, you need to match the settings to the production Slack app. Run the following command and copy the output into the slack app's App Manifest, making sure to use https:// URLs instead of http:// ones.
 
     ```shell
     sed 's|<NGROK_URL>|https://<NGROK_INSTANCE>.ngrok.io|g' ./.slack-manifest.example
@@ -125,7 +124,7 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
     - Reload your server for the new env vars to apply and resend the verification payloads
     - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
 
-1.  Create a new personal GitHub organization at `<YOUR_GITHUB_USERNAME>/eng-pipes-org`
+1. Create a new personal GitHub organization at `<YOUR_GITHUB_USERNAME>/eng-pipes-org`
 
     - In that organization, create a [new GitHub App](https://github.com/settings/apps/new)
     - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
@@ -136,7 +135,7 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
     - Go to `Install App` in the sidebar menu of the GitHub app configuration, and install the app for your personal GitHub organization
     - When prompted, choose `All repositories`
 
-1.  In your personal organization, create a new personal GitHub repository at `eng-pipes-org/eng-pipes-dev`.
+1. In your personal organization, create a new personal GitHub repository at `eng-pipes-org/eng-pipes-dev`.
 
     - After the organization has been created, go to its `Settings`, then select `Personal access tokens` from the sidebar to enable tokens
     - In the setup menu, select `Allow access via fine-grained personal access tokens`, then `Do not require administrator approval`, and finally `Allow access via personal access tokens (classic)`
@@ -144,15 +143,15 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
     - Title the new token `Eng-pipes development token`, give this token 90 days until expiration, and enable the following permissions: `read:org` and `read:user`.
     - On the next page, copy the displayed token into the `GH_USER_TOKEN` field of your `.env` file.
 
-    > :warning: **You are giving this token rather broad permissions to your entire GitHub account, not just the `eng-pipes-org`, so be very careful and ensure it does not leave your machine! **
+    > :warning: **You are giving this token rather broad permissions to your entire GitHub account, not just the `eng-pipes-org`, so be very careful and ensure it does not leave your machine!**
 
-1.  In your personal GitHub organization, create a new project called `Eng-pipes test project`
+1. In your personal GitHub organization, create a new project called `Eng-pipes test project`
 
     - Go to the project's `Settings`, then modify the `Status` field to only have the following options (note the capitalization): `Waiting for: Community`, `Waiting for: Product Owner`, and `Waiting for: Support`
     - Add a new field (note the capitalization) called `Respond By` of type `Text`
     - Add a new field (note the capitalization) called `Product Area` of type `Single select`, with the following options: `Alerts`, `Crons`, `Dashboards`, `Discover`, `Issues,` `Performance`, `Profiling`, `Projects`, `Relays`, `Releases`, and `User Feedback`
 
-1.  In your personal GitHub repository at `eng-pipes-org/eng-pipes-dev`, go to `Issues`, then click `Labels`
+1. In your personal GitHub repository at `eng-pipes-org/eng-pipes-dev`, go to `Issues`, then click `Labels`
 
     - Add the labels `Waiting for: Community`, `Waiting for: Product Owner`, and `Waiting for: Support`,
     - Add the labels `Product Area: Alerts`, `Product Area: Crons`, `Product Area: Dashboards`, `Product Area: Discover`, `Product Area: Issues,` `Product Area: Performance`, `Product Area: Profiling`, `Product Area: Projects`, `Product Area: Relays`, `Product Area: Releases`, and `Product Area: User Feedback`
@@ -162,25 +161,25 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
     - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of your personal GitHub organization; set the `ISSUES_PROJECT_NODE_ID` variable in your `.env` file to match
     - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the node ID of your project fields, and use those IDs to populate the `STATUS_FIELD_ID`, `PRODUCT_AREA_FIELD_ID`, and `RESPONSE_DUE_DATE_FIELD_ID` in your `.env` file
 
-1.  Follow the steps of the "Development & tests" section below to get the server running.
+1. Follow the steps of the "Development & tests" section below to get the server running.
 
     - It will fail if you don't have all the correct env variables defined
 
-1.  Verify that the Slack -> eng-pipes server pipeline works
+1. Verify that the Slack -> eng-pipes server pipeline works
 
     - On your new Slack workspace, send a message to the bot
     - You should see your localhost app respond with a 200 status code:
 
     ![success!](/docs/successful_slack_message.png 'Successful Slack message forwarding')
 
-1.  Verify that the GitHub -> eng-pipes server pipeline works
- 
+1. Verify that the GitHub -> eng-pipes server pipeline works
+
     - In your `eng-pipes-dev` GitHub repository, create a new issue
     - You should see your localhost app response with a 200 status code:
 
     ![success!](/docs/successful_github_event.png 'Successful GitHub webhook reception')
 
-1.  Verify that the GitHub -> eng-pipes server -> Slack pipeline works
+1. Verify that the GitHub -> eng-pipes server -> Slack pipeline works
 
     - In your Slack workspace, create a `#test` channel, and in that channel type `/notify-for-triage Alerts sfo` to setup Slack messages
     - Create a new issue in `eng-pipes-org/eng-pipes-dev`, then add the `Product Area: Alerts` label to it
