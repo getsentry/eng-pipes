@@ -49,36 +49,27 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  const repos: string[] = payload.repos || DEFAULT_REPOS;
-  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
-  const now = moment().utc();
+  let repos,
+    octokit,
+    now,
+    code = 204;
+  let func = new Map([
+    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
+    ['stale-bot', triggerStaleBot],
+  ]).get(payload.name);
 
-  // This is to make this endpoint accept different payloads and actions
-  // in the future. Ideally, we'd then split out all different event
-  // handlers into dedicated modules for clarity and isolation
-  if (payload.name === 'stale-triage-notifier') {
-    // Respond early to not block the webhook sender
-    reply.code(204);
-    reply.send();
-
-    await notifyProductOwnersForUntriagedIssues(repos, octokit, now);
-    tx.finish();
-
-    return;
-  } else if (payload.name === 'stale-bot') {
-    // Respond early to not block the webhook sender
-    reply.code(204);
-    reply.send();
-
-    await triggerStaleBot(repos, octokit, now);
-    tx.finish();
-
-    return;
+  if (func === undefined) {
+    func = async () => {}; // no-op
+    code = 400;
+  } else {
+    repos = payload.repos || DEFAULT_REPOS;
+    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    now = moment().utc();
   }
 
-  reply.code(400);
-  reply.send();
-
+  reply.code(code);
+  reply.send(); // Respond early to not block the webhook sender
+  await func(repos, octokit, now);
   tx.finish();
 };
 
