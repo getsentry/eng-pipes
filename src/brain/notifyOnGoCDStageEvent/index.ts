@@ -172,11 +172,11 @@ async function updateCommitQueue(
 // Depending on whether `getsentry-frontend` or `getsentry-backend`
 // is being deployed, only certain commits (FE/BE) will be
 // affected. Filter the sha list to just FE or BE commits.
-async function filterCommits(octokit, pipeline, commits) {
+async function filterCommits(pipeline, commits) {
   const relevantCommitShas: string[] = [];
   const commitShas = commits.map(({ sha }) => sha);
   for (const sha of commitShas) {
-    const relevantCommit = await getRelevantCommit(sha, octokit);
+    const relevantCommit = await getRelevantCommit(sha);
     // Commit should exist, but if not log and move on
     if (!relevantCommit) {
       Sentry.setContext('commit', {
@@ -285,11 +285,7 @@ export async function handler(resBody: GoCDResponse) {
       sha,
       firstMaterialSHA(latestDeploy)
     );
-    const relevantCommitShas: string[] = await filterCommits(
-      octokit,
-      pipeline,
-      commits
-    );
+    const relevantCommitShas: string[] = await filterCommits(pipeline, commits);
 
     await Promise.all([
       updateCommitQueue(pipeline, sha, commits),

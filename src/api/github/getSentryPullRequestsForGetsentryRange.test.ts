@@ -5,18 +5,18 @@ import { getClient } from '@api/github/getClient';
 import { getSentryPullRequestsForGetsentryRange } from './getSentryPullRequestsForGetsentryRange';
 
 describe('getSentryPullRequestsForGetsentryRange', function () {
-  let getsentry;
+  let octokit;
 
   beforeAll(async function () {});
 
   afterAll(async function () {});
 
   beforeEach(async function () {
-    getsentry = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, 'getsentry');
   });
 
   afterEach(function () {
-    [getsentry].forEach((c) => {
+    [octokit].forEach((c) => {
       c.git.getCommit.mockClear();
       c.repos.listPullRequestsAssociatedWithCommit.mockClear();
       c.repos.compareCommits.mockClear();
@@ -24,7 +24,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('single commit, sentry', async function () {
-    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+    octokit.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
       ({ repo }) => {
         if (repo === 'sentry') {
           return {
@@ -35,7 +35,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
         return undefined;
       }
     );
-    getsentry.git.getCommit.mockImplementation(() => ({
+    octokit.git.getCommit.mockImplementation(() => ({
       status: 200,
       data: {
         committer: {
@@ -50,10 +50,10 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       { foo: 1 },
     ]);
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
@@ -62,7 +62,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('multiple commits, sentry', async function () {
-    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+    octokit.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
       ({ repo }) => {
         if (repo === 'sentry') {
           return {
@@ -74,7 +74,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       }
     );
 
-    getsentry.repos.compareCommits.mockImplementation(() => ({
+    octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,
       data: {
         commits: [
@@ -95,17 +95,17 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
     expect(
       await getSentryPullRequestsForGetsentryRange('f00123', 'deadbeef')
     ).toEqual([{ foo: 1 }]);
-    expect(getsentry.repos.compareCommits).toHaveBeenLastCalledWith({
+    expect(octokit.repos.compareCommits).toHaveBeenLastCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
       base: 'deadbeef',
       head: 'f00123',
     });
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
@@ -114,7 +114,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('single commit, getsentry', async function () {
-    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+    octokit.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
       ({ repo }) => {
         if (repo === 'getsentry') {
           return {
@@ -125,7 +125,7 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
         return undefined;
       }
     );
-    getsentry.git.getCommit.mockImplementation(() => ({
+    octokit.git.getCommit.mockImplementation(() => ({
       status: 200,
       data: {
         committer: {
@@ -139,10 +139,10 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
       await getSentryPullRequestsForGetsentryRange('f00123', null, true)
     ).toEqual([{ foo: 1 }]);
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(1);
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
@@ -151,14 +151,14 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
   });
 
   it('multiple commits, getsentry', async function () {
-    getsentry.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
+    octokit.repos.listPullRequestsAssociatedWithCommit.mockImplementation(
       ({ repo }) => {
         return repo === 'getsentry'
           ? { data: [{ bar: 2 }] }
           : { data: [{ foo: 1 }] };
       }
     );
-    getsentry.repos.compareCommits.mockImplementation(() => ({
+    octokit.repos.compareCommits.mockImplementation(() => ({
       status: 200,
       data: {
         commits: [
@@ -189,18 +189,18 @@ describe('getSentryPullRequestsForGetsentryRange', function () {
     expect(
       await getSentryPullRequestsForGetsentryRange('f00123', 'deadbeef', true)
     ).toEqual([{ foo: 1 }, { bar: 2 }]);
-    expect(getsentry.repos.compareCommits).toHaveBeenLastCalledWith({
+    expect(octokit.repos.compareCommits).toHaveBeenLastCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
       base: 'deadbeef',
       head: 'f00123',
     });
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledTimes(2);
 
     expect(
-      getsentry.repos.listPullRequestsAssociatedWithCommit
+      octokit.repos.listPullRequestsAssociatedWithCommit
     ).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
