@@ -5,7 +5,12 @@ import { getUser } from '@/api/getUser';
 import { ClientType } from '@/api/github/clientType';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { GETSENTRY_REPO, GOCD_ORIGIN, OWNER, SENTRY_REPO } from '@/config';
+import {
+  GETSENTRY_ORG,
+  GETSENTRY_REPO,
+  GOCD_ORIGIN,
+  SENTRY_REPO,
+} from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
@@ -73,7 +78,7 @@ export class DeployFeed {
     prevDeploySHA: string,
     currentDeploySHA
   ) {
-    const octokit = await getClient(ClientType.App, OWNER);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     const responses = await Promise.all([
       octokit.repos.getContent({
         owner,

@@ -59,7 +59,7 @@ export default {
     created_at: '2019-05-15T15:20:18Z',
     updated_at: '2019-05-15T15:20:18Z',
     closed_at: null,
-    author_association: 'OWNER',
+    author_association: 'GETSENTRY_ORG',
     body: "It looks like you accidently spelled 'commit' with two 't's.",
   },
   changes: {},

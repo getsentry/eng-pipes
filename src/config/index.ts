@@ -7,8 +7,7 @@ export const DEFAULT_PORT = 3000;
 
 export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-export const SENTRY_ORG = 'getsentry';
-export const OWNER = process.env.OWNER || 'getsentry';
+export const GETSENTRY_ORG = process.env.GETSENTRY_ORG || 'getsentry';
 export const SENTRY_REPO = process.env.SENTRY_REPO || 'sentry';
 export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
@@ -183,7 +182,7 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * from the environment.
  *
  * TODO: Expand from a single app/org to multiple. First we need to clean up
- * getClient calls to use a dynamic owner/org instead of OWNER as defined above.
+ * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
  */
 
 export interface AppAuthStrategyOptions {

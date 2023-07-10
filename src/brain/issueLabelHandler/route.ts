@@ -3,12 +3,12 @@ import * as Sentry from '@sentry/node';
 
 import {
   BACKLOG_LABEL,
+  GETSENTRY_ORG,
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   SENTRY_MONOREPOS,
-  SENTRY_ORG,
   STATUS_LABEL_PREFIX,
   UNROUTED_LABEL,
   UNTRIAGED_LABEL,
@@ -95,7 +95,7 @@ export async function markUnrouted({
     owner,
     repo: repo,
     issue_number: issueNumber,
-    body: `Assigning to @${SENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
+    body: `Assigning to @${GETSENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
   });
 
   tx.finish();
@@ -108,13 +108,13 @@ async function routeIssue(octokit, productAreaLabelName) {
     );
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
-      org: SENTRY_ORG,
+      org: GETSENTRY_ORG,
       team_slug: ghTeamSlug,
     }); // expected to throw if team doesn't exist
-    return `Routing to @${SENTRY_ORG}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Routing to @${GETSENTRY_ORG}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
-    return `Failed to route for ${productAreaLabelName}. Defaulting to @${SENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${GETSENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   }
 }
 

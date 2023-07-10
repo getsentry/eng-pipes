@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
-import { OWNER, SENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG, SENTRY_REPO } from '@/config';
 import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
 import { getClient } from '@api/github/getClient';
 
@@ -50,7 +50,7 @@ export const pubSubHandler = async (
   );
 
   const repos: string[] = payload.repos || DEFAULT_REPOS;
-  const octokit = await getClient(ClientType.App, OWNER);
+  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
   const now = moment().utc();
 
   // This is to make this endpoint accept different payloads and actions

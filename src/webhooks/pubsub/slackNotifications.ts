@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   BACKLOG_LABEL,
-  OWNER,
+  GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
@@ -142,7 +142,7 @@ export const getTriageSLOTimestamp = async (
   if (dueByDate == null || !moment(dueByDate).isValid()) {
     // TODO: delete week of Jun 26
     const issues = await octokit.paginate(octokit.issues.listComments, {
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo,
       issue_number: issueNumber,
       per_page: GH_API_PER_PAGE,
@@ -423,7 +423,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
     const untriagedIssues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: OWNER,
+      owner: GETSENTRY_ORG,
       repo,
       state: 'open',
       labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
