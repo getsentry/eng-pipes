@@ -53,12 +53,14 @@ export const pubSubHandler = async (
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
-  if (func === undefined) {
-    func = async () => {}; // no-op
-    code = 400;
-  } else {
+  // Validate dynamic method call as mentioned below
+  // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
+  if (typeof func === 'function') {
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
+  } else {
+    func = async () => {}; // no-op
+    code = 400;
   }
 
   reply.code(code);
