@@ -259,7 +259,7 @@ describe('businessHours tests', function () {
   });
 
   describe('calculateSLOViolationRoute', function () {
-    it('should not calculate SLO violation if label is not unrouted', async function () {
+    it('should not calculate SLO violation if label is routed', async function () {
       const result = await calculateSLOViolationRoute('Status: Test');
       expect(result).toEqual(null);
     });
