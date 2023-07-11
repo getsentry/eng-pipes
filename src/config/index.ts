@@ -114,12 +114,12 @@ export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
   ? [PERSONAL_TEST_REPO]
   : [];
 
-export const SENTRY_MONOREPOS = [
+export const SENTRY_MONOREPOS: string[] = [
   'sentry',
   'sentry-docs',
   ...PERSONAL_TEST_REPOS,
 ];
-export const SENTRY_REPOS = [
+export const SENTRY_REPOS: string[] = [
   'arroyo',
   'cdc',
   'craft',
