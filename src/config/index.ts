@@ -1,3 +1,5 @@
+import { loadGitHubAppsFromEnvironment } from './loadGitHubAppsFromEnvironment';
+
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
     'https://34b97f5891a044c6ab1f6ce6332733fb@o1.ingest.sentry.io/5246761') ||
@@ -183,21 +185,7 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
  */
 
-export interface AppAuthStrategyOptions {
-  // I didn't find something great in @octokit/types.
-  appId: number;
-  privateKey: string;
-  installationId?: number;
-}
-
-export const GH_APP_AUTH_OPTIONS = new Map<string, AppAuthStrategyOptions>();
-
-if (process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY) {
-  GH_APP_AUTH_OPTIONS.set('__tmp_org_placeholder__', {
-    appId: Number(process.env.GH_APP_IDENTIFIER),
-    privateKey: process.env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
-  });
-}
+export const GH_APP_AUTH_OPTIONS = loadGitHubAppsFromEnvironment(process.env);
 
 /**
  * Business Hours by Office
