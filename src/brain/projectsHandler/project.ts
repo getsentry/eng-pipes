@@ -1,41 +1,42 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import {
-  ISSUES_PROJECT_NODE_ID,
-  PRODUCT_AREA_FIELD_ID,
-  PRODUCT_AREA_LABEL_PREFIX,
-  STATUS_FIELD_ID,
-} from '@/config';
-import { shouldSkip } from '@/utils/githubEventHelpers';
+import { GH_APPS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
+import { shouldSkip } from '@utils/githubEventHelpers';
 import {
   getIssueDetailsFromNodeId,
   getKeyValueFromProjectField,
 } from '@utils/githubEventHelpers';
 
-function isNotInAProjectWeCareAbout(payload) {
-  return payload?.projects_v2_item?.project_node_id !== ISSUES_PROJECT_NODE_ID;
+function isNotInAProjectWeCareAbout(app, payload) {
+  return payload?.projects_v2_item?.project_node_id !== app.project.node_id;
 }
 
-function isNotAProjectFieldWeCareAbout(payload) {
+function isNotAProjectFieldWeCareAbout(app, payload) {
   return (
-    payload?.changes?.field_value?.field_node_id !== PRODUCT_AREA_FIELD_ID &&
-    payload?.changes?.field_value?.field_node_id !== STATUS_FIELD_ID
+    payload?.changes?.field_value?.field_node_id !==
+      app.project.product_area_field_id &&
+    payload?.changes?.field_value?.field_node_id !== app.project.status_field_id
   );
 }
 
-function getFieldName(payload) {
-  if (payload?.changes?.field_value?.field_node_id === PRODUCT_AREA_FIELD_ID) {
+function getFieldName(app, payload) {
+  if (
+    payload?.changes?.field_value?.field_node_id ===
+    app.project.product_area_field_id
+  ) {
     return 'Product Area';
-  } else if (payload?.changes?.field_value?.field_node_id === STATUS_FIELD_ID) {
+  } else if (
+    payload?.changes?.field_value?.field_node_id === app.project.status_field_id
+  ) {
     return 'Status';
   }
   return '';
 }
 
-function isMissingNodeId(payload) {
+function isMissingNodeId(app, payload) {
   return (
     payload?.projects_v2_item?.node_id == null ||
     payload?.projects_v2_item?.content_node_id == null
@@ -52,18 +53,20 @@ export async function syncLabelsWithProjectField({
     name: 'issueLabelHandler.syncLabelsWithProjectField',
   });
 
+  const app = GH_APPS.loadFromPayload(payload);
+
   const reasonsToDoNothing = [
     isNotInAProjectWeCareAbout,
     isNotAProjectFieldWeCareAbout,
     isMissingNodeId,
   ];
-  if (await shouldSkip(payload, reasonsToDoNothing)) {
+  if (await shouldSkip(app, payload, reasonsToDoNothing)) {
     return;
   }
 
   const owner = payload?.organization?.login || '';
   const octokit = await getClient(ClientType.App, owner);
-  const fieldName = getFieldName(payload);
+  const fieldName = getFieldName(app, payload);
   const fieldValue = await getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
     fieldName,

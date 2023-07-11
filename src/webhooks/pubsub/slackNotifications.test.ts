@@ -2,6 +2,7 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
+import { GH_APPS } from '@/config';
 import * as githubEventHelpers from '@/utils/githubEventHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -12,6 +13,8 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
+  const app = GH_APPS.load('__tmp_org_placeholder__');
+
   beforeAll(async function () {
     await db.migrate.latest();
     await getLabelsTable().insert({
@@ -65,7 +68,7 @@ describe('Triage Notification Tests', function () {
       };
       getIssueDueDateFromProjectSpy.mockReturnValue('2023-01-05T16:00:00.000Z');
       expect(
-        await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
       ).toEqual('2023-01-05T16:00:00.000Z');
     });
     it('should return current time if unable to parse random string in project field', async function () {
@@ -76,7 +79,7 @@ describe('Triage Notification Tests', function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('randomstring');
       expect(
-        await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(
@@ -92,7 +95,7 @@ describe('Triage Notification Tests', function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('');
       expect(
-        await getTriageSLOTimestamp(octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(

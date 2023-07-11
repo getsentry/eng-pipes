@@ -1,6 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 
-import { GH_APP_AUTH_OPTIONS } from '@/config/index';
+import { GH_APPS } from '@/config/index';
 import { GH_USER_TOKEN } from '@/config/index';
 import { AppAuthStrategyOptions } from '@/types';
 
@@ -44,22 +44,17 @@ export async function getClient(type: ClientType, org?: string | null) {
       );
     }
 
-    const auth = GH_APP_AUTH_OPTIONS.get('__tmp_org_placeholder__');
-    if (auth === undefined) {
-      throw new Error(
-        `No GitHub app configured in the environment` // TODO: for org '${org}'.`
-      );
-    }
+    const app = GH_APPS.load('__tmp_org_placeholder__');
 
     let client = _CLIENTS_BY_ORG.get(org);
     if (client === undefined) {
       // Bootstrap with a client not bound to an org.
-      const appClient = _getAppClient(auth);
+      const appClient = _getAppClient(app.auth);
 
       // Use the unbound client to hydrate a client bound to an org.
       const installation = await appClient.apps.getOrgInstallation({ org });
-      auth.installationId = installation.data.id;
-      client = _getAppClient(auth);
+      app.auth.installationId = installation.data.id;
+      client = _getAppClient(app.auth);
 
       // The docs say it's safe for client instances to be long-lived:
       //

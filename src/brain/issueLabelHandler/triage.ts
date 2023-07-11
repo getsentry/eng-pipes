@@ -1,35 +1,38 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import { SENTRY_SDK_REPOS } from '@/config';
-import { STATUS_FIELD_ID, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
+import {
+  GH_APPS,
+  SENTRY_SDK_REPOS,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+} from '@/config';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import {
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
-} from '@/utils/githubEventHelpers';
-import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
-import { getClient } from '@api/github/getClient';
+} from '@utils/githubEventHelpers';
+import { addIssueToGlobalIssuesProject } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_SDK_REPOS);
 
-function isAlreadyUntriaged(payload) {
-  return !isAlreadyTriaged(payload);
+function isAlreadyUntriaged(app, payload) {
+  return !isAlreadyTriaged(app, payload);
 }
 
-function isAlreadyTriaged(payload) {
+function isAlreadyTriaged(app, payload) {
   return !payload.issue.labels.some(
     ({ name }) => name === WAITING_FOR_PRODUCT_OWNER_LABEL
   );
 }
 
-function isNotInARepoWeCareAboutForTriage(payload) {
+function isNotInARepoWeCareAboutForTriage(app, payload) {
   return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
 }
 
-function isWaitingForProductOwnerLabel(payload) {
+function isWaitingForProductOwnerLabel(app, payload) {
   return payload.label?.name === WAITING_FOR_PRODUCT_OWNER_LABEL;
 }
 
@@ -45,12 +48,14 @@ export async function markWaitingForProductOwner({
     name: 'issueLabelHandler.markWaitingforProductOwner',
   });
 
+  const app = GH_APPS.loadFromPayload(payload);
+
   const reasonsToSkipTriage = [
     isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(payload, reasonsToSkipTriage)) {
+  if (await shouldSkip(app, payload, reasonsToSkipTriage)) {
     return;
   }
 
@@ -68,6 +73,7 @@ export async function markWaitingForProductOwner({
   });
 
   const itemId: string = await addIssueToGlobalIssuesProject(
+    app,
     payload.issue.node_id,
     repo,
     issueNumber,
@@ -75,9 +81,10 @@ export async function markWaitingForProductOwner({
   );
 
   await modifyProjectIssueField(
+    app,
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    STATUS_FIELD_ID,
+    app.project.status_field_id,
     octokit
   );
 
@@ -94,13 +101,15 @@ export async function markNotWaitingForProductOwner({
     name: 'issueLabelHandler.markNotWaitingForProductOwner',
   });
 
+  const app = GH_APPS.loadFromPayload(payload);
+
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForTriage,
     isFromABot,
     isWaitingForProductOwnerLabel,
     isAlreadyTriaged,
   ];
-  if (await shouldSkip(payload, reasonsToSkip)) {
+  if (await shouldSkip(app, payload, reasonsToSkip)) {
     return;
   }
 

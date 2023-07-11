@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG } from '@/config';
+import { GETSENTRY_ORG, GH_APPS } from '@/config';
 import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
 import { getClient } from '@api/github/getClient';
 
@@ -45,7 +45,8 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  let octokit,
+  let app,
+    octokit,
     now,
     code = 204;
   let func = new Map([
@@ -57,6 +58,7 @@ export const pubSubHandler = async (
   // call security warning.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
+    app = GH_APPS.load('__tmp_org_placeholder__');
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
   } else {
@@ -66,7 +68,7 @@ export const pubSubHandler = async (
 
   reply.code(code);
   reply.send(); // Respond early to not block the webhook sender
-  await func(octokit, now);
+  await func(app, octokit, now);
   tx.finish();
 };
 

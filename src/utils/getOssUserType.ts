@@ -19,7 +19,7 @@ const _USER_CACHE = new Map<string, CachedUser>();
 export async function getOssUserType(
   payload: Record<string, any>
 ): Promise<UserType | null> {
-  if (isFromABot(payload)) {
+  if (isFromABot(null /* no app here */, payload)) {
     return 'bot';
   }
 

@@ -10,6 +10,7 @@ import {
   SENTRY_MONOREPOS,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
+import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
 import {
@@ -125,18 +126,21 @@ const addOrderingToSlackMessageItem = (
 };
 
 export const getTriageSLOTimestamp = async (
+  app: GitHubApp,
   octokit: Octokit,
   repo: string,
   issueNumber: number,
   issueNodeId: string
 ) => {
   const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
+    app,
     issueNodeId,
     repo,
     issueNumber,
     octokit
   );
   const dueByDate = await getIssueDueDateFromProject(
+    app,
     issueNodeIdInProject,
     octokit
   );
@@ -390,6 +394,7 @@ export const constructSlackMessage = (
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
+  app: GitHubApp,
   octokit: Octokit,
   now: moment.Moment
 ) => {
@@ -417,6 +422,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
         title: issue.title,
         productAreaLabel: getIssueProductAreaLabel(issue),
         triageBy: await getTriageSLOTimestamp(
+          app,
           octokit,
           repo,
           issue.number,
