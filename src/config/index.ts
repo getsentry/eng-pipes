@@ -1,4 +1,4 @@
-import { loadGitHubApps } from './loadGitHubApps';
+import { loadGitHubAppsFromEnvironment } from './loadGitHubAppsFromEnvironment';
 
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
@@ -187,7 +187,7 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
  */
 
-export const GH_APP_AUTH_OPTIONS = loadGitHubApps(process.env);
+export const GH_APP_AUTH_OPTIONS = loadGitHubAppsFromEnvironment(process.env);
 
 /**
  * Business Hours by Office

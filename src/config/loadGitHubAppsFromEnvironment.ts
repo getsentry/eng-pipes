@@ -1,6 +1,6 @@
 import { AppAuthStrategyOptions } from '@/types';
 
-export function loadGitHubApps(env) {
+export function loadGitHubAppsFromEnvironment(env) {
   const apps = new Map<string, AppAuthStrategyOptions>();
 
   if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
