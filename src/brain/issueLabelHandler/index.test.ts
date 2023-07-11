@@ -7,8 +7,6 @@ import { buildServer } from '@/buildServer';
 import {
   RESPONSE_DUE_DATE_FIELD_ID,
   STATUS_FIELD_ID,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
@@ -90,18 +88,18 @@ describe('issueLabelHandler', function () {
 
   // Helpers
 
-  function triage() {
-    octokit.issues._labels.delete(UNTRIAGED_LABEL);
+  function removeWaitingForProductOwnerLabel() {
+    octokit.issues._labels.delete(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
-  function untriage() {
-    octokit.issues._labels.add(UNTRIAGED_LABEL);
+  function addWaitingForProductOwnerLabel() {
+    octokit.issues._labels.add(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
   function removeThrows(status) {
     octokit.issues.removeLabel.mockImplementationOnce(async () => {
       if (status === 404) {
-        triage(); // pretend a previous attempt succeeded
+        removeWaitingForProductOwnerLabel(); // pretend a previous attempt succeeded
       }
       throw new MockOctokitError(status);
     });
@@ -167,20 +165,22 @@ describe('issueLabelHandler', function () {
 
   // Expectations
 
-  function expectUnrouted() {
-    expect(octokit.issues._labels).toContain(UNROUTED_LABEL);
+  function expectWaitingForSupport() {
+    expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
   }
 
-  function expectRouted() {
-    expect(octokit.issues._labels).not.toContain(UNROUTED_LABEL);
+  function expectNotWaitingForSupport() {
+    expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
   }
 
-  function expectUntriaged() {
-    expect(octokit.issues._labels).toContain(UNTRIAGED_LABEL);
+  function expectWaitingforProductOwner() {
+    expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
-  function expectTriaged() {
-    expect(octokit.issues._labels).not.toContain(UNTRIAGED_LABEL);
+  function expectNotWaitingforProductOwner() {
+    expect(octokit.issues._labels).not.toContain(
+      WAITING_FOR_PRODUCT_OWNER_LABEL
+    );
   }
 
   function expectRemoval() {
@@ -220,121 +220,93 @@ describe('issueLabelHandler', function () {
       jest.clearAllMocks();
     });
 
-    it('adds `Status: Untriaged` to new issues', async function () {
+    it('adds `Waiting for: Product Owner` to new issues', async function () {
       await createIssue();
-      expectUntriaged();
+      expectWaitingforProductOwner();
       expectAdding();
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
 
-    it('adds `Status: Untriaged` for GTM users', async function () {
+    it('adds `Waiting for: Product Owner` for GTM users', async function () {
       await createIssue(undefined, 'Troi');
-      expectUntriaged();
+      expectWaitingforProductOwner();
       expectAdding();
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
 
-    it('skips adding `Status: Untriaged` in untracked repos', async function () {
+    it('skips adding `Waiting for: Product Owner` in untracked repos', async function () {
       await createIssue('other-repo');
-      expectTriaged();
+      expectNotWaitingforProductOwner();
       expectNoAdding();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips adding `Status: Untriaged` when added during creation', async function () {
-      untriage();
+    it('skips adding `Waiting for: Product Owner` when added during creation', async function () {
+      addWaitingForProductOwnerLabel();
       await createIssue(undefined, 'Picard');
-      expectUntriaged();
+      expectWaitingforProductOwner();
       expectNoAdding();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips adding `Status: Untriaged` for internal users', async function () {
+    it('skips adding `Waiting for: Product Owner` for internal users', async function () {
       await createIssue(undefined, 'Picard');
-      expectTriaged();
+      expectNotWaitingforProductOwner();
       expectNoAdding();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
     // removing
 
-    it('removes `Status: Untriaged` when adding other labels', async function () {
-      untriage();
+    it('removes `Waiting for: Product Owner` when adding other labels', async function () {
+      addWaitingForProductOwnerLabel();
       await addLabel('Cheeseburger Pie');
-      expectTriaged();
+      expectNotWaitingforProductOwner();
       expectRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips removing `Status: Untriaged` when its not present', async function () {
+    it('skips removing `Waiting for: Product Owner` when its not present', async function () {
       await addLabel('Cheeseburger Pie');
-      expectTriaged();
+      expectNotWaitingforProductOwner();
       expectNoRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips removing `Status: Untriaged` when adding `Status: Untriaged`', async function () {
-      untriage();
-      await addLabel(UNTRIAGED_LABEL);
-      expectUntriaged();
+    it('skips removing `Waiting for: Product Owner` when adding `Waiting for: Product Owner`', async function () {
+      addWaitingForProductOwnerLabel();
+      expectWaitingforProductOwner();
       expectNoRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips removing `Status: Untriaged` in untracked repos', async function () {
-      untriage();
+    it('skips removing `Waiting for: Product Owner` in untracked repos', async function () {
+      addWaitingForProductOwnerLabel();
       await addLabel('Cheeseburger Pie', 'other-repo');
-      expectUntriaged();
+      expectWaitingforProductOwner();
       expectNoRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('gracefully handles race with other remover of `Status: Untriaged`', async function () {
-      untriage();
+    it('gracefully handles race with other remover of `Waiting for: Product Owner`', async function () {
+      addWaitingForProductOwnerLabel();
       removeThrows(404);
       await addLabel('Cheeseburger Pie');
       expectNoError();
-      expectTriaged();
+      expectNotWaitingforProductOwner();
       expectRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it("doesn't handle non-404 errors when removing `Status: Untriaged`", async function () {
-      untriage();
+    it("doesn't handle non-404 errors when removing `Waiting for: Product Owner`", async function () {
+      addWaitingForProductOwnerLabel();
       removeThrows(400);
       await addLabel('Cheeseburger Pie');
       expectError(400);
-      expectUntriaged();
+      expectWaitingforProductOwner();
       expectRemoval();
-      expect(octokit.issues._labels).not.toContain(
-        WAITING_FOR_PRODUCT_OWNER_LABEL
-      );
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
   });
@@ -357,7 +329,7 @@ describe('issueLabelHandler', function () {
 
     it('adds `Status: Unrouted` and `Waiting for: Support` to new issues', async function () {
       await createIssue('sentry-docs');
-      expectUnrouted();
+      expectWaitingForSupport();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
@@ -369,7 +341,7 @@ describe('issueLabelHandler', function () {
 
     it('adds `Status: Unrouted` and `Waiting for: Support` for GTM users', async function () {
       await createIssue('sentry-docs', 'Troi');
-      expectUnrouted();
+      expectWaitingForSupport();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
@@ -379,27 +351,27 @@ describe('issueLabelHandler', function () {
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
 
-    it('skips adding `Status: Unrouted` for internal users', async function () {
+    it('skips adding `Waiting for: Support` for internal users', async function () {
       await createIssue('sentry-docs', 'Picard');
-      expectRouted();
+      expectNotWaitingForSupport();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('skips adding `Status: Unrouted` in untracked repos', async function () {
+    it('skips adding `Waiting for: Support` in untracked repos', async function () {
       await createIssue('Pizza Sandwich');
-      expectRouted();
+      expectNotWaitingForSupport();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
-    it('removes unrouted label when product area label is added', async function () {
+    it('removes waiting for support label when product area label is added', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
@@ -409,10 +381,10 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
-    it('does not remove unrouted label when label is added that is not a product area label', async function () {
+    it('does not remove waiting for support label when label is added that is not a product area label', async function () {
       await createIssue('sentry-docs');
       await addLabel('Status: Needs More Information', 'sentry-docs');
-      expectUnrouted();
+      expectWaitingForSupport();
       expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
@@ -425,8 +397,8 @@ describe('issueLabelHandler', function () {
     it('should default to route to open source team if product area does not exist', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Does Not Exist', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(octokit.issues._comments).toEqual([
@@ -439,8 +411,8 @@ describe('issueLabelHandler', function () {
     it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       await addLabel('Product Area: Rerouted', 'sentry-docs');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).not.toContain('Product Area: Test');
@@ -455,8 +427,8 @@ describe('issueLabelHandler', function () {
     it('should not reapply label `Waiting for: Product Owner` if issue changes product areas and is not waiting for support', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       await addLabel('Waiting for: Community', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
@@ -475,8 +447,8 @@ describe('issueLabelHandler', function () {
     it('should not reroute if Status: Backlog is exists on issue', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       await addLabel('Status: Backlog', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
@@ -491,8 +463,8 @@ describe('issueLabelHandler', function () {
     it('should not reroute if Status: In Progress exists on issue', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       await addLabel('Status: In Progress', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
@@ -507,8 +479,8 @@ describe('issueLabelHandler', function () {
     it('should not reroute if issue is closed', async function () {
       await createIssue('sentry-docs');
       await addLabel('Product Area: Test', 'sentry-docs');
-      expectUntriaged();
-      expectRouted();
+      expectWaitingforProductOwner();
+      expectNotWaitingForSupport();
       await addLabel('Product Area: Rerouted', 'sentry-docs', 'closed');
       expect(octokit.issues._labels).toContain('Product Area: Rerouted');
       expect(octokit.issues._labels).toContain('Product Area: Test');
@@ -546,27 +518,15 @@ describe('issueLabelHandler', function () {
     it('should remove `Waiting for: Product Owner` label when another `Waiting for: *` label is added', async function () {
       await setupIssue();
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          WAITING_FOR_PRODUCT_OWNER_LABEL,
-          'Product Area: Test',
-        ])
+        new Set([WAITING_FOR_PRODUCT_OWNER_LABEL, 'Product Area: Test'])
       );
       await addLabel('Waiting for: Community', 'sentry-docs');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_COMMUNITY_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       await addLabel('Waiting for: Support', 'sentry-docs');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_SUPPORT_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
@@ -588,11 +548,7 @@ describe('issueLabelHandler', function () {
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_COMMUNITY_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
@@ -614,11 +570,7 @@ describe('issueLabelHandler', function () {
       jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_COMMUNITY_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
@@ -642,11 +594,7 @@ describe('issueLabelHandler', function () {
       await addLabel(WAITING_FOR_SUPPORT_LABEL, 'sentry-docs');
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_SUPPORT_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
@@ -670,11 +618,7 @@ describe('issueLabelHandler', function () {
         .mockReturnValue(false);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_PRODUCT_OWNER_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
@@ -754,11 +698,7 @@ describe('issueLabelHandler', function () {
         .mockReturnValue(false);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
-        new Set([
-          UNTRIAGED_LABEL,
-          'Product Area: Test',
-          WAITING_FOR_PRODUCT_OWNER_LABEL,
-        ])
+        new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',

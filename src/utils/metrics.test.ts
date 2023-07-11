@@ -17,8 +17,6 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
@@ -77,16 +75,6 @@ describe('metrics tests', function () {
       await db.destroy();
     });
 
-    it('should calculate triage by timestamp if labeled untriaged status', async function () {
-      const testPayload = defaultPayload;
-      testPayload.label.name = UNTRIAGED_LABEL;
-      const result = await insertOss('issues', testPayload);
-      expect(result).toMatchObject({
-        timeToRouteBy: null,
-        timeToTriageBy: '2017-02-16T01:00:00.000Z',
-      });
-    });
-
     it('should calculate triage by timestamp if labeled waiting for product owner', async function () {
       const testPayload = defaultPayload;
       testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
@@ -94,16 +82,6 @@ describe('metrics tests', function () {
       expect(result).toMatchObject({
         timeToRouteBy: null,
         timeToTriageBy: '2017-02-16T01:00:00.000Z',
-      });
-    });
-
-    it('should calculate route by timestamp if labeled unrouted status', async function () {
-      const testPayload = defaultPayload;
-      testPayload.label.name = UNROUTED_LABEL;
-      const result = await insertOss('issues', testPayload);
-      expect(result).toMatchObject({
-        timeToRouteBy: '2017-02-15T01:00:00.000Z',
-        timeToTriageBy: null,
       });
     });
 
@@ -152,28 +130,6 @@ describe('metrics tests', function () {
     it('should not calculate timestamps if unlabeled waiting for support', async function () {
       const testPayload = defaultPayload;
       testPayload.label.name = WAITING_FOR_SUPPORT_LABEL;
-      testPayload.action = 'unlabeled';
-      const result = await insertOss('issues', testPayload);
-      expect(result).toMatchObject({
-        timeToRouteBy: null,
-        timeToTriageBy: null,
-      });
-    });
-
-    it('should not calculate timestamps if unlabeled untriaged status', async function () {
-      const testPayload = defaultPayload;
-      testPayload.label.name = UNTRIAGED_LABEL;
-      testPayload.action = 'unlabeled';
-      const result = await insertOss('issues', testPayload);
-      expect(result).toMatchObject({
-        timeToRouteBy: null,
-        timeToTriageBy: null,
-      });
-    });
-
-    it('should not calculate timestamps if unlabeled unrouted status', async function () {
-      const testPayload = defaultPayload;
-      testPayload.label.name = UNROUTED_LABEL;
       testPayload.action = 'unlabeled';
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({

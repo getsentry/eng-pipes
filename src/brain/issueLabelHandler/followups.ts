@@ -8,8 +8,6 @@ import {
   SENTRY_MONOREPOS,
   SENTRY_REPOS,
   STATUS_FIELD_ID,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -172,11 +170,13 @@ export async function ensureOneWaitingForLabel({
   let timeToRespondBy;
   if (labelName === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     timeToRespondBy =
-      (await calculateSLOViolationTriage(UNTRIAGED_LABEL, issue.labels)) ||
-      moment().toISOString();
+      (await calculateSLOViolationTriage(
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        issue.labels
+      )) || moment().toISOString();
   } else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
     timeToRespondBy =
-      (await calculateSLOViolationRoute(UNROUTED_LABEL)) ||
+      (await calculateSLOViolationRoute(WAITING_FOR_SUPPORT_LABEL)) ||
       moment().toISOString();
   } else {
     timeToRespondBy = '';

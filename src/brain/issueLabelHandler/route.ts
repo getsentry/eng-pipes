@@ -9,9 +9,6 @@ import {
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   SENTRY_MONOREPOS,
-  STATUS_LABEL_PREFIX,
-  UNROUTED_LABEL,
-  UNTRIAGED_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
@@ -28,8 +25,10 @@ const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
 import { ClientType } from '@/api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
-function isAlreadyUnrouted(payload) {
-  return payload.issue.labels.some(({ name }) => name === UNROUTED_LABEL);
+function isAlreadyWaitingForSupport(payload) {
+  return payload.issue.labels.some(
+    ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
+  );
 }
 
 function isNotInARepoWeCareAboutForRouting(payload) {
@@ -51,27 +50,25 @@ function shouldLabelBeRemoved(labelName, target_name) {
   return (
     (labelName.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
       labelName !== target_name) ||
-    (labelName.startsWith(STATUS_LABEL_PREFIX) &&
-      labelName !== UNTRIAGED_LABEL) ||
     labelName === WAITING_FOR_SUPPORT_LABEL
   );
 }
 
 // Markers of State
 
-export async function markUnrouted({
+export async function markWaitingForSupport({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.markUnrouted',
+    name: 'issueLabelHandler.markWaitingForSupport',
   });
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
-    isAlreadyUnrouted,
+    isAlreadyWaitingForSupport,
     isNotFromAnExternalOrGTMUser,
   ];
   if (await shouldSkip(payload, reasonsToSkip)) {
@@ -81,14 +78,14 @@ export async function markUnrouted({
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
-  // New issues get an Unrouted label.
+  // New issues get a Waiting for: Support label.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   await octokit.issues.addLabels({
     owner,
     repo: repo,
     issue_number: issueNumber,
-    labels: [UNROUTED_LABEL, WAITING_FOR_SUPPORT_LABEL],
+    labels: [WAITING_FOR_SUPPORT_LABEL],
   });
 
   await octokit.issues.createComment({
@@ -118,14 +115,14 @@ async function routeIssue(octokit, productAreaLabelName) {
   }
 }
 
-export async function markRouted({
+export async function markNotWaitingForSupport({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.markRouted',
+    name: 'issueLabelHandler.markNotWaitingForSupport',
   });
 
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
@@ -136,14 +133,13 @@ export async function markRouted({
   const { issue, label } = payload;
   const productAreaLabel = label;
   const productAreaLabelName = productAreaLabel?.name || PRODUCT_AREA_UNKNOWN;
-  // Remove Unrouted label when routed.
   const owner = payload.repository.owner.login;
   const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
   const labelNames = issue?.labels?.map((label) => label.name) || [];
   const isBeingRoutedBySupport = labelNames.includes(WAITING_FOR_SUPPORT_LABEL);
 
-  // When routing, remove all Status and Product Area labels that currently exist on issue
+  // When routing, remove all Product Area labels that currently exist on issue
   labelNames.forEach((labelName) => {
     if (shouldLabelBeRemoved(labelName, productAreaLabelName)) {
       labelsToRemove.push(labelName);
@@ -171,13 +167,6 @@ export async function markRouted({
       }
     }
   }
-
-  await octokit.issues.addLabels({
-    owner: owner,
-    repo: payload.repository.name,
-    issue_number: payload.issue.number,
-    labels: [UNTRIAGED_LABEL],
-  });
 
   // Only retriage issues if support is routing
   if (isBeingRoutedBySupport) {

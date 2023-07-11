@@ -1,6 +1,9 @@
 import { hydrateGitHubEventAndPayload } from '@test/utils/github';
 
-import { UNROUTED_LABEL, UNTRIAGED_LABEL } from '@/config';
+import {
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
+} from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -43,33 +46,35 @@ describe('issueNotifier Tests', function () {
         false,
       ],
       [
-        `Product Area label on ${UNTRIAGED_LABEL}`,
+        `Product Area label on ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
         {
           label: { name: 'Product Area: Test', id: 'test-id1' },
-          issue: { labels: [{ name: UNTRIAGED_LABEL, id: 'test-id2' }] },
+          issue: {
+            labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
+          },
         },
         true,
       ],
       [
-        `Only ${UNTRIAGED_LABEL}`,
-        { label: { name: UNTRIAGED_LABEL, id: 'test-id' } },
+        `Only ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
+        { label: { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id' } },
         false,
       ],
       [
-        `${UNTRIAGED_LABEL} on Product Area label`,
+        `${WAITING_FOR_PRODUCT_OWNER_LABEL} on Product Area label`,
         {
-          label: { name: UNTRIAGED_LABEL, id: 'test-id1' },
+          label: { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
           issue: { labels: [{ name: 'Product Area: Test', id: 'test-id2' }] },
         },
         true,
       ],
       [
-        `Random label on Product Area + ${UNTRIAGED_LABEL}`,
+        `Random label on Product Area + ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
         {
           label: { name: 'Random Label', id: 'random' },
           issue: {
             labels: [
-              { name: UNTRIAGED_LABEL, id: 'test-id1' },
+              { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
               { name: 'Product Area: Test', id: 'test-id2' },
             ],
           },
@@ -105,7 +110,9 @@ describe('issueNotifier Tests', function () {
     it('should escape issue titles with < or > characters', async function () {
       const payload = {
         label: { name: 'Product Area: Test', id: 'random' },
-        issue: { labels: [{ name: UNTRIAGED_LABEL, id: 'test-id2' }] },
+        issue: {
+          labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
+        },
       };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {
         action: 'labeled',
@@ -145,8 +152,10 @@ describe('issueNotifier Tests', function () {
       });
     });
 
-    it('should notify support channel if issue comes in with unrouted label', async function () {
-      const payload = { label: { name: UNROUTED_LABEL, id: 'random' } };
+    it('should notify support channel if issue comes in with waiting for support label', async function () {
+      const payload = {
+        label: { name: WAITING_FOR_SUPPORT_LABEL, id: 'random' },
+      };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {
         action: 'labeled',
         ...payload,
