@@ -1,4 +1,4 @@
-import { AppAuthStrategyOptions } from '@api/github/appAuthStrategyOptions';
+import { AppAuthStrategyOptions } from '@/types';
 
 export function loadGitHubApps(env) {
   const apps = new Map<string, AppAuthStrategyOptions>();

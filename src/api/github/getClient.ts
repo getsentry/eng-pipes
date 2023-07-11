@@ -2,8 +2,8 @@ import { createAppAuth } from '@octokit/auth-app';
 
 import { GH_APP_AUTH_OPTIONS } from '@/config/index';
 import { GH_USER_TOKEN } from '@/config/index';
+import { AppAuthStrategyOptions } from '@/types';
 
-import { AppAuthStrategyOptions } from './appAuthStrategyOptions';
 import { ClientType } from './clientType';
 import { OctokitWithRetries } from './octokitWithRetries';
 
