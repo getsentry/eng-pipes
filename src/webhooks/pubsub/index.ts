@@ -53,7 +53,8 @@ export const pubSubHandler = async (
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
-  // Validate dynamic method call as mentioned below
+  // Performing the following check seems to suppress GitHub's dynamic method
+  // call security warning.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
