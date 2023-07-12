@@ -10,11 +10,11 @@ import {
   getKeyValueFromProjectField,
 } from '@utils/githubEventHelpers';
 
-function isNotInAProjectWeCareAbout(app, payload) {
+function isNotInAProjectWeCareAbout(payload, app) {
   return payload?.projects_v2_item?.project_node_id !== app.project.node_id;
 }
 
-function isNotAProjectFieldWeCareAbout(app, payload) {
+function isNotAProjectFieldWeCareAbout(payload, app) {
   return (
     payload?.changes?.field_value?.field_node_id !==
       app.project.product_area_field_id &&
@@ -22,7 +22,7 @@ function isNotAProjectFieldWeCareAbout(app, payload) {
   );
 }
 
-function getFieldName(app, payload) {
+function getFieldName(payload, app) {
   if (
     payload?.changes?.field_value?.field_node_id ===
     app.project.product_area_field_id
@@ -36,7 +36,7 @@ function getFieldName(app, payload) {
   return '';
 }
 
-function isMissingNodeId(app, payload) {
+function isMissingNodeId(payload) {
   return (
     payload?.projects_v2_item?.node_id == null ||
     payload?.projects_v2_item?.content_node_id == null
@@ -60,13 +60,13 @@ export async function syncLabelsWithProjectField({
     isNotAProjectFieldWeCareAbout,
     isMissingNodeId,
   ];
-  if (await shouldSkip(app, payload, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
     return;
   }
 
   const owner = payload?.organization?.login || '';
   const octokit = await getClient(ClientType.App, owner);
-  const fieldName = getFieldName(app, payload);
+  const fieldName = getFieldName(payload, app);
   const fieldValue = await getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
     fieldName,

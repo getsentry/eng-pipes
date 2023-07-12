@@ -18,21 +18,21 @@ import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_SDK_REPOS);
 
-function isAlreadyUntriaged(app, payload) {
-  return !isAlreadyTriaged(app, payload);
+function isAlreadyUntriaged(payload) {
+  return !isAlreadyTriaged(payload);
 }
 
-function isAlreadyTriaged(app, payload) {
+function isAlreadyTriaged(payload) {
   return !payload.issue.labels.some(
     ({ name }) => name === WAITING_FOR_PRODUCT_OWNER_LABEL
   );
 }
 
-function isNotInARepoWeCareAboutForTriage(app, payload) {
+function isNotInARepoWeCareAboutForTriage(payload) {
   return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
 }
 
-function isWaitingForProductOwnerLabel(app, payload) {
+function isWaitingForProductOwnerLabel(payload) {
   return payload.label?.name === WAITING_FOR_PRODUCT_OWNER_LABEL;
 }
 
@@ -55,7 +55,7 @@ export async function markWaitingForProductOwner({
     isAlreadyUntriaged,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(app, payload, reasonsToSkipTriage)) {
+  if (await shouldSkip(payload, app, reasonsToSkipTriage)) {
     return;
   }
 
@@ -109,7 +109,7 @@ export async function markNotWaitingForProductOwner({
     isWaitingForProductOwnerLabel,
     isAlreadyTriaged,
   ];
-  if (await shouldSkip(app, payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, app, reasonsToSkip)) {
     return;
   }
 

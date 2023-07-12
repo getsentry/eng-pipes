@@ -31,20 +31,20 @@ const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
   ...SENTRY_MONOREPOS,
 ]);
 
-function isNotInARepoWeCareAboutForFollowups(app, payload) {
+function isNotInARepoWeCareAboutForFollowups(payload) {
   return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
 }
 
-function isNotWaitingForLabel(app, payload) {
+function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
 }
 
-function isContractor(app, payload) {
+function isContractor(payload) {
   // Contractors are outside collaborators on GitHub
   return payload.comment.author_association === 'COLLABORATOR';
 }
 
-function isNotWaitingForCommunity(app, payload) {
+function isNotWaitingForCommunity(payload) {
   const { issue } = payload;
   return !issue?.labels.some(
     ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
@@ -73,7 +73,7 @@ export async function updateCommunityFollowups({
     isFromABot,
   ];
 
-  if (await shouldSkip(app, payload, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
     return;
   }
 
@@ -137,7 +137,7 @@ export async function ensureOneWaitingForLabel({
     isNotInARepoWeCareAboutForFollowups,
     isNotWaitingForLabel,
   ];
-  if (await shouldSkip(app, payload, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
     return;
   }
 

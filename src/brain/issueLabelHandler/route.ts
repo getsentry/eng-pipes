@@ -25,17 +25,17 @@ const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
-function isAlreadyWaitingForSupport(app, payload) {
+function isAlreadyWaitingForSupport(payload) {
   return payload.issue.labels.some(
     ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
   );
 }
 
-function isNotInARepoWeCareAboutForRouting(app, payload) {
+function isNotInARepoWeCareAboutForRouting(payload) {
   return !REPOS_TO_TRACK_FOR_ROUTING.has(payload.repository.name);
 }
 
-function isValidLabel(app, payload) {
+function isValidLabel(payload) {
   return (
     !payload.label?.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) ||
     payload.issue.labels?.some(
@@ -73,7 +73,7 @@ export async function markWaitingForSupport({
     isAlreadyWaitingForSupport,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(app, payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, app, reasonsToSkip)) {
     return;
   }
 
@@ -130,7 +130,7 @@ export async function markNotWaitingForSupport({
   const app = GH_APPS.loadFromPayload(payload);
 
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
-  if (await shouldSkip(app, payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, app, reasonsToSkip)) {
     return;
   }
 
