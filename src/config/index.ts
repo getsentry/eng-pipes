@@ -119,7 +119,7 @@ export const SENTRY_MONOREPOS: string[] = [
   'sentry-docs',
   ...PERSONAL_TEST_REPOS,
 ];
-export const SENTRY_REPOS: string[] = [
+export const SENTRY_SDK_REPOS: string[] = [
   'arroyo',
   'cdc',
   'craft',
