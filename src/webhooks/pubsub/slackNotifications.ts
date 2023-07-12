@@ -7,6 +7,7 @@ import {
   BACKLOG_LABEL,
   GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
+  SENTRY_MONOREPOS,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
@@ -389,7 +390,6 @@ export const constructSlackMessage = (
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
-  repos: string[],
   octokit: Octokit,
   now: moment.Moment
 ) => {
@@ -429,7 +429,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all(repos.map(getIssueSLOInfoForRepo))
+    await Promise.all(SENTRY_MONOREPOS.map(getIssueSLOInfoForRepo))
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues

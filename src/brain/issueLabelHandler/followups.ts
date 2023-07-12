@@ -6,7 +6,7 @@ import { ClientType } from '@/api/github/clientType';
 import {
   RESPONSE_DUE_DATE_FIELD_ID,
   SENTRY_MONOREPOS,
-  SENTRY_REPOS,
+  SENTRY_SDK_REPOS,
   STATUS_FIELD_ID,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
@@ -28,7 +28,7 @@ import {
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
-  ...SENTRY_REPOS,
+  ...SENTRY_SDK_REPOS,
   ...SENTRY_MONOREPOS,
 ]);
 

@@ -3,9 +3,13 @@ import moment from 'moment-timezone';
 
 import {
   GETSENTRY_ORG,
+  SENTRY_MONOREPOS,
+  SENTRY_SDK_REPOS,
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
+
+const REPOS_TO_TRACK_FOR_STALEBOT = [...SENTRY_MONOREPOS, ...SENTRY_SDK_REPOS];
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
@@ -72,13 +76,9 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   );
 };
 
-export const triggerStaleBot = async (
-  repos: string[],
-  octokit: Octokit,
-  now: moment.Moment
-) => {
+export const triggerStaleBot = async (octokit: Octokit, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
-  repos.forEach(async (repo: string) => {
+  REPOS_TO_TRACK_FOR_STALEBOT.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {
       owner: GETSENTRY_ORG,
       repo,

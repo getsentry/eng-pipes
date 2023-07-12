@@ -11,8 +11,6 @@ import { triggerStaleBot } from './stalebot';
 
 type PubSubPayload = {
   name: string;
-  repos: string[];
-  slo?: number;
 };
 
 export const opts = {
@@ -47,8 +45,7 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  let repos,
-    octokit,
+  let octokit,
     now,
     code = 204;
   let func = new Map([
@@ -56,18 +53,20 @@ export const pubSubHandler = async (
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
-  if (func === undefined || !payload.repos || !payload.repos.length) {
-    func = async () => {}; // no-op
-    code = 400;
-  } else {
-    repos = payload.repos;
+  // Performing the following check seems to suppress GitHub's dynamic method
+  // call security warning.
+  // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
+  if (typeof func === 'function') {
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
+  } else {
+    func = async () => {}; // no-op
+    code = 400;
   }
 
   reply.code(code);
   reply.send(); // Respond early to not block the webhook sender
-  await func(repos, octokit, now);
+  await func(octokit, now);
   tx.finish();
 };
 

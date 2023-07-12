@@ -2,7 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { ClientType } from '@/api/github/clientType';
-import { SENTRY_REPOS } from '@/config';
+import { SENTRY_SDK_REPOS } from '@/config';
 import { STATUS_FIELD_ID, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
 import {
   isNotFromAnExternalOrGTMUser,
@@ -13,7 +13,7 @@ import { addIssueToGlobalIssuesProject } from '@/utils/githubEventHelpers';
 import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_REPOS);
+const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_SDK_REPOS);
 
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);
