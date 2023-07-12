@@ -1,19 +1,19 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { ISSUES_PROJECT_NODE_ID, RESPONSE_DUE_DATE_FIELD_ID } from '@/config';
+import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
 import { getOssUserType } from '@utils/getOssUserType';
 
 // Validation Helpers
 
-export async function shouldSkip(payload, reasonsToSkip) {
+export async function shouldSkip(payload, app: GitHubApp, reasonsToSkip) {
   // Could do Promise-based async here, but that was getting complicated[1] and
   // there's not really a performance concern (famous last words).
   //
   // [1] https://github.com/getsentry/eng-pipes/pull/212#discussion_r657365585
 
   for (const skipIf of reasonsToSkip) {
-    if (await skipIf(payload)) {
+    if (await skipIf(payload, app)) {
       return true;
     }
   }
@@ -37,6 +37,7 @@ async function sendQuery(query: string, data: object, octokit: Octokit) {
 }
 
 export async function addIssueToGlobalIssuesProject(
+  app: GitHubApp,
   issueNodeId: string | undefined,
   repo: string,
   issueNumber: number,
@@ -48,7 +49,7 @@ export async function addIssueToGlobalIssuesProject(
     );
   }
   const addIssueToGlobalIssuesProjectMutation = `mutation {
-  addProjectV2ItemById(input: {projectId: "${ISSUES_PROJECT_NODE_ID}" contentId: "${issueNodeId}"}) {
+  addProjectV2ItemById(input: {projectId: "${app.project.node_id}" contentId: "${issueNodeId}"}) {
       item {
         id
       }
@@ -95,6 +96,7 @@ export async function getAllProjectFieldNodeIds(
 }
 
 export async function modifyProjectIssueField(
+  app: GitHubApp,
   itemId: string,
   projectFieldOption: string,
   fieldId: string,
@@ -108,7 +110,7 @@ export async function modifyProjectIssueField(
   const modifyProjectIssueFieldMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
-        projectId: "${ISSUES_PROJECT_NODE_ID}"
+        projectId: "${app.project.node_id}"
         itemId: "${itemId}"
         fieldId: "${fieldId}"
         value: {
@@ -130,6 +132,7 @@ export async function modifyProjectIssueField(
 }
 
 export async function modifyDueByDate(
+  app: GitHubApp,
   itemId: string,
   projectFieldOption: string,
   fieldId: string,
@@ -138,7 +141,7 @@ export async function modifyDueByDate(
   const modifyDueByDateMutation = `mutation {
     updateProjectV2ItemFieldValue(
       input: {
-        projectId: "${ISSUES_PROJECT_NODE_ID}"
+        projectId: "${app.project.node_id}"
         itemId: "${itemId}"
         fieldId: "${fieldId}"
         value: {
@@ -193,6 +196,7 @@ export async function getKeyValueFromProjectField(
 }
 
 export async function getIssueDueDateFromProject(
+  app: GitHubApp,
   issueNodeId: string,
   octokit: Octokit
 ) {
@@ -226,7 +230,7 @@ export async function getIssueDueDateFromProject(
   // When the response due date is empty, the node doesn't exist so we default to empty string
   const issueDueDateInfoNode =
     response?.node.fieldValues.nodes.find(
-      (item) => item.field?.id === RESPONSE_DUE_DATE_FIELD_ID
+      (item) => item.field?.id === app.project.response_due_date_field_id
     ) || '';
   return issueDueDateInfoNode.text;
 }

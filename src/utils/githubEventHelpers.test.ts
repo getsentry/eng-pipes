@@ -1,8 +1,10 @@
-import { RESPONSE_DUE_DATE_FIELD_ID } from '@/config';
+import { GH_APPS } from '@/config';
 
 import * as githubEventHelpers from './githubEventHelpers';
 
 describe('githubEventHelpers', function () {
+  const app = GH_APPS.load('__tmp_org_placeholder__');
+
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
     const octokit = {
       graphql: jest
@@ -11,6 +13,7 @@ describe('githubEventHelpers', function () {
     };
     expect(
       await githubEventHelpers.addIssueToGlobalIssuesProject(
+        app,
         'issueNodeId',
         'test-repo',
         1,
@@ -68,7 +71,7 @@ describe('githubEventHelpers', function () {
               {},
               {
                 text: '2023-06-23T18:00:00.000Z',
-                field: { id: RESPONSE_DUE_DATE_FIELD_ID },
+                field: { id: app.project.response_due_date_field_id },
               },
             ],
           },
@@ -77,6 +80,7 @@ describe('githubEventHelpers', function () {
     };
     expect(
       await githubEventHelpers.getIssueDueDateFromProject(
+        app,
         'issueNodeId',
         octokit
       )

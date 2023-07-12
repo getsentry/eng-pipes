@@ -1,11 +1,7 @@
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import {
-  ISSUES_PROJECT_NODE_ID,
-  PRODUCT_AREA_FIELD_ID,
-  STATUS_FIELD_ID,
-} from '@/config';
+import { GH_APPS } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { ClientType } from '@api/github/clientType';
@@ -18,6 +14,7 @@ import { projectsHandler } from '.';
 describe('projectsHandler', function () {
   let fastify: Fastify;
   let octokit;
+  const app = GH_APPS.load('__tmp_org_placeholder__');
   const errors = jest.fn();
 
   beforeAll(async function () {
@@ -109,7 +106,7 @@ describe('projectsHandler', function () {
 
     it('should ignore project event if it is issues project but not product area field id', async function () {
       octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
-      await editProjectField(ISSUES_PROJECT_NODE_ID);
+      await editProjectField(app.project.node_id);
       expect(getKeyValueFromProjectFieldSpy).not.toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
       expect(octokitIssuesSpy).not.toHaveBeenCalled();
@@ -118,7 +115,10 @@ describe('projectsHandler', function () {
     it('should not ignore project event if it is issues project and product field id', async function () {
       octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Test');
-      await editProjectField(ISSUES_PROJECT_NODE_ID, PRODUCT_AREA_FIELD_ID);
+      await editProjectField(
+        app.project.node_id,
+        app.project.product_area_field_id
+      );
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
       expect(octokitIssuesSpy).toHaveBeenCalled();
@@ -128,7 +128,7 @@ describe('projectsHandler', function () {
     it('should not ignore project event if it is issues project and status id', async function () {
       octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Waiting for: Community');
-      await editProjectField(ISSUES_PROJECT_NODE_ID, STATUS_FIELD_ID);
+      await editProjectField(app.project.node_id, app.project.status_field_id);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
       expect(octokitIssuesSpy).toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe('projectsHandler', function () {
     it('should handle project event if field value is unset', async function () {
       octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue(undefined);
-      await editProjectField(ISSUES_PROJECT_NODE_ID, STATUS_FIELD_ID);
+      await editProjectField(app.project.node_id, app.project.status_field_id);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
       expect(octokitIssuesSpy).not.toHaveBeenCalled();

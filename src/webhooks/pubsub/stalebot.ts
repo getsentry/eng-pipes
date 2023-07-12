@@ -8,6 +8,7 @@ import {
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
+import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
 
 const REPOS_TO_TRACK_FOR_STALEBOT = [...SENTRY_MONOREPOS, ...SENTRY_SDK_REPOS];
 
@@ -76,7 +77,11 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   );
 };
 
-export const triggerStaleBot = async (octokit: Octokit, now: moment.Moment) => {
+export const triggerStaleBot = async (
+  app: GitHubApp,
+  octokit: Octokit,
+  now: moment.Moment
+) => {
   // Get all open issues and pull requests that are Waiting for Community
   REPOS_TO_TRACK_FOR_STALEBOT.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {

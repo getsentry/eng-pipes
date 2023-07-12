@@ -4,8 +4,8 @@ import * as Sentry from '@sentry/node';
 import {
   BACKLOG_LABEL,
   GETSENTRY_ORG,
+  GH_APPS,
   IN_PROGRESS_LABEL,
-  PRODUCT_AREA_FIELD_ID,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   SENTRY_MONOREPOS,
@@ -17,12 +17,12 @@ import {
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
-} from '@/utils/githubEventHelpers';
+} from '@utils/githubEventHelpers';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
 
-import { ClientType } from '@/api/github/clientType';
+import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
 function isAlreadyWaitingForSupport(payload) {
@@ -66,12 +66,14 @@ export async function markWaitingForSupport({
     name: 'issueLabelHandler.markWaitingForSupport',
   });
 
+  const app = GH_APPS.loadFromPayload(payload);
+
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
     isAlreadyWaitingForSupport,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, app, reasonsToSkip)) {
     return;
   }
 
@@ -125,8 +127,10 @@ export async function markNotWaitingForSupport({
     name: 'issueLabelHandler.markNotWaitingForSupport',
   });
 
+  const app = GH_APPS.loadFromPayload(payload);
+
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
-  if (await shouldSkip(payload, reasonsToSkip)) {
+  if (await shouldSkip(payload, app, reasonsToSkip)) {
     return;
   }
 
@@ -192,6 +196,7 @@ export async function markNotWaitingForSupport({
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
   const itemId: string = await addIssueToGlobalIssuesProject(
+    app,
     payload.issue.node_id,
     payload.repository.name,
     payload.issue.number,
@@ -201,9 +206,10 @@ export async function markNotWaitingForSupport({
     PRODUCT_AREA_LABEL_PREFIX.length
   );
   await modifyProjectIssueField(
+    app,
     itemId,
     productArea,
-    PRODUCT_AREA_FIELD_ID,
+    app.project.product_area_field_id,
     octokit
   );
 

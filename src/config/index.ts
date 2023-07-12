@@ -1,4 +1,7 @@
-import { loadGitHubAppsFromEnvironment } from './loadGitHubAppsFromEnvironment';
+import {
+  GitHubAppsRegistry,
+  loadGitHubAppsFromEnvironment,
+} from './loadGitHubAppsFromEnvironment';
 
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
@@ -155,19 +158,6 @@ export const SENTRY_SDK_REPOS: string[] = [
 ];
 
 /**
- * Issues Someone Else Cares About Project
- */
-
-export const ISSUES_PROJECT_NODE_ID =
-  process.env.ISSUES_PROJECT_NODE_ID || 'PVT_kwDOABVQ184AOGW8';
-export const PRODUCT_AREA_FIELD_ID =
-  process.env.PRODUCT_AREA_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgJEBno';
-export const STATUS_FIELD_ID =
-  process.env.STATUS_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgI_7g0';
-export const RESPONSE_DUE_DATE_FIELD_ID =
-  process.env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg';
-
-/**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
  */
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
@@ -185,7 +175,9 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
  */
 
-export const GH_APP_AUTH_OPTIONS = loadGitHubAppsFromEnvironment(process.env);
+export const GH_APPS: GitHubAppsRegistry = loadGitHubAppsFromEnvironment(
+  process.env
+);
 
 /**
  * Business Hours by Office

@@ -5,8 +5,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
-  RESPONSE_DUE_DATE_FIELD_ID,
-  STATUS_FIELD_ID,
+  GH_APPS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
@@ -25,6 +24,7 @@ import { issueLabelHandler } from '.';
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
   let octokit;
+  const app = GH_APPS.load('__tmp_org_placeholder__');
   const errors = jest.fn();
   let say, respond, client, ack;
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
@@ -517,6 +517,7 @@ describe('issueLabelHandler', function () {
 
     it('should remove `Waiting for: Product Owner` label when another `Waiting for: *` label is added', async function () {
       await setupIssue();
+
       expect(octokit.issues._labels).toEqual(
         new Set([WAITING_FOR_PRODUCT_OWNER_LABEL, 'Product Area: Test'])
       );
@@ -529,15 +530,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2022-12-20T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
@@ -551,15 +554,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
@@ -573,15 +578,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
@@ -597,15 +604,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2022-12-20T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
@@ -623,15 +632,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
@@ -646,15 +657,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
       // Restore old mock return value used throughout the file
@@ -673,15 +686,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
       // Restore old mock return value used throughout the file
@@ -701,15 +716,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        STATUS_FIELD_ID,
+        app.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        RESPONSE_DUE_DATE_FIELD_ID,
+        app.project.response_due_date_field_id,
         octokit
       );
     });
