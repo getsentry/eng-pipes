@@ -30,32 +30,6 @@ class GitHubAppsConfigHelper {
     }
     return this.configs.get(num);
   }
-
-  validateAll() {
-    const allErrors = new Object();
-    for (const [org, app] of Object.entries(this.configs)) {
-      const errors = new Array();
-      [
-        'auth.appId',
-        'auth.privateKey',
-        'project.node_id',
-        'project.product_area_field_id',
-        'project.status_field_id',
-        'project.response_due_date_field_id',
-      ].forEach((group_key) => {
-        const [group, key] = group_key.split('.');
-        if (!app[group][key]) {
-          errors.push(`${group}.${key}.`);
-        }
-      });
-      if (errors.length) {
-        allErrors[org] = errors;
-      }
-    }
-    if (Object.keys(allErrors).length) {
-      throw new Error(`Config missing: ${JSON.stringify(allErrors)}`);
-    }
-  }
 }
 
 export class GitHubAppsRegistry {
@@ -119,10 +93,6 @@ export function loadGitHubAppsFromEnvironment(env) {
         env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg',
     };
   }
-
-  // Once all configs are parsed, validate them once so we can see all errors
-  // at once (vs. config whack-a-mole).
-  configs.validateAll();
 
   // Now convert them to (strongly-typed) apps now that we know the info is
   // clean.
