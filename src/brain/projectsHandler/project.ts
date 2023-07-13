@@ -53,7 +53,7 @@ export async function syncLabelsWithProjectField({
     name: 'issueLabelHandler.syncLabelsWithProjectField',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInAProjectWeCareAbout,

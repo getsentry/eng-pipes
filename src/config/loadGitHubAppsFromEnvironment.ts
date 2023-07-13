@@ -3,6 +3,39 @@ import {
   GitHubIssuesSomeoneElseCaresAbout,
 } from '@/types';
 
+// Config - loosely typed and ephemeral, used for collecting values found in
+// the environment. We check for missing values using this but not for types,
+// that is what GitHubApp is for (below). Configs are stored by number taken
+// from envvars. Roughly, `GH_APP_1_FOO=bar` becomes `{1: {FOO: "bar"}}`.
+
+class GitHubAppConfig {
+  num: any;
+  org: any;
+  auth: any;
+  project: any;
+}
+
+class GitHubAppConfigs {
+  configs: Map<number, any>;
+
+  constructor() {
+    this.configs = new Map<number, object>();
+  }
+
+  getOrCreate(num: number): object | undefined {
+    if (!this.configs.has(num)) {
+      const config = new GitHubAppConfig();
+      config.num = num;
+      this.configs.set(num, config);
+    }
+    return this.configs.get(num);
+  }
+}
+
+// App - strongly typed and permanent, these are used throughout the codebase
+// via `{ import GH_APPS } from '/@config'`. They are accessed by org slug,
+// usually taken from a GitHub event payload.
+
 export class GitHubApp {
   num: number;
   org: string;
@@ -17,32 +50,17 @@ export class GitHubApp {
   }
 }
 
-class GitHubAppsConfigHelper {
-  configs: Map<number, any>; // much looser typing than apps
-
-  constructor() {
-    this.configs = new Map<number, object>();
-  }
-
-  forNumber(num: number): object | undefined {
-    if (!this.configs.has(num)) {
-      this.configs.set(num, { num: num });
-    }
-    return this.configs.get(num);
-  }
-}
-
-export class GitHubAppsRegistry {
+export class GitHubApps {
   apps: Map<string, GitHubApp>;
 
-  constructor(configs) {
+  constructor(configHelper) {
     this.apps = new Map<string, GitHubApp>();
-    for (const config of configs.configs.values()) {
+    for (const config of configHelper.configs.values()) {
       this.apps.set(config.org, new GitHubApp(config));
     }
   }
 
-  load(org) {
+  get(org) {
     const app = this.apps.get(org);
     if (app === undefined) {
       throw new Error(`No app is registered for '${org}'.`);
@@ -50,20 +68,22 @@ export class GitHubAppsRegistry {
     return app;
   }
 
-  // API for payload (JSON struct coming from GitHub)
-
-  loadFromPayload(payload) {
+  getForPayload(gitHubEventPayload) {
     // Soon we aim to support multiple orgs!
     const org = '__tmp_org_placeholder__'; // payload?.organization?.login;
     if (!org) {
-      throw new Error(`Could not find an org in ${JSON.stringify(payload)}.`);
+      throw new Error(
+        `Could not find an org in ${JSON.stringify(gitHubEventPayload)}.`
+      );
     }
-    return this.load(org);
+    return this.get(org);
   }
 }
 
+// Loader - called in @/config to populate the GH_APPS global.
+
 export function loadGitHubAppsFromEnvironment(env) {
-  const configs = new GitHubAppsConfigHelper();
+  const configs = new GitHubAppConfigs();
   let config;
 
   if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
@@ -72,7 +92,7 @@ export function loadGitHubAppsFromEnvironment(env) {
     // instantiate a GitHubApp once all config has been collected for each
     // (once we've made a full pass through process.env).
 
-    config = configs.forNumber(1);
+    config = configs.getOrCreate(1);
     config.org = '__tmp_org_placeholder__';
     config.auth = {
       appId: Number(env.GH_APP_IDENTIFIER),
@@ -90,5 +110,5 @@ export function loadGitHubAppsFromEnvironment(env) {
 
   // Now convert them to (strongly-typed) apps now that we know the info is
   // clean.
-  return new GitHubAppsRegistry(configs);
+  return new GitHubApps(configs);
 }

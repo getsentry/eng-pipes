@@ -24,7 +24,7 @@ import { issueLabelHandler } from '.';
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const app = GH_APPS.load('__tmp_org_placeholder__');
+  const app = GH_APPS.get('__tmp_org_placeholder__');
   const errors = jest.fn();
   let say, respond, client, ack;
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;

@@ -42,7 +42,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
 
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
-    }).load('__tmp_org_placeholder__').auth.appId;
+    }).get('__tmp_org_placeholder__').auth.appId;
     expect(actual).toEqual(42);
   });
 
