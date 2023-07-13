@@ -42,20 +42,20 @@ export class GitHubApp {
   auth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
 
-  constructor(obj) {
-    this.num = obj.num;
-    this.org = obj.org;
-    this.auth = obj.auth;
-    this.project = obj.project;
+  constructor(config) {
+    this.num = config.num;
+    this.org = config.org;
+    this.auth = config.auth;
+    this.project = config.project;
   }
 }
 
 export class GitHubApps {
   apps: Map<string, GitHubApp>;
 
-  constructor(configHelper) {
+  constructor(appConfigs) {
     this.apps = new Map<string, GitHubApp>();
-    for (const config of configHelper.configs.values()) {
+    for (const config of appConfigs.configs.values()) {
       this.apps.set(config.org, new GitHubApp(config));
     }
   }
