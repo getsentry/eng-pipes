@@ -12,9 +12,9 @@ describe('loadGitHubAppsFromEnvironment ', function () {
             auth: {
               appId: 42,
               privateKey: 'cheese',
+              installationId: undefined,
             },
             project: {
-              installationId: undefined,
               node_id: 'bread',
               product_area_field_id: 'wine',
               status_field_id: 'beer',
@@ -65,9 +65,9 @@ describe('loadGitHubAppsFromEnvironment ', function () {
             auth: {
               appId: 42,
               privateKey: 'cheese',
+              installationId: undefined,
             },
             project: {
-              installationId: undefined,
               node_id: 'PVT_kwDOABVQ184AOGW8',
               product_area_field_id: 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
               status_field_id: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
