@@ -7,6 +7,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         [
           '__tmp_org_placeholder__',
           {
+            num: 1,
             org: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
@@ -59,6 +60,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         [
           '__tmp_org_placeholder__',
           {
+            num: 1,
             org: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
