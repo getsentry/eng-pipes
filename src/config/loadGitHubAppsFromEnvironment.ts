@@ -42,12 +42,6 @@ export class GitHubAppsRegistry {
     }
   }
 
-  pop(org) {
-    const app = this.load(org);
-    this.apps.delete(org);
-    return app;
-  }
-
   load(org) {
     const app = this.apps.get(org);
     if (app === undefined) {
