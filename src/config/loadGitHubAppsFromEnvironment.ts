@@ -68,7 +68,7 @@ export function loadGitHubAppsFromEnvironment(env) {
 
   if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
     // Collect config by (proleptic) envvar number. Once we have GH_APP_1_FOO
-    // this will make more sense. We'll collect shtuff in config and then
+    // this will make more sense. We'll collect stuff in config and then
     // instantiate a GitHubApp once all config has been collected for each
     // (once we've made a full pass through process.env).
 
