@@ -1,5 +1,5 @@
 import {
-  GitHubAppsRegistry,
+  GitHubApps,
   loadGitHubAppsFromEnvironment,
 } from './loadGitHubAppsFromEnvironment';
 
@@ -175,9 +175,7 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
  */
 
-export const GH_APPS: GitHubAppsRegistry = loadGitHubAppsFromEnvironment(
-  process.env
-);
+export const GH_APPS: GitHubApps = loadGitHubAppsFromEnvironment(process.env);
 
 /**
  * Business Hours by Office

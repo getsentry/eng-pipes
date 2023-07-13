@@ -63,7 +63,7 @@ export async function updateCommunityFollowups({
     name: 'issueLabelHandler.updateCommunityFollowups',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
@@ -131,7 +131,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,

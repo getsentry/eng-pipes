@@ -7,13 +7,14 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         [
           '__tmp_org_placeholder__',
           {
+            num: 1,
             org: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
               privateKey: 'cheese',
+              installationId: undefined,
             },
             project: {
-              installationId: undefined,
               node_id: 'bread',
               product_area_field_id: 'wine',
               status_field_id: 'beer',
@@ -41,7 +42,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
 
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
-    }).load('__tmp_org_placeholder__').auth.appId;
+    }).get('__tmp_org_placeholder__').auth.appId;
     expect(actual).toEqual(42);
   });
 
@@ -59,13 +60,14 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         [
           '__tmp_org_placeholder__',
           {
+            num: 1,
             org: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
               privateKey: 'cheese',
+              installationId: undefined,
             },
             project: {
-              installationId: undefined,
               node_id: 'PVT_kwDOABVQ184AOGW8',
               product_area_field_id: 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
               status_field_id: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',

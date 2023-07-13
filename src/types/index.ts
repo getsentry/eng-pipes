@@ -35,6 +35,13 @@ export interface AppAuthStrategyOptions {
   installationId?: number;
 }
 
+export interface GitHubIssuesSomeoneElseCaresAbout {
+  node_id: string;
+  product_area_field_id: string;
+  status_field_id: string;
+  response_due_date_field_id: string;
+}
+
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 
 // Note we intentionally only pick the pieces of checkRun that is needed to

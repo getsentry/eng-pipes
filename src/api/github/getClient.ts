@@ -44,7 +44,7 @@ export async function getClient(type: ClientType, org?: string | null) {
       );
     }
 
-    const app = GH_APPS.load('__tmp_org_placeholder__');
+    const app = GH_APPS.get('__tmp_org_placeholder__');
 
     let client = _CLIENTS_BY_ORG.get(org);
     if (client === undefined) {

@@ -48,7 +48,7 @@ export async function markWaitingForProductOwner({
     name: 'issueLabelHandler.markWaitingforProductOwner',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToSkipTriage = [
     isNotInARepoWeCareAboutForTriage,
@@ -101,7 +101,7 @@ export async function markNotWaitingForProductOwner({
     name: 'issueLabelHandler.markNotWaitingForProductOwner',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForTriage,

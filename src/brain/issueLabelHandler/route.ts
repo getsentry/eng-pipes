@@ -66,7 +66,7 @@ export async function markWaitingForSupport({
     name: 'issueLabelHandler.markWaitingForSupport',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
@@ -127,7 +127,7 @@ export async function markNotWaitingForSupport({
     name: 'issueLabelHandler.markNotWaitingForSupport',
   });
 
-  const app = GH_APPS.loadFromPayload(payload);
+  const app = GH_APPS.getForPayload(payload);
 
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
   if (await shouldSkip(payload, app, reasonsToSkip)) {
