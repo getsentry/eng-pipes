@@ -4,8 +4,8 @@ import moment from 'moment-timezone';
 
 import {
   GH_APPS,
-  SENTRY_MONOREPOS,
-  SENTRY_SDK_REPOS,
+  SENTRY_REPOS_WITH_ROUTING,
+  SENTRY_REPOS_WITHOUT_ROUTING,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -27,8 +27,8 @@ import {
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
-  ...SENTRY_SDK_REPOS,
-  ...SENTRY_MONOREPOS,
+  ...SENTRY_REPOS_WITHOUT_ROUTING,
+  ...SENTRY_REPOS_WITH_ROUTING,
 ]);
 
 function isNotInARepoWeCareAboutForFollowups(payload) {

@@ -3,14 +3,17 @@ import moment from 'moment-timezone';
 
 import {
   GETSENTRY_ORG,
-  SENTRY_MONOREPOS,
-  SENTRY_SDK_REPOS,
+  SENTRY_REPOS_WITH_ROUTING,
+  SENTRY_REPOS_WITHOUT_ROUTING,
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
 import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
 
-const REPOS_TO_TRACK_FOR_STALEBOT = [...SENTRY_MONOREPOS, ...SENTRY_SDK_REPOS];
+const REPOS_TO_TRACK_FOR_STALEBOT = [
+  ...SENTRY_REPOS_WITH_ROUTING,
+  ...SENTRY_REPOS_WITHOUT_ROUTING,
+];
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;

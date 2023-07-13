@@ -8,7 +8,7 @@ import {
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
-  SENTRY_MONOREPOS,
+  SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
@@ -20,7 +20,7 @@ import {
 } from '@utils/githubEventHelpers';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
+const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_REPOS_WITH_ROUTING);
 
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
