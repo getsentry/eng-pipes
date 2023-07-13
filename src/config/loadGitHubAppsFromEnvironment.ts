@@ -1,17 +1,13 @@
-import { AppAuthStrategyOptions } from '@/types';
-
-interface ProjectOptions {
-  node_id: string;
-  product_area_field_id: string;
-  status_field_id: string;
-  response_due_date_field_id: string;
-}
+import {
+  AppAuthStrategyOptions,
+  GitHubIssuesSomeoneElseCaresAbout,
+} from '@/types';
 
 export class GitHubApp {
   num: number;
   org: string;
   auth: AppAuthStrategyOptions;
-  project: ProjectOptions;
+  project: GitHubIssuesSomeoneElseCaresAbout;
 
   constructor(obj) {
     this.num = obj.num;
@@ -21,15 +17,23 @@ export class GitHubApp {
   }
 }
 
-export class GitHubAppsRegistry {
+class GitHubAppsConfigHelper {
+  configs: Map<number, any>; // much looser typing than apps
+
   constructor() {
-    this.apps = new Map<string, GitHubApp>();
     this.configs = new Map<number, object>();
   }
 
-  validate() {
+  forNumber(num: number): object | undefined {
+    if (!this.configs.has(num)) {
+      this.configs.set(num, { num: num });
+    }
+    return this.configs.get(num);
+  }
+
+  validateAll() {
     const allErrors = new Object();
-    for (const [org, app] of this.apps) {
+    for (const [org, app] of Object.entries(this.configs)) {
       const errors = new Array();
       [
         'auth.appId',
@@ -51,23 +55,19 @@ export class GitHubAppsRegistry {
     if (Object.keys(allErrors).length) {
       throw new Error(`Config missing: ${JSON.stringify(allErrors)}`);
     }
-    delete this.configs; // ¯\_(ツ)_/¯
   }
+}
 
-  // API for number (from envvars, e.g. GH_APP_1_FOO)
-
-  configs?: Map<number, object>;
-
-  configForNumber(num: number): object | undefined {
-    if (!this.configs?.has(num)) {
-      this.configs?.set(num, { num: num });
-    }
-    return this.configs?.get(num);
-  }
-
-  // API for org slug
-
+export class GitHubAppsRegistry {
   apps: Map<string, GitHubApp>;
+
+  constructor(configs) {
+    this.apps = new Map<string, GitHubApp>();
+    for (const config of configs.configs.values()) {
+      // 🏛️🍕🍕
+      this.apps.set(config.org, new GitHubApp(config));
+    }
+  }
 
   pop(org) {
     const app = this.load(org);
@@ -96,7 +96,7 @@ export class GitHubAppsRegistry {
 }
 
 export function loadGitHubAppsFromEnvironment(env) {
-  const apps = new GitHubAppsRegistry();
+  const configs = new GitHubAppsConfigHelper();
   let config;
 
   if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
@@ -105,7 +105,7 @@ export function loadGitHubAppsFromEnvironment(env) {
     // instantiate a GitHubApp once all config has been collected for each
     // (once we've made a full pass through process.env).
 
-    config = apps.configForNumber(1);
+    config = configs.forNumber(1);
     config.org = '__tmp_org_placeholder__';
     config.auth = {
       appId: Number(env.GH_APP_IDENTIFIER),
@@ -119,15 +119,13 @@ export function loadGitHubAppsFromEnvironment(env) {
       response_due_date_field_id:
         env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg',
     };
-
-    // File it by org slug since that's how we'll reference it from now on.
-
-    apps.apps.set(config.org, new GitHubApp(config));
   }
 
-  // Once all apps are loaded, validate them once so we can see all errors at
-  // once (vs. config whack-a-mole).
+  // Once all configs are parsed, validate them once so we can see all errors
+  // at once (vs. config whack-a-mole).
+  configs.validateAll();
 
-  apps.validate();
-  return apps;
+  // Now convert them to (strongly-typed) apps now that we know the info is
+  // clean.
+  return new GitHubAppsRegistry(configs);
 }
