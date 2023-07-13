@@ -157,6 +157,11 @@ export const SENTRY_REPOS_WITHOUT_ROUTING: string[] = [
   'sentry-dart-plugin',
 ];
 
+export const SENTRY_REPOS: string[] = [
+  ...SENTRY_REPOS_WITH_ROUTING,
+  ...SENTRY_REPOS_WITHOUT_ROUTING,
+];
+
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
  */
