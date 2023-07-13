@@ -64,8 +64,7 @@ export async function syncLabelsWithProjectField({
     return;
   }
 
-  const owner = payload?.organization?.login || '';
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   const fieldName = getFieldName(payload, app);
   const fieldValue = await getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
@@ -84,7 +83,7 @@ export async function syncLabelsWithProjectField({
   );
 
   await octokit.issues.addLabels({
-    owner,
+    owner: app.org,
     repo: issueInfo.repo,
     issue_number: issueInfo.number,
     labels: [

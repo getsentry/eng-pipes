@@ -23,10 +23,10 @@ describe('getClient(ClientType.User)', function () {
   });
 });
 
-describe("getClient(ClientType.App, 'getsentry')", function () {
+describe("getClient(ClientType.App, 'Enterprise')", function () {
   beforeAll(async function () {
     octokitClass.mockClear();
-    await getClient(ClientType.App, 'getsentry');
+    await getClient(ClientType.App, 'Enterprise');
   });
 
   it('is instantiated twice', async function () {
@@ -43,7 +43,7 @@ describe("getClient(ClientType.App, 'getsentry')", function () {
       auth: {
         appId: 1234,
         privateKey: 'top \nsecret\n key',
-        installationId: 'installation-getsentry',
+        installationId: 'installation-Enterprise',
       },
     });
   });

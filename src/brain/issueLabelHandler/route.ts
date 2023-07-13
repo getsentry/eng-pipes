@@ -81,18 +81,17 @@ export async function markWaitingForSupport({
   const issueNumber = payload.issue.number;
 
   // New issues get a Waiting for: Support label.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   await octokit.issues.addLabels({
-    owner,
-    repo: repo,
+    owner: app.org,
+    repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_SUPPORT_LABEL],
   });
 
   await octokit.issues.createComment({
-    owner,
-    repo: repo,
+    owner: app.org,
+    repo,
     issue_number: issueNumber,
     body: `Assigning to @${GETSENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
   });
@@ -137,8 +136,7 @@ export async function markNotWaitingForSupport({
   const { issue, label } = payload;
   const productAreaLabel = label;
   const productAreaLabelName = productAreaLabel?.name || PRODUCT_AREA_UNKNOWN;
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   const labelsToRemove: string[] = [];
   const labelNames = issue?.labels?.map((label) => label.name) || [];
   const isBeingRoutedBySupport = labelNames.includes(WAITING_FOR_SUPPORT_LABEL);
@@ -153,7 +151,7 @@ export async function markNotWaitingForSupport({
   for (const label of labelsToRemove) {
     try {
       await octokit.issues.removeLabel({
-        owner: owner,
+        owner: app.org,
         repo: payload.repository.name,
         issue_number: payload.issue.number,
         name: label,
@@ -175,7 +173,7 @@ export async function markNotWaitingForSupport({
   // Only retriage issues if support is routing
   if (isBeingRoutedBySupport) {
     await octokit.issues.addLabels({
-      owner: owner,
+      owner: app.org,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
       labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
@@ -185,7 +183,7 @@ export async function markNotWaitingForSupport({
   const comment = await routeIssue(octokit, productAreaLabelName);
 
   await octokit.issues.createComment({
-    owner,
+    owner: app.org,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
     body: comment,

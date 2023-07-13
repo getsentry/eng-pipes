@@ -77,8 +77,7 @@ export async function updateCommunityFollowups({
     return;
   }
 
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
@@ -88,16 +87,16 @@ export async function updateCommunityFollowups({
 
   if (isWaitingForCommunityLabelOnIssue) {
     await octokit.issues.removeLabel({
-      owner,
-      repo: repo,
+      owner: app.org,
+      repo,
       issue_number: issueNumber,
       name: WAITING_FOR_COMMUNITY_LABEL,
     });
   }
 
   await octokit.issues.addLabels({
-    owner,
-    repo: repo,
+    owner: app.org,
+    repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
@@ -142,8 +141,7 @@ export async function ensureOneWaitingForLabel({
   }
 
   const { issue, label } = payload;
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
   // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
@@ -156,8 +154,8 @@ export async function ensureOneWaitingForLabel({
 
   if (labelToRemove != null) {
     await octokit.issues.removeLabel({
-      owner: owner,
-      repo: repo,
+      owner: app.org,
+      repo,
       issue_number: issueNumber,
       name: labelToRemove,
     });

@@ -60,14 +60,13 @@ export async function markWaitingForProductOwner({
   }
 
   // New issues get an Untriaged label.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
   await octokit.issues.addLabels({
-    owner,
-    repo: repo,
+    owner: app.org,
+    repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
@@ -114,11 +113,10 @@ export async function markNotWaitingForProductOwner({
   }
 
   // Remove Untriaged label when triaged.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
+  const octokit = await getClient(ClientType.App, app.org);
   try {
     await octokit.issues.removeLabel({
-      owner: owner,
+      owner: app.org,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
       name: WAITING_FOR_PRODUCT_OWNER_LABEL,

@@ -20,7 +20,7 @@ describe('gha-test', function () {
   });
   beforeEach(async function () {
     await db('users').delete();
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, 'Enterprise');
     fastify = await buildServer(false);
     ghaCancel();
     // @ts-ignore

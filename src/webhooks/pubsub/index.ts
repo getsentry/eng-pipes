@@ -58,7 +58,7 @@ export const pubSubHandler = async (
   // call security warning.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
-    app = GH_APPS.get('__tmp_org_placeholder__');
+    app = GH_APPS.get(GETSENTRY_ORG);
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
   } else {

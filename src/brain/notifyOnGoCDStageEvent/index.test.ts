@@ -98,7 +98,7 @@ describe('notifyOnGoCDStageEvent', function () {
     await pleaseDeployNotifier();
     await notifyOnGoCDStageEvent();
 
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, 'Enterprise');
     octokit.paginate.mockImplementation(() => {
       return [{ name: 'only frontend changes', conclusion: 'success' }];
     });

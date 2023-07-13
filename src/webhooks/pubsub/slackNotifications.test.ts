@@ -13,7 +13,7 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_APPS.get('Enterprise');
 
   beforeAll(async function () {
     await db.migrate.latest();

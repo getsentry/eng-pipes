@@ -17,7 +17,7 @@ jest.mock('@/config', () => {
 });
 
 describe('Stalebot Tests', function () {
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_APPS.get('Enterprise');
 
   const issueInfo = {
     labels: [],

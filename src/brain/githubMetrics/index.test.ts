@@ -66,7 +66,7 @@ describe('github webhook', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, 'Enterprise');
     metrics();
   });
 

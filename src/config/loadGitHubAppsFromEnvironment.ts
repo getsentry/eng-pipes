@@ -22,13 +22,40 @@ class GitHubAppConfigs {
     this.configs = new Map<number, object>();
   }
 
-  getOrCreate(num: number): object | undefined {
+  getOrCreate(num: number): object {
     if (!this.configs.has(num)) {
       const config = new GitHubAppConfig();
       config.num = num;
       this.configs.set(num, config);
     }
     return this.configs.get(num);
+  }
+
+  validateAll() {
+    const allErrors = new Object();
+    for (const [n, config] of this.configs) {
+      const errors = new Array();
+      [
+        'auth.appId',
+        'auth.privateKey',
+        'project.node_id',
+        'project.product_area_field_id',
+        'project.status_field_id',
+        'project.response_due_date_field_id',
+      ].forEach((group_key) => {
+        const [group, key] = group_key.split('.');
+        if (!config[group][key]) {
+          errors.push(`${group}.${key}`);
+        }
+      });
+
+      if (errors.length) {
+        allErrors[n] = errors;
+      }
+    }
+    if (Object.keys(allErrors).length) {
+      throw new Error(`Config missing: ${JSON.stringify(allErrors)}`);
+    }
   }
 }
 
@@ -69,11 +96,17 @@ export class GitHubApps {
   }
 
   getForPayload(gitHubEventPayload) {
-    // Soon we aim to support multiple orgs!
-    const org = '__tmp_org_placeholder__'; // payload?.organization?.login;
-    if (!org) {
+    // Org slug is differently accessed in org-scoped APIs vs. repo-scoped APIs
+    let org: string;
+    if (gitHubEventPayload.organization) {
+      org = gitHubEventPayload.organization.login;
+    } else if (gitHubEventPayload.repository?.owner?.type === 'Organization') {
+      org = gitHubEventPayload.repository.owner.login;
+    } else {
       throw new Error(
-        `Could not find an org in ${JSON.stringify(gitHubEventPayload)}.`
+        `Could not find an org in '${JSON.stringify(
+          gitHubEventPayload.organization
+        )}' or '${JSON.stringify(gitHubEventPayload.repository?.owner)}'.`
       );
     }
     return this.get(org);
@@ -84,31 +117,51 @@ export class GitHubApps {
 
 export function loadGitHubAppsFromEnvironment(env) {
   const configs = new GitHubAppConfigs();
-  let config;
 
-  if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
-    // Collect config by (proleptic) envvar number. Once we have GH_APP_1_FOO
-    // this will make more sense. We'll collect stuff in config and then
-    // instantiate a GitHubApp once all config has been collected for each
-    // (once we've made a full pass through process.env).
+  for (const [envvar, value] of Object.entries(env)) {
+    // Find app configuration in env, grouping by number (GH_APP_1_FOO).
 
-    config = configs.getOrCreate(1);
-    config.org = '__tmp_org_placeholder__';
-    config.auth = {
-      appId: Number(env.GH_APP_IDENTIFIER),
-      privateKey: env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
-    };
-    config.project = {
-      node_id: env.ISSUES_PROJECT_NODE_ID || 'PVT_kwDOABVQ184AOGW8',
-      product_area_field_id:
-        env.PRODUCT_AREA_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
-      status_field_id: env.STATUS_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
-      response_due_date_field_id:
-        env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg',
-    };
+    const m = envvar.match(/^GH_APP_(\d+)_([A-Z_]+)$/);
+    if (m === null) {
+      continue;
+    }
+
+    const n = parseInt(m[1], 10);
+    const noop = (x) => x;
+    const path_mod = new Map([
+      ['ORG_SLUG', ['org', noop]],
+      ['IDENTIFIER', ['auth.appId', (x) => Number(x)]],
+      ['SECRET_KEY', ['auth.privateKey', (x) => x.replace(/\\n/g, '\n')]],
+      ['ISSUES_PROJECT_NODE_ID', ['project.node_id', noop]],
+      ['PRODUCT_AREA_FIELD_ID', ['project.product_area_field_id', noop]],
+      ['STATUS_FIELD_ID', ['project.status_field_id', noop]],
+      [
+        'RESPONSE_DUE_DATE_FIELD_ID',
+        ['project.response_due_date_field_id', noop],
+      ],
+    ]).get(m[2]);
+
+    if (path_mod === undefined) {
+      continue;
+    }
+
+    const path = path_mod[0] as string;
+    const mod = path_mod[1] as (x: any) => any;
+    const [first, second] = path.split('.');
+
+    const config = configs.getOrCreate(n);
+    if (second) {
+      config[first][second] = mod(value);
+    } else {
+      config[first] = mod(value);
+    }
   }
 
-  // Now convert them to (strongly-typed) apps now that we know the info is
-  // clean.
+  // Once all configs are in hand, validate them once so we can see all errors
+  // at once (vs. config whack-a-mole).
+  configs.validateAll();
+
+  // Convert configs to (strongly-typed) apps now that we know all values are
+  // present.
   return new GitHubApps(configs);
 }

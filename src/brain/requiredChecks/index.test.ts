@@ -22,6 +22,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import {
   BuildStatus,
+  GETSENTRY_ORG,
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
 } from '@/config';
@@ -66,7 +67,7 @@ describe('requiredChecks', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await requiredChecks();
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
 
     octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;

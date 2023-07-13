@@ -14,7 +14,7 @@ import { projectsHandler } from '.';
 describe('projectsHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_APPS.load('Enterprise');
   const errors = jest.fn();
 
   beforeAll(async function () {
@@ -38,7 +38,7 @@ describe('projectsHandler', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await projectsHandler();
-    octokit = await getClient(ClientType.App, 'test-org');
+    octokit = await getClient(ClientType.App, 'Enterprise');
   });
 
   afterEach(async function () {
@@ -59,7 +59,7 @@ describe('projectsHandler', function () {
     fieldNodeId?: string
   ) {
     const projectPayload = {
-      organization: { login: 'test-org' },
+      organization: { login: 'Enterprise' },
       projects_v2_item: {
         project_node_id: projectNodeId || 'test-project-node-id',
         node_id: 'test-node-id',

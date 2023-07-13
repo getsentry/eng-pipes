@@ -1,3 +1,4 @@
+import { GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
@@ -13,7 +14,7 @@ describe('getFailureMessages', function () {
   });
 
   beforeEach(async function () {
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
   });
 
   afterAll(async function () {

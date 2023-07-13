@@ -44,11 +44,10 @@ export async function getClient(type: ClientType, org?: string | null) {
       );
     }
 
-    const app = GH_APPS.get('__tmp_org_placeholder__');
-
     let client = _CLIENTS_BY_ORG.get(org);
     if (client === undefined) {
       // Bootstrap with a client not bound to an org.
+      const app = GH_APPS.get(org);
       const appClient = _getAppClient(app.auth);
 
       // Use the unbound client to hydrate a client bound to an org.

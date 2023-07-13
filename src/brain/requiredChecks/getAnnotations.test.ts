@@ -1,3 +1,4 @@
+import { GETSENTRY_ORG } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
@@ -7,7 +8,7 @@ describe('getAnnotations', function () {
   let octokit;
 
   beforeAll(async function () {
-    octokit = await getClient(ClientType.App, 'getsentry');
+    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
   });
 
   beforeEach(function () {
