@@ -64,7 +64,6 @@ export class GitHubAppsRegistry {
   constructor(configs) {
     this.apps = new Map<string, GitHubApp>();
     for (const config of configs.configs.values()) {
-      // 🏛️🍕🍕
       this.apps.set(config.org, new GitHubApp(config));
     }
   }
