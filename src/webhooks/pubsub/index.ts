@@ -1,13 +1,25 @@
+import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG, GH_APPS } from '@/config';
-import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
+import { GH_APPS } from '@/config';
+import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
 import { getClient } from '@api/github/getClient';
 
+import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerStaleBot } from './stalebot';
+
+type FunctionMap = Map<
+  string,
+  (x: GitHubApp, y: Octokit, z: moment.Moment) => any
+>;
+
+const DEFAULT_FUNCTION_MAP = new Map([
+  ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
+  ['stale-bot', triggerStaleBot],
+]);
 
 type PubSubPayload = {
   name: string;
@@ -35,7 +47,8 @@ export const opts = {
 
 export const pubSubHandler = async (
   request: FastifyRequest<{ Body: { message: { data: string } } }>,
-  reply: FastifyReply
+  reply: FastifyReply,
+  _funcMap: FunctionMap = DEFAULT_FUNCTION_MAP // for testing
 ) => {
   const tx = Sentry.startTransaction({
     op: 'webhooks',
@@ -45,30 +58,23 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  let app,
-    octokit,
-    now,
-    code = 204;
-  let func = new Map([
-    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
-    ['stale-bot', triggerStaleBot],
-  ]).get(payload.name);
+  const func = _funcMap.get(payload.name);
 
-  // Performing the following check seems to suppress GitHub's dynamic method
-  // call security warning.
+  // `if (func)` is not enough to fool CodeQL.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
-  if (typeof func === 'function') {
-    app = GH_APPS.get(GETSENTRY_ORG);
-    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
-    now = moment().utc();
+  if (typeof func === 'undefined') {
+    reply.code(400);
+    reply.send();
   } else {
-    func = async () => {}; // no-op
-    code = 400;
+    reply.code(204);
+    reply.send(); // before real work to avoid blocking
+    const now = moment().utc();
+    for (const [org, app] of GH_APPS.apps) {
+      const octokit = await getClient(ClientType.App, org);
+      await func(app, octokit, now);
+    }
   }
 
-  reply.code(code);
-  reply.send(); // Respond early to not block the webhook sender
-  await func(app, octokit, now);
   tx.finish();
 };
 
