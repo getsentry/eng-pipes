@@ -47,20 +47,43 @@ Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/ho
 ### Setup Secrets
 
 The following secrets are configured in GitHub for this app to function and to deploy to Google.
-You can grab GitHub secrets in their respective configuration pages: [GitHub App](https://github.com/organizations/getsentry/settings/apps/getsantry)
+You can grab GitHub secrets in their respective configuration pages: [getsantry](https://github.com/organizations/getsentry/settings/apps/getsantry), [covecod](https://github.com/organizations/codecov/settings/apps/covecod).
 
 #### Local Secrets (required to run yarn dev)
 
-You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
+You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar. See below for more instructions on [setting up a local environment](#configuring-a-test-environment).
 
-- `GH_APP_IDENTIFIER` - GitHub App identifier
-- `GH_APP_SECRET_KEY` - GitHub App private key
-- `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
-- `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
+##### GitHub
+
+- `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come
+  from GitHub
+- `GH_USER_TOKEN` - Personal (ie, for your own GitHub account) user access
+  token with the `read:org` and `read:user` permissions enabled.
+
+##### GitHub Apps
+
+You can configure multiple GitHub Apps to send events to one `eng-pipes`
+installation. The config values are grouped together by number, so
+`GH_APP_1_*`, `GH_APP_2_*`, etc.
+
+- `GH_APP_1_ORG_SLUG` - Slug for the org where the GitHub app is installed
+- `GH_APP_1_IDENTIFIER` - GitHub App identifier
+- `GH_APP_1_SECRET_KEY` - GitHub App private key -  NOTE: this *must* be on a single line, otherwise it will break reading the secret key (however, it can have literal `\n`s in it, which will be replaced with newlines)
+- `GH_APP_1_ISSUES_PROJECT_NODE_ID` - node ID of the "GitHub Issues Someone Else Cares About" project board in the org
+- `GH_APP_1_PRODUCT_AREA_FIELD_ID` - id of the "Product Area" field in the board
+- `GH_APP_1_STATUS_FIELD_ID` - id of the "Status" field in the board
+- `GH_APP_1_RESPONSE_DUE_DATE_FIELD_ID` -  id of the "Response Due" field in the board
+
+##### Slack
+
 - `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
 - `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
 
-Optional database configuration
+##### CI
+
+- `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
+
+##### Database (Optional)
 
 - `DB_USER` - Database user
 - `DB_PASSWORD` - Database password
@@ -128,7 +151,7 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
 
     - In that organization, create a [new GitHub App](https://github.com/settings/apps/new)
     - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
-    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
+    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) above)
     - Go to the `Permissions & events` sidebar menu entry of the GitHub app configuration, and grant maximum non-`Admin` access (`Read and write` where possible, `Read only` everywhere else) for every line in `Repository permissions` (NOTE: We use a more constrained permission-set in production, but for initial setup enabling maximal permissions is fine; permissions can be whittled down later as needed.)
     - For `Organization permissions`, grant `Read and write` for `Members` and `Projects`
     - In the `Subscribe to events` section, check every possible box
