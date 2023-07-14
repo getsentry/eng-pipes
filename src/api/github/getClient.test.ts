@@ -1,5 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 
+import { GETSENTRY_ORG } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
@@ -44,6 +45,21 @@ describe("getClient(ClientType.App, 'Enterprise')", function () {
         appId: 1234,
         privateKey: 'top \nsecret\n key',
         installationId: 'installation-Enterprise',
+      },
+    });
+  });
+});
+
+describe('getClient(ClientType.App, GETSENTRY_ORG)', function () {
+  it('also knows about getsentry', async function () {
+    octokitClass.mockClear();
+    const actual = await getClient(ClientType.App, GETSENTRY_ORG);
+    expect(octokitClass).toHaveBeenLastCalledWith({
+      authStrategy: createAppAuth,
+      auth: {
+        appId: 7890,
+        privateKey: 'super \nsecret\n key',
+        installationId: 'installation-getsentry',
       },
     });
   });
