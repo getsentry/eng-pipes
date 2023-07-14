@@ -13,6 +13,12 @@ class GitHubAppConfig {
   org: any;
   auth: any;
   project: any;
+
+  constructor(num) {
+    this.num = num;
+    this.auth = {};
+    this.project = {};
+  }
 }
 
 class GitHubAppConfigs {
@@ -24,8 +30,7 @@ class GitHubAppConfigs {
 
   getOrCreate(num: number): object {
     if (!this.configs.has(num)) {
-      const config = new GitHubAppConfig();
-      config.num = num;
+      const config = new GitHubAppConfig(num);
       this.configs.set(num, config);
     }
     return this.configs.get(num);

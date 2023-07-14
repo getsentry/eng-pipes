@@ -14,7 +14,7 @@ import { projectsHandler } from '.';
 describe('projectsHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const app = GH_APPS.load('Enterprise');
+  const app = GH_APPS.get('Enterprise');
   const errors = jest.fn();
 
   beforeAll(async function () {
