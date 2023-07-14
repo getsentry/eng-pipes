@@ -103,15 +103,24 @@ export class GitHubApps {
   getForPayload(gitHubEventPayload) {
     // Org slug is differently accessed in org-scoped APIs vs. repo-scoped APIs
     let org: string;
-    if (gitHubEventPayload.organization) {
+    if (gitHubEventPayload.organization?.login) {
       org = gitHubEventPayload.organization.login;
-    } else if (gitHubEventPayload.repository?.owner?.type === 'Organization') {
+    } else if (
+      gitHubEventPayload.repository?.owner?.login &&
+      gitHubEventPayload.repository?.owner?.type === 'Organization'
+    ) {
       org = gitHubEventPayload.repository.owner.login;
     } else {
       throw new Error(
         `Could not find an org in '${JSON.stringify(
-          gitHubEventPayload.organization
-        )}' or '${JSON.stringify(gitHubEventPayload.repository?.owner)}'.`
+          gitHubEventPayload.organization,
+          null,
+          2
+        )}' or '${JSON.stringify(
+          gitHubEventPayload.repository?.owner,
+          null,
+          2
+        )}'.`
       );
     }
     return this.get(org);
