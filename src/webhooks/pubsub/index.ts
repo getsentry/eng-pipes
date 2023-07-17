@@ -62,10 +62,9 @@ export const pubSubHandler = async (
 
   // `if (func)` is not enough to fool CodeQL.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
-  if (typeof func === 'undefined') {
-    reply.code(400);
-    reply.send();
-  } else {
+  // https://github.com/github/codeql/tree/main/javascript/ql/src/Security/CWE-754/examples
+
+  if (typeof func === 'function') {
     reply.code(204);
     reply.send(); // before real work to avoid blocking
     const now = moment().utc();
@@ -73,6 +72,9 @@ export const pubSubHandler = async (
       const octokit = await getClient(ClientType.App, org);
       await func(app, octokit, now);
     }
+  } else {
+    reply.code(400);
+    reply.send();
   }
 
   tx.finish();
