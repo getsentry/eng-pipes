@@ -44,6 +44,11 @@ function isContractor(payload) {
   return payload.comment.author_association === 'COLLABORATOR';
 }
 
+function isPullRequest(payload) {
+  const { issue } = payload;
+  return issue.pull_request ? true : false;
+}
+
 // Markers of State
 
 export async function updateCommunityFollowups({
@@ -62,6 +67,7 @@ export async function updateCommunityFollowups({
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
     isContractor,
+    isPullRequest,
     isFromABot,
   ];
 

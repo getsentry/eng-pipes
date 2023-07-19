@@ -138,6 +138,14 @@ describe('issueLabelHandler', function () {
     );
   }
 
+  async function createPR(repo?: string, username?: string) {
+    await createGitHubEvent(
+      fastify,
+      'pull_request.opened',
+      makePayload(repo, undefined, username)
+    );
+  }
+
   async function addLabel(label: string, repo?: string, state?: string) {
     await createGitHubEvent(
       fastify,
@@ -150,7 +158,8 @@ describe('issueLabelHandler', function () {
   async function addComment(
     repo?: string,
     username?: string,
-    membership?: string
+    membership?: string,
+    isPR?: boolean
   ) {
     await createGitHubEvent(
       fastify,
@@ -159,6 +168,7 @@ describe('issueLabelHandler', function () {
       {
         ...makePayload(repo, undefined, username),
         comment: { author_association: membership },
+        ...(isPR ? { issue: { pull_request: {} } } : {}),
       }
     );
   }
@@ -588,6 +598,42 @@ describe('issueLabelHandler', function () {
         app,
         'itemId',
         '',
+        app.project.response_due_date_field_id,
+        octokit
+      );
+    });
+
+    it.only('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
+      await createPR('sentry-docs');
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      await addComment('sentry-docs', 'Picard', 'NONE', true);
+      expect(octokit.issues._labels).toEqual(new Set([]));
+    });
+
+    it('should add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
+      await setupIssue();
+      jest
+        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
+        .mockReturnValue(false);
+      await addComment('sentry-docs', 'Picard');
+      expect(octokit.issues._labels).toEqual(
+        new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
+      );
+      // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        app,
+        'itemId',
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        app.project.status_field_id,
+        octokit
+      );
+      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
+        app,
+        'itemId',
+        '2022-12-21T00:00:00.000Z',
         app.project.response_due_date_field_id,
         octokit
       );
