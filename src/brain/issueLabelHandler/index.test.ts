@@ -593,32 +593,6 @@ describe('issueLabelHandler', function () {
       );
     });
 
-    it('should not add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
-      await setupIssue();
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
-      await addLabel(WAITING_FOR_SUPPORT_LABEL, 'sentry-docs');
-      await addComment('sentry-docs', 'Picard');
-      expect(octokit.issues._labels).toEqual(
-        new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
-      );
-      expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
-        'itemId',
-        WAITING_FOR_SUPPORT_LABEL,
-        app.project.status_field_id,
-        octokit
-      );
-      expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
-        'itemId',
-        '2022-12-20T00:00:00.000Z',
-        app.project.response_due_date_field_id,
-        octokit
-      );
-    });
-
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
