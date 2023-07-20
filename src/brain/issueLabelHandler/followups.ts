@@ -45,8 +45,7 @@ function isContractor(payload) {
 }
 
 function isPullRequest(payload) {
-  const { issue } = payload;
-  return issue.pull_request ? true : false;
+  return !!payload.issue.pull_request;
 }
 
 // Markers of State

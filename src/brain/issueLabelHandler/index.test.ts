@@ -161,15 +161,18 @@ describe('issueLabelHandler', function () {
     membership?: string,
     isPR?: boolean
   ) {
+    const payload = {
+      ...makePayload(repo, undefined, username),
+      comment: { author_association: membership },
+    };
+    if (isPR) {
+      payload['issue'].pull_request = {};
+    }
     await createGitHubEvent(
       fastify,
       // @ts-expect-error
       'issue_comment.created',
-      {
-        ...makePayload(repo, undefined, username),
-        comment: { author_association: membership },
-        ...(isPR ? { issue: { pull_request: {} } } : {}),
-      }
+      payload
     );
   }
 
@@ -603,7 +606,7 @@ describe('issueLabelHandler', function () {
       );
     });
 
-    it.only('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
+    it('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
       await createPR('sentry-docs');
       jest
         .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
