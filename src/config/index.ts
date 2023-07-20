@@ -117,12 +117,12 @@ export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
   ? [PERSONAL_TEST_REPO]
   : [];
 
-export const SENTRY_REPOS_WITH_ROUTING: string[] = [
+export const SENTRY_REPOS_WITH_ROUTING: Set<string> = new Set([
   'sentry',
   'sentry-docs',
   ...PERSONAL_TEST_REPOS,
-];
-export const SENTRY_REPOS_WITHOUT_ROUTING: string[] = [
+]);
+export const SENTRY_REPOS_WITHOUT_ROUTING: Set<string> = new Set([
   'arroyo',
   'cdc',
   'craft',
@@ -155,12 +155,12 @@ export const SENTRY_REPOS_WITHOUT_ROUTING: string[] = [
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
   'sentry-dart-plugin',
-];
+]);
 
-export const SENTRY_REPOS: string[] = [
+export const SENTRY_REPOS: Set<string> = new Set([
   ...SENTRY_REPOS_WITH_ROUTING,
   ...SENTRY_REPOS_WITHOUT_ROUTING,
-];
+]);
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership

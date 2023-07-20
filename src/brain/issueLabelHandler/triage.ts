@@ -16,8 +16,6 @@ import {
 import { addIssueToGlobalIssuesProject } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_REPOS_WITHOUT_ROUTING);
-
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);
 }
@@ -29,7 +27,7 @@ function isAlreadyTriaged(payload) {
 }
 
 function isNotInARepoWeCareAboutForTriage(payload) {
-  return !REPOS_TO_TRACK_FOR_TRIAGE.has(payload.repository.name);
+  return !SENTRY_REPOS_WITHOUT_ROUTING.has(payload.repository.name);
 }
 
 function isWaitingForProductOwnerLabel(payload) {

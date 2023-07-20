@@ -435,7 +435,9 @@ export const notifyProductOwnersForUntriagedIssues = async (
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all(SENTRY_REPOS_WITH_ROUTING.map(getIssueSLOInfoForRepo))
+    await Promise.all(
+      [...SENTRY_REPOS_WITH_ROUTING].map(getIssueSLOInfoForRepo)
+    )
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues

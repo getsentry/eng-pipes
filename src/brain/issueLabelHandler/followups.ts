@@ -25,10 +25,8 @@ import {
 } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set(SENTRY_REPOS);
-
 function isNotInARepoWeCareAboutForFollowups(payload) {
-  return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
+  return !SENTRY_REPOS.has(payload.repository.name);
 }
 
 function isNotWaitingForLabel(payload) {
