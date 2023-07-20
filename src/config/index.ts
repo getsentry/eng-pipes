@@ -110,19 +110,19 @@ export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
-// Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_MONOREPOS` if it has actually been set
+// Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_REPOS_WITH_ROUTING` if it has actually been set
 // in the instantiating environment.
 export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
 export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
   ? [PERSONAL_TEST_REPO]
   : [];
 
-export const SENTRY_MONOREPOS: string[] = [
+export const SENTRY_REPOS_WITH_ROUTING: Set<string> = new Set([
   'sentry',
   'sentry-docs',
   ...PERSONAL_TEST_REPOS,
-];
-export const SENTRY_SDK_REPOS: string[] = [
+]);
+export const SENTRY_REPOS_WITHOUT_ROUTING: Set<string> = new Set([
   'arroyo',
   'cdc',
   'craft',
@@ -155,7 +155,12 @@ export const SENTRY_SDK_REPOS: string[] = [
   'sentry-android-gradle-plugin',
   'sentry-dotnet',
   'sentry-dart-plugin',
-];
+]);
+
+export const SENTRY_REPOS: Set<string> = new Set([
+  ...SENTRY_REPOS_WITH_ROUTING,
+  ...SENTRY_REPOS_WITHOUT_ROUTING,
+]);
 
 /**
  * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership

@@ -3,14 +3,11 @@ import moment from 'moment-timezone';
 
 import {
   GETSENTRY_ORG,
-  SENTRY_MONOREPOS,
-  SENTRY_SDK_REPOS,
+  SENTRY_REPOS,
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
 import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
-
-const REPOS_TO_TRACK_FOR_STALEBOT = [...SENTRY_MONOREPOS, ...SENTRY_SDK_REPOS];
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
@@ -83,7 +80,7 @@ export const triggerStaleBot = async (
   now: moment.Moment
 ) => {
   // Get all open issues and pull requests that are Waiting for Community
-  REPOS_TO_TRACK_FOR_STALEBOT.forEach(async (repo: string) => {
+  SENTRY_REPOS.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {
       owner: GETSENTRY_ORG,
       repo,

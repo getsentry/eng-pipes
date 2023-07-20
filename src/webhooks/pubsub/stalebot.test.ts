@@ -11,8 +11,7 @@ jest.mock('@/config', () => {
   const actualEnvVariables = jest.requireActual('@/config');
   return {
     ...actualEnvVariables,
-    SENTRY_SDK_REPOS: [],
-    SENTRY_MONOREPOS: ['test-sentry-repo'],
+    SENTRY_REPOS: ['test-sentry-repo'],
   };
 });
 

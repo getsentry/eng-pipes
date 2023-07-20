@@ -8,10 +8,12 @@ import {
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
-  SENTRY_MONOREPOS,
+  SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { ClientType } from '@api/github/clientType';
+import { getClient } from '@api/github/getClient';
 import {
   addIssueToGlobalIssuesProject,
   isNotFromAnExternalOrGTMUser,
@@ -20,11 +22,6 @@ import {
 } from '@utils/githubEventHelpers';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
-const REPOS_TO_TRACK_FOR_ROUTING = new Set(SENTRY_MONOREPOS);
-
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-
 function isAlreadyWaitingForSupport(payload) {
   return payload.issue.labels.some(
     ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
@@ -32,7 +29,7 @@ function isAlreadyWaitingForSupport(payload) {
 }
 
 function isNotInARepoWeCareAboutForRouting(payload) {
-  return !REPOS_TO_TRACK_FOR_ROUTING.has(payload.repository.name);
+  return !SENTRY_REPOS_WITH_ROUTING.has(payload.repository.name);
 }
 
 function isValidLabel(payload) {

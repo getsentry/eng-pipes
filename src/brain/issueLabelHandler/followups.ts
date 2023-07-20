@@ -4,8 +4,7 @@ import moment from 'moment-timezone';
 
 import {
   GH_APPS,
-  SENTRY_MONOREPOS,
-  SENTRY_SDK_REPOS,
+  SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -26,13 +25,8 @@ import {
 } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
-const REPOS_TO_TRACK_FOR_FOLLOWUPS = new Set([
-  ...SENTRY_SDK_REPOS,
-  ...SENTRY_MONOREPOS,
-]);
-
 function isNotInARepoWeCareAboutForFollowups(payload) {
-  return !REPOS_TO_TRACK_FOR_FOLLOWUPS.has(payload.repository.name);
+  return !SENTRY_REPOS.has(payload.repository.name);
 }
 
 function isNotWaitingForLabel(payload) {
