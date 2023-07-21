@@ -42,6 +42,13 @@ export interface GitHubIssuesSomeoneElseCaresAbout {
   response_due_date_field_id: string;
 }
 
+export interface GitHubOrgConfig {
+  num: any;
+  slug: any;
+  appAuth: any;
+  project: any;
+}
+
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 
 // Note we intentionally only pick the pieces of checkRun that is needed to

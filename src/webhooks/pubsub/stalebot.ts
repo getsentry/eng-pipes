@@ -7,7 +7,7 @@ import {
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
-import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
+import { GitHubOrg } from '@api/github/org';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
