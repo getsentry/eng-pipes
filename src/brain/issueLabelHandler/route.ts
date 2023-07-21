@@ -16,10 +16,10 @@ import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
   addIssueToGlobalIssuesProject,
-  isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
 } from '@utils/githubEventHelpers';
+import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 function isAlreadyWaitingForSupport(payload) {

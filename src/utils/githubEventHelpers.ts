@@ -2,7 +2,6 @@ import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import { GitHubOrg } from '@api/github/org';
-import { getOssUserType } from '@utils/getOssUserType';
 
 // Validation Helpers
 
@@ -18,11 +17,6 @@ export async function shouldSkip(payload, org: GitHubOrg, reasonsToSkip) {
     }
   }
   return false;
-}
-
-export async function isNotFromAnExternalOrGTMUser(payload: object) {
-  const type = await getOssUserType(payload);
-  return !(type === 'external' || type === 'gtm');
 }
 
 async function sendQuery(query: string, data: object, octokit: Octokit) {
