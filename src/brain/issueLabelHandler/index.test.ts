@@ -15,9 +15,9 @@ import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
+import * as helpers from '@api/github/helpers';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
-import * as helpers from '@utils/githubEventHelpers';
 
 import { issueLabelHandler } from '.';
 

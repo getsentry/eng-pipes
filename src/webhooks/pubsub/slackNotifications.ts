@@ -15,7 +15,7 @@ import { isChannelInBusinessHours } from '@/utils/businessHours';
 import {
   addIssueToGlobalIssuesProject,
   getIssueDueDateFromProject,
-} from '@/utils/githubEventHelpers';
+} from '@api/github/helpers';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';

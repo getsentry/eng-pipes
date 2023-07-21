@@ -13,17 +13,17 @@ import {
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
-  calculateSLOViolationRoute,
-  calculateSLOViolationTriage,
-} from '@utils/businessHours';
-import {
   addIssueToGlobalIssuesProject,
   modifyDueByDate,
   modifyProjectIssueField,
-  shouldSkip,
-} from '@utils/githubEventHelpers';
+} from '@api/github/helpers';
+import {
+  calculateSLOViolationRoute,
+  calculateSLOViolationTriage,
+} from '@utils/businessHours';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInARepoWeCareAboutForFollowups(payload) {
   return !SENTRY_REPOS.has(payload.repository.name);

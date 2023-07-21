@@ -11,10 +11,10 @@ import { getClient } from '@api/github/getClient';
 import {
   addIssueToGlobalIssuesProject,
   modifyProjectIssueField,
-  shouldSkip,
-} from '@utils/githubEventHelpers';
+} from '@api/github/helpers';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '@utils/shouldSkip';
 
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);

@@ -17,9 +17,9 @@ import { getClient } from '@api/github/getClient';
 import {
   addIssueToGlobalIssuesProject,
   modifyProjectIssueField,
-  shouldSkip,
-} from '@utils/githubEventHelpers';
+} from '@api/github/helpers';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '@utils/shouldSkip';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 function isAlreadyWaitingForSupport(payload) {

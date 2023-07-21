@@ -4,11 +4,11 @@ import * as Sentry from '@sentry/node';
 import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import { shouldSkip } from '@utils/githubEventHelpers';
 import {
   getIssueDetailsFromNodeId,
   getKeyValueFromProjectField,
-} from '@utils/githubEventHelpers';
+} from '@api/github/helpers';
+import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
   return payload?.projects_v2_item?.project_node_id !== org.project.node_id;
