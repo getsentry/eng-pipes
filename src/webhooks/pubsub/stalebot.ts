@@ -7,7 +7,7 @@ import {
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
 } from '@/config';
-import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
+import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
@@ -75,7 +75,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 };
 
 export const triggerStaleBot = async (
-  app: GitHubApp,
+  app: GitHubOrg,
   octokit: Octokit,
   now: moment.Moment
 ) => {

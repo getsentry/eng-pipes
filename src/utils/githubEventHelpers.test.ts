@@ -1,9 +1,9 @@
-import { GH_APPS } from '@/config';
+import { GH_ORGS } from '@/config';
 
 import * as githubEventHelpers from './githubEventHelpers';
 
 describe('githubEventHelpers', function () {
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_ORGS.get('__tmp_org_placeholder__');
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
     const octokit = {

@@ -3,7 +3,7 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import {
-  GH_APPS,
+  GH_ORGS,
   SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
@@ -54,7 +54,7 @@ export async function updateCommunityFollowups({
     name: 'issueLabelHandler.updateCommunityFollowups',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
@@ -122,7 +122,7 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,

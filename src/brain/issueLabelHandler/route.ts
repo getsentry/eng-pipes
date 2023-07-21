@@ -4,7 +4,7 @@ import * as Sentry from '@sentry/node';
 import {
   BACKLOG_LABEL,
   GETSENTRY_ORG,
-  GH_APPS,
+  GH_ORGS,
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
@@ -63,7 +63,7 @@ export async function markWaitingForSupport({
     name: 'issueLabelHandler.markWaitingForSupport',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
@@ -124,7 +124,7 @@ export async function markNotWaitingForSupport({
     name: 'issueLabelHandler.markNotWaitingForSupport',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
   if (await shouldSkip(payload, app, reasonsToSkip)) {

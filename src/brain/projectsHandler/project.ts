@@ -1,7 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { GH_APPS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
+import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { shouldSkip } from '@utils/githubEventHelpers';
@@ -53,7 +53,7 @@ export async function syncLabelsWithProjectField({
     name: 'issueLabelHandler.syncLabelsWithProjectField',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInAProjectWeCareAbout,

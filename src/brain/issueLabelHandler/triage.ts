@@ -2,7 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import {
-  GH_APPS,
+  GH_ORGS,
   SENTRY_REPOS_WITHOUT_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
@@ -46,7 +46,7 @@ export async function markWaitingForProductOwner({
     name: 'issueLabelHandler.markWaitingforProductOwner',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkipTriage = [
     isNotInARepoWeCareAboutForTriage,
@@ -99,7 +99,7 @@ export async function markNotWaitingForProductOwner({
     name: 'issueLabelHandler.markNotWaitingForProductOwner',
   });
 
-  const app = GH_APPS.getForPayload(payload);
+  const app = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForTriage,

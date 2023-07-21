@@ -1,7 +1,7 @@
 import {
-  GitHubApps,
-  loadGitHubAppsFromEnvironment,
-} from './loadGitHubAppsFromEnvironment';
+  GitHubOrgs,
+  loadGitHubOrgsFromEnvironment,
+} from './loadGitHubOrgsFromEnvironment';
 
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
@@ -168,19 +168,10 @@ export const SENTRY_REPOS: Set<string> = new Set([
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
 
 /**
- * App auth strategy options. For branding purposes, we have one app per org
- * (getsantry for getsentry, covecod for codecov, etc). Down in getClient we
- * will instantiate a GitHub octokit client for each org the first time we need
- * it, then cache it for the duration of our server process as it seems to be
- * smart enough to renew auth tokens as needed. When we do that, we will set
- * installationId. Here in config we need to populate the appId and privateKey
- * from the environment.
- *
- * TODO: Expand from a single app/org to multiple. First we need to clean up
- * getClient calls to use a dynamic owner/org instead of GETSENTRY_ORG as defined above.
+ * Load GitHubOrgs. We support processing events coming at us from multiple
+ * GitHub orgs and this is how we encapsulate it all.
  */
-
-export const GH_APPS: GitHubApps = loadGitHubAppsFromEnvironment(process.env);
+export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
 
 /**
  * Business Hours by Office

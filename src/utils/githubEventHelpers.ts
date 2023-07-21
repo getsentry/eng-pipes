@@ -1,12 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
+import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
 import { getOssUserType } from '@utils/getOssUserType';
 
 // Validation Helpers
 
-export async function shouldSkip(payload, app: GitHubApp, reasonsToSkip) {
+export async function shouldSkip(payload, app: GitHubOrg, reasonsToSkip) {
   // Could do Promise-based async here, but that was getting complicated[1] and
   // there's not really a performance concern (famous last words).
   //
@@ -37,7 +37,7 @@ async function sendQuery(query: string, data: object, octokit: Octokit) {
 }
 
 export async function addIssueToGlobalIssuesProject(
-  app: GitHubApp,
+  app: GitHubOrg,
   issueNodeId: string | undefined,
   repo: string,
   issueNumber: number,
@@ -96,7 +96,7 @@ export async function getAllProjectFieldNodeIds(
 }
 
 export async function modifyProjectIssueField(
-  app: GitHubApp,
+  app: GitHubOrg,
   itemId: string,
   projectFieldOption: string,
   fieldId: string,
@@ -132,7 +132,7 @@ export async function modifyProjectIssueField(
 }
 
 export async function modifyDueByDate(
-  app: GitHubApp,
+  app: GitHubOrg,
   itemId: string,
   projectFieldOption: string,
   fieldId: string,
@@ -196,7 +196,7 @@ export async function getKeyValueFromProjectField(
 }
 
 export async function getIssueDueDateFromProject(
-  app: GitHubApp,
+  app: GitHubOrg,
   issueNodeId: string,
   octokit: Octokit
 ) {

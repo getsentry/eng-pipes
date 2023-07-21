@@ -1,6 +1,6 @@
-import { loadGitHubAppsFromEnvironment } from './loadGitHubAppsFromEnvironment';
+import { loadGitHubOrgsFromEnvironment } from './loadGitHubOrgsFromEnvironment';
 
-describe('loadGitHubAppsFromEnvironment ', function () {
+describe('loadGitHubOrgsFromEnvironment ', function () {
   it('basically works', async function () {
     const expected = {
       apps: new Map([
@@ -24,7 +24,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         ],
       ]),
     };
-    const actual = loadGitHubAppsFromEnvironment({
+    const actual = loadGitHubOrgsFromEnvironment({
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
       ISSUES_PROJECT_NODE_ID: 'bread',
@@ -36,7 +36,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
   });
 
   it('ignores the rest of the environment', async function () {
-    const actual = loadGitHubAppsFromEnvironment({
+    const actual = loadGitHubOrgsFromEnvironment({
       RANDOM: 'garbage',
       AND_EXTRA: 'stuff',
 
@@ -47,7 +47,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
   });
 
   it('is fine with no app configured', async function () {
-    const actual = loadGitHubAppsFromEnvironment({
+    const actual = loadGitHubOrgsFromEnvironment({
       RANDOM: 'garbage',
       AND_EXTRA: 'stuff',
     });
@@ -77,7 +77,7 @@ describe('loadGitHubAppsFromEnvironment ', function () {
         ],
       ]),
     };
-    const actual = loadGitHubAppsFromEnvironment({
+    const actual = loadGitHubOrgsFromEnvironment({
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
     });
