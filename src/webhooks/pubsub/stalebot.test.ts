@@ -1,7 +1,6 @@
 import moment from 'moment-timezone';
 
-import { STALE_LABEL } from '@/config';
-import { GH_ORGS } from '@/config';
+import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 
@@ -16,7 +15,7 @@ jest.mock('@/config', () => {
 });
 
 describe('Stalebot Tests', function () {
-  const org = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GETSENTRY_ORG;
 
   const issueInfo = {
     labels: [],

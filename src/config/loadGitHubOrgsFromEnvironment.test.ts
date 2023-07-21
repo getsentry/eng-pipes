@@ -5,9 +5,9 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
     const expected = {
       orgs: new Map([
         [
-          '__tmp_org_placeholder__',
+          'getsentry',
           {
-            slug: '__tmp_org_placeholder__',
+            slug: 'getsentry',
             appAuth: {
               appId: 42,
               privateKey: 'cheese',
@@ -41,7 +41,7 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
 
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
-    }).get('__tmp_org_placeholder__').appAuth.appId;
+    }).get('getsentry').appAuth.appId;
     expect(actual).toEqual(42);
   });
 
@@ -57,9 +57,9 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
     const expected = {
       orgs: new Map([
         [
-          '__tmp_org_placeholder__',
+          'getsentry',
           {
-            slug: '__tmp_org_placeholder__',
+            slug: 'getsentry',
             appAuth: {
               appId: 42,
               privateKey: 'cheese',

@@ -1,9 +1,9 @@
-import { GH_ORGS } from '@/config';
+import { GETSENTRY_ORG } from '@/config';
 
 import * as helpers from './helpers';
 
 describe('helpers', function () {
-  const org = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GETSENTRY_ORG;
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
     const octokit = {

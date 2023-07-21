@@ -1,6 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 
-import { GH_ORGS } from '@/config/index';
+import { GETSENTRY_ORG } from '@/config/index';
 import { GH_USER_TOKEN } from '@/config/index';
 import { AppAuthStrategyOptions } from '@/types';
 
@@ -44,7 +44,7 @@ export async function getClient(type: ClientType, orgSlug?: string | null) {
       );
     }
 
-    const org = GH_ORGS.get('__tmp_org_placeholder__');
+    const org = GETSENTRY_ORG;
 
     let client = _CLIENTS_BY_ORG.get(orgSlug);
     if (client === undefined) {

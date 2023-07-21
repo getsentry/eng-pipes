@@ -3,7 +3,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG, GH_ORGS } from '@/config';
+import { GETSENTRY_ORG } from '@/config';
 import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
 import { getClient } from '@api/github/getClient';
 
@@ -58,8 +58,8 @@ export const pubSubHandler = async (
   // call security warning.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
-    org = GH_ORGS.get('__tmp_org_placeholder__');
-    octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    org = GETSENTRY_ORG;
+    octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
     now = moment().utc();
   } else {
     func = async () => {}; // no-op

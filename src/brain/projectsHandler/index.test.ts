@@ -1,7 +1,7 @@
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import { GH_ORGS } from '@/config';
+import { GETSENTRY_ORG } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { ClientType } from '@api/github/clientType';
@@ -14,7 +14,7 @@ import { projectsHandler } from '.';
 describe('projectsHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const org = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GETSENTRY_ORG;
   const errors = jest.fn();
 
   beforeAll(async function () {

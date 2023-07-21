@@ -16,10 +16,10 @@ import { gocdevents } from '@/api/gocdevents';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
   GETSENTRY_ORG,
-  GETSENTRY_REPO,
+  GETSENTRY_REPO_SLUG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-  SENTRY_REPO,
+  SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
@@ -187,7 +187,7 @@ async function filterCommits(pipeline, commits) {
     }
 
     const relevantRepo =
-      relevantCommit.sha === sha ? GETSENTRY_REPO : SENTRY_REPO;
+      relevantCommit.sha === sha ? GETSENTRY_REPO_SLUG : SENTRY_REPO_SLUG;
     const { isFrontendOnly, isBackendOnly } = await getChangedStack(
       relevantCommit.sha,
       relevantRepo
@@ -212,16 +212,16 @@ async function getCommitsInDeployment(
 ): Promise<CompareCommits['commits']> {
   if (prevsha && prevsha !== sha) {
     const { data } = await octokit.repos.compareCommits({
-      owner: GETSENTRY_ORG,
-      repo: GETSENTRY_REPO,
+      owner: GETSENTRY_ORG.slug,
+      repo: GETSENTRY_REPO_SLUG,
       head: sha,
       base: prevsha,
     });
     return data.commits;
   }
   const resp = await octokit.repos.getCommit({
-    owner: GETSENTRY_ORG,
-    repo: GETSENTRY_REPO,
+    owner: GETSENTRY_ORG.slug,
+    repo: GETSENTRY_REPO_SLUG,
     ref: sha,
   });
   return [resp.data];
@@ -233,7 +233,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
       continue;
     }
     const url = bc.material['git-configuration'].url;
-    if (url.indexOf(`${GETSENTRY_ORG}/${GETSENTRY_REPO}`) != -1) {
+    if (url.indexOf(`${GETSENTRY_ORG.slug}/${GETSENTRY_REPO_SLUG}`) != -1) {
       return bc.modifications[0].revision;
     }
   }
@@ -273,7 +273,7 @@ export async function handler(resBody: GoCDResponse) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+  const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
 
   try {
     const latestDeploy = await getLastGetSentryGoCDDeploy(

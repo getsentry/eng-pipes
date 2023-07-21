@@ -1,5 +1,5 @@
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG, GETSENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getClient } from '@api/github/getClient';
@@ -40,7 +40,7 @@ export async function getFailureMessages(
 
   const onlyOlderFailedMessages = await Promise.all(
     messages.map(async (message) => {
-      const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+      const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
       // We *ONLY* want failed builds before `headSha` - when calling GH's
       // `compareCommits`, we use `headSha` as the head commit, so we only want
       // the messages for failed builds that came before `headSha`.
@@ -48,8 +48,8 @@ export async function getFailureMessages(
       // This happens when say build A starts, and then after build B starts
       // and fails before A completes. In this case, build A should not mark B as being fixed
       const { data } = await octokit.repos.compareCommits({
-        owner: GETSENTRY_ORG,
-        repo: GETSENTRY_REPO,
+        owner: GETSENTRY_ORG.slug,
+        repo: GETSENTRY_REPO_SLUG,
         base: message.refId,
         head: headSha,
       });

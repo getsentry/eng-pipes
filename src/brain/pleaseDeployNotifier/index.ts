@@ -11,10 +11,10 @@ import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import {
   Color,
   GETSENTRY_ORG,
-  GETSENTRY_REPO,
+  GETSENTRY_REPO_SLUG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-  SENTRY_REPO,
+  SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { getGoCDDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
@@ -130,13 +130,15 @@ async function handler({
 
   // Author of commit found
   const commit = checkRun.head_sha;
-  const commitLink = `https://github.com/${GETSENTRY_ORG}/${GETSENTRY_REPO}/commits/${commit}`;
+  const commitLink = `https://github.com/${GETSENTRY_ORG.slug}/${GETSENTRY_REPO_SLUG}/commits/${commit}`;
   const commitLinkText = `${commit.slice(0, 7)}`;
 
   // checkRun.head_sha will always be from getsentry, so if relevantCommit's
   // sha differs, it means that the relevantCommit is on the sentry repo
   const relevantCommitRepo =
-    relevantCommit.sha === checkRun.head_sha ? GETSENTRY_REPO : SENTRY_REPO;
+    relevantCommit.sha === checkRun.head_sha
+      ? GETSENTRY_REPO_SLUG
+      : SENTRY_REPO_SLUG;
   const { isFrontendOnly, isFullstack } = await getChangedStack(
     relevantCommit.sha,
     relevantCommitRepo
