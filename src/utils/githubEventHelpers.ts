@@ -1,7 +1,7 @@
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
+import { GitHubOrg } from '@api/github/org';
 import { getOssUserType } from '@utils/getOssUserType';
 
 // Validation Helpers

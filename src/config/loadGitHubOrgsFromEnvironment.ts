@@ -1,19 +1,12 @@
-import {
-  AppAuthStrategyOptions,
-  GitHubIssuesSomeoneElseCaresAbout,
-} from '@/types';
+import { GitHubOrgConfig } from '@/types';
 
-// Config - loosely typed and ephemeral, used for collecting values found in
+// Don't use '@api' here, because it's ... not loaded yet, or something?
+import { GitHubOrg } from '../api/github/org';
+
+// Configs - loosely typed and ephemeral, used for collecting values found in
 // the environment. We check for missing values using this but not for types,
 // that is what GitHubOrg is for (below). Configs are stored by number taken
 // from envvars. Roughly, `GH_APP_1_FOO=bar` becomes `{1: {FOO: "bar"}}`.
-
-class GitHubOrgConfig {
-  num: any;
-  slug: any;
-  appAuth: any;
-  project: any;
-}
 
 class GitHubOrgConfigs {
   configs: Map<number, any>;
@@ -22,31 +15,18 @@ class GitHubOrgConfigs {
     this.configs = new Map<number, object>();
   }
 
-  getOrCreate(num: number): object | undefined {
+  getOrCreate(num: number): GitHubOrgConfig | undefined {
     if (!this.configs.has(num)) {
-      const config = new GitHubOrgConfig();
-      config.num = num;
+      const config = { num: num };
       this.configs.set(num, config);
     }
     return this.configs.get(num);
   }
 }
 
-// Org - strongly typed and permanent, these are used throughout the codebase
-// via `{ import GH_ORGS } from '/@config'`. They are accessed by org slug,
+// Orgs - strongly typed and permanent, these are used throughout the codebase
+// via `{ import GH_ORGS } from '@/config'`. They are accessed by org slug,
 // usually taken from a GitHub event payload.
-
-export class GitHubOrg {
-  slug: string;
-  appAuth: AppAuthStrategyOptions;
-  project: GitHubIssuesSomeoneElseCaresAbout;
-
-  constructor(config) {
-    this.slug = config.slug;
-    this.appAuth = config.appAuth;
-    this.project = config.project;
-  }
-}
 
 export class GitHubOrgs {
   orgs: Map<string, GitHubOrg>;

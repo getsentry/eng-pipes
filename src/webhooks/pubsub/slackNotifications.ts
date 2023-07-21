@@ -10,13 +10,13 @@ import {
   SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
-import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
 import {
   addIssueToGlobalIssuesProject,
   getIssueDueDateFromProject,
 } from '@/utils/githubEventHelpers';
+import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
