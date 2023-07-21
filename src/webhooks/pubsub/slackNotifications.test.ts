@@ -3,7 +3,7 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import { GH_ORGS } from '@/config';
-import * as githubEventHelpers from '@/utils/githubEventHelpers';
+import * as helpers from '@api/github/helpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -50,10 +50,10 @@ describe('Triage Notification Tests', function () {
     };
     beforeAll(function () {
       jest
-        .spyOn(githubEventHelpers, 'addIssueToGlobalIssuesProject')
+        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('issueNodeIdInProject');
       getIssueDueDateFromProjectSpy = jest.spyOn(
-        githubEventHelpers,
+        helpers,
         'getIssueDueDateFromProject'
       );
     });

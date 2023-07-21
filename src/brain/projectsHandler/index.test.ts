@@ -6,8 +6,8 @@ import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
+import * as helpers from '@api/github/helpers';
 import { db } from '@utils/db';
-import * as helpers from '@utils/githubEventHelpers';
 
 import { projectsHandler } from '.';
 

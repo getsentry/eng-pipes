@@ -1,8 +1,8 @@
 import { GH_ORGS } from '@/config';
 
-import * as githubEventHelpers from './githubEventHelpers';
+import * as helpers from './helpers';
 
-describe('githubEventHelpers', function () {
+describe('helpers', function () {
   const org = GH_ORGS.get('__tmp_org_placeholder__');
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
@@ -12,7 +12,7 @@ describe('githubEventHelpers', function () {
         .mockReturnValue({ addProjectV2ItemById: { item: { id: '12345' } } }),
     };
     expect(
-      await githubEventHelpers.addIssueToGlobalIssuesProject(
+      await helpers.addIssueToGlobalIssuesProject(
         org,
         'issueNodeId',
         'test-repo',
@@ -35,10 +35,7 @@ describe('githubEventHelpers', function () {
       }),
     };
     expect(
-      await githubEventHelpers.getAllProjectFieldNodeIds(
-        'projectFieldId',
-        octokit
-      )
+      await helpers.getAllProjectFieldNodeIds('projectFieldId', octokit)
     ).toEqual({
       'Waiting for: Product Owner': 1,
       'Waiting for: Support': 2,
@@ -53,7 +50,7 @@ describe('githubEventHelpers', function () {
       }),
     };
     expect(
-      await githubEventHelpers.getKeyValueFromProjectField(
+      await helpers.getKeyValueFromProjectField(
         'issueNodeId',
         'fieldName',
         octokit
@@ -79,11 +76,7 @@ describe('githubEventHelpers', function () {
       }),
     };
     expect(
-      await githubEventHelpers.getIssueDueDateFromProject(
-        org,
-        'issueNodeId',
-        octokit
-      )
+      await helpers.getIssueDueDateFromProject(org, 'issueNodeId', octokit)
     ).toEqual('2023-06-23T18:00:00.000Z');
   });
 
@@ -94,7 +87,7 @@ describe('githubEventHelpers', function () {
       }),
     };
     expect(
-      await githubEventHelpers.getIssueDetailsFromNodeId('issueNodeId', octokit)
+      await helpers.getIssueDetailsFromNodeId('issueNodeId', octokit)
     ).toEqual({ number: 1, repo: 'test-repo' });
   });
 });
