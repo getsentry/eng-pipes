@@ -407,7 +407,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
     const untriagedIssues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: GETSENTRY_ORG,
+      owner: app.org,
       repo,
       state: 'open',
       labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
