@@ -3,12 +3,11 @@ import { loadGitHubOrgsFromEnvironment } from './loadGitHubOrgsFromEnvironment';
 describe('loadGitHubOrgsFromEnvironment ', function () {
   it('basically works', async function () {
     const expected = {
-      apps: new Map([
+      orgs: new Map([
         [
           '__tmp_org_placeholder__',
           {
-            num: 1,
-            org: '__tmp_org_placeholder__',
+            slug: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
               privateKey: 'cheese',
@@ -46,22 +45,21 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
     expect(actual).toEqual(42);
   });
 
-  it('is fine with no app configured', async function () {
+  it('is fine with no org configured', async function () {
     const actual = loadGitHubOrgsFromEnvironment({
       RANDOM: 'garbage',
       AND_EXTRA: 'stuff',
     });
-    expect(actual).toEqual({ apps: new Map() });
+    expect(actual).toEqual({ orgs: new Map() });
   });
 
   it('loads defaults for project board if auth is present', async function () {
     const expected = {
-      apps: new Map([
+      orgs: new Map([
         [
           '__tmp_org_placeholder__',
           {
-            num: 1,
-            org: '__tmp_org_placeholder__',
+            slug: '__tmp_org_placeholder__',
             auth: {
               appId: 42,
               privateKey: 'cheese',

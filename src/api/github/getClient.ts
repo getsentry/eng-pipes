@@ -25,9 +25,9 @@ function _getAppClient(auth: AppAuthStrategyOptions) {
 /**
  * Return an Octokit client.
  *
- * Only org is required, as we can assume the GH App is installed org-wide.
+ * Only orgSlug is required, as we can assume the GH App is installed org-wide.
  */
-export async function getClient(type: ClientType, org?: string | null) {
+export async function getClient(type: ClientType, orgSlug?: string | null) {
   if (process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true') {
     return _getUserClient();
   }
@@ -38,21 +38,23 @@ export async function getClient(type: ClientType, org?: string | null) {
     }
     return _getUserClient();
   } else {
-    if (org == null) {
+    if (orgSlug == null) {
       throw new Error(
-        'Must pass org to `getClient` if getting an app scoped client.'
+        'Must pass orgSlug to `getClient` if getting an app scoped client.'
       );
     }
 
     const app = GH_ORGS.get('__tmp_org_placeholder__');
 
-    let client = _CLIENTS_BY_ORG.get(org);
+    let client = _CLIENTS_BY_ORG.get(orgSlug);
     if (client === undefined) {
       // Bootstrap with a client not bound to an org.
       const appClient = _getAppClient(app.auth);
 
       // Use the unbound client to hydrate a client bound to an org.
-      const installation = await appClient.apps.getOrgInstallation({ org });
+      const installation = await appClient.apps.getOrgInstallation({
+        org: orgSlug,
+      });
       app.auth.installationId = installation.data.id;
       client = _getAppClient(app.auth);
 
@@ -64,7 +66,7 @@ export async function getClient(type: ClientType, org?: string | null) {
       //
       // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
 
-      _CLIENTS_BY_ORG.set(org, client);
+      _CLIENTS_BY_ORG.set(orgSlug, client);
     }
     return client;
   }
