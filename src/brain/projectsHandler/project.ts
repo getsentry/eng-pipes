@@ -4,10 +4,10 @@ import * as Sentry from '@sentry/node';
 import { GH_APPS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import { shouldSkip } from '@utils/githubEventHelpers';
 import {
   getIssueDetailsFromNodeId,
   getKeyValueFromProjectField,
+  shouldSkip,
 } from '@utils/githubEventHelpers';
 
 function isNotInAProjectWeCareAbout(payload, app) {

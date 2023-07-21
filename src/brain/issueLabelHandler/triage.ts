@@ -9,11 +9,11 @@ import {
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
+  addIssueToGlobalIssuesProject,
   isNotFromAnExternalOrGTMUser,
   modifyProjectIssueField,
   shouldSkip,
 } from '@utils/githubEventHelpers';
-import { addIssueToGlobalIssuesProject } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
 
 const REPOS_TO_TRACK_FOR_TRIAGE = new Set(SENTRY_SDK_REPOS);
