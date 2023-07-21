@@ -10,7 +10,7 @@ import {
 
 class GitHubOrgConfig {
   num: any;
-  org: any;
+  slug: any;
   auth: any;
   project: any;
 }
@@ -37,46 +37,44 @@ class GitHubOrgConfigs {
 // usually taken from a GitHub event payload.
 
 export class GitHubOrg {
-  num: number;
-  org: string;
+  slug: string;
   auth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
 
   constructor(config) {
-    this.num = config.num;
-    this.org = config.org;
+    this.slug = config.slug;
     this.auth = config.auth;
     this.project = config.project;
   }
 }
 
 export class GitHubOrgs {
-  apps: Map<string, GitHubOrg>;
+  orgs: Map<string, GitHubOrg>;
 
-  constructor(appConfigs) {
-    this.apps = new Map<string, GitHubOrg>();
-    for (const config of appConfigs.configs.values()) {
-      this.apps.set(config.org, new GitHubOrg(config));
+  constructor(orgConfigs) {
+    this.orgs = new Map<string, GitHubOrg>();
+    for (const config of orgConfigs.configs.values()) {
+      this.orgs.set(config.slug, new GitHubOrg(config));
     }
   }
 
-  get(org) {
-    const app = this.apps.get(org);
-    if (app === undefined) {
-      throw new Error(`No app is registered for '${org}'.`);
+  get(orgSlug) {
+    const org = this.orgs.get(orgSlug);
+    if (org === undefined) {
+      throw new Error(`No org is registered for '${orgSlug}'.`);
     }
-    return app;
+    return org;
   }
 
   getForPayload(gitHubEventPayload) {
     // Soon we aim to support multiple orgs!
-    const org = '__tmp_org_placeholder__'; // payload?.organization?.login;
-    if (!org) {
+    const orgSlug = '__tmp_org_placeholder__'; // payload?.organization?.login;
+    if (!orgSlug) {
       throw new Error(
-        `Could not find an org in ${JSON.stringify(gitHubEventPayload)}.`
+        `Could not find an org slug in ${JSON.stringify(gitHubEventPayload)}.`
       );
     }
-    return this.get(org);
+    return this.get(orgSlug);
   }
 }
 
@@ -93,7 +91,7 @@ export function loadGitHubOrgsFromEnvironment(env) {
     // (once we've made a full pass through process.env).
 
     config = configs.getOrCreate(1);
-    config.org = '__tmp_org_placeholder__';
+    config.slug = '__tmp_org_placeholder__';
     config.auth = {
       appId: Number(env.GH_APP_IDENTIFIER),
       privateKey: env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
@@ -108,7 +106,7 @@ export function loadGitHubOrgsFromEnvironment(env) {
     };
   }
 
-  // Now convert them to (strongly-typed) apps now that we know the info is
+  // Now convert them to (strongly-typed) orgs now that we know the info is
   // clean.
   return new GitHubOrgs(configs);
 }
