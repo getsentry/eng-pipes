@@ -5,7 +5,7 @@ import { createGitHubEvent } from '@test/utils/github';
 import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
-  GH_APPS,
+  GH_ORGS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
@@ -24,7 +24,7 @@ import { issueLabelHandler } from '.';
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_ORGS.get('__tmp_org_placeholder__');
   const errors = jest.fn();
   let say, respond, client, ack;
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;

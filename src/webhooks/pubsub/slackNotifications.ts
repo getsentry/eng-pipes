@@ -10,7 +10,7 @@ import {
   SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
-import { GitHubApp } from '@/config/loadGitHubAppsFromEnvironment';
+import { GitHubOrg } from '@/config/loadGitHubOrgsFromEnvironment';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
 import {
@@ -126,7 +126,7 @@ const addOrderingToSlackMessageItem = (
 };
 
 export const getTriageSLOTimestamp = async (
-  app: GitHubApp,
+  app: GitHubOrg,
   octokit: Octokit,
   repo: string,
   issueNumber: number,
@@ -394,7 +394,7 @@ export const constructSlackMessage = (
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
-  app: GitHubApp,
+  app: GitHubOrg,
   octokit: Octokit,
   now: moment.Moment
 ) => {

@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
-import { GH_APPS } from '@/config';
+import { GH_ORGS } from '@/config';
 import * as githubEventHelpers from '@/utils/githubEventHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -13,7 +13,7 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
-  const app = GH_APPS.get('__tmp_org_placeholder__');
+  const app = GH_ORGS.get('__tmp_org_placeholder__');
 
   beforeAll(async function () {
     await db.migrate.latest();

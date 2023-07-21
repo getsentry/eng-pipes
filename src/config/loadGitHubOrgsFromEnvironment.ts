@@ -5,17 +5,17 @@ import {
 
 // Config - loosely typed and ephemeral, used for collecting values found in
 // the environment. We check for missing values using this but not for types,
-// that is what GitHubApp is for (below). Configs are stored by number taken
+// that is what GitHubOrg is for (below). Configs are stored by number taken
 // from envvars. Roughly, `GH_APP_1_FOO=bar` becomes `{1: {FOO: "bar"}}`.
 
-class GitHubAppConfig {
+class GitHubOrgConfig {
   num: any;
   org: any;
   auth: any;
   project: any;
 }
 
-class GitHubAppConfigs {
+class GitHubOrgConfigs {
   configs: Map<number, any>;
 
   constructor() {
@@ -24,7 +24,7 @@ class GitHubAppConfigs {
 
   getOrCreate(num: number): object | undefined {
     if (!this.configs.has(num)) {
-      const config = new GitHubAppConfig();
+      const config = new GitHubOrgConfig();
       config.num = num;
       this.configs.set(num, config);
     }
@@ -32,11 +32,11 @@ class GitHubAppConfigs {
   }
 }
 
-// App - strongly typed and permanent, these are used throughout the codebase
-// via `{ import GH_APPS } from '/@config'`. They are accessed by org slug,
+// Org - strongly typed and permanent, these are used throughout the codebase
+// via `{ import GH_ORGS } from '/@config'`. They are accessed by org slug,
 // usually taken from a GitHub event payload.
 
-export class GitHubApp {
+export class GitHubOrg {
   num: number;
   org: string;
   auth: AppAuthStrategyOptions;
@@ -50,13 +50,13 @@ export class GitHubApp {
   }
 }
 
-export class GitHubApps {
-  apps: Map<string, GitHubApp>;
+export class GitHubOrgs {
+  apps: Map<string, GitHubOrg>;
 
   constructor(appConfigs) {
-    this.apps = new Map<string, GitHubApp>();
+    this.apps = new Map<string, GitHubOrg>();
     for (const config of appConfigs.configs.values()) {
-      this.apps.set(config.org, new GitHubApp(config));
+      this.apps.set(config.org, new GitHubOrg(config));
     }
   }
 
@@ -80,16 +80,16 @@ export class GitHubApps {
   }
 }
 
-// Loader - called in @/config to populate the GH_APPS global.
+// Loader - called in @/config to populate the GH_ORGS global.
 
-export function loadGitHubAppsFromEnvironment(env) {
-  const configs = new GitHubAppConfigs();
+export function loadGitHubOrgsFromEnvironment(env) {
+  const configs = new GitHubOrgConfigs();
   let config;
 
   if (env.GH_APP_IDENTIFIER && env.GH_APP_SECRET_KEY) {
     // Collect config by (proleptic) envvar number. Once we have GH_APP_1_FOO
     // this will make more sense. We'll collect stuff in config and then
-    // instantiate a GitHubApp once all config has been collected for each
+    // instantiate a GitHubOrg once all config has been collected for each
     // (once we've made a full pass through process.env).
 
     config = configs.getOrCreate(1);
@@ -110,5 +110,5 @@ export function loadGitHubAppsFromEnvironment(env) {
 
   // Now convert them to (strongly-typed) apps now that we know the info is
   // clean.
-  return new GitHubApps(configs);
+  return new GitHubOrgs(configs);
 }
