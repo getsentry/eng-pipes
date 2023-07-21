@@ -7,9 +7,9 @@ import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
   GETSENTRY_ORG,
-  GETSENTRY_REPO,
+  GETSENTRY_REPO_SLUG,
   GOCD_ORIGIN,
-  SENTRY_REPO,
+  SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
@@ -78,7 +78,7 @@ export class DeployFeed {
     prevDeploySHA: string,
     currentDeploySHA
   ) {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
     const responses = await Promise.all([
       octokit.repos.getContent({
         owner,
@@ -137,7 +137,7 @@ export class DeployFeed {
       latestSHA,
       modification.revision
     );
-    if (repo !== GETSENTRY_REPO) {
+    if (repo !== GETSENTRY_REPO_SLUG) {
       return this.basicCommitsInDeployBlock(compareURL);
     }
 
@@ -154,7 +154,7 @@ export class DeployFeed {
       if (shas[0] && shas[1] && shas[0] != shas[1]) {
         const sentryCompareURL = this.compareURL(
           org,
-          SENTRY_REPO,
+          SENTRY_REPO_SLUG,
           shas[0],
           shas[1]
         );

@@ -1,5 +1,5 @@
 import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG, GETSENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
 import { Annotation } from '@/types';
 import { getClient } from '@api/github/getClient';
 
@@ -82,7 +82,7 @@ function filterAnnotations(annotations: Annotation[]) {
 export async function getAnnotations(
   jobs: string[][]
 ): Promise<Record<string, Annotation[]>> {
-  const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+  const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
 
   const annotations = await Promise.all(
     jobs
@@ -92,8 +92,8 @@ export async function getAnnotations(
       .filter(([, runId]) => runId)
       .map(async ([jobLink, checkRunId]) => {
         const { data: annotations } = await octokit.checks.listAnnotations({
-          owner: GETSENTRY_ORG,
-          repo: GETSENTRY_REPO,
+          owner: GETSENTRY_ORG.slug,
+          repo: GETSENTRY_REPO_SLUG,
           check_run_id: parseInt(checkRunId ?? '0', 10),
         });
 

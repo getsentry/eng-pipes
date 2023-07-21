@@ -13,10 +13,10 @@ const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';
  */
 export async function getChangedStack(ref: string, repo: string) {
   try {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
 
     const check_runs = await octokit.paginate(octokit.checks.listForRef, {
-      owner: GETSENTRY_ORG,
+      owner: GETSENTRY_ORG.slug,
       repo,
       ref,
       per_page: 100,
@@ -36,7 +36,7 @@ export async function getChangedStack(ref: string, repo: string) {
       // Track this event in case the check status name changes in the future.
       Sentry.captureMessage(`Failed to identify the type of commit`, {
         extra: {
-          Commit: `https://github.com/${GETSENTRY_ORG}/${repo}/commit/${ref}`,
+          Commit: `https://github.com/${GETSENTRY_ORG.slug}/${repo}/commit/${ref}`,
           'GH Check Runs': check_runs.map((c) => c.name),
         },
       });

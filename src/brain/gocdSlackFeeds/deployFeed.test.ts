@@ -516,7 +516,7 @@ describe('DeployFeed', () => {
   });
 
   it('post message with commits in deploy link for getsentry', async () => {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
     octokit.repos.getContent.mockImplementation((args) => {
       if (args.owner != 'getsentry') {
         throw new Error(`Unexpected getContent() owner: ${args.owner}`);
@@ -647,7 +647,7 @@ describe('DeployFeed', () => {
   });
 
   it('handle error if get content fails', async () => {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG);
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
     octokit.repos.getContent.mockImplementation((args) => {
       throw new Error('Injected error');
     });

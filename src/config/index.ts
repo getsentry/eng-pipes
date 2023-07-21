@@ -1,3 +1,5 @@
+import { GitHubOrg } from '../api/github/org';
+
 import {
   GitHubOrgs,
   loadGitHubOrgsFromEnvironment,
@@ -12,9 +14,8 @@ export const DEFAULT_PORT = 3000;
 
 export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 
-export const GETSENTRY_ORG = process.env.GETSENTRY_ORG || 'getsentry';
-export const SENTRY_REPO = process.env.SENTRY_REPO || 'sentry';
-export const GETSENTRY_REPO = process.env.GETSENTRY_REPO || 'getsentry';
+export const SENTRY_REPO_SLUG = process.env.SENTRY_REPO || 'sentry';
+export const GETSENTRY_REPO_SLUG = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
 export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry-frontend';
@@ -168,10 +169,27 @@ export const SENTRY_REPOS: Set<string> = new Set([
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
 
 /**
- * Load GitHubOrgs. We support processing events coming at us from multiple
- * GitHub orgs and this is how we encapsulate it all.
+ * Load GitHubOrgs. We [want to] support processing events coming at us from
+ * multiple GitHub orgs and this is how we [plan to] encapsulate it all.
  */
 export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
+export const GETSENTRY_ORG =
+  process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY
+    ? GH_ORGS.get(process.env.GETSENTRY_ORG || 'getsentry')
+    : new GitHubOrg({
+        num: -1,
+        slug: '☢️  no getsentry org configured ☢️',
+        appAuth: {
+          appId: -1,
+          privateKey: '',
+        },
+        project: {
+          node_id: '',
+          product_area_field_id: '',
+          status_field_id: '',
+          response_due_date_field_id: '',
+        },
+      });
 
 /**
  * Business Hours by Office

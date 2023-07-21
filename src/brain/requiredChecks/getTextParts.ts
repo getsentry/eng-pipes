@@ -1,4 +1,4 @@
-import { GETSENTRY_ORG, GETSENTRY_REPO } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
 import { CheckRunForRequiredChecksText } from '@/types';
 
 /**
@@ -7,12 +7,12 @@ import { CheckRunForRequiredChecksText } from '@/types';
  * @param checkRun CheckRun from GitHub
  */
 export function getTextParts(checkRun: CheckRunForRequiredChecksText) {
-  const commitLink = `https://github.com/${GETSENTRY_ORG}/${GETSENTRY_REPO}/commits/${checkRun.head_sha}`;
+  const commitLink = `https://github.com/${GETSENTRY_ORG.slug}/${GETSENTRY_REPO_SLUG}/commits/${checkRun.head_sha}`;
   const commitLinkText = `${checkRun.head_sha.slice(0, 7)}`;
   const buildLink = `<${checkRun.html_url}|View Build>`;
 
   return [
-    `${GETSENTRY_REPO}@master`,
+    `${GETSENTRY_REPO_SLUG}@master`,
     `<${commitLink}|${commitLinkText}>`,
     `is failing`,
     `(${buildLink})`,

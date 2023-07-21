@@ -29,14 +29,14 @@ const staleStatusUpdater = async (
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
           // Interestingly enough, this api works for both issues and pull requests
           return octokit.issues.update({
-            owner: GETSENTRY_ORG,
+            owner: GETSENTRY_ORG.slug,
             repo: repo,
             issue_number: issue.number,
             state: 'closed',
           });
         } else if (now.diff(issue.updated_at, 'days') < DAYS_BEFORE_CLOSE) {
           return octokit.issues.removeLabel({
-            owner: GETSENTRY_ORG,
+            owner: GETSENTRY_ORG.slug,
             repo: repo,
             issue_number: issue.number,
             name: STALE_LABEL,
@@ -47,13 +47,13 @@ const staleStatusUpdater = async (
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
           return Promise.all([
             octokit.issues.addLabels({
-              owner: GETSENTRY_ORG,
+              owner: GETSENTRY_ORG.slug,
               repo: repo,
               issue_number: issue.number,
               labels: [STALE_LABEL],
             }),
             octokit.issues.createComment({
-              owner: GETSENTRY_ORG,
+              owner: GETSENTRY_ORG.slug,
               repo: repo,
               issue_number: issue.number,
               body: `This ${
@@ -82,7 +82,7 @@ export const triggerStaleBot = async (
   // Get all open issues and pull requests that are Waiting for Community
   SENTRY_REPOS.forEach(async (repo: string) => {
     const issues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: GETSENTRY_ORG,
+      owner: GETSENTRY_ORG.slug,
       repo,
       state: 'open',
       labels: WAITING_FOR_COMMUNITY_LABEL,

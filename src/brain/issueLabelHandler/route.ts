@@ -91,7 +91,7 @@ export async function markWaitingForSupport({
     owner,
     repo: repo,
     issue_number: issueNumber,
-    body: `Assigning to @${GETSENTRY_ORG}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
+    body: `Assigning to @${GETSENTRY_ORG.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
   });
 
   tx.finish();
@@ -104,13 +104,13 @@ async function routeIssue(octokit, productAreaLabelName) {
     );
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
     await octokit.teams.getByName({
-      org: GETSENTRY_ORG,
+      org: GETSENTRY_ORG.slug,
       team_slug: ghTeamSlug,
     }); // expected to throw if team doesn't exist
-    return `Routing to @${GETSENTRY_ORG}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Routing to @${GETSENTRY_ORG.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
-    return `Failed to route for ${productAreaLabelName}. Defaulting to @${GETSENTRY_ORG}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${GETSENTRY_ORG.slug}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   }
 }
 

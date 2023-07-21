@@ -48,7 +48,7 @@ export class GitHubOrgs {
 
   getForPayload(gitHubEventPayload) {
     // Soon we aim to support multiple orgs!
-    const orgSlug = '__tmp_org_placeholder__'; // payload?.organization?.login;
+    const orgSlug = process.env.GETSENTRY_ORG || 'getsentry'; // ☢️
     if (!orgSlug) {
       throw new Error(
         `Could not find an org slug in ${JSON.stringify(gitHubEventPayload)}.`
@@ -71,7 +71,7 @@ export function loadGitHubOrgsFromEnvironment(env) {
     // (once we've made a full pass through process.env).
 
     config = configs.getOrCreate(1);
-    config.slug = '__tmp_org_placeholder__';
+    config.slug = process.env.GETSENTRY_ORG || 'getsentry'; // ☢️
     config.appAuth = {
       appId: Number(env.GH_APP_IDENTIFIER),
       privateKey: env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
