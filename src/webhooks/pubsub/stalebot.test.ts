@@ -16,7 +16,7 @@ jest.mock('@/config', () => {
 });
 
 describe('Stalebot Tests', function () {
-  const app = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GH_ORGS.get('__tmp_org_placeholder__');
 
   const issueInfo = {
     labels: [],
@@ -43,7 +43,7 @@ describe('Stalebot Tests', function () {
 
   it('should mark issue as stale if it has been over 3 weeks', async function () {
     octokit.issues.listForRepo = () => [issueInfo];
-    await triggerStaleBot(app, octokit, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-27T14:28:13Z').utc());
     expect(octokit.issues._labels).toContain(STALE_LABEL);
     expect(octokit.issues._comments).toEqual([
       `This issue has gone three weeks without activity. In another week, I will close it.
@@ -58,21 +58,21 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 
   it('should not mark issue as stale if it has been under 3 weeks', async function () {
     octokit.issues.listForRepo = () => [issueInfo];
-    await triggerStaleBot(app, octokit, moment('2023-04-10T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-10T14:28:13Z').utc());
     expect(octokit.issues._labels).not.toContain(STALE_LABEL);
     expect(octokit.issues._comments).toEqual([]);
   });
 
   it('should not mark PR as stale if it has been under 3 weeks', async function () {
     octokit.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
-    await triggerStaleBot(app, octokit, moment('2023-04-10T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-10T14:28:13Z').utc());
     expect(octokit.issues._labels).not.toContain(STALE_LABEL);
     expect(octokit.issues._comments).toEqual([]);
   });
 
   it('should mark PR as stale if it has been over 3 weeks', async function () {
     octokit.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
-    await triggerStaleBot(app, octokit, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-27T14:28:13Z').utc());
     expect(octokit.issues._labels).toContain(STALE_LABEL);
     expect(octokit.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
@@ -90,7 +90,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     octokit.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
-    await triggerStaleBot(app, octokit, moment('2023-04-13T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-13T14:28:13Z').utc());
     expect(issueUpdateSpy).toHaveBeenCalledWith({
       issue_number: undefined,
       owner: 'getsentry',
@@ -104,7 +104,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     octokit.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
-    await triggerStaleBot(app, octokit, moment('2023-04-06T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-06T14:28:13Z').utc());
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
 
@@ -117,7 +117,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
         labels: [STALE_LABEL],
       },
     ];
-    await triggerStaleBot(app, octokit, moment('2023-04-06T14:28:13Z').utc());
+    await triggerStaleBot(org, octokit, moment('2023-04-06T14:28:13Z').utc());
     expect(octokit.issues._labels).not.toContain(STALE_LABEL);
   });
 });

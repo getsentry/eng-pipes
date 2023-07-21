@@ -46,14 +46,14 @@ export async function markWaitingForProductOwner({
     name: 'issueLabelHandler.markWaitingforProductOwner',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkipTriage = [
     isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(payload, app, reasonsToSkipTriage)) {
+  if (await shouldSkip(payload, org, reasonsToSkipTriage)) {
     return;
   }
 
@@ -71,7 +71,7 @@ export async function markWaitingForProductOwner({
   });
 
   const itemId: string = await addIssueToGlobalIssuesProject(
-    app,
+    org,
     payload.issue.node_id,
     repo,
     issueNumber,
@@ -79,10 +79,10 @@ export async function markWaitingForProductOwner({
   );
 
   await modifyProjectIssueField(
-    app,
+    org,
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    app.project.status_field_id,
+    org.project.status_field_id,
     octokit
   );
 
@@ -99,7 +99,7 @@ export async function markNotWaitingForProductOwner({
     name: 'issueLabelHandler.markNotWaitingForProductOwner',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForTriage,
@@ -107,7 +107,7 @@ export async function markNotWaitingForProductOwner({
     isWaitingForProductOwnerLabel,
     isAlreadyTriaged,
   ];
-  if (await shouldSkip(payload, app, reasonsToSkip)) {
+  if (await shouldSkip(payload, org, reasonsToSkip)) {
     return;
   }
 

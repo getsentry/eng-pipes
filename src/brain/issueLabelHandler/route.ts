@@ -63,14 +63,14 @@ export async function markWaitingForSupport({
     name: 'issueLabelHandler.markWaitingForSupport',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [
     isNotInARepoWeCareAboutForRouting,
     isAlreadyWaitingForSupport,
     isNotFromAnExternalOrGTMUser,
   ];
-  if (await shouldSkip(payload, app, reasonsToSkip)) {
+  if (await shouldSkip(payload, org, reasonsToSkip)) {
     return;
   }
 
@@ -124,10 +124,10 @@ export async function markNotWaitingForSupport({
     name: 'issueLabelHandler.markNotWaitingForSupport',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
-  if (await shouldSkip(payload, app, reasonsToSkip)) {
+  if (await shouldSkip(payload, org, reasonsToSkip)) {
     return;
   }
 
@@ -193,7 +193,7 @@ export async function markNotWaitingForSupport({
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
   const itemId: string = await addIssueToGlobalIssuesProject(
-    app,
+    org,
     payload.issue.node_id,
     payload.repository.name,
     payload.issue.number,
@@ -203,10 +203,10 @@ export async function markNotWaitingForSupport({
     PRODUCT_AREA_LABEL_PREFIX.length
   );
   await modifyProjectIssueField(
-    app,
+    org,
     itemId,
     productArea,
-    app.project.product_area_field_id,
+    org.project.product_area_field_id,
     octokit
   );
 

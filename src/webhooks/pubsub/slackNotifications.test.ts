@@ -13,7 +13,7 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
-  const app = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GH_ORGS.get('__tmp_org_placeholder__');
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -68,7 +68,7 @@ describe('Triage Notification Tests', function () {
       };
       getIssueDueDateFromProjectSpy.mockReturnValue('2023-01-05T16:00:00.000Z');
       expect(
-        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
       ).toEqual('2023-01-05T16:00:00.000Z');
     });
     it('should return current time if unable to parse random string in project field', async function () {
@@ -79,7 +79,7 @@ describe('Triage Notification Tests', function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('randomstring');
       expect(
-        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(
@@ -95,7 +95,7 @@ describe('Triage Notification Tests', function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('');
       expect(
-        await getTriageSLOTimestamp(app, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(

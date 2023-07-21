@@ -54,7 +54,7 @@ export async function updateCommunityFollowups({
     name: 'issueLabelHandler.updateCommunityFollowups',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
@@ -64,7 +64,7 @@ export async function updateCommunityFollowups({
     isFromABot,
   ];
 
-  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, org, reasonsToDoNothing)) {
     return;
   }
 
@@ -94,7 +94,7 @@ export async function updateCommunityFollowups({
   });
 
   const itemId: string = await addIssueToGlobalIssuesProject(
-    app,
+    org,
     payload.issue.node_id,
     repo,
     issueNumber,
@@ -102,10 +102,10 @@ export async function updateCommunityFollowups({
   );
 
   await modifyProjectIssueField(
-    app,
+    org,
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    app.project.status_field_id,
+    org.project.status_field_id,
     octokit
   );
 
@@ -122,13 +122,13 @@ export async function ensureOneWaitingForLabel({
     name: 'issueLabelHandler.ensureOneWaitingForLabel',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotWaitingForLabel,
   ];
-  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, org, reasonsToDoNothing)) {
     return;
   }
 
@@ -155,7 +155,7 @@ export async function ensureOneWaitingForLabel({
   }
 
   const itemId: string = await addIssueToGlobalIssuesProject(
-    app,
+    org,
     payload.issue.node_id,
     repo,
     issueNumber,
@@ -163,10 +163,10 @@ export async function ensureOneWaitingForLabel({
   );
 
   await modifyProjectIssueField(
-    app,
+    org,
     itemId,
     labelName,
-    app.project.status_field_id,
+    org.project.status_field_id,
     octokit
   );
 
@@ -186,10 +186,10 @@ export async function ensureOneWaitingForLabel({
   }
 
   await modifyDueByDate(
-    app,
+    org,
     itemId,
     timeToRespondBy,
-    app.project.response_due_date_field_id,
+    org.project.response_due_date_field_id,
     octokit
   );
 

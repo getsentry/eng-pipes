@@ -8,7 +8,7 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
           '__tmp_org_placeholder__',
           {
             slug: '__tmp_org_placeholder__',
-            auth: {
+            appAuth: {
               appId: 42,
               privateKey: 'cheese',
               installationId: undefined,
@@ -41,7 +41,7 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
 
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
-    }).get('__tmp_org_placeholder__').auth.appId;
+    }).get('__tmp_org_placeholder__').appAuth.appId;
     expect(actual).toEqual(42);
   });
 
@@ -60,7 +60,7 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
           '__tmp_org_placeholder__',
           {
             slug: '__tmp_org_placeholder__',
-            auth: {
+            appAuth: {
               appId: 42,
               privateKey: 'cheese',
               installationId: undefined,

@@ -24,7 +24,7 @@ import { issueLabelHandler } from '.';
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
   let octokit;
-  const app = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GH_ORGS.get('__tmp_org_placeholder__');
   const errors = jest.fn();
   let say, respond, client, ack;
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
@@ -543,17 +543,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2022-12-20T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
@@ -567,17 +567,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
@@ -591,17 +591,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
@@ -627,17 +627,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
@@ -655,17 +655,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
@@ -680,17 +680,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
       // Restore old mock return value used throughout the file
@@ -709,17 +709,17 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
       // Restore old mock return value used throughout the file
@@ -739,17 +739,17 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        app.project.status_field_id,
+        org.project.status_field_id,
         octokit
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        app,
+        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        app.project.response_due_date_field_id,
+        org.project.response_due_date_field_id,
         octokit
       );
     });
