@@ -155,12 +155,17 @@ describe('issueLabelHandler', function () {
     octokit.issues.addLabels({ labels: [label] });
   }
 
-  async function addComment(
-    repo?: string,
-    username?: string,
-    membership?: string,
-    isPR?: boolean
-  ) {
+  async function addComment(repo: string, username: string, isPR?: boolean) {
+    let membership;
+    if (username === 'Picard') {
+      membership = 'OWNER';
+    } else if (username === 'Troi') {
+      membership = 'COLLABORATOR';
+    } else if (username === 'Skywalker') {
+      membership = 'NONE';
+    } else {
+      throw `Unknown user: '${username}'`;
+    }
     const payload = {
       ...makePayload(repo, undefined, username),
       comment: { author_association: membership },
@@ -561,7 +566,6 @@ describe('issueLabelHandler', function () {
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
@@ -585,8 +589,7 @@ describe('issueLabelHandler', function () {
     it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      jest.spyOn(helpers, 'isNotFromAnExternalOrGTMUser').mockReturnValue(true);
-      await addComment('sentry-docs', 'Picard', 'COLLABORATOR');
+      await addComment('sentry-docs', 'Troi');
       expect(octokit.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
@@ -608,19 +611,13 @@ describe('issueLabelHandler', function () {
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
       await createPR('sentry-docs');
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
-      await addComment('sentry-docs', 'Picard', 'NONE', true);
+      await addComment('sentry-docs', 'Skywalker', true);
       expect(octokit.issues._labels).toEqual(new Set([]));
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
       await setupIssue();
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
-      await addComment('sentry-docs', 'Picard');
+      await addComment('sentry-docs', 'Skywalker');
       expect(octokit.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
@@ -645,10 +642,7 @@ describe('issueLabelHandler', function () {
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
-      await addComment('sentry-docs', 'Picard');
+      await addComment('sentry-docs', 'Skywalker');
       expect(octokit.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
@@ -672,9 +666,6 @@ describe('issueLabelHandler', function () {
 
     it('should modify time to respond by when adding `Waiting for: Product Owner` label when calculateSLOViolationTriage returns null', async function () {
       await setupIssue();
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
       calculateSLOViolationTriageSpy.mockReturnValue(null);
       jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
@@ -701,9 +692,6 @@ describe('issueLabelHandler', function () {
 
     it('should modify time to respond by when adding `Waiting for: Support` label when calculateSLOViolationTriage returns null', async function () {
       await createIssue('sentry-docs');
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
       calculateSLOViolationRouteSpy.mockReturnValue(null);
       jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
@@ -731,9 +719,6 @@ describe('issueLabelHandler', function () {
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'sentry-docs');
-      jest
-        .spyOn(helpers, 'isNotFromAnExternalOrGTMUser')
-        .mockReturnValue(false);
       await addComment('sentry-docs', 'Picard');
       expect(octokit.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])

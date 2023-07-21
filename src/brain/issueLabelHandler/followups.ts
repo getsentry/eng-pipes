@@ -18,12 +18,12 @@ import {
 } from '@utils/businessHours';
 import {
   addIssueToGlobalIssuesProject,
-  isNotFromAnExternalOrGTMUser,
   modifyDueByDate,
   modifyProjectIssueField,
   shouldSkip,
 } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
+import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 
 function isNotInARepoWeCareAboutForFollowups(payload) {
   return !SENTRY_REPOS.has(payload.repository.name);

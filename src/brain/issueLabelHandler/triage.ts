@@ -9,12 +9,12 @@ import {
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
-  isNotFromAnExternalOrGTMUser,
+  addIssueToGlobalIssuesProject,
   modifyProjectIssueField,
   shouldSkip,
 } from '@utils/githubEventHelpers';
-import { addIssueToGlobalIssuesProject } from '@utils/githubEventHelpers';
 import { isFromABot } from '@utils/isFromABot';
+import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 
 function isAlreadyUntriaged(payload) {
   return !isAlreadyTriaged(payload);
