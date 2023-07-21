@@ -38,11 +38,8 @@ function isContractor(payload) {
   return payload.comment.author_association === 'COLLABORATOR';
 }
 
-function isNotWaitingForCommunity(payload) {
-  const { issue } = payload;
-  return !issue?.labels.some(
-    ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
-  );
+function isPullRequest(payload) {
+  return !!payload.issue.pull_request;
 }
 
 // Markers of State
@@ -63,7 +60,7 @@ export async function updateCommunityFollowups({
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
     isContractor,
-    isNotWaitingForCommunity,
+    isPullRequest,
     isFromABot,
   ];
 
