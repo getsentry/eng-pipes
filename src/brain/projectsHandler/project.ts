@@ -10,26 +10,26 @@ import {
   getKeyValueFromProjectField,
 } from '@utils/githubEventHelpers';
 
-function isNotInAProjectWeCareAbout(payload, app) {
-  return payload?.projects_v2_item?.project_node_id !== app.project.node_id;
+function isNotInAProjectWeCareAbout(payload, org) {
+  return payload?.projects_v2_item?.project_node_id !== org.project.node_id;
 }
 
-function isNotAProjectFieldWeCareAbout(payload, app) {
+function isNotAProjectFieldWeCareAbout(payload, org) {
   return (
     payload?.changes?.field_value?.field_node_id !==
-      app.project.product_area_field_id &&
-    payload?.changes?.field_value?.field_node_id !== app.project.status_field_id
+      org.project.product_area_field_id &&
+    payload?.changes?.field_value?.field_node_id !== org.project.status_field_id
   );
 }
 
-function getFieldName(payload, app) {
+function getFieldName(payload, org) {
   if (
     payload?.changes?.field_value?.field_node_id ===
-    app.project.product_area_field_id
+    org.project.product_area_field_id
   ) {
     return 'Product Area';
   } else if (
-    payload?.changes?.field_value?.field_node_id === app.project.status_field_id
+    payload?.changes?.field_value?.field_node_id === org.project.status_field_id
   ) {
     return 'Status';
   }
@@ -53,20 +53,20 @@ export async function syncLabelsWithProjectField({
     name: 'issueLabelHandler.syncLabelsWithProjectField',
   });
 
-  const app = GH_ORGS.getForPayload(payload);
+  const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInAProjectWeCareAbout,
     isNotAProjectFieldWeCareAbout,
     isMissingNodeId,
   ];
-  if (await shouldSkip(payload, app, reasonsToDoNothing)) {
+  if (await shouldSkip(payload, org, reasonsToDoNothing)) {
     return;
   }
 
   const owner = payload?.organization?.login || '';
   const octokit = await getClient(ClientType.App, owner);
-  const fieldName = getFieldName(payload, app);
+  const fieldName = getFieldName(payload, org);
   const fieldValue = await getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
     fieldName,

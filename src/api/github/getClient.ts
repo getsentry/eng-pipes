@@ -44,19 +44,19 @@ export async function getClient(type: ClientType, orgSlug?: string | null) {
       );
     }
 
-    const app = GH_ORGS.get('__tmp_org_placeholder__');
+    const org = GH_ORGS.get('__tmp_org_placeholder__');
 
     let client = _CLIENTS_BY_ORG.get(orgSlug);
     if (client === undefined) {
       // Bootstrap with a client not bound to an org.
-      const appClient = _getAppClient(app.auth);
+      const appClient = _getAppClient(org.appAuth);
 
       // Use the unbound client to hydrate a client bound to an org.
       const installation = await appClient.apps.getOrgInstallation({
         org: orgSlug,
       });
-      app.auth.installationId = installation.data.id;
-      client = _getAppClient(app.auth);
+      org.appAuth.installationId = installation.data.id;
+      client = _getAppClient(org.appAuth);
 
       // The docs say it's safe for client instances to be long-lived:
       //

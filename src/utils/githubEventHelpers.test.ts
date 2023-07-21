@@ -3,7 +3,7 @@ import { GH_ORGS } from '@/config';
 import * as githubEventHelpers from './githubEventHelpers';
 
 describe('githubEventHelpers', function () {
-  const app = GH_ORGS.get('__tmp_org_placeholder__');
+  const org = GH_ORGS.get('__tmp_org_placeholder__');
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
     const octokit = {
@@ -13,7 +13,7 @@ describe('githubEventHelpers', function () {
     };
     expect(
       await githubEventHelpers.addIssueToGlobalIssuesProject(
-        app,
+        org,
         'issueNodeId',
         'test-repo',
         1,
@@ -71,7 +71,7 @@ describe('githubEventHelpers', function () {
               {},
               {
                 text: '2023-06-23T18:00:00.000Z',
-                field: { id: app.project.response_due_date_field_id },
+                field: { id: org.project.response_due_date_field_id },
               },
             ],
           },
@@ -80,7 +80,7 @@ describe('githubEventHelpers', function () {
     };
     expect(
       await githubEventHelpers.getIssueDueDateFromProject(
-        app,
+        org,
         'issueNodeId',
         octokit
       )

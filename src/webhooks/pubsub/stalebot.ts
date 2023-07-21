@@ -75,7 +75,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 };
 
 export const triggerStaleBot = async (
-  app: GitHubOrg,
+  org: GitHubOrg,
   octokit: Octokit,
   now: moment.Moment
 ) => {

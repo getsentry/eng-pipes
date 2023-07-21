@@ -11,7 +11,7 @@ import {
 class GitHubOrgConfig {
   num: any;
   slug: any;
-  auth: any;
+  appAuth: any;
   project: any;
 }
 
@@ -38,12 +38,12 @@ class GitHubOrgConfigs {
 
 export class GitHubOrg {
   slug: string;
-  auth: AppAuthStrategyOptions;
+  appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
 
   constructor(config) {
     this.slug = config.slug;
-    this.auth = config.auth;
+    this.appAuth = config.appAuth;
     this.project = config.project;
   }
 }
@@ -92,7 +92,7 @@ export function loadGitHubOrgsFromEnvironment(env) {
 
     config = configs.getOrCreate(1);
     config.slug = '__tmp_org_placeholder__';
-    config.auth = {
+    config.appAuth = {
       appId: Number(env.GH_APP_IDENTIFIER),
       privateKey: env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
     };

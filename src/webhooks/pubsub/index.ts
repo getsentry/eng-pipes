@@ -45,7 +45,7 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  let app,
+  let org,
     octokit,
     now,
     code = 204;
@@ -58,7 +58,7 @@ export const pubSubHandler = async (
   // call security warning.
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
-    app = GH_ORGS.get('__tmp_org_placeholder__');
+    org = GH_ORGS.get('__tmp_org_placeholder__');
     octokit = await getClient(ClientType.App, GETSENTRY_ORG);
     now = moment().utc();
   } else {
@@ -68,7 +68,7 @@ export const pubSubHandler = async (
 
   reply.code(code);
   reply.send(); // Respond early to not block the webhook sender
-  await func(app, octokit, now);
+  await func(org, octokit, now);
   tx.finish();
 };
 

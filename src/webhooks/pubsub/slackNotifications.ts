@@ -126,21 +126,21 @@ const addOrderingToSlackMessageItem = (
 };
 
 export const getTriageSLOTimestamp = async (
-  app: GitHubOrg,
+  org: GitHubOrg,
   octokit: Octokit,
   repo: string,
   issueNumber: number,
   issueNodeId: string
 ) => {
   const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
-    app,
+    org,
     issueNodeId,
     repo,
     issueNumber,
     octokit
   );
   const dueByDate = await getIssueDueDateFromProject(
-    app,
+    org,
     issueNodeIdInProject,
     octokit
   );
@@ -394,7 +394,7 @@ export const constructSlackMessage = (
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
-  app: GitHubOrg,
+  org: GitHubOrg,
   octokit: Octokit,
   now: moment.Moment
 ) => {
@@ -422,7 +422,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
         title: issue.title,
         productAreaLabel: getIssueProductAreaLabel(issue),
         triageBy: await getTriageSLOTimestamp(
-          app,
+          org,
           octokit,
           repo,
           issue.number,
