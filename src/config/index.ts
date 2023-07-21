@@ -171,6 +171,19 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
 /**
  * Load GitHubOrgs. We [want to] support processing events coming at us from
  * multiple GitHub orgs and this is how we [plan to] encapsulate it all.
+ *
+ * Some of the logic in eng-pipes is meant *only* for the `getsentry` org
+ * (things related to CI/CD, mostly), so we want to have a global reference to
+ * its GitHubOrg that we can import and use around the codebase. We're fine
+ * with failing somewhat opaquely at runtime if it's not configured (at least,
+ * that's the status quo). The default org below is intended to accomplish
+ * that. We're also fine with trusting that there are no webhook routes
+ * pointing at these parts of the codebase by which events from other GitHub
+ * orgs could leak into `getsentry`. Eep.
+ *
+ * Other logic (mostly related to automations for issues and discussions)
+ * operates on whatever org--possibly `getsentry`--we find in the payloads from
+ * GitHub. For those we use the GH_ORGS registry.
  */
 export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
 export const GETSENTRY_ORG =
