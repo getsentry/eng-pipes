@@ -8,10 +8,6 @@ import {
 } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import {
-  addIssueToGlobalIssuesProject,
-  modifyProjectIssueField,
-} from '@api/github/helpers';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
@@ -70,15 +66,13 @@ export async function markWaitingForProductOwner({
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     repo,
     issueNumber
   );
 
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
     org.project.status_field_id

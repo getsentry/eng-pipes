@@ -4,10 +4,6 @@ import * as Sentry from '@sentry/node';
 import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import {
-  getIssueDetailsFromNodeId,
-  getKeyValueFromProjectField,
-} from '@api/github/helpers';
 import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
@@ -67,8 +63,7 @@ export async function syncLabelsWithProjectField({
   const owner = payload?.organization?.login || '';
   const octokit = await getClient(ClientType.App, owner);
   const fieldName = getFieldName(payload, org);
-  const fieldValue = await getKeyValueFromProjectField(
-    org,
+  const fieldValue = await org.getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
     fieldName
   );
@@ -78,8 +73,7 @@ export async function syncLabelsWithProjectField({
     return;
   }
 
-  const issueInfo = await getIssueDetailsFromNodeId(
-    org,
+  const issueInfo = await org.getIssueDetailsFromNodeId(
     payload.projects_v2_item.content_node_id
   );
 
