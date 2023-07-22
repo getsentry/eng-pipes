@@ -1,5 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 
+import { GETSENTRY_ORG } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
@@ -23,28 +24,9 @@ describe('getClient(ClientType.User)', function () {
   });
 });
 
-describe("getClient(ClientType.App, 'getsentry')", function () {
-  beforeAll(async function () {
-    octokitClass.mockClear();
-    await getClient(ClientType.App, 'getsentry');
-  });
-
-  it('is instantiated twice', async function () {
-    expect(octokitClass).toHaveBeenCalledTimes(2);
-  });
-
-  it('tries to get an org installation', async function () {
-    expect(octokitClass.apps.getOrgInstallation).toHaveBeenCalledTimes(1);
-  });
-
-  it('is instantiated the second time with authStrategy and auth', async function () {
-    expect(octokitClass).toHaveBeenLastCalledWith({
-      authStrategy: createAppAuth,
-      auth: {
-        appId: 1234,
-        privateKey: 'top \nsecret\n key',
-        installationId: 'installation-getsentry',
-      },
-    });
+describe('getClient(ClientType.App, GETSENTRY_ORG.slug)', function () {
+  it('returns GETSENTRY_ORG.api', async function () {
+    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
+    expect(octokit).toBe(GETSENTRY_ORG.api);
   });
 });

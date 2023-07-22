@@ -31,10 +31,16 @@ class GitHubOrgConfigs {
 export class GitHubOrgs {
   orgs: Map<string, GitHubOrg>;
 
-  constructor(orgConfigs) {
+  constructor(userToken: string, orgConfigs) {
     this.orgs = new Map<string, GitHubOrg>();
     for (const config of orgConfigs.configs.values()) {
-      this.orgs.set(config.slug, new GitHubOrg(config));
+      this.orgs.set(config.slug, new GitHubOrg(userToken, config));
+    }
+  }
+
+  async bindAPIs() {
+    for (const org of this.orgs.values()) {
+      await org.bindAPI();
     }
   }
 
@@ -86,7 +92,7 @@ export function loadGitHubOrgsFromEnvironment(env) {
     };
   }
 
-  // Now convert them to (strongly-typed) orgs now that we know the info is
-  // clean.
-  return new GitHubOrgs(configs);
+  // Convert them to (strongly-typed) orgs now that we know the info is clean.
+  const userToken = process.env.GH_USER_TOKEN || '';
+  return new GitHubOrgs(userToken, configs);
 }

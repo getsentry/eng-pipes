@@ -179,7 +179,7 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * that's the status quo). The default org below is intended to accomplish
  * that. We're also fine with trusting that there are no webhook routes
  * pointing at these parts of the codebase by which events from other GitHub
- * orgs could leak into `getsentry`. Eep.
+ * orgs could potentially leak into `getsentry`. Eep.
  *
  * Other logic (mostly related to automations for issues and discussions)
  * operates on whatever org--possibly `getsentry`--we find in the payloads from
@@ -189,7 +189,7 @@ export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
 export const GETSENTRY_ORG =
   process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY
     ? GH_ORGS.get(process.env.GETSENTRY_ORG || 'getsentry')
-    : new GitHubOrg({
+    : new GitHubOrg(GH_USER_TOKEN, {
         num: -1,
         slug: '☢️  no getsentry org configured ☢️',
         appAuth: {
