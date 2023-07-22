@@ -1,25 +1,12 @@
-import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import { GitHubOrg } from '@api/github/org';
-
-async function sendQuery(query: string, data: object, octokit: Octokit) {
-  let response: any;
-  try {
-    response = await octokit.graphql(query);
-  } catch (err) {
-    Sentry.setContext('data', data);
-    Sentry.captureException(err);
-  }
-  return response;
-}
 
 export async function addIssueToGlobalIssuesProject(
   org: GitHubOrg,
   issueNodeId: string | undefined,
   repo: string,
-  issueNumber: number,
-  octokit: Octokit
+  issueNumber: number
 ): Promise<string> {
   if (issueNodeId == null) {
     Sentry.captureException(
@@ -38,18 +25,17 @@ export async function addIssueToGlobalIssuesProject(
     repo,
     issueNumber,
   };
-  const response = await sendQuery(
+  const response = await org.sendGraphQuery(
     addIssueToGlobalIssuesProjectMutation,
-    data,
-    octokit
+    data
   );
 
   return response?.addProjectV2ItemById.item.id;
 }
 
 export async function getAllProjectFieldNodeIds(
-  projectFieldId: string,
-  octokit: Octokit
+  org: GitHubOrg,
+  projectFieldId: string
 ) {
   const queryForProjectFieldNodeIDs = `query{
     node(id: "${projectFieldId}") {
@@ -65,7 +51,7 @@ export async function getAllProjectFieldNodeIds(
   const data = {
     projectFieldId,
   };
-  const response = await sendQuery(queryForProjectFieldNodeIDs, data, octokit);
+  const response = await org.sendGraphQuery(queryForProjectFieldNodeIDs, data);
 
   return response?.node.options.reduce((acc, { name, id }) => {
     acc[name] = id;
@@ -77,12 +63,11 @@ export async function modifyProjectIssueField(
   org: GitHubOrg,
   itemId: string,
   projectFieldOption: string,
-  fieldId: string,
-  octokit: Octokit
+  fieldId: string
 ) {
   const projectFieldNodeIDMapping = await getAllProjectFieldNodeIds(
-    fieldId,
-    octokit
+    org,
+    fieldId
   );
   const singleSelectOptionId = projectFieldNodeIDMapping[projectFieldOption];
   const modifyProjectIssueFieldMutation = `mutation {
@@ -106,15 +91,14 @@ export async function modifyProjectIssueField(
     projectFieldOption,
     fieldId,
   };
-  await sendQuery(modifyProjectIssueFieldMutation, data, octokit);
+  await org.sendGraphQuery(modifyProjectIssueFieldMutation, data);
 }
 
 export async function modifyDueByDate(
   org: GitHubOrg,
   itemId: string,
   projectFieldOption: string,
-  fieldId: string,
-  octokit: Octokit
+  fieldId: string
 ) {
   const modifyDueByDateMutation = `mutation {
     updateProjectV2ItemFieldValue(
@@ -138,13 +122,13 @@ export async function modifyDueByDate(
     projectFieldOption,
     fieldId,
   };
-  await sendQuery(modifyDueByDateMutation, data, octokit);
+  await org.sendGraphQuery(modifyDueByDateMutation, data);
 }
 
 export async function getKeyValueFromProjectField(
+  org: GitHubOrg,
   issueNodeId: string,
-  fieldName: string,
-  octokit: Octokit
+  fieldName: string
 ) {
   const query = `query{
     node(id: "${issueNodeId}") {
@@ -168,15 +152,14 @@ export async function getKeyValueFromProjectField(
     issueNodeId,
     fieldName,
   };
-  const response = await sendQuery(query, data, octokit);
+  const response = await org.sendGraphQuery(query, data);
 
   return response?.node.fieldValueByName?.name;
 }
 
 export async function getIssueDueDateFromProject(
   org: GitHubOrg,
-  issueNodeId: string,
-  octokit: Octokit
+  issueNodeId: string
 ) {
   // Use fieldValues (and iterate) instead of fieldValuesByName in case the name ever changes
   const query = `query{
@@ -204,7 +187,7 @@ export async function getIssueDueDateFromProject(
   const data = {
     issueNodeId,
   };
-  const response = await sendQuery(query, data, octokit);
+  const response = await org.sendGraphQuery(query, data);
   // When the response due date is empty, the node doesn't exist so we default to empty string
   const issueDueDateInfoNode =
     response?.node.fieldValues.nodes.find(
@@ -214,8 +197,8 @@ export async function getIssueDueDateFromProject(
 }
 
 export async function getIssueDetailsFromNodeId(
-  issueNodeId: string,
-  octokit: Octokit
+  org: GitHubOrg,
+  issueNodeId: string
 ) {
   const query = `query {
     node(id:"${issueNodeId}") {
@@ -231,7 +214,7 @@ export async function getIssueDetailsFromNodeId(
   const data = {
     issueNodeId,
   };
-  const response = await sendQuery(query, data, octokit);
+  const response = await org.sendGraphQuery(query, data);
 
   return {
     number: response?.node.number,

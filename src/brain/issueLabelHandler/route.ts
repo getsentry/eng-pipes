@@ -196,8 +196,7 @@ export async function markNotWaitingForSupport({
     org,
     payload.issue.node_id,
     payload.repository.name,
-    payload.issue.number,
-    octokit
+    payload.issue.number
   );
   const productArea = productAreaLabelName?.substr(
     PRODUCT_AREA_LABEL_PREFIX.length
@@ -206,8 +205,7 @@ export async function markNotWaitingForSupport({
     org,
     itemId,
     productArea,
-    org.project.product_area_field_id,
-    octokit
+    org.project.product_area_field_id
   );
 
   tx.finish();

@@ -136,14 +136,9 @@ export const getTriageSLOTimestamp = async (
     org,
     issueNodeId,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
-  const dueByDate = await getIssueDueDateFromProject(
-    org,
-    issueNodeIdInProject,
-    octokit
-  );
+  const dueByDate = await getIssueDueDateFromProject(org, issueNodeIdInProject);
   if (dueByDate == null || !moment(dueByDate).isValid()) {
     // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(

@@ -97,16 +97,14 @@ export async function updateCommunityFollowups({
     org,
     payload.issue.node_id,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
 
   await modifyProjectIssueField(
     org,
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.status_field_id,
-    octokit
+    org.project.status_field_id
   );
 
   tx.finish();
@@ -158,16 +156,14 @@ export async function ensureOneWaitingForLabel({
     org,
     payload.issue.node_id,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
 
   await modifyProjectIssueField(
     org,
     itemId,
     labelName,
-    org.project.status_field_id,
-    octokit
+    org.project.status_field_id
   );
 
   let timeToRespondBy;
@@ -189,8 +185,7 @@ export async function ensureOneWaitingForLabel({
     org,
     itemId,
     timeToRespondBy,
-    org.project.response_due_date_field_id,
-    octokit
+    org.project.response_due_date_field_id
   );
 
   tx.finish();

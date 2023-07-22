@@ -74,16 +74,14 @@ export async function markWaitingForProductOwner({
     org,
     payload.issue.node_id,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
 
   await modifyProjectIssueField(
     org,
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.status_field_id,
-    octokit
+    org.project.status_field_id
   );
 
   tx.finish();

@@ -551,15 +551,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2022-12-20T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
 
@@ -574,15 +572,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
 
@@ -597,15 +593,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
 
@@ -627,15 +621,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
 
@@ -652,15 +644,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
 
@@ -674,15 +664,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
       // Restore old mock return value used throughout the file
       calculateSLOViolationTriageSpy.mockReturnValue(
@@ -700,15 +688,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
       // Restore old mock return value used throughout the file
       calculateSLOViolationTriageSpy.mockReturnValue(
@@ -727,15 +713,13 @@ describe('issueLabelHandler', function () {
         org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id,
-        octokit
+        org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id,
-        octokit
+        org.project.response_due_date_field_id
       );
     });
   });
