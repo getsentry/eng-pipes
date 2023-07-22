@@ -6,8 +6,6 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import { Color, GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline } from '@/types';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -16,6 +14,8 @@ import { DeployFeed } from './deployFeed';
 jest.mock('@api/getUser');
 
 describe('DeployFeed', () => {
+  const org = GETSENTRY_ORG;
+
   beforeAll(async function () {
     await db.migrate.latest();
   });
@@ -516,8 +516,7 @@ describe('DeployFeed', () => {
   });
 
   it('post message with commits in deploy link for getsentry', async () => {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-    octokit.repos.getContent.mockImplementation((args) => {
+    org.api.repos.getContent.mockImplementation((args) => {
       if (args.owner != 'getsentry') {
         throw new Error(`Unexpected getContent() owner: ${args.owner}`);
       }
@@ -643,12 +642,11 @@ describe('DeployFeed', () => {
     const slackMessages = await db('slack_messages').select('*');
     expect(slackMessages).toHaveLength(1);
 
-    expect(octokit.repos.getContent).toBeCalledTimes(2);
+    expect(org.api.repos.getContent).toBeCalledTimes(2);
   });
 
   it('handle error if get content fails', async () => {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-    octokit.repos.getContent.mockImplementation((args) => {
+    org.api.repos.getContent.mockImplementation((args) => {
       throw new Error('Injected error');
     });
 

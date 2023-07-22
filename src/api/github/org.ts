@@ -22,7 +22,8 @@ export class GitHubOrg {
     this.project = config.project;
 
     // Call bindAPI ASAP. We can't call it here because constructors can't be
-    // async.
+    // async. Note that in testing this ends up being mocked as if it were
+    // bound, even though (afaict) we generally don't call bindAPI in test.
     this.api = new OctokitWithRetries({
       authStrategy: createAppAuth,
       auth: this.appAuth, // unbound, good enough for now

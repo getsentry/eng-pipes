@@ -1,6 +1,4 @@
-import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '@/config';
-import { getClient } from '@api/github/getClient';
 
 /**
  * Paths that we do not intend to convert to ts
@@ -18,8 +16,6 @@ export default async function getProgress({
   appDir?: string;
   date?: string;
 }) {
-  const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-
   const getContentsParams: {
     owner: string;
     repo: string;
@@ -32,7 +28,7 @@ export default async function getProgress({
   };
 
   if (date) {
-    const commits = await octokit.repos.listCommits({
+    const commits = await GETSENTRY_ORG.api.repos.listCommits({
       owner: GETSENTRY_ORG.slug,
       repo,
       until: date,
@@ -44,7 +40,7 @@ export default async function getProgress({
     }
   }
 
-  const contents = await octokit.repos.getContent(getContentsParams);
+  const contents = await GETSENTRY_ORG.api.repos.getContent(getContentsParams);
 
   if (!Array.isArray(contents.data)) {
     throw new Error('Invalid directory');
@@ -56,7 +52,7 @@ export default async function getProgress({
     throw new Error('Invalid directory');
   }
 
-  const tree = await octokit.git.getTree({
+  const tree = await GETSENTRY_ORG.api.git.getTree({
     owner: GETSENTRY_ORG.slug,
     repo,
     tree_sha: app.sha,

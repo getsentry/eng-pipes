@@ -4,15 +4,12 @@ import { buildServer } from '@/buildServer';
 import { GETSENTRY_ORG } from '@/config';
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 
 import { projectsHandler } from '.';
 
 describe('projectsHandler', function () {
   let fastify: Fastify;
-  let octokit;
   const org = GETSENTRY_ORG;
   const errors = jest.fn();
 
@@ -37,17 +34,16 @@ describe('projectsHandler', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await projectsHandler();
-    octokit = await getClient(ClientType.App, 'test-org');
   });
 
   afterEach(async function () {
     fastify.close();
-    octokit.issues._labels = new Set([]);
-    octokit.issues.addLabels.mockClear();
-    octokit.issues.removeLabel.mockClear();
-    octokit.issues._comments = [];
-    octokit.issues.createComment.mockClear();
-    octokit.teams.getByName.mockClear();
+    org.api.issues._labels = new Set([]);
+    org.api.issues.addLabels.mockClear();
+    org.api.issues.removeLabel.mockClear();
+    org.api.issues._comments = [];
+    org.api.issues.createComment.mockClear();
+    org.api.teams.getByName.mockClear();
     errors.mockClear();
   });
 
@@ -81,7 +77,7 @@ describe('projectsHandler', function () {
   describe('projects test cases', function () {
     let getKeyValueFromProjectFieldSpy,
       getIssueDetailsFromNodeIdSpy,
-      octokitIssuesSpy;
+      orgAPIIssuesSpy;
     beforeAll(function () {
       getKeyValueFromProjectFieldSpy = jest.spyOn(
         org,
@@ -96,23 +92,23 @@ describe('projectsHandler', function () {
       jest.clearAllMocks();
     });
     it('should ignore project event if it is not issues project', async function () {
-      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       await editProjectField();
       expect(getKeyValueFromProjectFieldSpy).not.toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
-      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+      expect(orgAPIIssuesSpy).not.toHaveBeenCalled();
     });
 
     it('should ignore project event if it is issues project but not product area field id', async function () {
-      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       await editProjectField(org.project.node_id);
       expect(getKeyValueFromProjectFieldSpy).not.toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
-      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+      expect(orgAPIIssuesSpy).not.toHaveBeenCalled();
     });
 
     it('should not ignore project event if it is issues project and product field id', async function () {
-      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Test');
       await editProjectField(
         org.project.node_id,
@@ -120,27 +116,27 @@ describe('projectsHandler', function () {
       );
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
-      expect(octokitIssuesSpy).toHaveBeenCalled();
-      expect(octokit.issues._labels).toContain('Product Area: Test');
+      expect(orgAPIIssuesSpy).toHaveBeenCalled();
+      expect(org.api.issues._labels).toContain('Product Area: Test');
     });
 
     it('should not ignore project event if it is issues project and status id', async function () {
-      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Waiting for: Community');
       await editProjectField(org.project.node_id, org.project.status_field_id);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
-      expect(octokitIssuesSpy).toHaveBeenCalled();
-      expect(octokit.issues._labels).toContain('Waiting for: Community');
+      expect(orgAPIIssuesSpy).toHaveBeenCalled();
+      expect(org.api.issues._labels).toContain('Waiting for: Community');
     });
 
     it('should handle project event if field value is unset', async function () {
-      octokitIssuesSpy = jest.spyOn(octokit.issues, 'addLabels');
+      orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue(undefined);
       await editProjectField(org.project.node_id, org.project.status_field_id);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
-      expect(octokitIssuesSpy).not.toHaveBeenCalled();
+      expect(orgAPIIssuesSpy).not.toHaveBeenCalled();
     });
   });
 });

@@ -10,8 +10,6 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
@@ -63,8 +61,6 @@ export async function updateCommunityFollowups({
     return;
   }
 
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
@@ -73,16 +69,16 @@ export async function updateCommunityFollowups({
   )?.name;
 
   if (isWaitingForCommunityLabelOnIssue) {
-    await octokit.issues.removeLabel({
-      owner,
+    await org.api.issues.removeLabel({
+      owner: org.slug,
       repo: repo,
       issue_number: issueNumber,
       name: WAITING_FOR_COMMUNITY_LABEL,
     });
   }
 
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
@@ -124,8 +120,6 @@ export async function ensureOneWaitingForLabel({
   }
 
   const { issue, label } = payload;
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
   // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
@@ -137,8 +131,8 @@ export async function ensureOneWaitingForLabel({
   )?.name;
 
   if (labelToRemove != null) {
-    await octokit.issues.removeLabel({
-      owner: owner,
+    await org.api.issues.removeLabel({
+      owner: org.slug,
       repo: repo,
       issue_number: issueNumber,
       name: labelToRemove,

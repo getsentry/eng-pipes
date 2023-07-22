@@ -9,6 +9,7 @@ import {
 } from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
+  GETSENTRY_ORG,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
@@ -17,8 +18,6 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
@@ -30,15 +29,14 @@ import { pleaseDeployNotifier } from '.';
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
-  let octokit;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async function () {
     await db.migrate.latest();
     jest.spyOn(actions, 'actionViewUndeployedCommits');
 
     pleaseDeployNotifier();
-    octokit = await getClient(ClientType.App, 'getsentry');
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
@@ -78,9 +76,9 @@ describe('pleaseDeployNotifier', function () {
 
   afterEach(async function () {
     fastify.close();
-    octokit.paginate.mockClear();
-    octokit.repos.getCommit.mockClear();
-    octokit.repos.compareCommits.mockClear();
+    org.api.paginate.mockClear();
+    org.api.repos.getCommit.mockClear();
+    org.api.repos.compareCommits.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     await db('slack_messages').delete();
     await db('users').delete();
@@ -147,7 +145,7 @@ describe('pleaseDeployNotifier', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(2);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -496,7 +494,7 @@ describe('pleaseDeployNotifier', function () {
     `);
 
     // Mock user clicking "view undeployed commits"
-    octokit.repos.getCommit.mockClear();
+    org.api.repos.getCommit.mockClear();
     await createSlackRequest(fastify, 'block_actions', {
       type: 'block_actions',
       user: {
@@ -671,7 +669,7 @@ describe('pleaseDeployNotifier', function () {
     }
 
     // Ensure actionViewUndeployedCommits is querying the expected commit range.
-    expect(octokit.repos.compareCommits).toHaveBeenCalledWith({
+    expect(org.api.repos.compareCommits).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'getsentry',
       base: '333333',
@@ -812,7 +810,7 @@ describe('pleaseDeployNotifier', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(2);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -967,7 +965,7 @@ describe('pleaseDeployNotifier', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(2);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -1093,7 +1091,7 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('links user to frontend-only deploy from a getsentry commit', async function () {
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1147,7 +1145,7 @@ Remove "always()" from GHA workflows`,
     });
 
     // Only once because this is a commit on getsentry
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(1);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -1273,7 +1271,7 @@ Remove "always()" from GHA workflows`,
   });
 
   it('links user to backend-only deploy from a getsentry commit', async function () {
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1327,7 +1325,7 @@ Remove "always()" from GHA workflows`,
     });
 
     // Only once because this is a commit on getsentry
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(1);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
 
@@ -1453,7 +1451,7 @@ Remove "always()" from GHA workflows`,
   });
 
   it('does not allow frontend deploy if head commit is a backend change', async function () {
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1658,14 +1656,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    octokit.paginate.mockImplementation((_, { ref, repo }) => {
+    org.api.paginate.mockImplementation((_, { ref, repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {
@@ -1792,14 +1790,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    octokit.paginate.mockImplementation((_, { ref, repo }) => {
+    org.api.paginate.mockImplementation((_, { ref, repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {
@@ -1974,14 +1972,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    octokit.checks.listForRef.mockImplementation(({ ref, repo }) => {
+    org.api.checks.listForRef.mockImplementation(({ ref, repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {
