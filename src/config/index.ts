@@ -1,9 +1,4 @@
-import { GitHubOrg } from '../api/github/org';
-
-import {
-  GitHubOrgs,
-  loadGitHubOrgsFromEnvironment,
-} from './loadGitHubOrgsFromEnvironment';
+import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
@@ -177,8 +172,8 @@ export const FORCE_USER_TOKEN_GITHUB_CLIENT =
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == '1';
 
 /**
- * Load GitHubOrgs. We [want to] support processing events coming at us from
- * multiple GitHub orgs and this is how we [plan to] encapsulate it all.
+ * Load GitHubOrgs. We support processing events coming at us from multiple
+ * GitHub orgs and this is how we encapsulate it all.
  *
  * Some of the logic in eng-pipes is meant *only* for the `getsentry` org
  * (things related to CI/CD, mostly), so we want to have a global reference to
@@ -193,26 +188,13 @@ export const FORCE_USER_TOKEN_GITHUB_CLIENT =
  * operates on whatever org--possibly `getsentry`--we find in the payloads from
  * GitHub. For those we use the GH_ORGS registry.
  */
-export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
-export const GETSENTRY_ORG =
-  process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY
-    ? GH_ORGS.get(process.env.GETSENTRY_ORG || 'getsentry')
-    : new GitHubOrg({
-        num: -1,
-        slug: '☢️  no getsentry org configured ☢️',
-        appAuth: {
-          appId: -1,
-          privateKey: 'foo',
-        },
-        project: {
-          nodeId: '',
-          fieldIds: {
-            productArea: '',
-            status: '',
-            responseDue: '',
-          },
-        },
-      });
+export const GH_ORGS: GitHubOrgs = loadGitHubOrgs(
+  process.env,
+  'github-orgs.local.yml'
+);
+export const GETSENTRY_ORG = GH_ORGS.get(
+  process.env.GETSENTRY_ORG || 'getsentry'
+);
 
 /**
  * Business Hours by Office

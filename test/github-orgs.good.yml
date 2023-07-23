@@ -1,0 +1,20 @@
+zer-ner:
+  appAuth:
+    appId: '53'
+    privateKey: ''
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''
+getsentry:
+  appAuth:
+    appId: 42
+    privateKey: ''
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''

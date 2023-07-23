@@ -1,0 +1,10 @@
+getsentry:
+  appAuth:
+    appId: 66573
+    privateKey: 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'
+  project:
+    nodeId: 'PVT_kwDOABVQ184AOGW8'
+    fieldIds:
+      productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno'
+      status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0'
+      responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg'

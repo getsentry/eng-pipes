@@ -29,8 +29,8 @@ export class GitHubOrg {
   // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
   api: Octokit;
 
-  constructor(config: GitHubOrgConfig) {
-    this.slug = config.slug;
+  constructor(orgSlug: string, config: GitHubOrgConfig) {
+    this.slug = orgSlug;
     this.appAuth = config.appAuth;
     this.project = config.project;
 

@@ -114,7 +114,7 @@ describe('issueLabelHandler', function () {
       sender: { login: sender || 'Skywalker' }, // default to external user
       repository: {
         name: repo,
-        owner: { login: 'Enterprise' },
+        owner: { login: GETSENTRY_ORG.slug },
       },
       issue: { state, labels }, // mix in labels stored in mock
     };

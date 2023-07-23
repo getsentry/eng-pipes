@@ -7,7 +7,7 @@ describe('getUserOssType', function () {
   const repository = {
     owner: {
       type: 'Organization',
-      login: 'Enterprise',
+      login: 'getsentry',
     },
   };
 

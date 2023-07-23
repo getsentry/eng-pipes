@@ -8,7 +8,7 @@ import { GitHubOrg } from './org';
 describe('constructor', function () {
   beforeAll(async function () {
     octokitClass.mockClear();
-    await new GitHubOrg({
+    new GitHubOrg('zerb', {
       appAuth: {
         appId: 423,
         privateKey: 'so secret',
@@ -37,8 +37,7 @@ describe('constructor', function () {
 
 describe('bindAPI', function () {
   beforeAll(async function () {
-    const org = await new GitHubOrg({
-      slug: 'banana',
+    const org = new GitHubOrg('banana', {
       appAuth: {
         appId: 422,
         privateKey: 'so private',

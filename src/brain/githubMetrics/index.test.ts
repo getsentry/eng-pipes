@@ -34,7 +34,7 @@ jest.spyOn(dbFunctions, 'insert');
 jest.spyOn(dbFunctions, 'insertOss');
 jest.mock('@/config', () => {
   const actualEnvVariables = jest.requireActual('@/config');
-  return { ...actualEnvVariables, DRY_RUN: true };
+  return { ...actualEnvVariables, DRY_RUN: false };
 });
 
 const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
@@ -131,7 +131,7 @@ describe('github webhook', function () {
         action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
@@ -150,7 +150,7 @@ describe('github webhook', function () {
       label: {
         id: 1362934389,
         node_id: 'MDU6TGFiZWwxMzYyOTM0Mzg5',
-        url: 'https://api.github.com/repos/Enterprise/Hello-World/labels/bug',
+        url: 'https://api.github.com/repos/getsentry/Hello-World/labels/bug',
         name: 'bug',
         color: 'd73a4a',
         default: true,
@@ -171,7 +171,7 @@ describe('github webhook', function () {
         action: 'labeled',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
@@ -205,7 +205,7 @@ describe('github webhook', function () {
         action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,

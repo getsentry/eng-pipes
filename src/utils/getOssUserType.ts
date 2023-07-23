@@ -41,7 +41,12 @@ export async function getOssUserType(
   async function getResponseStatus(func, args: any[]): Promise<number | null> {
     // Work around GitHub API goofiness.
     let out: number | null = null;
-    const capture = (r) => (out = r.status);
+    const capture = (r) => {
+      if (!r.status) {
+        throw r; // bug in func :shrug:
+      }
+      out = r.status;
+    };
     await func(...args)
       .then(capture)
       .catch(capture);

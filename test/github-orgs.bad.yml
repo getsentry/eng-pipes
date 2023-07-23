@@ -1,0 +1,10 @@
+zar-nar:
+  appAuth:
+    appId: hoofle
+    privateKey: ''
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''
