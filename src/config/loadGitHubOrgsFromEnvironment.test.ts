@@ -1,5 +1,5 @@
+import { GETSENTRY_ORG } from './index';
 import { loadGitHubOrgsFromEnvironment } from './loadGitHubOrgsFromEnvironment';
-import { GETSENTRY_ORG } from '.';
 
 describe('loadGitHubOrgsFromEnvironment ', function () {
   it('basically works', async function () {

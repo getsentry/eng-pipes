@@ -8,12 +8,23 @@ import {
   GitHubOrgConfig,
 } from '@/types';
 
+import { FORCE_USER_TOKEN_GITHUB_CLIENT } from '../../config';
+
 import { OctokitWithRetries } from './octokitWithRetries';
+import { makeUserTokenClient } from '.';
 
 export class GitHubOrg {
   slug: string;
   appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
+
+  // The docs say it's safe for Octokit instances to be long-lived:
+  //
+  // > Additionally, the SDK will take care of regenerating an installation
+  // > access token for you so you don't need to worry about the one hour
+  // > expiration.
+  //
+  // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
   api: Octokit;
 
   constructor(config: GitHubOrgConfig) {
@@ -23,22 +34,23 @@ export class GitHubOrg {
 
     // Call bindAPI ASAP. We can't call it here because constructors can't be
     // async. Note that in testing this ends up being mocked as if it were
-    // bound, even though (afaict) we generally don't call bindAPI in test.
+    // bound to an org installation, even though (afaict) we generally don't
+    // call bindAPI in test.
     this.api = new OctokitWithRetries({
       authStrategy: createAppAuth,
-      auth: this.appAuth, // unbound, good enough for now
+      auth: this.appAuth,
     });
   }
 
   async bindAPI() {
-    // Use an Octokit not bound to an org to make an Octokit bound to our org.
-    // The docs say it's safe for Octokit instances to be long-lived:
-    //
-    // > Additionally, the SDK will take care of regenerating an installation
-    // > access token for you so you don't need to worry about the one hour
-    // > expiration.
-    //
-    // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
+    if (FORCE_USER_TOKEN_GITHUB_CLIENT) {
+      // Hack for easier dev.
+      this.api = makeUserTokenClient();
+      return;
+    }
+
+    // Use the unbound Octokit instantiated in the constructor to make an
+    // Octokit bound to our org, now that we can await.
     if (this.appAuth.installationId === undefined) {
       const installation = await this.api.apps.getOrgInstallation({
         org: this.slug,
@@ -50,6 +62,9 @@ export class GitHubOrg {
       });
     }
   }
+
+  // GraphQL helpers - We generally use the REST API, but the projects v2 API
+  // is only available via GraphQL.
 
   async sendGraphQuery(query: string, data: object) {
     let response: any;

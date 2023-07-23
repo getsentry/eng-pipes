@@ -9,7 +9,10 @@ describe('constructor', function () {
   beforeAll(async function () {
     octokitClass.mockClear();
     await new GitHubOrg({
-      appAuth: { appId: 'cheese please', privateKey: 'yes' },
+      appAuth: {
+        appId: 423,
+        privateKey: 'so secret',
+      },
     });
   });
 
@@ -17,10 +20,13 @@ describe('constructor', function () {
     expect(octokitClass).toHaveBeenCalledTimes(1);
   });
 
-  it('is instantiated with appAuth', async function () {
+  it('is instantiated with unbound appAuth', async function () {
     expect(octokitClass).toHaveBeenCalledWith({
-      auth: { appId: 'cheese please', privateKey: 'yes' },
       authStrategy: createAppAuth,
+      auth: {
+        appId: 423,
+        privateKey: 'so secret',
+      },
     });
   });
 

@@ -1,9 +1,12 @@
 import * as dotenv from 'dotenv';
+
+// Immediately load the test env, because it can cause test bugs if the proper
+// values are not seen by the rest of global setup.
+dotenv.config({ path: './.env.test', override: true });
+
 import Knex from 'knex';
 
 import config from '../src/knexfile';
-
-dotenv.config({ path: './.env.test', override: true });
 
 function getDbConnection() {
   return Knex(
