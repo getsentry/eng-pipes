@@ -2,6 +2,7 @@ getsentry:
   appAuth:
     appId: -1
     privateKey: 'STUB'
+    installationId: -1
   project:
     nodeId: ''
     fieldIds:

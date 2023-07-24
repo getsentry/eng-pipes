@@ -20,12 +20,6 @@ export class GitHubOrgs {
     }
   }
 
-  async bindAPIs() {
-    for (const org of this.orgs.values()) {
-      await org.bindAPI();
-    }
-  }
-
   get(orgSlug) {
     const org = this.orgs.get(orgSlug);
     if (org === undefined) {
@@ -75,11 +69,13 @@ export function loadGitHubOrgs(env) {
     const config = _config as GitHubOrgConfig;
 
     // IDs
-    const appId = parseInt(config.appAuth.appId, 10);
-    if (Number.isNaN(appId)) {
-      throw `appId '${config.appAuth.appId}' is not a number`;
+    for (const idVar of ['appId', 'installationId']) {
+      const tmp = parseInt(config.appAuth[idVar], 10);
+      if (Number.isNaN(tmp)) {
+        throw `${idVar} '${config.appAuth[idVar]}' is not a number`;
+      }
+      config.appAuth[idVar] = tmp;
     }
-    config.appAuth.appId = appId;
 
     // Key
     const keyEnvVarName = config.appAuth.privateKey;

@@ -53,7 +53,7 @@ You can grab GitHub secrets in their respective configuration pages: [GitHub App
 
 You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
 
-- `GH_APP_PRIVATE_KEY` - GitHub App private key for your test app. It needs to all be on one line, but it can include literal '\n' which will be converted to newlines.
+- `GH_APP_PRIVATE_KEY` - GitHub App private key for your test app. It needs to all be on one line, with literal `\n`s instead of newlines (these seem to be required).
 - `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 - `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
 - `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
@@ -123,21 +123,21 @@ You'll also need to create a private key for the service account (it should down
 
 1. [Create a GitHub organization](https://github.com/account/organizations/new?plan=free). Name it what you like.
 
-    - In your organization, create a new GitHub repository named something like `testing-eng-pipes`.
     - After the organization has been created, go to its `Settings`, then select `Personal access tokens` from the sidebar to enable tokens.
     - In the setup menu, select `Allow access via fine-grained personal access tokens`, then `Do not require administrator approval`, and finally `Allow access via personal access tokens (classic)`.
+    - In your organization, create a new repository named something like `testing-eng-pipes`.
 
 1.  [Create a personal access token](https://github.com/settings/tokens/new).
 
     - Title the new token `Eng-pipes development token`, give this token 90 days until expiration, and enable the following permissions: `read:org` and `read:user`.
     - On the next page, copy the displayed token into the `GH_USER_TOKEN` field of your `.env` file.
 
-      > :warning: **You are giving this token permissions to all orgs across GitHub that you are a member of (though some, like `getsentry`, are configured to require approval before PATs have access)). Be careful and ensure it does not leave your machine!**
+      > :warning: **You are giving this token permissions to all orgs across GitHub that you are a member of (though some, like `getsentry`, are configured to require approval before PATs have access). Be careful and ensure it does not leave your machine!**
 
 1.  [Create a GitHub App](https://github.com/settings/apps/new).
 
     - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
-    - Create and download a private key and add it to your `.env` under `GH_APP_PRIVATE_KEY`. You'll need to strip newlines (or convert them to literal `\n`). (See [Setup Secrets](#setup-secrets) above.)
+    - Create and download a private key and add it to your `.env` under `GH_APP_PRIVATE_KEY`. You'll need to convert newlines to literal `\n`. (See also [Setup Secrets](#setup-secrets) above.)
     - Go to the `Permissions & events` sidebar menu entry of the GitHub app configuration, and grant maximum non-`Admin` access (`Read and write` where possible, `Read only` everywhere else) for every line in `Repository permissions` (NOTE: We use a more constrained permission-set in production, but for initial setup enabling maximal permissions is fine; permissions can be whittled down later as needed.)
     - For `Organization permissions`, grant `Read and write` for `Members` and `Projects`
     - In the `Subscribe to events` section, check every possible box
@@ -159,15 +159,19 @@ You'll also need to create a private key for the service account (it should down
 
     - Set an environment variable, `GH_ORGS_YML=github-orgs.local.yml`.
 
-    - Modify it with the slug of your organization and the ID of your app.
+    - Modify the top-level key to the slug of your organization.
+
+    - Set `appId` to the "App ID" from General > About in the UI for your app.
+
+    - Set `installationId` to the ID at the end of the URL for your app's installation on your org (confused yet?).
 
     - Leave the `privateKey` as-is, it's the name of an environment variable to pull from (the main `github-orgs.yml` holds public config and is checked into version control).
 
     - In a terminal, log into the Github CLI using `gh auth login`.
 
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of the project you made earlier; set `nodeId` to match.
+    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of the project you made earlier; set `project.nodeId` to match.
 
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the IDs of the project fields you set up, and use those to populate `fieldIds`.
+    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the IDs of the project fields you set up, and use those to populate `project.fieldIds`.
 
 1. Follow the steps of the "Development & tests" section below to get the server running.
 

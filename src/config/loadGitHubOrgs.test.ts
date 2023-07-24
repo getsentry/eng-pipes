@@ -16,12 +16,18 @@ describe('loadGitHubOrgs', function () {
     expect(orgs.get('hurple').appAuth.appId).toEqual(42);
   });
 
-  it('mixes in a private key from the environment', async function () {
+  it('loads the main github-orgs.yml in a prod simulation', async function () {
     const org = loadGitHubOrgs({
       GH_APP_PRIVATE_KEY_FOR_GETSENTRY: 'cheese',
+      // GH_ORGS_YML - not set in prod
     }).get('getsentry');
-    expect(org.appAuth.privateKey).toEqual('cheese');
-    expect(org.appAuth.appId).toEqual(66573);
+    expect(org.appAuth).toEqual({
+      appId: 66573,
+      privateKey: 'cheese',
+      installationId: 9303463,
+    });
+
+    // Spot-check repos for good measure.
     expect(org.repos.withRouting).toEqual(['sentry', 'sentry-docs']);
   });
 

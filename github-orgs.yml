@@ -2,6 +2,7 @@ getsentry:
   appAuth:
     appId: 66573
     privateKey: 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'
+    installationId: 9303463
   project:
     nodeId: 'PVT_kwDOABVQ184AOGW8'
     fieldIds:

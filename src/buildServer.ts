@@ -14,16 +14,13 @@ import { bolt } from '@api/slack';
 import { loadBrain } from '@utils/loadBrain';
 
 import * as PubSub from './webhooks/pubsub';
-import { GH_ORGS, SENTRY_DSN } from './config';
+import { SENTRY_DSN } from './config';
 
 export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
     prettyPrint: process.env.NODE_ENV === 'development',
   }
 ) {
-  // Oh, for top-level await!
-  await GH_ORGS.bindAPIs();
-
   const server: Fastify = fastify({
     logger,
     disableRequestLogging: true,

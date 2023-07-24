@@ -12,6 +12,7 @@ describe('constructor', function () {
       appAuth: {
         appId: 423,
         privateKey: 'so secret',
+        installationId: 432,
       },
     });
   });
@@ -20,18 +21,15 @@ describe('constructor', function () {
     expect(octokitClass).toHaveBeenCalledTimes(1);
   });
 
-  it('is instantiated with unbound appAuth', async function () {
+  it('is instantiated with appAuth', async function () {
     expect(octokitClass).toHaveBeenCalledWith({
       authStrategy: createAppAuth,
       auth: {
         appId: 423,
         privateKey: 'so secret',
+        installationId: 432,
       },
     });
-  });
-
-  it('does not try to get an org installation', async function () {
-    expect(octokitClass.apps.getOrgInstallation).toHaveBeenCalledTimes(0);
   });
 
   it('combines repos into .all', async function () {
@@ -53,38 +51,6 @@ describe('constructor', function () {
     expect(org.repos.all).toEqual(['cheese', 'wine']);
     expect(org.repos.withRouting).toEqual(['cheese', 'wine']);
     expect(org.repos.withoutRouting).toEqual([]);
-  });
-});
-
-describe('bindAPI', function () {
-  beforeAll(async function () {
-    const org = new GitHubOrg('banana', {
-      appAuth: {
-        appId: 422,
-        privateKey: 'so private',
-      },
-    });
-    octokitClass.mockClear();
-    org.bindAPI();
-  });
-
-  it('is instantiated once again', async function () {
-    expect(octokitClass).toHaveBeenCalledTimes(1);
-  });
-
-  it('tries to get an org installation', async function () {
-    expect(octokitClass.apps.getOrgInstallation).toHaveBeenCalledTimes(1);
-  });
-
-  it('is instantiated the second time with authStrategy and auth', async function () {
-    expect(octokitClass).toHaveBeenLastCalledWith({
-      authStrategy: createAppAuth,
-      auth: {
-        appId: 422,
-        privateKey: 'so private',
-        installationId: 'installation-banana',
-      },
-    });
   });
 });
 

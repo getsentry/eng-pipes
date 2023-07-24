@@ -32,7 +32,7 @@ export type Annotation = GetResponseDataTypeFromEndpointMethod<
 export interface AppAuthStrategyOptions {
   appId: number;
   privateKey: string;
-  installationId?: number;
+  installationId: number;
 }
 
 export interface GitHubIssuesSomeoneElseCaresAbout {
