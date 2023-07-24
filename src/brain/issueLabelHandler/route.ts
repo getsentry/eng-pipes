@@ -192,7 +192,7 @@ export async function markNotWaitingForSupport({
   await org.modifyProjectIssueField(
     itemId,
     productArea,
-    org.project.product_area_field_id
+    org.project.fieldIds.productArea
   );
 
   tx.finish();

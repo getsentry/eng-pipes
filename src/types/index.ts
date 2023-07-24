@@ -36,10 +36,12 @@ export interface AppAuthStrategyOptions {
 }
 
 export interface GitHubIssuesSomeoneElseCaresAbout {
-  node_id: string;
-  product_area_field_id: string;
-  status_field_id: string;
-  response_due_date_field_id: string;
+  nodeId: string;
+  fieldIds: {
+    productArea: string;
+    status: string;
+    responseDue: string;
+  };
 }
 
 export interface GitHubOrgConfig {

@@ -204,10 +204,12 @@ export const GETSENTRY_ORG =
           privateKey: 'foo',
         },
         project: {
-          node_id: '',
-          product_area_field_id: '',
-          status_field_id: '',
-          response_due_date_field_id: '',
+          nodeId: '',
+          fieldIds: {
+            productArea: '',
+            status: '',
+            responseDue: '',
+          },
         },
       });
 
