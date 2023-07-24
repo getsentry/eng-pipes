@@ -7,7 +7,6 @@ import {
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
-  SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
@@ -21,8 +20,8 @@ function isAlreadyWaitingForSupport(payload) {
   );
 }
 
-function isNotInARepoWeCareAboutForRouting(payload) {
-  return !SENTRY_REPOS_WITH_ROUTING.has(payload.repository.name);
+function isNotInARepoWeCareAboutForRouting(payload, org) {
+  return !org.repos.withRouting.includes(payload.repository.name);
 }
 
 function isValidLabel(payload) {

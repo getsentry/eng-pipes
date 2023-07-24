@@ -33,6 +33,27 @@ describe('constructor', function () {
   it('does not try to get an org installation', async function () {
     expect(octokitClass.apps.getOrgInstallation).toHaveBeenCalledTimes(0);
   });
+
+  it('combines repos into .all', async function () {
+    const org = new GitHubOrg('barn', {
+      repos: {
+        withRouting: ['cheese'],
+        withoutRouting: ['bread'],
+      },
+    });
+    expect(org.repos.all).toEqual(['cheese', 'bread']);
+  });
+
+  it('is fine without one of them', async function () {
+    const org = new GitHubOrg('barn', {
+      repos: {
+        withRouting: ['cheese', 'wine'],
+      },
+    });
+    expect(org.repos.all).toEqual(['cheese', 'wine']);
+    expect(org.repos.withRouting).toEqual(['cheese', 'wine']);
+    expect(org.repos.withoutRouting).toEqual([]);
+  });
 });
 
 describe('bindAPI', function () {

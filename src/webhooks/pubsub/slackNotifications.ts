@@ -4,9 +4,7 @@ import moment from 'moment-timezone';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   BACKLOG_LABEL,
-  GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
-  SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
@@ -393,16 +391,13 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    const untriagedIssues = await GETSENTRY_ORG.api.paginate(
-      GETSENTRY_ORG.api.issues.listForRepo,
-      {
-        owner: GETSENTRY_ORG.slug,
-        repo,
-        state: 'open',
-        labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
-        per_page: GH_API_PER_PAGE,
-      }
-    );
+    const untriagedIssues = await org.api.paginate(org.api.issues.listForRepo, {
+      owner: org.slug,
+      repo,
+      state: 'open',
+      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
+      per_page: GH_API_PER_PAGE,
+    });
 
     const issuesWithSLOInfo = untriagedIssues
       .filter(filterIssuesOnBacklog)
@@ -424,9 +419,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all(
-      [...SENTRY_REPOS_WITH_ROUTING].map(getIssueSLOInfoForRepo)
-    )
+    await Promise.all([...org.repos.withRouting].map(getIssueSLOInfoForRepo))
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues
