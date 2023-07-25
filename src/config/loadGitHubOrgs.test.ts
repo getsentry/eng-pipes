@@ -17,11 +17,11 @@ describe('loadGitHubOrgs', function () {
   });
 
   it('mixes in a private key from the environment', async function () {
-    const actual = loadGitHubOrgs({
+    const org = loadGitHubOrgs({
       GH_APP_PRIVATE_KEY_FOR_GETSENTRY: 'cheese',
-      GH_ORGS_YML: 'github-orgs.yml',
-    }).get('getsentry').appAuth.privateKey;
-    expect(actual).toEqual('cheese');
+    }).get('getsentry');
+    expect(org.appAuth.privateKey).toEqual('cheese');
+    expect(org.appAuth.appId).toEqual(66573);
   });
 
   it('chokes on non-numeric appId', async function () {
