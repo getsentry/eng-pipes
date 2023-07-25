@@ -71,7 +71,7 @@ export async function markWaitingForProductOwner({
   await org.modifyProjectIssueField(
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.status_field_id
+    org.project.fieldIds.status
   );
 
   tx.finish();

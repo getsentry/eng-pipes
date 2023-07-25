@@ -1,5 +1,5 @@
+import { GETSENTRY_ORG } from './index';
 import { loadGitHubOrgsFromEnvironment } from './loadGitHubOrgsFromEnvironment';
-import { GETSENTRY_ORG } from '.';
 
 describe('loadGitHubOrgsFromEnvironment ', function () {
   it('basically works', async function () {
@@ -15,10 +15,12 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
               installationId: undefined,
             },
             project: {
-              node_id: 'bread',
-              product_area_field_id: 'wine',
-              status_field_id: 'beer',
-              response_due_date_field_id: 'olives',
+              nodeId: 'bread',
+              fieldIds: {
+                productArea: 'wine',
+                status: 'beer',
+                responseDue: 'olives',
+              },
             },
             api: GETSENTRY_ORG.api,
           },
@@ -70,10 +72,12 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
               installationId: undefined,
             },
             project: {
-              node_id: 'PVT_kwDOABVQ184AOGW8',
-              product_area_field_id: 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
-              status_field_id: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
-              response_due_date_field_id: 'PVTF_lADOABVQ184AOGW8zgLLxGg',
+              nodeId: 'PVT_kwDOABVQ184AOGW8',
+              fieldIds: {
+                productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
+                status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
+                responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg',
+              },
             },
             api: GETSENTRY_ORG.api,
           },

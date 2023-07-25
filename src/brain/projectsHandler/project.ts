@@ -5,25 +5,25 @@ import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
-  return payload?.projects_v2_item?.project_node_id !== org.project.node_id;
+  return payload?.projects_v2_item?.project_node_id !== org.project.nodeId;
 }
 
 function isNotAProjectFieldWeCareAbout(payload, org) {
   return (
     payload?.changes?.field_value?.field_node_id !==
-      org.project.product_area_field_id &&
-    payload?.changes?.field_value?.field_node_id !== org.project.status_field_id
+      org.project.fieldIds.productArea &&
+    payload?.changes?.field_value?.field_node_id !== org.project.fieldIds.status
   );
 }
 
 function getFieldName(payload, org) {
   if (
     payload?.changes?.field_value?.field_node_id ===
-    org.project.product_area_field_id
+    org.project.fieldIds.productArea
   ) {
     return 'Product Area';
   } else if (
-    payload?.changes?.field_value?.field_node_id === org.project.status_field_id
+    payload?.changes?.field_value?.field_node_id === org.project.fieldIds.status
   ) {
     return 'Status';
   }

@@ -545,12 +545,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2022-12-20T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
 
@@ -564,12 +564,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
 
@@ -583,12 +583,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
 
@@ -609,12 +609,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
 
@@ -630,12 +630,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
 
@@ -648,12 +648,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
       // Restore old mock return value used throughout the file
       calculateSLOViolationTriageSpy.mockReturnValue(
@@ -670,12 +670,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2023-06-20T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
       // Restore old mock return value used throughout the file
       calculateSLOViolationTriageSpy.mockReturnValue(
@@ -693,12 +693,12 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        org.project.status_field_id
+        org.project.fieldIds.status
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
         'itemId',
         '2022-12-21T00:00:00.000Z',
-        org.project.response_due_date_field_id
+        org.project.fieldIds.responseDue
       );
     });
   });

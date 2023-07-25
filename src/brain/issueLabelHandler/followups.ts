@@ -93,7 +93,7 @@ export async function updateCommunityFollowups({
   await org.modifyProjectIssueField(
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.status_field_id
+    org.project.fieldIds.status
   );
 
   tx.finish();
@@ -148,7 +148,7 @@ export async function ensureOneWaitingForLabel({
   await org.modifyProjectIssueField(
     itemId,
     labelName,
-    org.project.status_field_id
+    org.project.fieldIds.status
   );
 
   let timeToRespondBy;
@@ -169,7 +169,7 @@ export async function ensureOneWaitingForLabel({
   await org.modifyDueByDate(
     itemId,
     timeToRespondBy,
-    org.project.response_due_date_field_id
+    org.project.fieldIds.responseDue
   );
 
   tx.finish();

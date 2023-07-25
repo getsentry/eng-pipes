@@ -164,9 +164,17 @@ export const SENTRY_REPOS: Set<string> = new Set([
 ]);
 
 /**
- * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
+ * As far as we can tell, it's not possible to check private org membership
+ * from an app installation. Therefore, we use a Personal Access Token for a
+ * bot account that is itself an org member.
+ *
+ * If you set FORCE... we will *always* use user auth instead of app
+ * installation auth, to make dev life easier.
  */
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
+export const FORCE_USER_TOKEN_GITHUB_CLIENT =
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true' ||
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == '1';
 
 /**
  * Load GitHubOrgs. We [want to] support processing events coming at us from
@@ -197,10 +205,12 @@ export const GETSENTRY_ORG =
           privateKey: 'foo',
         },
         project: {
-          node_id: '',
-          product_area_field_id: '',
-          status_field_id: '',
-          response_due_date_field_id: '',
+          nodeId: '',
+          fieldIds: {
+            productArea: '',
+            status: '',
+            responseDue: '',
+          },
         },
       });
 

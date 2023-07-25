@@ -8,12 +8,25 @@ import {
   GitHubOrgConfig,
 } from '@/types';
 
+// We can't use @ to import config here or we get an error from jest due to
+// circular import or something. Try it out if you want. :)
+import { FORCE_USER_TOKEN_GITHUB_CLIENT } from '../../config';
+
 import { OctokitWithRetries } from './octokitWithRetries';
+import { makeUserTokenClient } from '.';
 
 export class GitHubOrg {
   slug: string;
   appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
+
+  // The docs say it's safe for Octokit instances to be long-lived:
+  //
+  // > Additionally, the SDK will take care of regenerating an installation
+  // > access token for you so you don't need to worry about the one hour
+  // > expiration.
+  //
+  // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
   api: Octokit;
 
   constructor(config: GitHubOrgConfig) {
@@ -23,22 +36,23 @@ export class GitHubOrg {
 
     // Call bindAPI ASAP. We can't call it here because constructors can't be
     // async. Note that in testing this ends up being mocked as if it were
-    // bound, even though (afaict) we generally don't call bindAPI in test.
+    // bound to an org installation, even though (afaict) we generally don't
+    // call bindAPI in test.
     this.api = new OctokitWithRetries({
       authStrategy: createAppAuth,
-      auth: this.appAuth, // unbound, good enough for now
+      auth: this.appAuth,
     });
   }
 
   async bindAPI() {
-    // Use an Octokit not bound to an org to make an Octokit bound to our org.
-    // The docs say it's safe for Octokit instances to be long-lived:
-    //
-    // > Additionally, the SDK will take care of regenerating an installation
-    // > access token for you so you don't need to worry about the one hour
-    // > expiration.
-    //
-    // https://docs.github.com/en/apps/creating-github-apps/authenticating-with-a-github-app/authenticating-as-a-github-app-installation#using-the-octokitjs-sdk-to-authenticate-as-an-app-installation
+    if (FORCE_USER_TOKEN_GITHUB_CLIENT) {
+      // Hack for easier dev, avoids setting up a test org.
+      this.api = makeUserTokenClient();
+      return;
+    }
+
+    // Use the unbound Octokit instantiated in the constructor to make an
+    // Octokit bound to our org, now that we can await.
     if (this.appAuth.installationId === undefined) {
       const installation = await this.api.apps.getOrgInstallation({
         org: this.slug,
@@ -50,6 +64,9 @@ export class GitHubOrg {
       });
     }
   }
+
+  // GraphQL helpers - We generally use the REST API, but the projects v2 API
+  // is only available via GraphQL.
 
   async sendGraphQuery(query: string, data: object) {
     let response: any;
@@ -73,7 +90,7 @@ export class GitHubOrg {
       );
     }
     const addIssueToGlobalIssuesProjectMutation = `mutation {
-    addProjectV2ItemById(input: {projectId: "${this.project.node_id}" contentId: "${issueNodeId}"}) {
+    addProjectV2ItemById(input: {projectId: "${this.project.nodeId}" contentId: "${issueNodeId}"}) {
         item {
           id
         }
@@ -130,7 +147,7 @@ export class GitHubOrg {
     const modifyProjectIssueFieldMutation = `mutation {
       updateProjectV2ItemFieldValue(
         input: {
-          projectId: "${this.project.node_id}"
+          projectId: "${this.project.nodeId}"
           itemId: "${itemId}"
           fieldId: "${fieldId}"
           value: {
@@ -159,7 +176,7 @@ export class GitHubOrg {
     const modifyDueByDateMutation = `mutation {
       updateProjectV2ItemFieldValue(
         input: {
-          projectId: "${this.project.node_id}"
+          projectId: "${this.project.nodeId}"
           itemId: "${itemId}"
           fieldId: "${fieldId}"
           value: {
@@ -240,7 +257,7 @@ export class GitHubOrg {
     // When the response due date is empty, the node doesn't exist so we default to empty string
     const issueDueDateInfoNode =
       response?.node.fieldValues.nodes.find(
-        (item) => item.field?.id === this.project.response_due_date_field_id
+        (item) => item.field?.id === this.project.fieldIds.responseDue
       ) || '';
     return issueDueDateInfoNode.text;
   }

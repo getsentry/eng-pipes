@@ -1,8 +1,7 @@
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
 import { DAY_IN_MS } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { makeUserTokenClient } from '@api/github';
 import { isFromABot } from '@utils/isFromABot';
 
 type UserType = 'bot' | 'internal' | 'external' | 'gtm';
@@ -28,7 +27,7 @@ export async function getOssUserType(
     return null;
   }
 
-  const org = owner.login;
+  const orgSlug = owner.login;
   const username = payload.sender.login;
 
   const cachedResult = _USER_CACHE.get(username);
@@ -53,12 +52,12 @@ export async function getOssUserType(
   let status: number | null;
   let check: 'Org' | 'Team';
 
-  const octokit = await getClient(ClientType.User);
+  const octokit = makeUserTokenClient();
 
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   check = 'Org';
   status = await getResponseStatus(octokit.orgs.checkMembershipForUser, [
-    { org, username },
+    { org: orgSlug, username },
   ]);
 
   if (status === 204) {
@@ -67,8 +66,8 @@ export async function getOssUserType(
 
     check = 'Team';
     status = await getResponseStatus(octokit.request, [
-      'GET /orgs/{org}/teams/GTM/memberships/{username}',
-      { org, username },
+      'GET /orgs/{orgSlug}/teams/GTM/memberships/{username}',
+      { org: orgSlug, username },
     ]);
     if (status === 200) {
       // I'd rather express this inversely, so that the failure case is

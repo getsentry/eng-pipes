@@ -1,5 +1,4 @@
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { makeUserTokenClient } from '@api/github';
 
 import { getOssUserType } from './getOssUserType';
 
@@ -13,7 +12,7 @@ describe('getUserOssType', function () {
   };
 
   beforeAll(async function () {
-    octokit = await getClient(ClientType.User);
+    octokit = makeUserTokenClient();
   });
   beforeEach(function () {
     octokit.orgs.checkMembershipForUser.mockClear();
