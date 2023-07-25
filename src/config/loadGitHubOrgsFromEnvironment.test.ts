@@ -1,4 +1,5 @@
 import { loadGitHubOrgsFromEnvironment } from './loadGitHubOrgsFromEnvironment';
+import { GETSENTRY_ORG } from '.';
 
 describe('loadGitHubOrgsFromEnvironment ', function () {
   it('basically works', async function () {
@@ -19,11 +20,13 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
               status_field_id: 'beer',
               response_due_date_field_id: 'olives',
             },
+            api: GETSENTRY_ORG.api,
           },
         ],
       ]),
     };
     const actual = loadGitHubOrgsFromEnvironment({
+      GH_USER_TOKEN: 'onions',
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
       ISSUES_PROJECT_NODE_ID: 'bread',
@@ -39,6 +42,7 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
       RANDOM: 'garbage',
       AND_EXTRA: 'stuff',
 
+      GH_USER_TOKEN: 'onions',
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
     }).get('getsentry').appAuth.appId;
@@ -71,11 +75,13 @@ describe('loadGitHubOrgsFromEnvironment ', function () {
               status_field_id: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
               response_due_date_field_id: 'PVTF_lADOABVQ184AOGW8zgLLxGg',
             },
+            api: GETSENTRY_ORG.api,
           },
         ],
       ]),
     };
     const actual = loadGitHubOrgsFromEnvironment({
+      GH_USER_TOKEN: 'onions',
       GH_APP_IDENTIFIER: '42',
       GH_APP_SECRET_KEY: 'cheese',
     });

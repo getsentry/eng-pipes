@@ -38,6 +38,12 @@ export class GitHubOrgs {
     }
   }
 
+  async bindAPIs() {
+    for (const org of this.orgs.values()) {
+      await org.bindAPI();
+    }
+  }
+
   get(orgSlug) {
     const org = this.orgs.get(orgSlug);
     if (org === undefined) {
@@ -86,7 +92,6 @@ export function loadGitHubOrgsFromEnvironment(env) {
     };
   }
 
-  // Now convert them to (strongly-typed) orgs now that we know the info is
-  // clean.
+  // Convert them to (strongly-typed) orgs now that we know the info is clean.
   return new GitHubOrgs(configs);
 }
