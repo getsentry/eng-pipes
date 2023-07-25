@@ -30,7 +30,7 @@ The events sent by the bot are defined under "Subscribe to bot events" in the "E
 - [A message was posted in a direct message channel](https://api.slack.com/events/message.im)
 - [A member's data has changed](https://api.slack.com/events/user_change).
 
-### Github Sentry Webhooks
+### GitHub Sentry Webhooks
 
 Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/hooks) there's webhooks to the production backend with the route "webhooks/github".
 
@@ -167,11 +167,9 @@ You'll also need to create a private key for the service account (it should down
 
     - Leave the `privateKey` as-is, it's the name of an environment variable to pull from (the main `github-orgs.yml` holds public config and is checked into version control).
 
-    - In a terminal, log into the Github CLI using `gh auth login`.
+    - In a terminal, log into the GitHub CLI using `gh auth login`.
 
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of the project you made earlier; set `project.nodeId` to match.
-
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the IDs of the project fields you set up, and use those to populate `project.fieldIds`.
+    - Use the script at `bin/get-project-ids.sh $orgSlug $projectNumber` to determine the ids to set in `github-orgs.yml` for your project.
 
 1. Follow the steps of the "Development & tests" section below to get the server running.
 
@@ -248,7 +246,7 @@ yarn test
 
 This section only matters if you want to gather metrics from other projects than the ones we currently do.
 
-Install [the Github application](https://github.com/organizations/getsentry/settings/apps/getsantry/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
+Install [the GitHub application](https://github.com/organizations/getsentry/settings/apps/getsantry/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
 
 ### Deploying
 
