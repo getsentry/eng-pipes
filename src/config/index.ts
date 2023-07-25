@@ -173,7 +173,8 @@ export const SENTRY_REPOS: Set<string> = new Set([
  */
 export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
 export const FORCE_USER_TOKEN_GITHUB_CLIENT =
-  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true';
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true' ||
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == '1';
 
 /**
  * Load GitHubOrgs. We [want to] support processing events coming at us from

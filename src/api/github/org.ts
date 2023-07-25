@@ -8,6 +8,8 @@ import {
   GitHubOrgConfig,
 } from '@/types';
 
+// We can't use @ to import config here or we get an error from jest due to
+// circular import or something. Try it out if you want. :)
 import { FORCE_USER_TOKEN_GITHUB_CLIENT } from '../../config';
 
 import { OctokitWithRetries } from './octokitWithRetries';
@@ -44,7 +46,7 @@ export class GitHubOrg {
 
   async bindAPI() {
     if (FORCE_USER_TOKEN_GITHUB_CLIENT) {
-      // Hack for easier dev.
+      // Hack for easier dev, avoids setting up a test org.
       this.api = makeUserTokenClient();
       return;
     }
