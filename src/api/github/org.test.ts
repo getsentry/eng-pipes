@@ -122,7 +122,7 @@ describe('helpers', function () {
               {},
               {
                 text: '2023-06-23T18:00:00.000Z',
-                field: { id: org.project.response_due_date_field_id },
+                field: { id: org.project.fieldIds.responseDue },
               },
             ],
           },

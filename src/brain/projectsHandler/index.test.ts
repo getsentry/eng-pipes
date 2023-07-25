@@ -12,11 +12,20 @@ describe('projectsHandler', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG;
   const errors = jest.fn();
+  let origProject;
 
   beforeAll(async function () {
     await db.migrate.latest();
     githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
+    origProject = org.project;
+    org.project = {
+      nodeId: 'test-project-node-id',
+      fieldIds: {
+        status: 'status-field-id',
+        productArea: 'product-area-field-id',
+      },
+    };
     jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
@@ -27,6 +36,7 @@ describe('projectsHandler', function () {
   afterAll(async function () {
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
+    org.project = origProject;
     await db('label_to_channel').delete();
     await db.destroy();
   });
@@ -101,7 +111,7 @@ describe('projectsHandler', function () {
 
     it('should ignore project event if it is issues project but not product area field id', async function () {
       orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
-      await editProjectField(org.project.node_id);
+      await editProjectField(org.project.nodeId);
       expect(getKeyValueFromProjectFieldSpy).not.toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
       expect(orgAPIIssuesSpy).not.toHaveBeenCalled();
@@ -111,8 +121,8 @@ describe('projectsHandler', function () {
       orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Test');
       await editProjectField(
-        org.project.node_id,
-        org.project.product_area_field_id
+        org.project.nodeId,
+        org.project.fieldIds.productArea
       );
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
@@ -123,7 +133,7 @@ describe('projectsHandler', function () {
     it('should not ignore project event if it is issues project and status id', async function () {
       orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue('Waiting for: Community');
-      await editProjectField(org.project.node_id, org.project.status_field_id);
+      await editProjectField(org.project.nodeId, org.project.fieldIds.status);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).toHaveBeenCalled();
       expect(orgAPIIssuesSpy).toHaveBeenCalled();
@@ -133,7 +143,7 @@ describe('projectsHandler', function () {
     it('should handle project event if field value is unset', async function () {
       orgAPIIssuesSpy = jest.spyOn(org.api.issues, 'addLabels');
       getKeyValueFromProjectFieldSpy.mockReturnValue(undefined);
-      await editProjectField(org.project.node_id, org.project.status_field_id);
+      await editProjectField(org.project.nodeId, org.project.fieldIds.status);
       expect(getKeyValueFromProjectFieldSpy).toHaveBeenCalled();
       expect(getIssueDetailsFromNodeIdSpy).not.toHaveBeenCalled();
       expect(orgAPIIssuesSpy).not.toHaveBeenCalled();

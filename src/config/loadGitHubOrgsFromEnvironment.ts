@@ -83,12 +83,14 @@ export function loadGitHubOrgsFromEnvironment(env) {
       privateKey: env.GH_APP_SECRET_KEY.replace(/\\n/g, '\n'),
     };
     config.project = {
-      node_id: env.ISSUES_PROJECT_NODE_ID || 'PVT_kwDOABVQ184AOGW8',
-      product_area_field_id:
-        env.PRODUCT_AREA_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
-      status_field_id: env.STATUS_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
-      response_due_date_field_id:
-        env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg',
+      nodeId: env.ISSUES_PROJECT_NODE_ID || 'PVT_kwDOABVQ184AOGW8',
+      fieldIds: {
+        productArea:
+          env.PRODUCT_AREA_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
+        status: env.STATUS_FIELD_ID || 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
+        responseDue:
+          env.RESPONSE_DUE_DATE_FIELD_ID || 'PVTF_lADOABVQ184AOGW8zgLLxGg',
+      },
     };
   }
 

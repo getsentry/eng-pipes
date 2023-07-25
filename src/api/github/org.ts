@@ -90,7 +90,7 @@ export class GitHubOrg {
       );
     }
     const addIssueToGlobalIssuesProjectMutation = `mutation {
-    addProjectV2ItemById(input: {projectId: "${this.project.node_id}" contentId: "${issueNodeId}"}) {
+    addProjectV2ItemById(input: {projectId: "${this.project.nodeId}" contentId: "${issueNodeId}"}) {
         item {
           id
         }
@@ -147,7 +147,7 @@ export class GitHubOrg {
     const modifyProjectIssueFieldMutation = `mutation {
       updateProjectV2ItemFieldValue(
         input: {
-          projectId: "${this.project.node_id}"
+          projectId: "${this.project.nodeId}"
           itemId: "${itemId}"
           fieldId: "${fieldId}"
           value: {
@@ -176,7 +176,7 @@ export class GitHubOrg {
     const modifyDueByDateMutation = `mutation {
       updateProjectV2ItemFieldValue(
         input: {
-          projectId: "${this.project.node_id}"
+          projectId: "${this.project.nodeId}"
           itemId: "${itemId}"
           fieldId: "${fieldId}"
           value: {
@@ -257,7 +257,7 @@ export class GitHubOrg {
     // When the response due date is empty, the node doesn't exist so we default to empty string
     const issueDueDateInfoNode =
       response?.node.fieldValues.nodes.find(
-        (item) => item.field?.id === this.project.response_due_date_field_id
+        (item) => item.field?.id === this.project.fieldIds.responseDue
       ) || '';
     return issueDueDateInfoNode.text;
   }
