@@ -1,7 +1,7 @@
 // Magic incantation. I don't have time to get to the bottom of this, but for
 // some reason the following two lines allow the import machinery to function
 // as desired. Without this, loadGitHubOrgs is undefined in config/index.ts.
-import { DRY_RUN } from '.';
+import { DRY_RUN } from '.'; // random simple envvar
 DRY_RUN; // Yes, this is necessary. 🧙
 
 import { loadGitHubOrgs } from './loadGitHubOrgs';
