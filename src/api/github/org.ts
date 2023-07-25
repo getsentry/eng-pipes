@@ -1,5 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
+import * as Sentry from '@sentry/node';
 
 import {
   AppAuthStrategyOptions,
@@ -47,5 +48,16 @@ export class GitHubOrg {
         auth: this.appAuth,
       });
     }
+  }
+
+  async sendGraphQuery(query: string, data: object) {
+    let response: any;
+    try {
+      response = await this.api.graphql(query);
+    } catch (err) {
+      Sentry.setContext('data', data);
+      Sentry.captureException(err);
+    }
+    return response;
   }
 }

@@ -68,9 +68,9 @@ export async function syncLabelsWithProjectField({
   const octokit = await getClient(ClientType.App, owner);
   const fieldName = getFieldName(payload, org);
   const fieldValue = await getKeyValueFromProjectField(
+    org,
     payload.projects_v2_item.node_id,
-    fieldName,
-    octokit
+    fieldName
   );
 
   // Single select field value has been unset, so don't do anything
@@ -79,8 +79,8 @@ export async function syncLabelsWithProjectField({
   }
 
   const issueInfo = await getIssueDetailsFromNodeId(
-    payload.projects_v2_item.content_node_id,
-    octokit
+    org,
+    payload.projects_v2_item.content_node_id
   );
 
   await octokit.issues.addLabels({

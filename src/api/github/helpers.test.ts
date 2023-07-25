@@ -6,7 +6,7 @@ describe('helpers', function () {
   const org = GETSENTRY_ORG;
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
-    const octokit = {
+    org.api = {
       graphql: jest
         .fn()
         .mockReturnValue({ addProjectV2ItemById: { item: { id: '12345' } } }),
@@ -16,14 +16,13 @@ describe('helpers', function () {
         org,
         'issueNodeId',
         'test-repo',
-        1,
-        octokit
+        1
       )
     ).toEqual('12345');
   });
 
   it('getAllProjectFieldNodeIds should return timestamp from project', async function () {
-    const octokit = {
+    org.api = {
       graphql: jest.fn().mockReturnValue({
         node: {
           options: [
@@ -35,7 +34,7 @@ describe('helpers', function () {
       }),
     };
     expect(
-      await helpers.getAllProjectFieldNodeIds('projectFieldId', octokit)
+      await helpers.getAllProjectFieldNodeIds(org, 'projectFieldId')
     ).toEqual({
       'Waiting for: Product Owner': 1,
       'Waiting for: Support': 2,
@@ -44,22 +43,18 @@ describe('helpers', function () {
   });
 
   it('getKeyValueFromProjectField should return timestamp from project', async function () {
-    const octokit = {
+    org.api = {
       graphql: jest.fn().mockReturnValue({
         node: { fieldValueByName: { name: 'Product Area: Test' } },
       }),
     };
     expect(
-      await helpers.getKeyValueFromProjectField(
-        'issueNodeId',
-        'fieldName',
-        octokit
-      )
+      await helpers.getKeyValueFromProjectField(org, 'issueNodeId', 'fieldName')
     ).toEqual('Product Area: Test');
   });
 
   it('getIssueDueDateFromProject should return timestamp from project', async function () {
-    const octokit = {
+    org.api = {
       graphql: jest.fn().mockReturnValue({
         node: {
           fieldValues: {
@@ -76,18 +71,18 @@ describe('helpers', function () {
       }),
     };
     expect(
-      await helpers.getIssueDueDateFromProject(org, 'issueNodeId', octokit)
+      await helpers.getIssueDueDateFromProject(org, 'issueNodeId')
     ).toEqual('2023-06-23T18:00:00.000Z');
   });
 
-  it('getIssueDetailsFromNodeId should return timestamp from project', async function () {
-    const octokit = {
+  it('getIssueDetailsFromNodeId should return issue details', async function () {
+    org.api = {
       graphql: jest.fn().mockReturnValue({
         node: { number: 1, repository: { name: 'test-repo' } },
       }),
     };
-    expect(
-      await helpers.getIssueDetailsFromNodeId('issueNodeId', octokit)
-    ).toEqual({ number: 1, repo: 'test-repo' });
+    expect(await helpers.getIssueDetailsFromNodeId(org, 'issueNodeId')).toEqual(
+      { number: 1, repo: 'test-repo' }
+    );
   });
 });
