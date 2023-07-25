@@ -6,6 +6,7 @@ import {
   SENTRY_REPOS_WITHOUT_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
+import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
@@ -52,6 +53,7 @@ export async function markWaitingForProductOwner({
     isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalOrGTMUser,
+    isFromOutsideCollaborator,
   ];
   if (await shouldSkip(payload, org, reasonsToSkipTriage)) {
     return;

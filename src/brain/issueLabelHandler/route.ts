@@ -12,6 +12,7 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
@@ -69,6 +70,7 @@ export async function markWaitingForSupport({
     isNotInARepoWeCareAboutForRouting,
     isAlreadyWaitingForSupport,
     isNotFromAnExternalOrGTMUser,
+    isFromOutsideCollaborator,
   ];
   if (await shouldSkip(payload, org, reasonsToSkip)) {
     return;

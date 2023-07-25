@@ -105,12 +105,7 @@ describe('issueLabelHandler', function () {
     });
   }
 
-  function makePayload(
-    repo?: string,
-    label?: string,
-    sender?: string,
-    state?: string
-  ) {
+  function makePayload({ repo, label, sender, state, author_association }) {
     repo = repo || 'test-ttt-simple';
     state = state || 'open';
 
@@ -122,6 +117,7 @@ describe('issueLabelHandler', function () {
         owner: { login: 'Enterprise' },
       },
       issue: { state, labels }, // mix in labels stored in mock
+      author_association,
     };
 
     if (label) {
@@ -130,11 +126,21 @@ describe('issueLabelHandler', function () {
     return payload;
   }
 
-  async function createIssue(repo?: string, username?: string) {
+  async function createIssue(
+    repo?: string,
+    username?: string,
+    author_association?: string
+  ) {
     await createGitHubEvent(
       fastify,
       'issues.opened',
-      makePayload(repo, undefined, username)
+      makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association,
+      })
     );
   }
 
@@ -142,7 +148,13 @@ describe('issueLabelHandler', function () {
     await createGitHubEvent(
       fastify,
       'pull_request.opened',
-      makePayload(repo, undefined, username)
+      makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association: undefined,
+      })
     );
   }
 
@@ -150,7 +162,13 @@ describe('issueLabelHandler', function () {
     await createGitHubEvent(
       fastify,
       'issues.labeled',
-      makePayload(repo, label, undefined, state)
+      makePayload({
+        repo,
+        label,
+        sender: undefined,
+        state,
+        author_association: undefined,
+      })
     );
     octokit.issues.addLabels({ labels: [label] });
   }
@@ -167,7 +185,13 @@ describe('issueLabelHandler', function () {
       throw `Unknown user: '${username}'`;
     }
     const payload = {
-      ...makePayload(repo, undefined, username),
+      ...makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association: undefined,
+      }),
       comment: { author_association: membership },
     };
     if (isPR) {
@@ -252,6 +276,13 @@ describe('issueLabelHandler', function () {
       expectAdding();
       expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
+    });
+
+    it('skips adding `Waiting for: Product Owner` for external collaborators', async function () {
+      await createIssue(undefined, 'External User', 'COLLABORATOR');
+      expectNotWaitingforProductOwner();
+      expectNoAdding();
+      expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Waiting for: Product Owner` in untracked repos', async function () {
@@ -371,6 +402,14 @@ describe('issueLabelHandler', function () {
 
     it('skips adding `Waiting for: Support` for internal users', async function () {
       await createIssue('sentry-docs', 'Picard');
+      expectNotWaitingForSupport();
+      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(octokit.issues._comments).toEqual([]);
+      expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips adding `Waiting for: Support` for external collaborators', async function () {
+      await createIssue('sentry-docs', 'External User', 'COLLABORATOR');
       expectNotWaitingForSupport();
       expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(octokit.issues._comments).toEqual([]);
