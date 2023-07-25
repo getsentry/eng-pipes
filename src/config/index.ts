@@ -189,12 +189,12 @@ export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
 export const GETSENTRY_ORG =
   process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY
     ? GH_ORGS.get(process.env.GETSENTRY_ORG || 'getsentry')
-    : new GitHubOrg(GH_USER_TOKEN, {
+    : new GitHubOrg({
         num: -1,
         slug: '☢️  no getsentry org configured ☢️',
         appAuth: {
           appId: -1,
-          privateKey: '',
+          privateKey: 'foo',
         },
         project: {
           node_id: '',

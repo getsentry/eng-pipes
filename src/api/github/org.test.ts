@@ -1,8 +1,6 @@
 import { createAppAuth } from '@octokit/auth-app';
 
 import { GETSENTRY_ORG } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
 
 import { GitHubOrg } from './org';
@@ -10,15 +8,20 @@ import { GitHubOrg } from './org';
 describe('constructor', function () {
   beforeAll(async function () {
     octokitClass.mockClear();
-    await new GitHubOrg('cheese please', {});
+    await new GitHubOrg({
+      appAuth: { appId: 'cheese please', privateKey: 'yes' },
+    });
   });
 
   it('is instantiated once', async function () {
     expect(octokitClass).toHaveBeenCalledTimes(1);
   });
 
-  it('is instantiated with userToken', async function () {
-    expect(octokitClass).toHaveBeenCalledWith({ auth: 'cheese please' });
+  it('is instantiated with appAuth', async function () {
+    expect(octokitClass).toHaveBeenCalledWith({
+      auth: { appId: 'cheese please', privateKey: 'yes' },
+      authStrategy: createAppAuth,
+    });
   });
 
   it('does not try to get an org installation', async function () {
@@ -28,7 +31,7 @@ describe('constructor', function () {
 
 describe('bindAPI', function () {
   beforeAll(async function () {
-    const org = await new GitHubOrg('cheese please', {
+    const org = await new GitHubOrg({
       slug: 'banana',
       appAuth: {
         appId: 422,

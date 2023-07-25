@@ -31,10 +31,10 @@ class GitHubOrgConfigs {
 export class GitHubOrgs {
   orgs: Map<string, GitHubOrg>;
 
-  constructor(userToken: string, orgConfigs) {
+  constructor(orgConfigs) {
     this.orgs = new Map<string, GitHubOrg>();
     for (const config of orgConfigs.configs.values()) {
-      this.orgs.set(config.slug, new GitHubOrg(userToken, config));
+      this.orgs.set(config.slug, new GitHubOrg(config));
     }
   }
 
@@ -93,6 +93,5 @@ export function loadGitHubOrgsFromEnvironment(env) {
   }
 
   // Convert them to (strongly-typed) orgs now that we know the info is clean.
-  const userToken = process.env.GH_USER_TOKEN || '';
-  return new GitHubOrgs(userToken, configs);
+  return new GitHubOrgs(configs);
 }

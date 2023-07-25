@@ -15,14 +15,17 @@ export class GitHubOrg {
   project: GitHubIssuesSomeoneElseCaresAbout;
   api: Octokit;
 
-  constructor(userToken: string, config: GitHubOrgConfig) {
+  constructor(config: GitHubOrgConfig) {
     this.slug = config.slug;
     this.appAuth = config.appAuth;
     this.project = config.project;
 
     // Call bindAPI ASAP. We can't call it here because constructors can't be
     // async.
-    this.api = new OctokitWithRetries({ auth: userToken });
+    this.api = new OctokitWithRetries({
+      authStrategy: createAppAuth,
+      auth: this.appAuth, // unbound, good enough for now
+    });
   }
 
   async bindAPI() {
