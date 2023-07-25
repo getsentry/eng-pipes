@@ -64,7 +64,7 @@ describe('projectsHandler', function () {
     fieldNodeId?: string
   ) {
     const projectPayload = {
-      organization: { login: 'test-org' },
+      organization: { login: GETSENTRY_ORG.slug },
       projects_v2_item: {
         project_node_id: projectNodeId || 'test-project-node-id',
         node_id: 'test-node-id',

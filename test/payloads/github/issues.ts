@@ -5,15 +5,15 @@
 export default {
   action: 'opened',
   issue: {
-    url: 'https://api.github.com/repos/Enterprise/Hello-World/issues/1',
-    repository_url: 'https://api.github.com/repos/Enterprise/Hello-World',
+    url: 'https://api.github.com/repos/getsentry/Hello-World/issues/1',
+    repository_url: 'https://api.github.com/repos/getsentry/Hello-World',
     labels_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues/1/labels{/name}',
+      'https://api.github.com/repos/getsentry/Hello-World/issues/1/labels{/name}',
     comments_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues/1/comments',
+      'https://api.github.com/repos/getsentry/Hello-World/issues/1/comments',
     events_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues/1/events',
-    html_url: 'https://github.com/Enterprise/Hello-World/issues/1',
+      'https://api.github.com/repos/getsentry/Hello-World/issues/1/events',
+    html_url: 'https://github.com/getsentry/Hello-World/issues/1',
     id: 444500041,
     node_id: 'MDU6SXNzdWU0NDQ1MDAwNDE=',
     number: 1,
@@ -44,7 +44,7 @@ export default {
       {
         id: 1362934389,
         node_id: 'MDU6TGFiZWwxMzYyOTM0Mzg5',
-        url: 'https://api.github.com/repos/Enterprise/Hello-World/labels/bug',
+        url: 'https://api.github.com/repos/getsentry/Hello-World/labels/bug',
         name: 'bug',
         color: 'd73a4a',
         default: true,
@@ -67,109 +67,108 @@ export default {
     id: 186853002,
     node_id: 'MDEwOlJlcG9zaXRvcnkxODY4NTMwMDI=',
     name: 'Hello-World',
-    full_name: 'Enterprise/Hello-World',
+    full_name: 'getsentry/Hello-World',
     private: false,
     owner: {
-      login: 'Enterprise',
+      login: 'getsentry',
       id: 21031067,
       node_id: 'MDQ6VXNlcjIxMDMxMDY3',
       avatar_url: 'https://avatars1.githubusercontent.com/u/21031067?v=4',
       gravatar_id: '',
-      url: 'https://api.github.com/users/Enterprise',
-      html_url: 'https://github.com/Enterprise',
-      followers_url: 'https://api.github.com/users/Enterprise/followers',
+      url: 'https://api.github.com/users/getsentry',
+      html_url: 'https://github.com/getsentry',
+      followers_url: 'https://api.github.com/users/getsentry/followers',
       following_url:
-        'https://api.github.com/users/Enterprise/following{/other_user}',
-      gists_url: 'https://api.github.com/users/Enterprise/gists{/gist_id}',
+        'https://api.github.com/users/getsentry/following{/other_user}',
+      gists_url: 'https://api.github.com/users/getsentry/gists{/gist_id}',
       starred_url:
-        'https://api.github.com/users/Enterprise/starred{/owner}{/repo}',
-      subscriptions_url:
-        'https://api.github.com/users/Enterprise/subscriptions',
-      organizations_url: 'https://api.github.com/users/Enterprise/orgs',
-      repos_url: 'https://api.github.com/users/Enterprise/repos',
-      events_url: 'https://api.github.com/users/Enterprise/events{/privacy}',
+        'https://api.github.com/users/getsentry/starred{/owner}{/repo}',
+      subscriptions_url: 'https://api.github.com/users/getsentry/subscriptions',
+      organizations_url: 'https://api.github.com/users/getsentry/orgs',
+      repos_url: 'https://api.github.com/users/getsentry/repos',
+      events_url: 'https://api.github.com/users/getsentry/events{/privacy}',
       received_events_url:
-        'https://api.github.com/users/Enterprise/received_events',
+        'https://api.github.com/users/getsentry/received_events',
       type: 'Organization',
       site_admin: false,
     },
-    html_url: 'https://github.com/Enterprise/Hello-World',
+    html_url: 'https://github.com/getsentry/Hello-World',
     description: null,
     fork: false,
-    url: 'https://api.github.com/repos/Enterprise/Hello-World',
-    forks_url: 'https://api.github.com/repos/Enterprise/Hello-World/forks',
+    url: 'https://api.github.com/repos/getsentry/Hello-World',
+    forks_url: 'https://api.github.com/repos/getsentry/Hello-World/forks',
     keys_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/keys{/key_id}',
+      'https://api.github.com/repos/getsentry/Hello-World/keys{/key_id}',
     collaborators_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/collaborators{/collaborator}',
-    teams_url: 'https://api.github.com/repos/Enterprise/Hello-World/teams',
-    hooks_url: 'https://api.github.com/repos/Enterprise/Hello-World/hooks',
+      'https://api.github.com/repos/getsentry/Hello-World/collaborators{/collaborator}',
+    teams_url: 'https://api.github.com/repos/getsentry/Hello-World/teams',
+    hooks_url: 'https://api.github.com/repos/getsentry/Hello-World/hooks',
     issue_events_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues/events{/number}',
-    events_url: 'https://api.github.com/repos/Enterprise/Hello-World/events',
+      'https://api.github.com/repos/getsentry/Hello-World/issues/events{/number}',
+    events_url: 'https://api.github.com/repos/getsentry/Hello-World/events',
     assignees_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/assignees{/user}',
+      'https://api.github.com/repos/getsentry/Hello-World/assignees{/user}',
     branches_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/branches{/branch}',
-    tags_url: 'https://api.github.com/repos/Enterprise/Hello-World/tags',
+      'https://api.github.com/repos/getsentry/Hello-World/branches{/branch}',
+    tags_url: 'https://api.github.com/repos/getsentry/Hello-World/tags',
     blobs_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/git/blobs{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/git/blobs{/sha}',
     git_tags_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/git/tags{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/git/tags{/sha}',
     git_refs_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/git/refs{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/git/refs{/sha}',
     trees_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/git/trees{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/git/trees{/sha}',
     statuses_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/statuses/{sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/statuses/{sha}',
     languages_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/languages',
+      'https://api.github.com/repos/getsentry/Hello-World/languages',
     stargazers_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/stargazers',
+      'https://api.github.com/repos/getsentry/Hello-World/stargazers',
     contributors_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/contributors',
+      'https://api.github.com/repos/getsentry/Hello-World/contributors',
     subscribers_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/subscribers',
+      'https://api.github.com/repos/getsentry/Hello-World/subscribers',
     subscription_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/subscription',
+      'https://api.github.com/repos/getsentry/Hello-World/subscription',
     commits_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/commits{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/commits{/sha}',
     git_commits_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/git/commits{/sha}',
+      'https://api.github.com/repos/getsentry/Hello-World/git/commits{/sha}',
     comments_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/comments{/number}',
+      'https://api.github.com/repos/getsentry/Hello-World/comments{/number}',
     issue_comment_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues/comments{/number}',
+      'https://api.github.com/repos/getsentry/Hello-World/issues/comments{/number}',
     contents_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/contents/{+path}',
+      'https://api.github.com/repos/getsentry/Hello-World/contents/{+path}',
     compare_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/compare/{base}...{head}',
-    merges_url: 'https://api.github.com/repos/Enterprise/Hello-World/merges',
+      'https://api.github.com/repos/getsentry/Hello-World/compare/{base}...{head}',
+    merges_url: 'https://api.github.com/repos/getsentry/Hello-World/merges',
     archive_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/{archive_format}{/ref}',
+      'https://api.github.com/repos/getsentry/Hello-World/{archive_format}{/ref}',
     downloads_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/downloads',
+      'https://api.github.com/repos/getsentry/Hello-World/downloads',
     issues_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/issues{/number}',
+      'https://api.github.com/repos/getsentry/Hello-World/issues{/number}',
     pulls_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/pulls{/number}',
+      'https://api.github.com/repos/getsentry/Hello-World/pulls{/number}',
     milestones_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/milestones{/number}',
+      'https://api.github.com/repos/getsentry/Hello-World/milestones{/number}',
     notifications_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/notifications{?since,all,participating}',
+      'https://api.github.com/repos/getsentry/Hello-World/notifications{?since,all,participating}',
     labels_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/labels{/name}',
+      'https://api.github.com/repos/getsentry/Hello-World/labels{/name}',
     releases_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/releases{/id}',
+      'https://api.github.com/repos/getsentry/Hello-World/releases{/id}',
     deployments_url:
-      'https://api.github.com/repos/Enterprise/Hello-World/deployments',
+      'https://api.github.com/repos/getsentry/Hello-World/deployments',
     created_at: '2019-05-15T15:19:25Z',
     updated_at: '2019-05-15T15:19:27Z',
     pushed_at: '2019-05-15T15:20:13Z',
-    git_url: 'git://github.com/Enterprise/Hello-World.git',
-    ssh_url: 'git@github.com:Enterprise/Hello-World.git',
-    clone_url: 'https://github.com/Enterprise/Hello-World.git',
-    svn_url: 'https://github.com/Enterprise/Hello-World',
+    git_url: 'git://github.com/getsentry/Hello-World.git',
+    ssh_url: 'git@github.com:getsentry/Hello-World.git',
+    clone_url: 'https://github.com/getsentry/Hello-World.git',
+    svn_url: 'https://github.com/getsentry/Hello-World',
     homepage: null,
     size: 0,
     stargazers_count: 0,

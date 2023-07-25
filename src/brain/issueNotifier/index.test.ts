@@ -96,7 +96,7 @@ describe('issueNotifier Tests', function () {
         expect(bolt.client.chat.postMessage).toBeCalledTimes(NUM_CHANNELS);
         for (let i = 1; i <= NUM_CHANNELS; i++) {
           expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
-            text: '⏲ A wild issue has appeared! <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+            text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
             channel: channelId(i),
             unfurl_links: false,
             unfurl_media: false,
@@ -126,7 +126,7 @@ describe('issueNotifier Tests', function () {
       });
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
         channel: 'CHNLIDRND2',
-        text: '⏲ A wild issue has appeared! <https://github.com/Enterprise/Hello-World/issues/1|#1 &lt;Title with &lt; and &gt; characters&gt;>',
+        text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 &lt;Title with &lt; and &gt; characters&gt;>',
         unfurl_links: false,
         unfurl_media: false,
       });
@@ -146,7 +146,7 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).toBeCalledTimes(0);
       expect(bolt.client.chat.postMessage).not.toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
-        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        text: '⏲ Issue ready to route: <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
         unfurl_links: false,
         unfurl_media: false,
       });
@@ -168,7 +168,7 @@ describe('issueNotifier Tests', function () {
       expect(bolt.client.chat.postMessage).toBeCalledTimes(1);
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
         channel: 'C02KHRNRZ1B',
-        text: '⏲ Issue ready to route: <https://github.com/Enterprise/Hello-World/issues/1|#1 Spelling error in the README file>',
+        text: '⏲ Issue ready to route: <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
         unfurl_links: false,
         unfurl_media: false,
       });
