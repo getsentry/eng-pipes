@@ -1,20 +1,20 @@
 zer-ner:
   appAuth:
     appId: '53'
-    privateKey: ''
+    privateKey: 'GH_KEY_BLAH'
   project:
-    nodeId: ''
+    nodeId: 'bloo'
     fieldIds:
-      productArea: ''
-      status: ''
-      responseDue: ''
-getsentry:
+      productArea: 'blee'
+      status: 'blar'
+      responseDue: 'blye'
+hurple:
   appAuth:
     appId: 42
-    privateKey: ''
+    privateKey: 'GH_KEY_ZAR'
   project:
-    nodeId: ''
+    nodeId: 'zer'
     fieldIds:
-      productArea: ''
-      status: ''
-      responseDue: ''
+      productArea: 'nar'
+      status: 'ner'
+      responseDue: 'fly'

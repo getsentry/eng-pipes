@@ -63,26 +63,32 @@ export class GitHubOrgs {
 
 // Loader - called in @/config to populate the GH_ORGS global.
 
-export function loadGitHubOrgs(env, local: string = '') {
-  const configs = {
-    ...yaml.load(fs.readFileSync('github-orgs.yml')),
-    ...(fs.existsSync(local) ? yaml.load(fs.readFileSync(local)) : {}),
-  };
+export function loadGitHubOrgs(env) {
+  let configs = {};
+  const filepath = env.GH_ORGS_YML || 'github-orgs.yml';
+  if (filepath) {
+    configs = yaml.load(fs.readFileSync(filepath));
+  }
 
+  // Do a little in-place cleanup.
   for (const _config of Object.values(configs)) {
     const config = _config as GitHubOrgConfig;
+
+    // IDs
     const appId = parseInt(config.appAuth.appId, 10);
     if (Number.isNaN(appId)) {
       throw `appId '${config.appAuth.appId}' is not a number`;
     }
     config.appAuth.appId = appId;
-    const keyKey = config.appAuth.privateKey;
-    const keyish = env[keyKey];
+
+    // Key
+    const keyEnvVarName = config.appAuth.privateKey;
+    const keyFromEnv = env[keyEnvVarName];
     let key;
-    if (keyish) {
-      key = keyish.replace(/\\n/g, '\n');
+    if (keyFromEnv) {
+      key = keyFromEnv.replace(/\\n/g, '\n');
     } else {
-      key = `No key found in '${keyKey}'`;
+      key = `No key found in '${keyEnvVarName}'`;
     }
     config.appAuth.privateKey = key;
   }

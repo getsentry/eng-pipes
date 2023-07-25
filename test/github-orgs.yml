@@ -1,0 +1,10 @@
+getsentry:
+  appAuth:
+    appId: -1
+    privateKey: 'STUB'
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''

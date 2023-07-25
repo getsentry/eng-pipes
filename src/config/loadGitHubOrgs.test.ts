@@ -1,54 +1,44 @@
-// Order of imports matters here, and the linter will change the order if we're
-// not careful.
-import { GETSENTRY_ORG } from './index';
+// Magic incantation. I don't have time to get to the bottom of this, but for
+// some reason the following two lines allow the import machinery to function
+// as desired. Without this, loadGitHubOrgs is undefined in config/index.ts.
+import { DRY_RUN } from '.';
+DRY_RUN; // Yes, this is necessary. 🧙
+
 import { loadGitHubOrgs } from './loadGitHubOrgs';
 
 describe('loadGitHubOrgs', function () {
   it('basically works', async function () {
-    const expected = {
-      orgs: new Map([
-        [
-          'getsentry',
-          {
-            slug: 'getsentry',
-            appAuth: {
-              appId: 66573,
-              privateKey: "No key found in 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'",
-              installationId: undefined,
-            },
-            project: {
-              nodeId: 'PVT_kwDOABVQ184AOGW8',
-              fieldIds: {
-                productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno',
-                status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0',
-                responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg',
-              },
-            },
-            api: GETSENTRY_ORG.api,
-          },
-        ],
-      ]),
-    };
-    const actual = loadGitHubOrgs({});
-    expect(actual).toEqual(expected);
+    const orgs = loadGitHubOrgs({
+      GH_ORGS_YML: 'test/github-orgs.good.yml',
+      GH_KEY_BLAH: '--------begin----end-----------',
+    });
+    expect(orgs.get('zer-ner').appAuth.appId).toEqual(53); // tests type conversion
+    expect(orgs.get('hurple').appAuth.appId).toEqual(42);
   });
 
-  it('mixes in a key from the environment', async function () {
+  it('mixes in a private key from the environment', async function () {
     const actual = loadGitHubOrgs({
       GH_APP_PRIVATE_KEY_FOR_GETSENTRY: 'cheese',
+      GH_ORGS_YML: 'github-orgs.yml',
     }).get('getsentry').appAuth.privateKey;
     expect(actual).toEqual('cheese');
   });
 
-  it('layers in local config', async function () {
-    const orgs = loadGitHubOrgs({}, 'test/github-orgs.good.yml');
-    expect(orgs.get('zer-ner').appAuth.appId).toEqual(53); // tests type conversion
-    expect(orgs.get('getsentry').appAuth.appId).toEqual(42);
-  });
-
   it('chokes on non-numeric appId', async function () {
     expect(() => {
-      loadGitHubOrgs({}, 'test/github-orgs.bad.yml');
+      loadGitHubOrgs({
+        GH_ORGS_YML: 'test/github-orgs.bad.yml',
+      });
     }).toThrow("appId 'hoofle' is not a number");
+  });
+
+  it('chokes on a missing file', async function () {
+    expect(() => {
+      loadGitHubOrgs({
+        GH_ORGS_YML: 'test/nope-no-file-here-nada-zippo-zilch.yml',
+      });
+    }).toThrow(
+      "ENOENT: no such file or directory, open 'test/nope-no-file-here-nada-zippo-zilch.yml'"
+    );
   });
 });

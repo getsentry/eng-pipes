@@ -157,6 +157,8 @@ You'll also need to create a private key for the service account (it should down
 
 1. Copy the file `github-orgs.example.yml` to `github-orgs.local.yml`.
 
+    - Set an environment variable, `GH_ORGS_YML=github-orgs.local.yml`.
+
     - Modify it with the slug of your organization and the ID of your app.
 
     - Leave the `privateKey` as-is, it's the name of an environment variable to pull from (the main `github-orgs.yml` holds public config and is checked into version control).
@@ -164,6 +166,7 @@ You'll also need to create a private key for the service account (it should down
     - In a terminal, log into the Github CLI using `gh auth login`.
 
     - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of the project you made earlier; set `nodeId` to match.
+
     - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the IDs of the project fields you set up, and use those to populate `fieldIds`.
 
 1. Follow the steps of the "Development & tests" section below to get the server running.

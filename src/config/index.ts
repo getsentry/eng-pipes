@@ -188,12 +188,9 @@ export const FORCE_USER_TOKEN_GITHUB_CLIENT =
  * operates on whatever org--possibly `getsentry`--we find in the payloads from
  * GitHub. For those we use the GH_ORGS registry.
  */
-export const GH_ORGS: GitHubOrgs = loadGitHubOrgs(
-  process.env,
-  'github-orgs.local.yml'
-);
+export const GH_ORGS: GitHubOrgs = loadGitHubOrgs(process.env);
 export const GETSENTRY_ORG = GH_ORGS.get(
-  process.env.GETSENTRY_ORG || 'getsentry'
+  process.env.GETSENTRY_ORG_SLUG || 'getsentry'
 );
 
 /**
