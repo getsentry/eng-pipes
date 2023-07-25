@@ -2,11 +2,9 @@ import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
-import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_ORG } from '@/config';
-import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
-import { getClient } from '@api/github/getClient';
 
+import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerStaleBot } from './stalebot';
 
 type PubSubPayload = {
@@ -46,7 +44,6 @@ export const pubSubHandler = async (
   );
 
   let org,
-    octokit,
     now,
     code = 204;
   let func = new Map([
@@ -59,7 +56,6 @@ export const pubSubHandler = async (
   // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
   if (typeof func === 'function') {
     org = GETSENTRY_ORG;
-    octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
     now = moment().utc();
   } else {
     func = async () => {}; // no-op
@@ -68,7 +64,7 @@ export const pubSubHandler = async (
 
   reply.code(code);
   reply.send(); // Respond early to not block the webhook sender
-  await func(org, octokit, now);
+  await func(org, now);
   tx.finish();
 };
 

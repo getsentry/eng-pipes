@@ -61,24 +61,24 @@ describe('Triage Notification Tests', function () {
     });
 
     it('should return date populated in project field', async function () {
-      const octokit = {
+      org.api = {
         paginate: (a, b) => a(b),
         issues: { listComments: () => [] },
       };
       getIssueDueDateFromProjectSpy.mockReturnValue('2023-01-05T16:00:00.000Z');
       expect(
-        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
       ).toEqual('2023-01-05T16:00:00.000Z');
     });
     it('should return current time if unable to parse random string in project field', async function () {
-      const octokit = {
+      org.api = {
         paginate: (a, b) => a(b),
         issues: { listComments: () => [] },
       };
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('randomstring');
       expect(
-        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(
@@ -87,14 +87,14 @@ describe('Triage Notification Tests', function () {
       );
     });
     it('should return current time if unable to parse empty string in project field', async function () {
-      const octokit = {
+      org.api = {
         paginate: (a, b) => a(b),
         issues: { listComments: () => [] },
       };
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('');
       expect(
-        await getTriageSLOTimestamp(org, octokit, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(

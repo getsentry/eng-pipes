@@ -13,8 +13,6 @@ import {
 import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
 
@@ -22,7 +20,6 @@ import { issueLabelHandler } from '.';
 
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
-  let octokit;
   const org = GETSENTRY_ORG;
   const errors = jest.fn();
   let say, respond, client, ack;
@@ -71,32 +68,31 @@ describe('issueLabelHandler', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await issueLabelHandler();
-    octokit = await getClient(ClientType.App, 'Enterprise');
   });
 
   afterEach(async function () {
     fastify.close();
-    octokit.issues._labels = new Set([]);
-    octokit.issues.addLabels.mockClear();
-    octokit.issues.removeLabel.mockClear();
-    octokit.issues._comments = [];
-    octokit.issues.createComment.mockClear();
-    octokit.teams.getByName.mockClear();
+    org.api.issues._labels = new Set([]);
+    org.api.issues.addLabels.mockClear();
+    org.api.issues.removeLabel.mockClear();
+    org.api.issues._comments = [];
+    org.api.issues.createComment.mockClear();
+    org.api.teams.getByName.mockClear();
     errors.mockClear();
   });
 
   // Helpers
 
   function removeWaitingForProductOwnerLabel() {
-    octokit.issues._labels.delete(WAITING_FOR_PRODUCT_OWNER_LABEL);
+    org.api.issues._labels.delete(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
   function addWaitingForProductOwnerLabel() {
-    octokit.issues._labels.add(WAITING_FOR_PRODUCT_OWNER_LABEL);
+    org.api.issues._labels.add(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
   function removeThrows(status) {
-    octokit.issues.removeLabel.mockImplementationOnce(async () => {
+    org.api.issues.removeLabel.mockImplementationOnce(async () => {
       if (status === 404) {
         removeWaitingForProductOwnerLabel(); // pretend a previous attempt succeeded
       }
@@ -113,7 +109,7 @@ describe('issueLabelHandler', function () {
     repo = repo || 'test-ttt-simple';
     state = state || 'open';
 
-    const labels = Array.from(octokit.issues._labels, (name) => ({ name }));
+    const labels = Array.from(org.api.issues._labels, (name) => ({ name }));
     const payload: Record<string, any> = {
       sender: { login: sender || 'Skywalker' }, // default to external user
       repository: {
@@ -151,7 +147,7 @@ describe('issueLabelHandler', function () {
       'issues.labeled',
       makePayload(repo, label, undefined, state)
     );
-    octokit.issues.addLabels({ labels: [label] });
+    org.api.issues.addLabels({ labels: [label] });
   }
 
   async function addComment(repo: string, username: string, isPR?: boolean) {
@@ -183,37 +179,37 @@ describe('issueLabelHandler', function () {
   // Expectations
 
   function expectWaitingForSupport() {
-    expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+    expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
   }
 
   function expectNotWaitingForSupport() {
-    expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+    expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
   }
 
   function expectWaitingforProductOwner() {
-    expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+    expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
   }
 
   function expectNotWaitingforProductOwner() {
-    expect(octokit.issues._labels).not.toContain(
+    expect(org.api.issues._labels).not.toContain(
       WAITING_FOR_PRODUCT_OWNER_LABEL
     );
   }
 
   function expectRemoval() {
-    expect(octokit.issues.removeLabel).toBeCalled();
+    expect(org.api.issues.removeLabel).toBeCalled();
   }
 
   function expectNoRemoval() {
-    expect(octokit.issues.removeLabel).not.toBeCalled();
+    expect(org.api.issues.removeLabel).not.toBeCalled();
   }
 
   function expectAdding() {
-    expect(octokit.issues.addLabels).toBeCalled();
+    expect(org.api.issues.addLabels).toBeCalled();
   }
 
   function expectNoAdding() {
-    expect(octokit.issues.addLabels).not.toBeCalled();
+    expect(org.api.issues.addLabels).not.toBeCalled();
   }
 
   function expectError(status) {
@@ -241,7 +237,7 @@ describe('issueLabelHandler', function () {
       await createIssue();
       expectWaitingforProductOwner();
       expectAdding();
-      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
 
@@ -249,7 +245,7 @@ describe('issueLabelHandler', function () {
       await createIssue(undefined, 'Troi');
       expectWaitingforProductOwner();
       expectAdding();
-      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
 
@@ -347,10 +343,10 @@ describe('issueLabelHandler', function () {
     it('adds `Status: Unrouted` and `Waiting for: Support` to new issues', async function () {
       await createIssue('sentry-docs');
       expectWaitingForSupport();
-      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
@@ -359,10 +355,10 @@ describe('issueLabelHandler', function () {
     it('adds `Status: Unrouted` and `Waiting for: Support` for GTM users', async function () {
       await createIssue('sentry-docs', 'Troi');
       expectWaitingForSupport();
-      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
@@ -371,16 +367,16 @@ describe('issueLabelHandler', function () {
     it('skips adding `Waiting for: Support` for internal users', async function () {
       await createIssue('sentry-docs', 'Picard');
       expectNotWaitingForSupport();
-      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._comments).toEqual([]);
+      expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._comments).toEqual([]);
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Waiting for: Support` in untracked repos', async function () {
       await createIssue('Pizza Sandwich');
       expectNotWaitingForSupport();
-      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._comments).toEqual([]);
+      expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._comments).toEqual([]);
       expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
@@ -389,9 +385,9 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Test', 'sentry-docs');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
@@ -402,10 +398,10 @@ describe('issueLabelHandler', function () {
       await createIssue('sentry-docs');
       await addLabel('Status: Needs More Information', 'sentry-docs');
       expectWaitingForSupport();
-      expect(octokit.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
@@ -416,9 +412,9 @@ describe('issueLabelHandler', function () {
       await addLabel('Product Area: Does Not Exist', 'sentry-docs');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      expect(octokit.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
-      expect(octokit.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
@@ -431,9 +427,9 @@ describe('issueLabelHandler', function () {
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
       await addLabel('Product Area: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
-      expect(octokit.issues._labels).not.toContain('Product Area: Test');
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
+      expect(org.api.issues._labels).not.toContain('Product Area: Test');
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
         'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
@@ -448,12 +444,12 @@ describe('issueLabelHandler', function () {
       expectNotWaitingForSupport();
       await addLabel('Waiting for: Community', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
-      expect(octokit.issues._labels).toContain('Waiting for: Community');
-      expect(octokit.issues._labels).not.toContain(
+      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
+      expect(org.api.issues._labels).toContain('Waiting for: Community');
+      expect(org.api.issues._labels).not.toContain(
         'Waiting for: Product Owner'
       );
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
         'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
@@ -468,9 +464,9 @@ describe('issueLabelHandler', function () {
       expectNotWaitingForSupport();
       await addLabel('Status: Backlog', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
-      expect(octokit.issues._labels).toContain('Product Area: Test');
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
+      expect(org.api.issues._labels).toContain('Product Area: Test');
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
@@ -484,9 +480,9 @@ describe('issueLabelHandler', function () {
       expectNotWaitingForSupport();
       await addLabel('Status: In Progress', 'sentry-docs');
       await addLabel('Product Area: Rerouted', 'sentry-docs');
-      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
-      expect(octokit.issues._labels).toContain('Product Area: Test');
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
+      expect(org.api.issues._labels).toContain('Product Area: Test');
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
@@ -499,9 +495,9 @@ describe('issueLabelHandler', function () {
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
       await addLabel('Product Area: Rerouted', 'sentry-docs', 'closed');
-      expect(octokit.issues._labels).toContain('Product Area: Rerouted');
-      expect(octokit.issues._labels).toContain('Product Area: Test');
-      expect(octokit.issues._comments).toEqual([
+      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
+      expect(org.api.issues._labels).toContain('Product Area: Test');
+      expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
@@ -535,15 +531,15 @@ describe('issueLabelHandler', function () {
     it('should remove `Waiting for: Product Owner` label when another `Waiting for: *` label is added', async function () {
       await setupIssue();
 
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set([WAITING_FOR_PRODUCT_OWNER_LABEL, 'Product Area: Test'])
       );
       await addLabel('Waiting for: Community', 'sentry-docs');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       await addLabel('Waiting for: Support', 'sentry-docs');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
@@ -562,7 +558,7 @@ describe('issueLabelHandler', function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       await addComment('sentry-docs', 'Picard');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
@@ -581,7 +577,7 @@ describe('issueLabelHandler', function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       await addComment('sentry-docs', 'Troi');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
@@ -599,13 +595,13 @@ describe('issueLabelHandler', function () {
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
       await createPR('sentry-docs');
       await addComment('sentry-docs', 'Skywalker', true);
-      expect(octokit.issues._labels).toEqual(new Set([]));
+      expect(org.api.issues._labels).toEqual(new Set([]));
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
       await setupIssue();
       await addComment('sentry-docs', 'Skywalker');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
@@ -626,7 +622,7 @@ describe('issueLabelHandler', function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
       await addComment('sentry-docs', 'Skywalker');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
@@ -691,7 +687,7 @@ describe('issueLabelHandler', function () {
       await setupIssue();
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'sentry-docs');
       await addComment('sentry-docs', 'Picard');
-      expect(octokit.issues._labels).toEqual(
+      expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(

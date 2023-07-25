@@ -5,8 +5,7 @@ import {
   SlackEventMiddlewareArgs,
 } from '@slack/bolt';
 
-import { ClientType } from '@/api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { GH_ORGS } from '@/config';
 import { bolt } from '@api/slack';
 
 async function handler({ event, say, client }) {
@@ -22,9 +21,9 @@ async function handler({ event, say, client }) {
     return;
   }
 
-  const [, owner, repo, pullRequestNumber] = matches;
+  const [, orgSlug, repo, pullRequestNumber] = matches;
 
-  const octokit = await getClient(ClientType.App, owner);
+  const org = GH_ORGS.get(orgSlug);
 
   const initialMessagePromise = say({
     thread_ts: event.ts,
@@ -43,8 +42,8 @@ async function handler({ event, say, client }) {
   let pr;
 
   try {
-    pr = await octokit.pulls.get({
-      owner,
+    pr = await org.api.pulls.get({
+      owner: org.slug,
       repo,
       pull_number: Number(pullRequestNumber),
     });
@@ -54,8 +53,8 @@ async function handler({ event, say, client }) {
     return;
   }
 
-  const resp = await octokit.actions.listWorkflowRunsForRepo({
-    owner,
+  const resp = await org.api.actions.listWorkflowRunsForRepo({
+    owner: org.slug,
     repo,
     branch: pr.data.head.ref,
   });
@@ -79,8 +78,8 @@ async function handler({ event, say, client }) {
   try {
     await Promise.all(
       workflowsToCancel.map((run) =>
-        octokit.actions.cancelWorkflowRun({
-          owner,
+        org.api.actions.cancelWorkflowRun({
+          owner: org.slug,
           repo,
           run_id: run.id,
         })

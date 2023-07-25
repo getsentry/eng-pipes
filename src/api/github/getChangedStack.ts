@@ -1,8 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
 import { GETSENTRY_ORG } from '@/config';
-import { getClient } from '@api/github/getClient';
 
 const FRONTEND_CHANGE_CHECK_NAME = 'only frontend changes';
 const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';
@@ -13,14 +11,15 @@ const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';
  */
 export async function getChangedStack(ref: string, repo: string) {
   try {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-
-    const check_runs = await octokit.paginate(octokit.checks.listForRef, {
-      owner: GETSENTRY_ORG.slug,
-      repo,
-      ref,
-      per_page: 100,
-    });
+    const check_runs = await GETSENTRY_ORG.api.paginate(
+      GETSENTRY_ORG.api.checks.listForRef,
+      {
+        owner: GETSENTRY_ORG.slug,
+        repo,
+        ref,
+        per_page: 100,
+      }
+    );
 
     const checkRuns = check_runs.filter(
       ({ name, conclusion }) =>

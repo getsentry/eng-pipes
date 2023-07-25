@@ -6,8 +6,6 @@ import {
   SENTRY_REPOS_WITHOUT_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
@@ -54,13 +52,11 @@ export async function markWaitingForProductOwner({
   }
 
   // New issues get an Untriaged label.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
@@ -104,11 +100,9 @@ export async function markNotWaitingForProductOwner({
   }
 
   // Remove Untriaged label when triaged.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   try {
-    await octokit.issues.removeLabel({
-      owner: owner,
+    await org.api.issues.removeLabel({
+      owner: org.slug,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
       name: WAITING_FOR_PRODUCT_OWNER_LABEL,

@@ -1,8 +1,7 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -10,7 +9,7 @@ import { ghaCancel } from '.';
 
 describe('gha-test', function () {
   let fastify;
-  let octokit;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -20,24 +19,23 @@ describe('gha-test', function () {
   });
   beforeEach(async function () {
     await db('users').delete();
-    octokit = await getClient(ClientType.App, 'getsentry');
     fastify = await buildServer(false);
     ghaCancel();
     // @ts-ignore
     bolt.client.chat.postMessage.mockClear();
     // @ts-ignore
     bolt.client.chat.update.mockClear();
-    octokit.pulls.get.mockClear();
-    octokit.actions.listWorkflowRunsForRepo.mockClear();
+    org.api.pulls.get.mockClear();
+    org.api.actions.listWorkflowRunsForRepo.mockClear();
 
-    octokit.pulls.get.mockImplementation(() => ({
+    org.api.pulls.get.mockImplementation(() => ({
       data: {
         head: {
           ref: 'head_ref',
         },
       },
     }));
-    octokit.actions.listWorkflowRunsForRepo.mockImplementation(() => ({
+    org.api.actions.listWorkflowRunsForRepo.mockImplementation(() => ({
       data: {
         workflow_runs: [
           {
@@ -66,8 +64,8 @@ describe('gha-test', function () {
     bolt.client.chat.postMessage.mockClear();
     // @ts-ignore
     bolt.client.chat.update.mockClear();
-    octokit.pulls.get.mockClear();
-    octokit.actions.listWorkflowRunsForRepo.mockClear();
+    org.api.pulls.get.mockClear();
+    org.api.actions.listWorkflowRunsForRepo.mockClear();
     await db('users').delete();
   });
 
@@ -86,29 +84,29 @@ describe('gha-test', function () {
     );
 
     // Fetch pull request details
-    expect(octokit.pulls.get).toHaveBeenCalledTimes(1);
-    expect(octokit.pulls.get).toHaveBeenCalledWith({
+    expect(org.api.pulls.get).toHaveBeenCalledTimes(1);
+    expect(org.api.pulls.get).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
       pull_number: 123,
     });
 
     // List workflow runs for branch
-    expect(octokit.actions.listWorkflowRunsForRepo).toHaveBeenCalledTimes(1);
-    expect(octokit.actions.listWorkflowRunsForRepo).toHaveBeenCalledWith({
+    expect(org.api.actions.listWorkflowRunsForRepo).toHaveBeenCalledTimes(1);
+    expect(org.api.actions.listWorkflowRunsForRepo).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
       branch: 'head_ref',
     });
 
     // Jobs cancelled
-    expect(octokit.actions.cancelWorkflowRun).toHaveBeenCalledTimes(2);
-    expect(octokit.actions.cancelWorkflowRun).toHaveBeenCalledWith({
+    expect(org.api.actions.cancelWorkflowRun).toHaveBeenCalledTimes(2);
+    expect(org.api.actions.cancelWorkflowRun).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
       run_id: 2,
     });
-    expect(octokit.actions.cancelWorkflowRun).toHaveBeenCalledWith({
+    expect(org.api.actions.cancelWorkflowRun).toHaveBeenCalledWith({
       owner: 'getsentry',
       repo: 'sentry',
       run_id: 3,
@@ -137,7 +135,7 @@ describe('gha-test', function () {
       })
     );
 
-    expect(octokit.pulls.get).toHaveBeenCalledTimes(0);
+    expect(org.api.pulls.get).toHaveBeenCalledTimes(0);
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         text: 'Unable to find PR to cancel, please use the full PR URL',

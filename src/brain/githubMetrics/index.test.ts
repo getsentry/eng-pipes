@@ -22,9 +22,7 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import { DRY_RUN } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { DRY_RUN, GETSENTRY_ORG } from '@/config';
 import { db } from '@utils/db';
 import * as dbFunctions from '@utils/metrics';
 
@@ -48,7 +46,7 @@ const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
 
 describe('github webhook', function () {
   let fastify: Fastify;
-  let octokit;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async () => {
     await db.migrate.latest();
@@ -66,7 +64,6 @@ describe('github webhook', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = await getClient(ClientType.App, 'getsentry');
     metrics();
   });
 
@@ -74,7 +71,7 @@ describe('github webhook', function () {
     fastify.close();
     (dbFunctions.insertOss as jest.Mock).mockClear();
     (dbFunctions.insert as jest.Mock).mockClear();
-    octokit.orgs.checkMembershipForUser.mockClear();
+    org.api.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();

@@ -1,17 +1,12 @@
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { GETSENTRY_ORG } from '@/config';
 
 import { getAnnotations } from './getAnnotations';
 
 describe('getAnnotations', function () {
-  let octokit;
-
-  beforeAll(async function () {
-    octokit = await getClient(ClientType.App, 'getsentry');
-  });
+  const org = GETSENTRY_ORG;
 
   beforeEach(function () {
-    octokit.checks.listAnnotations.mockClear();
+    org.api.checks.listAnnotations.mockClear();
   });
 
   it('returns annotations without "Process completed with exit code..."', async function () {
@@ -45,7 +40,7 @@ describe('getAnnotations', function () {
   });
 
   it('returns annotation with only "Process completed with exit code..."', async function () {
-    octokit.checks.listAnnotations.mockImplementation(() => ({
+    org.api.checks.listAnnotations.mockImplementation(() => ({
       data: [
         {
           path: '.github',
@@ -90,7 +85,7 @@ describe('getAnnotations', function () {
   });
 
   it('returns annotation with "Process completed with exit code...", when there are only warning annotations', async function () {
-    octokit.checks.listAnnotations.mockImplementation(() => ({
+    org.api.checks.listAnnotations.mockImplementation(() => ({
       data: [
         {
           path: '.github',
@@ -161,7 +156,7 @@ describe('getAnnotations', function () {
   });
 
   it('does not ignore annotations from a manually canceled job', async function () {
-    octokit.checks.listAnnotations.mockImplementation(() => ({
+    org.api.checks.listAnnotations.mockImplementation(() => ({
       data: [
         {
           path: '.github',
@@ -207,7 +202,7 @@ describe('getAnnotations', function () {
   });
 
   it('ignores annotations from canceled jobs due to another failing job', async function () {
-    octokit.checks.listAnnotations.mockImplementation(() => ({
+    org.api.checks.listAnnotations.mockImplementation(() => ({
       data: [
         {
           path: '.github',

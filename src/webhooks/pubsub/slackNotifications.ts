@@ -1,4 +1,3 @@
-import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
@@ -123,7 +122,6 @@ const addOrderingToSlackMessageItem = (
 
 export const getTriageSLOTimestamp = async (
   org: GitHubOrg,
-  octokit: Octokit,
   repo: string,
   issueNumber: number,
   issueNodeId: string
@@ -385,7 +383,6 @@ export const constructSlackMessage = (
 
 export const notifyProductOwnersForUntriagedIssues = async (
   org: GitHubOrg,
-  octokit: Octokit,
   now: moment.Moment
 ) => {
   // 1. Get all open, untriaged issues
@@ -396,13 +393,16 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    const untriagedIssues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: GETSENTRY_ORG.slug,
-      repo,
-      state: 'open',
-      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
-      per_page: GH_API_PER_PAGE,
-    });
+    const untriagedIssues = await GETSENTRY_ORG.api.paginate(
+      GETSENTRY_ORG.api.issues.listForRepo,
+      {
+        owner: GETSENTRY_ORG.slug,
+        repo,
+        state: 'open',
+        labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
+        per_page: GH_API_PER_PAGE,
+      }
+    );
 
     const issuesWithSLOInfo = untriagedIssues
       .filter(filterIssuesOnBacklog)
@@ -413,7 +413,6 @@ export const notifyProductOwnersForUntriagedIssues = async (
         productAreaLabel: getIssueProductAreaLabel(issue),
         triageBy: await getTriageSLOTimestamp(
           org,
-          octokit,
           repo,
           issue.number,
           issue.node_id

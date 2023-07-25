@@ -3,7 +3,6 @@ import * as Sentry from '@sentry/node';
 
 import {
   BACKLOG_LABEL,
-  GETSENTRY_ORG,
   GH_ORGS,
   IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
@@ -12,8 +11,6 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
@@ -74,39 +71,37 @@ export async function markWaitingForSupport({
   const issueNumber = payload.issue.number;
 
   // New issues get a Waiting for: Support label.
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_SUPPORT_LABEL],
   });
 
-  await octokit.issues.createComment({
-    owner,
+  await org.api.issues.createComment({
+    owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
-    body: `Assigning to @${GETSENTRY_ORG.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
+    body: `Assigning to @${org.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
   });
 
   tx.finish();
 }
 
-async function routeIssue(octokit, productAreaLabelName) {
+async function routeIssue(org, productAreaLabelName) {
   try {
     const productArea = productAreaLabelName?.substr(
       PRODUCT_AREA_LABEL_PREFIX.length
     );
     const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
-    await octokit.teams.getByName({
-      org: GETSENTRY_ORG.slug,
+    await org.api.teams.getByName({
+      org: org.slug,
       team_slug: ghTeamSlug,
     }); // expected to throw if team doesn't exist
-    return `Routing to @${GETSENTRY_ORG.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
-    return `Failed to route for ${productAreaLabelName}. Defaulting to @${GETSENTRY_ORG.slug}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   }
 }
 
@@ -130,8 +125,6 @@ export async function markNotWaitingForSupport({
   const { issue, label } = payload;
   const productAreaLabel = label;
   const productAreaLabelName = productAreaLabel?.name || PRODUCT_AREA_UNKNOWN;
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const labelsToRemove: string[] = [];
   const labelNames = issue?.labels?.map((label) => label.name) || [];
   const isBeingRoutedBySupport = labelNames.includes(WAITING_FOR_SUPPORT_LABEL);
@@ -145,8 +138,8 @@ export async function markNotWaitingForSupport({
 
   for (const label of labelsToRemove) {
     try {
-      await octokit.issues.removeLabel({
-        owner: owner,
+      await org.api.issues.removeLabel({
+        owner: org.slug,
         repo: payload.repository.name,
         issue_number: payload.issue.number,
         name: label,
@@ -167,18 +160,18 @@ export async function markNotWaitingForSupport({
 
   // Only retriage issues if support is routing
   if (isBeingRoutedBySupport) {
-    await octokit.issues.addLabels({
-      owner: owner,
+    await org.api.issues.addLabels({
+      owner: org.slug,
       repo: payload.repository.name,
       issue_number: payload.issue.number,
       labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
     });
   }
 
-  const comment = await routeIssue(octokit, productAreaLabelName);
+  const comment = await routeIssue(org, productAreaLabelName);
 
-  await octokit.issues.createComment({
-    owner,
+  await org.api.issues.createComment({
+    owner: org.slug,
     repo: payload.repository.name,
     issue_number: payload.issue.number,
     body: comment,

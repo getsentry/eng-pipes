@@ -2,8 +2,6 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
@@ -60,8 +58,6 @@ export async function syncLabelsWithProjectField({
     return;
   }
 
-  const owner = payload?.organization?.login || '';
-  const octokit = await getClient(ClientType.App, owner);
   const fieldName = getFieldName(payload, org);
   const fieldValue = await org.getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
@@ -77,8 +73,8 @@ export async function syncLabelsWithProjectField({
     payload.projects_v2_item.content_node_id
   );
 
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: issueInfo.repo,
     issue_number: issueInfo.number,
     labels: [
