@@ -13,11 +13,6 @@ import {
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
 import {
-  addIssueToGlobalIssuesProject,
-  modifyDueByDate,
-  modifyProjectIssueField,
-} from '@api/github/helpers';
-import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
 } from '@utils/businessHours';
@@ -93,15 +88,13 @@ export async function updateCommunityFollowups({
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     repo,
     issueNumber
   );
 
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
     org.project.status_field_id
@@ -152,15 +145,13 @@ export async function ensureOneWaitingForLabel({
     });
   }
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     repo,
     issueNumber
   );
 
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     labelName,
     org.project.status_field_id
@@ -181,8 +172,7 @@ export async function ensureOneWaitingForLabel({
     timeToRespondBy = '';
   }
 
-  await modifyDueByDate(
-    org,
+  await org.modifyDueByDate(
     itemId,
     timeToRespondBy,
     org.project.response_due_date_field_id

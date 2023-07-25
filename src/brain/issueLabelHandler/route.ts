@@ -14,10 +14,6 @@ import {
 } from '@/config';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import {
-  addIssueToGlobalIssuesProject,
-  modifyProjectIssueField,
-} from '@api/github/helpers';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
@@ -192,8 +188,7 @@ export async function markNotWaitingForSupport({
    * We'll try adding the issue to our global issues project. If it already exists, the existing ID will be returned
    * https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#adding-an-item-to-a-project
    */
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     payload.repository.name,
     payload.issue.number
@@ -201,8 +196,7 @@ export async function markNotWaitingForSupport({
   const productArea = productAreaLabelName?.substr(
     PRODUCT_AREA_LABEL_PREFIX.length
   );
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     productArea,
     org.project.product_area_field_id

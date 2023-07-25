@@ -6,7 +6,6 @@ import { Fastify } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import * as helpers from '@api/github/helpers';
 import { db } from '@utils/db';
 
 import { projectsHandler } from '.';
@@ -21,7 +20,7 @@ describe('projectsHandler', function () {
     await db.migrate.latest();
     githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
-    jest.spyOn(helpers, 'getAllProjectFieldNodeIds').mockReturnValue({
+    jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
       'Waiting for: Community': 3,
@@ -85,11 +84,11 @@ describe('projectsHandler', function () {
       octokitIssuesSpy;
     beforeAll(function () {
       getKeyValueFromProjectFieldSpy = jest.spyOn(
-        helpers,
+        org,
         'getKeyValueFromProjectField'
       );
       getIssueDetailsFromNodeIdSpy = jest.spyOn(
-        helpers,
+        org,
         'getIssueDetailsFromNodeId'
       );
     });

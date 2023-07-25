@@ -3,7 +3,6 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import { GETSENTRY_ORG } from '@/config';
-import * as helpers from '@api/github/helpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -50,10 +49,10 @@ describe('Triage Notification Tests', function () {
     };
     beforeAll(function () {
       jest
-        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('issueNodeIdInProject');
       getIssueDueDateFromProjectSpy = jest.spyOn(
-        helpers,
+        org,
         'getIssueDueDateFromProject'
       );
     });

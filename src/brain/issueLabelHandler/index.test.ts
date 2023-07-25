@@ -15,7 +15,6 @@ import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import { ClientType } from '@api/github/clientType';
 import { getClient } from '@api/github/getClient';
-import * as helpers from '@api/github/helpers';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
 
@@ -55,7 +54,7 @@ describe('issueLabelHandler', function () {
       },
     };
     ack = jest.fn();
-    jest.spyOn(helpers, 'getAllProjectFieldNodeIds').mockReturnValue({
+    jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
     });
@@ -231,7 +230,7 @@ describe('issueLabelHandler', function () {
     let addIssueToGlobalIssuesProjectSpy;
     beforeAll(function () {
       addIssueToGlobalIssuesProjectSpy = jest
-        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('itemId');
     });
     afterEach(function () {
@@ -333,12 +332,12 @@ describe('issueLabelHandler', function () {
     let addIssueToGlobalIssuesProjectSpy, modifyProjectIssueFieldSpy;
     beforeAll(function () {
       addIssueToGlobalIssuesProjectSpy = jest
-        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue({
           addProjectV2ItemById: { item: { id: 'PROJECT_ID' } },
         });
       modifyProjectIssueFieldSpy = jest
-        .spyOn(helpers, 'modifyProjectIssueField')
+        .spyOn(org, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
     });
     afterEach(function () {
@@ -516,13 +515,13 @@ describe('issueLabelHandler', function () {
       addIssueToGlobalIssuesProjectSpy;
     beforeAll(function () {
       modifyProjectIssueFieldSpy = jest
-        .spyOn(helpers, 'modifyProjectIssueField')
+        .spyOn(org, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
       modifyDueByDateSpy = jest
-        .spyOn(helpers, 'modifyDueByDate')
+        .spyOn(org, 'modifyDueByDate')
         .mockImplementation(jest.fn());
       addIssueToGlobalIssuesProjectSpy = jest
-        .spyOn(helpers, 'addIssueToGlobalIssuesProject')
+        .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('itemId');
     });
     afterEach(function () {
@@ -548,13 +547,11 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2022-12-20T00:00:00.000Z',
         org.project.response_due_date_field_id
@@ -569,13 +566,11 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '',
         org.project.response_due_date_field_id
@@ -590,13 +585,11 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_COMMUNITY_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '',
         org.project.response_due_date_field_id
@@ -618,13 +611,11 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
         org.project.response_due_date_field_id
@@ -641,13 +632,11 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
         org.project.response_due_date_field_id
@@ -661,13 +650,11 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
         org.project.response_due_date_field_id
@@ -685,13 +672,11 @@ describe('issueLabelHandler', function () {
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_SUPPORT_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2023-06-20T00:00:00.000Z',
         org.project.response_due_date_field_id
@@ -710,13 +695,11 @@ describe('issueLabelHandler', function () {
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         org.project.status_field_id
       );
       expect(modifyDueByDateSpy).toHaveBeenLastCalledWith(
-        org,
         'itemId',
         '2022-12-21T00:00:00.000Z',
         org.project.response_due_date_field_id

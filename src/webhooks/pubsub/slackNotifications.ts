@@ -12,10 +12,6 @@ import {
 } from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
-import {
-  addIssueToGlobalIssuesProject,
-  getIssueDueDateFromProject,
-} from '@api/github/helpers';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -132,13 +128,12 @@ export const getTriageSLOTimestamp = async (
   issueNumber: number,
   issueNodeId: string
 ) => {
-  const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
-    org,
+  const issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
     issueNodeId,
     repo,
     issueNumber
   );
-  const dueByDate = await getIssueDueDateFromProject(org, issueNodeIdInProject);
+  const dueByDate = await org.getIssueDueDateFromProject(issueNodeIdInProject);
   if (dueByDate == null || !moment(dueByDate).isValid()) {
     // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(
