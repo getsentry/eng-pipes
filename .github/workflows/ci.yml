@@ -129,6 +129,7 @@ jobs:
           GH_APP_PRIVATE_KEY_FOR_GETSENTRY: ${{ secrets.GH_APP_PRIVATE_KEY_FOR_GETSENTRY}}
           GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
           GH_WEBHOOK_SECRET: ${{ secrets.GH_WEBHOOK_SECRET }}
+          GH_WEBHOOK_SECRET_ALT: ${{ secrets.GH_WEBHOOK_SECRET_ALT }}
           SENTRY_WEBPACK_WEBHOOK_SECRET: ${{ secrets.SENTRY_WEBPACK_WEBHOOK_SECRET }}
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
