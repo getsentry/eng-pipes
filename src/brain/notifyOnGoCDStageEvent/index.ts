@@ -26,7 +26,7 @@ import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
   FINAL_STAGE_NAMES,
-  firstMaterialSHA,
+  firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
@@ -279,7 +279,7 @@ export async function handler(resBody: GoCDResponse) {
     const commits = await getCommitsInDeployment(
       GETSENTRY_ORG,
       sha,
-      firstMaterialSHA(latestDeploy)
+      firstGitMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(pipeline, commits);
 
