@@ -1,8 +1,6 @@
 import { Webhooks } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { GH_USER_TOKEN } from '../../config';
-
 import { OctokitWithRetries } from './octokitWithRetries';
 
 const githubEvents = new Webhooks({
@@ -19,7 +17,7 @@ function defaultErrorHandler(error) {
 
 githubEvents.onError(defaultErrorHandler);
 
-function makeUserTokenClient(token: string = GH_USER_TOKEN) {
+function makeUserTokenClient(token: string) {
   if (!token) {
     throw new Error('No token. Try setting GH_USER_TOKEN.');
   }

@@ -1,3 +1,5 @@
+import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
+
 import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
@@ -114,7 +116,9 @@ export const MAX_ROUTE_DAYS = 1;
  * If you set FORCE... we will *always* use user auth instead of app
  * installation auth, to make dev life easier.
  */
-export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
+export const GH_USER_CLIENT = makeUserTokenClient(
+  process.env.GH_USER_TOKEN || ''
+);
 export const FORCE_USER_TOKEN_GITHUB_CLIENT =
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true' ||
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == '1';
