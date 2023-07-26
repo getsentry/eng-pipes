@@ -1,4 +1,4 @@
-import { makeUserTokenClient } from '@api/github';
+import { makeUserTokenClient } from '@api/github/makeUserTokenClient';
 import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
 
 describe('makeUserTokenClient', function () {
