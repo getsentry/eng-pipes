@@ -6,6 +6,7 @@ IMAGE=gcr.io/${PROJECT}/product-eng-webhooks
 env_vars="ENV=production,"
 env_vars="${env_vars}GH_APP_PRIVATE_KEY_FOR_GETSENTRY=${GH_APP_PRIVATE_KEY_FOR_GETSENTRY},"
 env_vars="${env_vars}GH_WEBHOOK_SECRET=${GH_WEBHOOK_SECRET},"
+env_vars="${env_vars}GH_WEBHOOK_SECRET_ALT=${GH_WEBHOOK_SECRET_ALT},"
 env_vars="${env_vars}SLACK_SIGNING_SECRET=${SLACK_SIGNING_SECRET},"
 env_vars="${env_vars}SLACK_BOT_USER_ACCESS_TOKEN=${SLACK_BOT_USER_ACCESS_TOKEN},"
 env_vars="${env_vars}VERSION=${VERSION},"

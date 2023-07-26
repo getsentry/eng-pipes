@@ -6,7 +6,8 @@ import { GH_USER_TOKEN } from '../../config';
 import { OctokitWithRetries } from './octokitWithRetries';
 
 const githubEvents = new Webhooks({
-  secret: process.env.GH_WEBHOOK_SECRET || '',
+  secret:
+    process.env.GH_WEBHOOK_SECRET || process.env.GH_WEBHOOK_SECRET_ALT || '',
 });
 
 // Set up default error handling in such a way that tests can override it.
