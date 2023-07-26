@@ -2,6 +2,7 @@ zer-ner:
   appAuth:
     appId: '53'
     privateKey: 'GH_KEY_BLAH'
+    installationId: 54
   project:
     nodeId: 'bloo'
     fieldIds:
@@ -12,6 +13,7 @@ hurple:
   appAuth:
     appId: 42
     privateKey: 'GH_KEY_ZAR'
+    installationId: 420
   project:
     nodeId: 'zer'
     fieldIds:
