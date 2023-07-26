@@ -11,10 +11,9 @@ import {
 
 // We can't use @ to import config here or we get an error from jest due to
 // circular import or something. Try it out if you want. :)
-import { FORCE_USER_TOKEN_GITHUB_CLIENT } from '../../config';
+import { FORCE_USER_TOKEN_GITHUB_CLIENT, GH_USER_CLIENT } from '../../config';
 
 import { OctokitWithRetries } from './octokitWithRetries';
-import { makeUserTokenClient } from '.';
 
 export class GitHubOrg {
   slug: string;
@@ -46,7 +45,7 @@ export class GitHubOrg {
 
     if (FORCE_USER_TOKEN_GITHUB_CLIENT) {
       // Hack for easier dev, avoids setting up a test org.
-      this.api = makeUserTokenClient();
+      this.api = GH_USER_CLIENT;
     } else {
       this.api = new OctokitWithRetries({
         authStrategy: createAppAuth,
