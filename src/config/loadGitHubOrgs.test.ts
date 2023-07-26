@@ -48,4 +48,16 @@ describe('loadGitHubOrgs', function () {
       "ENOENT: no such file or directory, open 'test/nope-no-file-here-nada-zippo-zilch.yml'"
     );
   });
+
+  it('works with knex migrations', async function () {
+    const orig = process.cwd;
+    process.cwd = jest.fn(() => '/blah/blah/blah/src');
+    const curdir = orig().split('/').pop();
+    const orgs = loadGitHubOrgs({
+      GH_ORGS_YML: `${curdir}/test/github-orgs.good.yml`,
+    });
+    expect(orgs.get('hurple').appAuth.appId).toEqual(42);
+    expect(process.cwd).toHaveBeenCalled();
+    process.cwd = orig;
+  });
 });
