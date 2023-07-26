@@ -341,7 +341,7 @@ describe('issueLabelHandler', function () {
     });
 
     it('adds `Status: Unrouted` and `Waiting for: Support` to new issues', async function () {
-      await createIssue('sentry-docs');
+      await createIssue('routing-repo');
       expectWaitingForSupport();
       expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
@@ -353,7 +353,7 @@ describe('issueLabelHandler', function () {
     });
 
     it('adds `Status: Unrouted` and `Waiting for: Support` for GTM users', async function () {
-      await createIssue('sentry-docs', 'Troi');
+      await createIssue('routing-repo', 'Troi');
       expectWaitingForSupport();
       expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
@@ -365,7 +365,7 @@ describe('issueLabelHandler', function () {
     });
 
     it('skips adding `Waiting for: Support` for internal users', async function () {
-      await createIssue('sentry-docs', 'Picard');
+      await createIssue('routing-repo', 'Picard');
       expectNotWaitingForSupport();
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([]);
@@ -381,8 +381,8 @@ describe('issueLabelHandler', function () {
     });
 
     it('removes waiting for support label when product area label is added', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
@@ -395,8 +395,8 @@ describe('issueLabelHandler', function () {
     });
 
     it('does not remove waiting for support label when label is added that is not a product area label', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Status: Needs More Information', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Status: Needs More Information', 'routing-repo');
       expectWaitingForSupport();
       expect(org.api.issues._labels).toContain(WAITING_FOR_SUPPORT_LABEL);
       // Simulate GitHub adding Waiting for Support Label to send webhook
@@ -408,8 +408,8 @@ describe('issueLabelHandler', function () {
     });
 
     it('should default to route to open source team if product area does not exist', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Does Not Exist', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Does Not Exist', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
@@ -422,11 +422,11 @@ describe('issueLabelHandler', function () {
     });
 
     it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      await addLabel('Product Area: Rerouted', 'routing-repo');
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).not.toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
@@ -438,12 +438,12 @@ describe('issueLabelHandler', function () {
     });
 
     it('should not reapply label `Waiting for: Product Owner` if issue changes product areas and is not waiting for support', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      await addLabel('Waiting for: Community', 'sentry-docs');
-      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      await addLabel('Waiting for: Community', 'routing-repo');
+      await addLabel('Product Area: Rerouted', 'routing-repo');
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).toContain('Waiting for: Community');
       expect(org.api.issues._labels).not.toContain(
@@ -458,12 +458,12 @@ describe('issueLabelHandler', function () {
     });
 
     it('should not reroute if Status: Backlog is exists on issue', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      await addLabel('Status: Backlog', 'sentry-docs');
-      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      await addLabel('Status: Backlog', 'routing-repo');
+      await addLabel('Product Area: Rerouted', 'routing-repo');
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
@@ -474,12 +474,12 @@ describe('issueLabelHandler', function () {
     });
 
     it('should not reroute if Status: In Progress exists on issue', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      await addLabel('Status: In Progress', 'sentry-docs');
-      await addLabel('Product Area: Rerouted', 'sentry-docs');
+      await addLabel('Status: In Progress', 'routing-repo');
+      await addLabel('Product Area: Rerouted', 'routing-repo');
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
@@ -490,11 +490,11 @@ describe('issueLabelHandler', function () {
     });
 
     it('should not reroute if issue is closed', async function () {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
       expectNotWaitingForSupport();
-      await addLabel('Product Area: Rerouted', 'sentry-docs', 'closed');
+      await addLabel('Product Area: Rerouted', 'routing-repo', 'closed');
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
@@ -524,8 +524,8 @@ describe('issueLabelHandler', function () {
       jest.clearAllMocks();
     });
     const setupIssue = async () => {
-      await createIssue('sentry-docs');
-      await addLabel('Product Area: Test', 'sentry-docs');
+      await createIssue('routing-repo');
+      await addLabel('Product Area: Test', 'routing-repo');
     };
 
     it('should remove `Waiting for: Product Owner` label when another `Waiting for: *` label is added', async function () {
@@ -534,11 +534,11 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).toEqual(
         new Set([WAITING_FOR_PRODUCT_OWNER_LABEL, 'Product Area: Test'])
       );
-      await addLabel('Waiting for: Community', 'sentry-docs');
+      await addLabel('Waiting for: Community', 'routing-repo');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
-      await addLabel('Waiting for: Support', 'sentry-docs');
+      await addLabel('Waiting for: Support', 'routing-repo');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_SUPPORT_LABEL])
       );
@@ -556,8 +556,8 @@ describe('issueLabelHandler', function () {
 
     it('should not add `Waiting for: Product Owner` label when product owner/GTM member comments and issue is waiting for community', async function () {
       await setupIssue();
-      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      await addComment('sentry-docs', 'Picard');
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Picard');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
@@ -575,8 +575,8 @@ describe('issueLabelHandler', function () {
 
     it('should not add `Waiting for: Product Owner` label when contractor comments and issue is waiting for community', async function () {
       await setupIssue();
-      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      await addComment('sentry-docs', 'Troi');
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Troi');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_COMMUNITY_LABEL])
       );
@@ -593,14 +593,14 @@ describe('issueLabelHandler', function () {
     });
 
     it('should not add `Waiting for: Product Owner` label when community member comments and issue is a PR', async function () {
-      await createPR('sentry-docs');
-      await addComment('sentry-docs', 'Skywalker', true);
+      await createPR('routing-repo');
+      await addComment('routing-repo', 'Skywalker', true);
       expect(org.api.issues._labels).toEqual(new Set([]));
     });
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
       await setupIssue();
-      await addComment('sentry-docs', 'Skywalker');
+      await addComment('routing-repo', 'Skywalker');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
@@ -620,8 +620,8 @@ describe('issueLabelHandler', function () {
 
     it('should add `Waiting for: Product Owner` label when community member comments and issue is waiting for community', async function () {
       await setupIssue();
-      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'sentry-docs');
-      await addComment('sentry-docs', 'Skywalker');
+      await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Skywalker');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
@@ -662,7 +662,7 @@ describe('issueLabelHandler', function () {
     });
 
     it('should modify time to respond by when adding `Waiting for: Support` label when calculateSLOViolationTriage returns null', async function () {
-      await createIssue('sentry-docs');
+      await createIssue('routing-repo');
       calculateSLOViolationRouteSpy.mockReturnValue(null);
       jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
@@ -685,8 +685,8 @@ describe('issueLabelHandler', function () {
 
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
       await setupIssue();
-      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'sentry-docs');
-      await addComment('sentry-docs', 'Picard');
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Picard');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );

@@ -4,16 +4,9 @@ import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
 import { triggerStaleBot } from './stalebot';
 
-jest.mock('@/config', () => {
-  const actualEnvVariables = jest.requireActual('@/config');
-  return {
-    ...actualEnvVariables,
-    SENTRY_REPOS: ['test-sentry-repo'],
-  };
-});
-
 describe('Stalebot Tests', function () {
   const org = GETSENTRY_ORG;
+  let origRepos;
 
   const issueInfo = {
     labels: [],
@@ -21,10 +14,13 @@ describe('Stalebot Tests', function () {
   };
 
   beforeEach(async function () {
+    origRepos = org.repos.all;
+    org.repos.all = ['test-sentry-repo'];
     org.api.paginate = (a, b) => a(b);
   });
 
   afterEach(async function () {
+    org.repos.all = origRepos;
     org.api.issues._labels = new Set([]);
     org.api.issues.addLabels.mockClear();
     org.api.issues.removeLabel.mockClear();

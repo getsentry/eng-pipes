@@ -1,18 +1,18 @@
 import moment from 'moment-timezone';
 
-import {
-  GETSENTRY_ORG,
-  SENTRY_REPOS,
-  STALE_LABEL,
-  WAITING_FOR_COMMUNITY_LABEL,
-} from '@/config';
+import { STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL } from '@/config';
 import { GitHubOrg } from '@api/github/org';
 
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
 const DAYS_BEFORE_CLOSE = 7;
 
-const staleStatusUpdater = async (repo: string, issues, now: moment.Moment) => {
+const staleStatusUpdater = async (
+  org: GitHubOrg,
+  repo: string,
+  issues,
+  now: moment.Moment
+) => {
   await Promise.all(
     issues.map((issue) => {
       const isPullRequest = issue.pull_request ? true : false;
@@ -22,15 +22,15 @@ const staleStatusUpdater = async (repo: string, issues, now: moment.Moment) => {
       if (issueHasStaleLabel) {
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
           // Interestingly enough, this api works for both issues and pull requests
-          return GETSENTRY_ORG.api.issues.update({
-            owner: GETSENTRY_ORG.slug,
+          return org.api.issues.update({
+            owner: org.slug,
             repo: repo,
             issue_number: issue.number,
             state: 'closed',
           });
         } else if (now.diff(issue.updated_at, 'days') < DAYS_BEFORE_CLOSE) {
-          return GETSENTRY_ORG.api.issues.removeLabel({
-            owner: GETSENTRY_ORG.slug,
+          return org.api.issues.removeLabel({
+            owner: org.slug,
             repo: repo,
             issue_number: issue.number,
             name: STALE_LABEL,
@@ -40,14 +40,14 @@ const staleStatusUpdater = async (repo: string, issues, now: moment.Moment) => {
       } else {
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
           return Promise.all([
-            GETSENTRY_ORG.api.issues.addLabels({
-              owner: GETSENTRY_ORG.slug,
+            org.api.issues.addLabels({
+              owner: org.slug,
               repo: repo,
               issue_number: issue.number,
               labels: [STALE_LABEL],
             }),
-            GETSENTRY_ORG.api.issues.createComment({
-              owner: GETSENTRY_ORG.slug,
+            org.api.issues.createComment({
+              owner: org.slug,
               repo: repo,
               issue_number: issue.number,
               body: `This ${
@@ -70,17 +70,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
-  SENTRY_REPOS.forEach(async (repo: string) => {
-    const issues = await GETSENTRY_ORG.api.paginate(
-      GETSENTRY_ORG.api.issues.listForRepo,
-      {
-        owner: GETSENTRY_ORG.slug,
-        repo,
-        state: 'open',
-        labels: WAITING_FOR_COMMUNITY_LABEL,
-        per_page: GH_API_PER_PAGE,
-      }
-    );
-    await staleStatusUpdater(repo, issues, now);
+  org.repos.all.forEach(async (repo: string) => {
+    const issues = await org.api.paginate(org.api.issues.listForRepo, {
+      owner: org.slug,
+      repo,
+      state: 'open',
+      labels: WAITING_FOR_COMMUNITY_LABEL,
+      per_page: GH_API_PER_PAGE,
+    });
+    await staleStatusUpdater(org, repo, issues, now);
   });
 };

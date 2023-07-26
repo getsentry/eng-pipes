@@ -106,58 +106,6 @@ export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
-// Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_REPOS_WITH_ROUTING` if it has actually been set
-// in the instantiating environment.
-export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
-export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
-  ? [PERSONAL_TEST_REPO]
-  : [];
-
-export const SENTRY_REPOS_WITH_ROUTING: Set<string> = new Set([
-  'sentry',
-  'sentry-docs',
-  ...PERSONAL_TEST_REPOS,
-]);
-export const SENTRY_REPOS_WITHOUT_ROUTING: Set<string> = new Set([
-  'arroyo',
-  'cdc',
-  'craft',
-  'relay',
-  'responses',
-  'self-hosted',
-  'sentry-native',
-  'snuba',
-  'snuba-sdk',
-  'symbolic',
-  'symbolicator',
-  'test-ttt-simple',
-  'wal2json',
-
-  // Web team, T1
-  'sentry-javascript',
-  'sentry-python',
-  'sentry-php',
-  'sentry-laravel',
-  'sentry-symfony',
-  'sentry-ruby',
-
-  // Mobile team, T1
-  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
-  'sentry-cocoa',
-  'sentry-java',
-  'sentry-react-native',
-  'sentry-unity',
-  'sentry-dart',
-  'sentry-android-gradle-plugin',
-  'sentry-dotnet',
-  'sentry-dart-plugin',
-]);
-
-export const SENTRY_REPOS: Set<string> = new Set([
-  ...SENTRY_REPOS_WITH_ROUTING,
-  ...SENTRY_REPOS_WITHOUT_ROUTING,
-]);
-
 /**
  * As far as we can tell, it's not possible to check private org membership
  * from an app installation. Therefore, we use a Personal Access Token for a

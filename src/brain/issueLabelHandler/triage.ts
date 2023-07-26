@@ -1,11 +1,7 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import {
-  GH_ORGS,
-  SENTRY_REPOS_WITHOUT_ROUTING,
-  WAITING_FOR_PRODUCT_OWNER_LABEL,
-} from '@/config';
+import { GH_ORGS, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
@@ -20,8 +16,8 @@ function isAlreadyTriaged(payload) {
   );
 }
 
-function isNotInARepoWeCareAboutForTriage(payload) {
-  return !SENTRY_REPOS_WITHOUT_ROUTING.has(payload.repository.name);
+function isNotInARepoWeCareAboutForTriage(payload, org) {
+  return !org.repos.withoutRouting.includes(payload.repository.name);
 }
 
 function isWaitingForProductOwnerLabel(payload) {

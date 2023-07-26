@@ -45,10 +45,16 @@ export interface GitHubIssuesSomeoneElseCaresAbout {
 }
 
 export interface GitHubOrgConfig {
-  num: any;
   slug: any;
   appAuth: any;
   project: any;
+  repos: any;
+}
+
+export interface GitHubOrgRepos {
+  all: string[];
+  withRouting: string[];
+  withoutRouting: string[];
 }
 
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];

@@ -6,6 +6,7 @@ import {
   AppAuthStrategyOptions,
   GitHubIssuesSomeoneElseCaresAbout,
   GitHubOrgConfig,
+  GitHubOrgRepos,
 } from '@/types';
 
 // We can't use @ to import config here or we get an error from jest due to
@@ -19,6 +20,7 @@ export class GitHubOrg {
   slug: string;
   appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
+  repos: GitHubOrgRepos;
 
   // The docs say it's safe for Octokit instances to be long-lived:
   //
@@ -33,6 +35,14 @@ export class GitHubOrg {
     this.slug = orgSlug;
     this.appAuth = config.appAuth;
     this.project = config.project;
+    this.repos = config.repos || {};
+    if (!this.repos.withRouting) {
+      this.repos.withRouting = [];
+    }
+    if (!this.repos.withoutRouting) {
+      this.repos.withoutRouting = [];
+    }
+    this.repos.all = [...this.repos.withRouting, ...this.repos.withoutRouting];
 
     // Call bindAPI ASAP. We can't call it here because constructors can't be
     // async. Note that in testing this ends up being mocked as if it were

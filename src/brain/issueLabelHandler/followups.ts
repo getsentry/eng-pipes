@@ -4,7 +4,6 @@ import moment from 'moment-timezone';
 
 import {
   GH_ORGS,
-  SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -18,8 +17,8 @@ import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 
-function isNotInARepoWeCareAboutForFollowups(payload) {
-  return !SENTRY_REPOS.has(payload.repository.name);
+function isNotInARepoWeCareAboutForFollowups(payload, org) {
+  return !org.repos.all.includes(payload.repository.name);
 }
 
 function isNotWaitingForLabel(payload) {

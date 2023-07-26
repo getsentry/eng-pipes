@@ -22,6 +22,7 @@ describe('loadGitHubOrgs', function () {
     }).get('getsentry');
     expect(org.appAuth.privateKey).toEqual('cheese');
     expect(org.appAuth.appId).toEqual(66573);
+    expect(org.repos.withRouting).toEqual(['sentry', 'sentry-docs']);
   });
 
   it('chokes on non-numeric appId', async function () {

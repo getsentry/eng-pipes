@@ -8,3 +8,8 @@ getsentry:
       productArea: ''
       status: ''
       responseDue: ''
+  repos:
+    withRouting:
+      - routing-repo
+    withoutRouting:
+      - test-ttt-simple
