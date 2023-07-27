@@ -41,6 +41,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
             ["@octokit/webhooks", "npm:11.0.0"],
+            ["@sentry/cli", "npm:2.20.1"],
             ["@sentry/integrations", "npm:6.16.1"],
             ["@sentry/node", "npm:6.16.1"],
             ["@sentry/tracing", "npm:6.16.1"],
@@ -1911,6 +1912,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/@pkgjs-parseargs-npm-0.11.0-cd2a3fe948-6ad6a00fc4.zip/node_modules/@pkgjs/parseargs/",
           "packageDependencies": [
             ["@pkgjs/parseargs", "npm:0.11.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@sentry/cli", [
+        ["npm:2.20.1", {
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-npm-2.20.1-5b79d11da4/node_modules/@sentry/cli/",
+          "packageDependencies": [
+            ["@sentry/cli", "npm:2.20.1"],
+            ["https-proxy-agent", "npm:5.0.0"],
+            ["node-fetch", "virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12"],
+            ["progress", "npm:2.0.3"],
+            ["proxy-from-env", "npm:1.1.0"],
+            ["which", "npm:2.0.2"]
           ],
           "linkType": "HARD",
         }]
@@ -8397,6 +8412,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]
       ]],
       ["node-fetch", [
+        ["npm:2.6.12", {
+          "packageLocation": "./.yarn/cache/node-fetch-npm-2.6.12-48619ce9d6-3bc1655203.zip/node_modules/node-fetch/",
+          "packageDependencies": [
+            ["node-fetch", "npm:2.6.12"]
+          ],
+          "linkType": "SOFT",
+        }],
         ["npm:2.6.9", {
           "packageLocation": "./.yarn/cache/node-fetch-npm-2.6.9-9fc9a54529-acb04f9ce7.zip/node_modules/node-fetch/",
           "packageDependencies": [
@@ -8408,6 +8430,20 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-09e94fc04f/0/cache/node-fetch-npm-2.6.9-9fc9a54529-acb04f9ce7.zip/node_modules/node-fetch/",
           "packageDependencies": [
             ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],
+            ["@types/encoding", null],
+            ["encoding", null],
+            ["whatwg-url", "npm:5.0.0"]
+          ],
+          "packagePeers": [
+            "@types/encoding",
+            "encoding"
+          ],
+          "linkType": "HARD",
+        }],
+        ["virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12", {
+          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-64c8ab7ada/0/cache/node-fetch-npm-2.6.12-48619ce9d6-3bc1655203.zip/node_modules/node-fetch/",
+          "packageDependencies": [
+            ["node-fetch", "virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12"],
             ["@types/encoding", null],
             ["encoding", null],
             ["whatwg-url", "npm:5.0.0"]
@@ -9302,6 +9338,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["proxy-from-env", [
+        ["npm:1.1.0", {
+          "packageLocation": "./.yarn/cache/proxy-from-env-npm-1.1.0-c13d07f26b-ed7fcc2ba0.zip/node_modules/proxy-from-env/",
+          "packageDependencies": [
+            ["proxy-from-env", "npm:1.1.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["psl", [
         ["npm:1.8.0", {
           "packageLocation": "./.yarn/cache/psl-npm-1.8.0-226099d70e-6150048ed2.zip/node_modules/psl/",
@@ -9847,6 +9892,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
             ["@octokit/webhooks", "npm:11.0.0"],
+            ["@sentry/cli", "npm:2.20.1"],
             ["@sentry/integrations", "npm:6.16.1"],
             ["@sentry/node", "npm:6.16.1"],
             ["@sentry/tracing", "npm:6.16.1"],
