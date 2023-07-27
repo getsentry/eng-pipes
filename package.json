@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "yarn tsc -p tsconfig.build.json",
-    "build:production": "yarn clean && yarn tsc -p tsconfig.build.json",
+    "build:production": "yarn clean && yarn build && sentry-cli sourcemaps inject ./lib",
     "clean": "[ -d lib ] && rm -rf lib/* || true",
     "deploy": "yarn build && (yarn deploy:development-metrics)",
     "deploy:development-metrics": "./bin/deploy.sh",

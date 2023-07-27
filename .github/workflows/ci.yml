@@ -141,7 +141,7 @@ jobs:
           bin/deploy.sh
 
       - name: Sentry Release
-        uses: getsentry/action-release@v1.2.1
+        uses: getsentry/action-release@v1.4.1
         with:
           environment: 'production'
           sourcemaps: './lib'

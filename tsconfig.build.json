@@ -6,6 +6,6 @@
   "compilerOptions": {
     "sourceMap": true,
     "inlineSources": true,
-    "sourceRoot": "../src/",
+    "sourceRoot": "/src/",
   }
 }
