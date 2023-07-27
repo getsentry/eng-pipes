@@ -1,4 +1,4 @@
-import { makeUserTokenClient } from '@api/github';
+import { GH_USER_CLIENT } from '@/config';
 
 import { getOssUserType } from './getOssUserType';
 
@@ -12,7 +12,7 @@ describe('getUserOssType', function () {
   };
 
   beforeAll(async function () {
-    octokit = makeUserTokenClient();
+    octokit = GH_USER_CLIENT;
   });
   beforeEach(function () {
     octokit.orgs.checkMembershipForUser.mockClear();

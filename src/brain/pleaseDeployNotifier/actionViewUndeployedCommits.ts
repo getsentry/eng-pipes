@@ -6,7 +6,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
-import { firstMaterialSHA } from '@/utils/gocdHelpers';
+import { firstGitMaterialSHA } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
@@ -66,7 +66,7 @@ export async function actionViewUndeployedCommits({
     return;
   }
 
-  const base = firstMaterialSHA(lastDeploy);
+  const base = firstGitMaterialSHA(lastDeploy);
   if (!base) {
     // Failed to get base sha
     return;

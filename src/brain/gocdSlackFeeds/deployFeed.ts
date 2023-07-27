@@ -15,7 +15,7 @@ import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getSlackMessage } from '@/utils/db/getSlackMessage';
 import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { firstMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
+import { firstGitMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;
@@ -124,7 +124,7 @@ export class DeployFeed {
       return;
     }
 
-    const latestSHA = firstMaterialSHA(latestDeploy);
+    const latestSHA = firstGitMaterialSHA(latestDeploy);
     if (!latestSHA) {
       return;
     }

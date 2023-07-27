@@ -1,7 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { DAY_IN_MS } from '@/config';
-import { makeUserTokenClient } from '@api/github';
+import { DAY_IN_MS, GH_USER_CLIENT } from '@/config';
 import { isFromABot } from '@utils/isFromABot';
 
 type UserType = 'bot' | 'internal' | 'external' | 'gtm';
@@ -57,11 +56,9 @@ export async function getOssUserType(
   let status: number | null;
   let check: 'Org' | 'Team';
 
-  const octokit = makeUserTokenClient();
-
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   check = 'Org';
-  status = await getResponseStatus(octokit.orgs.checkMembershipForUser, [
+  status = await getResponseStatus(GH_USER_CLIENT.orgs.checkMembershipForUser, [
     { org: orgSlug, username },
   ]);
 
@@ -70,7 +67,7 @@ export async function getOssUserType(
     // "will include the members of child teams"
 
     check = 'Team';
-    status = await getResponseStatus(octokit.request, [
+    status = await getResponseStatus(GH_USER_CLIENT.request, [
       'GET /orgs/{orgSlug}/teams/GTM/memberships/{username}',
       { org: orgSlug, username },
     ]);
