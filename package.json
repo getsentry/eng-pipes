@@ -29,7 +29,9 @@
     "test": "yarn jest --useStderr --runInBand",
     "test:debug": "yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
-    "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage"
+    "test:dev": "yarn postgres && yarn test",
+    "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage",
+    "postgres": "docker start ci-tooling-postgres || docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12"
   },
   "_moduleAliases": {
     "_comment": "⚠️  Keep this in sync with jest.config.ts and tsconfig.json. ⚠️ ",
