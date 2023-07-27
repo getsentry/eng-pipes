@@ -31,7 +31,6 @@ import {
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
-import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
