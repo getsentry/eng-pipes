@@ -6,14 +6,13 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_BOT_ID,
+  GETSENTRY_ORG,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
 import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocdHelpers';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import * as metrics from '@utils/metrics';
@@ -26,8 +25,8 @@ const HEAD_SHA = '982345';
 
 describe('notifyOnGoCDStageEvent', function () {
   let fastify: Fastify;
-  let octokit;
   let gocdPayload;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -98,12 +97,11 @@ describe('notifyOnGoCDStageEvent', function () {
     await pleaseDeployNotifier();
     await notifyOnGoCDStageEvent();
 
-    octokit = await getClient(ClientType.App, 'getsentry');
-    octokit.paginate.mockImplementation(() => {
+    org.api.paginate.mockImplementation(() => {
       return [{ name: 'only frontend changes', conclusion: 'success' }];
     });
     // @ts-ignore
-    octokit.repos.compareCommits.mockImplementation(() => ({
+    org.api.repos.compareCommits.mockImplementation(() => ({
       status: 200,
       data: {
         commits: [
@@ -132,7 +130,7 @@ describe('notifyOnGoCDStageEvent', function () {
       },
     }));
 
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
@@ -163,9 +161,9 @@ describe('notifyOnGoCDStageEvent', function () {
 
   afterEach(async function () {
     fastify.close();
-    octokit.paginate.mockClear();
-    octokit.repos.getCommit.mockClear();
-    octokit.checks.listForRef.mockClear();
+    org.api.paginate.mockClear();
+    org.api.repos.getCommit.mockClear();
+    org.api.checks.listForRef.mockClear();
     (bolt.client.chat.postMessage as jest.Mock).mockClear();
     (bolt.client.chat.update as jest.Mock).mockClear();
     await db('slack_messages').delete();

@@ -32,21 +32,29 @@ export type Annotation = GetResponseDataTypeFromEndpointMethod<
 export interface AppAuthStrategyOptions {
   appId: number;
   privateKey: string;
-  installationId?: number;
+  installationId: number;
 }
 
 export interface GitHubIssuesSomeoneElseCaresAbout {
-  node_id: string;
-  product_area_field_id: string;
-  status_field_id: string;
-  response_due_date_field_id: string;
+  nodeId: string;
+  fieldIds: {
+    productArea: string;
+    status: string;
+    responseDue: string;
+  };
 }
 
 export interface GitHubOrgConfig {
-  num: any;
   slug: any;
   appAuth: any;
   project: any;
+  repos: any;
+}
+
+export interface GitHubOrgRepos {
+  all: string[];
+  withRouting: string[];
+  withoutRouting: string[];
 }
 
 export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];

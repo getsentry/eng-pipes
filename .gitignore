@@ -19,3 +19,5 @@ lib
 !.yarn/plugins
 !.yarn/sdks
 !.yarn/versions
+
+github-orgs.local.yml

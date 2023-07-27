@@ -1,0 +1,16 @@
+getsentry:
+  appAuth:
+    appId: -1
+    privateKey: 'STUB'
+    installationId: -1
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''
+  repos:
+    withRouting:
+      - routing-repo
+    withoutRouting:
+      - test-ttt-simple

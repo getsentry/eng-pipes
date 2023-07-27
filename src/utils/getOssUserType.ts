@@ -1,8 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { ClientType } from '@/api/github/clientType';
-import { DAY_IN_MS } from '@/config';
-import { getClient } from '@api/github/getClient';
+import { DAY_IN_MS, GH_USER_CLIENT } from '@/config';
 import { isFromABot } from '@utils/isFromABot';
 
 type UserType = 'bot' | 'internal' | 'external' | 'gtm';
@@ -28,7 +26,7 @@ export async function getOssUserType(
     return null;
   }
 
-  const org = owner.login;
+  const orgSlug = owner.login;
   const username = payload.sender.login;
 
   const cachedResult = _USER_CACHE.get(username);
@@ -42,7 +40,12 @@ export async function getOssUserType(
   async function getResponseStatus(func, args: any[]): Promise<number | null> {
     // Work around GitHub API goofiness.
     let out: number | null = null;
-    const capture = (r) => (out = r.status);
+    const capture = (r) => {
+      if (!r.status) {
+        throw r; // bug in func :shrug:
+      }
+      out = r.status;
+    };
     await func(...args)
       .then(capture)
       .catch(capture);
@@ -53,12 +56,10 @@ export async function getOssUserType(
   let status: number | null;
   let check: 'Org' | 'Team';
 
-  const octokit = await getClient(ClientType.User);
-
   // https://docs.github.com/en/rest/reference/orgs#check-organization-membership-for-a-user
   check = 'Org';
-  status = await getResponseStatus(octokit.orgs.checkMembershipForUser, [
-    { org, username },
+  status = await getResponseStatus(GH_USER_CLIENT.orgs.checkMembershipForUser, [
+    { org: orgSlug, username },
   ]);
 
   if (status === 204) {
@@ -66,9 +67,9 @@ export async function getOssUserType(
     // "will include the members of child teams"
 
     check = 'Team';
-    status = await getResponseStatus(octokit.request, [
-      'GET /orgs/{org}/teams/GTM/memberships/{username}',
-      { org, username },
+    status = await getResponseStatus(GH_USER_CLIENT.request, [
+      'GET /orgs/{orgSlug}/teams/GTM/memberships/{username}',
+      { org: orgSlug, username },
     ]);
     if (status === 200) {
       // I'd rather express this inversely, so that the failure case is

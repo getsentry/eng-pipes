@@ -2,11 +2,9 @@ import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
-import { ClientType } from '@/api/github/clientType';
-import { GETSENTRY_ORG } from '@/config';
-import { notifyProductOwnersForUntriagedIssues } from '@/webhooks/pubsub/slackNotifications';
-import { getClient } from '@api/github/getClient';
+import { GH_ORGS } from '@/config';
 
+import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerStaleBot } from './stalebot';
 
 type PubSubPayload = {
@@ -45,30 +43,33 @@ export const pubSubHandler = async (
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
 
-  let org,
-    octokit,
-    now,
-    code = 204;
-  let func = new Map([
+  let code, func;
+  const operation = new Map([
     ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
     ['stale-bot', triggerStaleBot],
   ]).get(payload.name);
 
-  // Performing the following check seems to suppress GitHub's dynamic method
-  // call security warning.
-  // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
-  if (typeof func === 'function') {
-    org = GETSENTRY_ORG;
-    octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-    now = moment().utc();
+  if (operation) {
+    code = 204;
+    func = async () => {
+      const now = moment().utc();
+      for (const org of GH_ORGS.orgs.values()) {
+        // Performing the following check seems to suppress GitHub's dynamic method
+        // call security warning (as well as a Typescript error).
+        // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
+        if (typeof operation === 'function') {
+          operation(org, now);
+        }
+      }
+    };
   } else {
-    func = async () => {}; // no-op
     code = 400;
+    func = async () => {}; // no-op
   }
 
   reply.code(code);
   reply.send(); // Respond early to not block the webhook sender
-  await func(org, octokit, now);
+  await func();
   tx.finish();
 };
 

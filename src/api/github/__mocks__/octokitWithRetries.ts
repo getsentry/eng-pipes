@@ -97,7 +97,7 @@ OctokitWithRetries.issues = {
 OctokitWithRetries.orgs = {
   checkMembershipForUser: jest.fn(async function ({ org, username }) {
     let status = 302;
-    if (org === 'Enterprise' || org === null) {
+    if (org === 'getsentry' || org === null) {
       if (username === 'Picard' || username === 'Troi') {
         return { status: 204 };
       } else {
@@ -156,7 +156,7 @@ OctokitWithRetries.repos = {
 OctokitWithRetries.request = jest.fn(async (URL, x) => {
   if (URL.includes && URL.includes('/GTM/')) {
     let status = 302;
-    if (x.org === 'Enterprise' || x.org === null) {
+    if (x.org === 'getsentry' || x.org === null) {
       if (x.username === 'Troi') {
         return { status: 200 };
       } else {

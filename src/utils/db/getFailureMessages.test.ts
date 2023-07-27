@@ -1,19 +1,19 @@
+import { GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { db } from '@utils/db';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 
 import { getFailureMessages } from './getFailureMessages';
 
 describe('getFailureMessages', function () {
-  let octokit;
+  const org = GETSENTRY_ORG;
+
   beforeAll(async function () {
     await db.migrate.latest();
   });
 
   beforeEach(async function () {
-    octokit = await getClient(ClientType.App, 'getsentry');
+    org.api.mockClear();
   });
 
   afterAll(async function () {
@@ -22,7 +22,7 @@ describe('getFailureMessages', function () {
 
   afterEach(async function () {
     await db('slack_messages').delete();
-    octokit.repos.compareCommits.mockClear();
+    org.api.repos.compareCommits.mockClear();
   });
 
   it('initially is not failing', async function () {

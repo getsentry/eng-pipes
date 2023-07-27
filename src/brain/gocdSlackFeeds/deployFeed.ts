@@ -2,12 +2,11 @@ import * as Sentry from '@sentry/node';
 import { KnownBlock, MessageAttachment, MrkdwnElement } from '@slack/types';
 
 import { getUser } from '@/api/getUser';
-import { ClientType } from '@/api/github/clientType';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
-  GETSENTRY_ORG,
   GETSENTRY_REPO_SLUG,
+  GH_ORGS,
   GOCD_ORIGIN,
   SENTRY_REPO_SLUG,
 } from '@/config';
@@ -16,8 +15,7 @@ import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getSlackMessage } from '@/utils/db/getSlackMessage';
 import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { firstMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
-import { getClient } from '@api/github/getClient';
+import { firstGitMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;
@@ -61,8 +59,8 @@ export class DeployFeed {
     const result = url.match(reg);
     if (result) {
       return {
-        org: result[1],
-        repo: result[2],
+        orgSlug: result[1],
+        repoSlug: result[2],
       };
     }
     return null;
@@ -73,22 +71,22 @@ export class DeployFeed {
   }
 
   async getSentryRevisions(
-    owner: string,
-    repo: string,
+    orgSlug: string,
+    repoSlug: string,
     prevDeploySHA: string,
     currentDeploySHA
   ) {
-    const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
+    const org = GH_ORGS.get(orgSlug);
     const responses = await Promise.all([
-      octokit.repos.getContent({
-        owner,
-        repo,
+      org.api.repos.getContent({
+        owner: org.slug,
+        repo: repoSlug,
         path: 'sentry-version',
         ref: prevDeploySHA,
       }),
-      octokit.repos.getContent({
-        owner,
-        repo,
+      org.api.repos.getContent({
+        owner: org.slug,
+        repo: repoSlug,
         path: 'sentry-version',
         ref: currentDeploySHA,
       }),
@@ -108,15 +106,15 @@ export class DeployFeed {
     });
   }
 
-  compareURL(org: string, repo: string, prevRef: string, ref: string) {
-    return `https://github.com/${org}/${repo}/compare/${prevRef}...${ref}`;
+  compareURL(orgSlug: string, repoSlug: string, prevRef: string, ref: string) {
+    return `https://github.com/${orgSlug}/${repoSlug}/compare/${prevRef}...${ref}`;
   }
 
   async getCommitsInDeployBlock(
     pipeline: GoCDPipeline,
     modification: GoCDModification,
-    org: string,
-    repo: string
+    orgSlug: string,
+    repoSlug: string
   ): Promise<MrkdwnElement | undefined> {
     const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
@@ -126,34 +124,34 @@ export class DeployFeed {
       return;
     }
 
-    const latestSHA = firstMaterialSHA(latestDeploy);
+    const latestSHA = firstGitMaterialSHA(latestDeploy);
     if (!latestSHA) {
       return;
     }
 
     const compareURL = this.compareURL(
-      org,
-      repo,
+      orgSlug,
+      repoSlug,
       latestSHA,
       modification.revision
     );
-    if (repo !== GETSENTRY_REPO_SLUG) {
+    if (repoSlug !== GETSENTRY_REPO_SLUG) {
       return this.basicCommitsInDeployBlock(compareURL);
     }
 
     try {
-      // Getsentry comparisons are that useful since the majority of
-      // development is on the sentry repo
+      // Getsentry comparisons aren't that useful since the majority of
+      // development is on the sentry repo.
       const shas = await this.getSentryRevisions(
-        org,
-        repo,
+        orgSlug,
+        repoSlug,
         latestSHA,
         modification.revision
       );
 
       if (shas[0] && shas[1] && shas[0] != shas[1]) {
         const sentryCompareURL = this.compareURL(
-          org,
+          orgSlug,
           SENTRY_REPO_SLUG,
           shas[0],
           shas[1]
@@ -203,15 +201,15 @@ export class DeployFeed {
       block.elements.push(
         slackblocks.markdown('Deploying'),
         slackblocks.markdown(
-          `<https://github.com/${match.org}/${match.repo}/commits/${modification.revision}|${match.repo}@${sha}>`
+          `<https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision}|${match.repoSlug}@${sha}>`
         )
       );
 
       const commitsBlock = await this.getCommitsInDeployBlock(
         pipeline,
         modification,
-        match.org,
-        match.repo
+        match.orgSlug,
+        match.repoSlug
       );
       if (commitsBlock) {
         block.elements.push(commitsBlock);

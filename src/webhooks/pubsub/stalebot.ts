@@ -1,12 +1,6 @@
-import { Octokit } from '@octokit/rest';
 import moment from 'moment-timezone';
 
-import {
-  GETSENTRY_ORG,
-  SENTRY_REPOS,
-  STALE_LABEL,
-  WAITING_FOR_COMMUNITY_LABEL,
-} from '@/config';
+import { STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL } from '@/config';
 import { GitHubOrg } from '@api/github/org';
 
 const GH_API_PER_PAGE = 100;
@@ -14,9 +8,9 @@ const DAYS_BEFORE_STALE = 21;
 const DAYS_BEFORE_CLOSE = 7;
 
 const staleStatusUpdater = async (
+  org: GitHubOrg,
   repo: string,
   issues,
-  octokit: Octokit,
   now: moment.Moment
 ) => {
   await Promise.all(
@@ -28,15 +22,15 @@ const staleStatusUpdater = async (
       if (issueHasStaleLabel) {
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
           // Interestingly enough, this api works for both issues and pull requests
-          return octokit.issues.update({
-            owner: GETSENTRY_ORG.slug,
+          return org.api.issues.update({
+            owner: org.slug,
             repo: repo,
             issue_number: issue.number,
             state: 'closed',
           });
         } else if (now.diff(issue.updated_at, 'days') < DAYS_BEFORE_CLOSE) {
-          return octokit.issues.removeLabel({
-            owner: GETSENTRY_ORG.slug,
+          return org.api.issues.removeLabel({
+            owner: org.slug,
             repo: repo,
             issue_number: issue.number,
             name: STALE_LABEL,
@@ -46,14 +40,14 @@ const staleStatusUpdater = async (
       } else {
         if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
           return Promise.all([
-            octokit.issues.addLabels({
-              owner: GETSENTRY_ORG.slug,
+            org.api.issues.addLabels({
+              owner: org.slug,
               repo: repo,
               issue_number: issue.number,
               labels: [STALE_LABEL],
             }),
-            octokit.issues.createComment({
-              owner: GETSENTRY_ORG.slug,
+            org.api.issues.createComment({
+              owner: org.slug,
               repo: repo,
               issue_number: issue.number,
               body: `This ${
@@ -74,20 +68,16 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   );
 };
 
-export const triggerStaleBot = async (
-  org: GitHubOrg,
-  octokit: Octokit,
-  now: moment.Moment
-) => {
+export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
-  SENTRY_REPOS.forEach(async (repo: string) => {
-    const issues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: GETSENTRY_ORG.slug,
+  org.repos.all.forEach(async (repo: string) => {
+    const issues = await org.api.paginate(org.api.issues.listForRepo, {
+      owner: org.slug,
       repo,
       state: 'open',
       labels: WAITING_FOR_COMMUNITY_LABEL,
       per_page: GH_API_PER_PAGE,
     });
-    await staleStatusUpdater(repo, issues, octokit, now);
+    await staleStatusUpdater(org, repo, issues, now);
   });
 };

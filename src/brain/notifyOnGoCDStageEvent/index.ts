@@ -1,4 +1,3 @@
-import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
 import {
@@ -9,7 +8,6 @@ import {
 } from '@types';
 import { GoCDStageData } from '@types';
 
-import { ClientType } from '@/api/github/clientType';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { gocdevents } from '@/api/gocdevents';
@@ -28,12 +26,12 @@ import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
   FINAL_STAGE_NAMES,
-  firstMaterialSHA,
+  firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
-import { getClient } from '@api/github/getClient';
+import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
@@ -206,12 +204,12 @@ async function filterCommits(pipeline, commits) {
 }
 
 async function getCommitsInDeployment(
-  octokit: Octokit,
+  org: GitHubOrg,
   sha: string,
   prevsha: string | null
 ): Promise<CompareCommits['commits']> {
   if (prevsha && prevsha !== sha) {
-    const { data } = await octokit.repos.compareCommits({
+    const { data } = await org.api.repos.compareCommits({
       owner: GETSENTRY_ORG.slug,
       repo: GETSENTRY_REPO_SLUG,
       head: sha,
@@ -219,7 +217,7 @@ async function getCommitsInDeployment(
     });
     return data.commits;
   }
-  const resp = await octokit.repos.getCommit({
+  const resp = await org.api.repos.getCommit({
     owner: GETSENTRY_ORG.slug,
     repo: GETSENTRY_REPO_SLUG,
     ref: sha,
@@ -273,17 +271,15 @@ export async function handler(resBody: GoCDResponse) {
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
   // Get the range of commits for this payload
-  const octokit = await getClient(ClientType.App, GETSENTRY_ORG.slug);
-
   try {
     const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
       pipeline.name
     );
     const commits = await getCommitsInDeployment(
-      octokit,
+      GETSENTRY_ORG,
       sha,
-      firstMaterialSHA(latestDeploy)
+      firstGitMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(pipeline, commits);
 

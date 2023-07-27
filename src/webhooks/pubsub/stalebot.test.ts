@@ -1,50 +1,40 @@
 import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 
 import { triggerStaleBot } from './stalebot';
 
-jest.mock('@/config', () => {
-  const actualEnvVariables = jest.requireActual('@/config');
-  return {
-    ...actualEnvVariables,
-    SENTRY_REPOS: ['test-sentry-repo'],
-  };
-});
-
 describe('Stalebot Tests', function () {
   const org = GETSENTRY_ORG;
+  let origRepos;
 
   const issueInfo = {
     labels: [],
     updated_at: '2023-04-05T15:51:22Z',
   };
-  let octokit;
 
   beforeEach(async function () {
-    octokit = {
-      ...(await getClient(ClientType.App, 'Enterprise')),
-      paginate: (a, b) => a(b),
-    };
+    origRepos = org.repos.all;
+    org.repos.all = ['test-sentry-repo'];
+    org.api.paginate = (a, b) => a(b);
   });
 
   afterEach(async function () {
-    octokit.issues._labels = new Set([]);
-    octokit.issues.addLabels.mockClear();
-    octokit.issues.removeLabel.mockClear();
-    octokit.issues._comments = [];
-    octokit.issues.createComment.mockClear();
-    octokit.teams.getByName.mockClear();
+    org.repos.all = origRepos;
+    org.api.issues._labels = new Set([]);
+    org.api.issues.addLabels.mockClear();
+    org.api.issues.removeLabel.mockClear();
+    org.api.issues._comments = [];
+    org.api.issues.createComment.mockClear();
+    org.api.teams.getByName.mockClear();
     jest.clearAllMocks();
   });
 
   it('should mark issue as stale if it has been over 3 weeks', async function () {
-    octokit.issues.listForRepo = () => [issueInfo];
-    await triggerStaleBot(org, octokit, moment('2023-04-27T14:28:13Z').utc());
-    expect(octokit.issues._labels).toContain(STALE_LABEL);
-    expect(octokit.issues._comments).toEqual([
+    org.api.issues.listForRepo = () => [issueInfo];
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([
       `This issue has gone three weeks without activity. In another week, I will close it.
 
 But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
@@ -56,24 +46,24 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   });
 
   it('should not mark issue as stale if it has been under 3 weeks', async function () {
-    octokit.issues.listForRepo = () => [issueInfo];
-    await triggerStaleBot(org, octokit, moment('2023-04-10T14:28:13Z').utc());
-    expect(octokit.issues._labels).not.toContain(STALE_LABEL);
-    expect(octokit.issues._comments).toEqual([]);
+    org.api.issues.listForRepo = () => [issueInfo];
+    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([]);
   });
 
   it('should not mark PR as stale if it has been under 3 weeks', async function () {
-    octokit.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
-    await triggerStaleBot(org, octokit, moment('2023-04-10T14:28:13Z').utc());
-    expect(octokit.issues._labels).not.toContain(STALE_LABEL);
-    expect(octokit.issues._comments).toEqual([]);
+    org.api.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
+    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([]);
   });
 
   it('should mark PR as stale if it has been over 3 weeks', async function () {
-    octokit.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
-    await triggerStaleBot(org, octokit, moment('2023-04-27T14:28:13Z').utc());
-    expect(octokit.issues._labels).toContain(STALE_LABEL);
-    expect(octokit.issues._comments).toEqual([
+    org.api.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
 
 But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
@@ -85,11 +75,11 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   });
 
   it('should close issue if there is no activity after a week and an issue is stale', async function () {
-    const issueUpdateSpy = jest.spyOn(octokit.issues, 'update');
-    octokit.issues.listForRepo = () => [
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
-    await triggerStaleBot(org, octokit, moment('2023-04-13T14:28:13Z').utc());
+    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
     expect(issueUpdateSpy).toHaveBeenCalledWith({
       issue_number: undefined,
       owner: 'getsentry',
@@ -99,24 +89,24 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   });
 
   it('should not close issue if there is no activity under a week and an issue is stale', async function () {
-    const issueUpdateSpy = jest.spyOn(octokit.issues, 'update');
-    octokit.issues.listForRepo = () => [
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
-    await triggerStaleBot(org, octokit, moment('2023-04-06T14:28:13Z').utc());
+    await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
 
   it('should remove stale label if there is activity but stale label exists on issue', async function () {
-    const issueUpdateSpy = jest.spyOn(octokit.issues, 'update');
-    octokit.issues.listForRepo = () => [
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [
       {
         ...issueInfo,
         updated_at: '2023-04-06T10:28:13Z',
         labels: [STALE_LABEL],
       },
     ];
-    await triggerStaleBot(org, octokit, moment('2023-04-06T14:28:13Z').utc());
-    expect(octokit.issues._labels).not.toContain(STALE_LABEL);
+    await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
 });

@@ -1,22 +1,25 @@
-import { firstMaterialSHA } from '@/utils/gocdHelpers';
+import { firstGitMaterialSHA } from '@/utils/gocdHelpers';
 
-describe('firstMaterialSHA', () => {
+describe('firstGitMaterialSHA', () => {
   it('return nothing for no deploy', async function () {
-    const got = firstMaterialSHA(null);
+    const got = firstGitMaterialSHA(null);
     expect(got).toEqual(null);
   });
 
   it('return nothing no build materials', async function () {
-    const got = firstMaterialSHA({
+    const got = firstGitMaterialSHA({
       pipeline_build_cause: [],
     });
     expect(got).toEqual(null);
   });
 
-  it('return nothing no modifications', async function () {
-    const got = firstMaterialSHA({
+  it('return nothing for no modifications', async function () {
+    const got = firstGitMaterialSHA({
       pipeline_build_cause: [
         {
+          material: {
+            type: 'git',
+          },
           modifications: [],
         },
       ],
@@ -24,10 +27,31 @@ describe('firstMaterialSHA', () => {
     expect(got).toEqual(null);
   });
 
-  it('return first material sha', async function () {
-    const got = firstMaterialSHA({
+  it('return null for non-git material sha', async function () {
+    const got = firstGitMaterialSHA({
       pipeline_build_cause: [
         {
+          material: {
+            type: 'other',
+          },
+          modifications: [
+            {
+              revision: 'example-pipeline/1/example-stage',
+            },
+          ],
+        },
+      ],
+    });
+    expect(got).toEqual(null);
+  });
+
+  it('return first material sha', async function () {
+    const got = firstGitMaterialSHA({
+      pipeline_build_cause: [
+        {
+          material: {
+            type: 'git',
+          },
           modifications: [
             {
               revision: 'abc123',

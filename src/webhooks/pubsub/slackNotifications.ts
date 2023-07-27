@@ -1,21 +1,14 @@
-import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   BACKLOG_LABEL,
-  GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
-  SENTRY_REPOS_WITH_ROUTING,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
-import {
-  addIssueToGlobalIssuesProject,
-  getIssueDueDateFromProject,
-} from '@api/github/helpers';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -127,23 +120,16 @@ const addOrderingToSlackMessageItem = (
 
 export const getTriageSLOTimestamp = async (
   org: GitHubOrg,
-  octokit: Octokit,
   repo: string,
   issueNumber: number,
   issueNodeId: string
 ) => {
-  const issueNodeIdInProject = await addIssueToGlobalIssuesProject(
-    org,
+  const issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
     issueNodeId,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
-  const dueByDate = await getIssueDueDateFromProject(
-    org,
-    issueNodeIdInProject,
-    octokit
-  );
+  const dueByDate = await org.getIssueDueDateFromProject(issueNodeIdInProject);
   if (dueByDate == null || !moment(dueByDate).isValid()) {
     // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(
@@ -395,7 +381,6 @@ export const constructSlackMessage = (
 
 export const notifyProductOwnersForUntriagedIssues = async (
   org: GitHubOrg,
-  octokit: Octokit,
   now: moment.Moment
 ) => {
   // 1. Get all open, untriaged issues
@@ -406,8 +391,8 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    const untriagedIssues = await octokit.paginate(octokit.issues.listForRepo, {
-      owner: GETSENTRY_ORG.slug,
+    const untriagedIssues = await org.api.paginate(org.api.issues.listForRepo, {
+      owner: org.slug,
       repo,
       state: 'open',
       labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -423,7 +408,6 @@ export const notifyProductOwnersForUntriagedIssues = async (
         productAreaLabel: getIssueProductAreaLabel(issue),
         triageBy: await getTriageSLOTimestamp(
           org,
-          octokit,
           repo,
           issue.number,
           issue.node_id
@@ -435,9 +419,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all(
-      [...SENTRY_REPOS_WITH_ROUTING].map(getIssueSLOInfoForRepo)
-    )
+    await Promise.all([...org.repos.withRouting].map(getIssueSLOInfoForRepo))
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues

@@ -22,13 +22,12 @@ import { createGitHubEvent } from '@test/utils/github';
 import { buildServer } from '@/buildServer';
 import {
   BuildStatus,
+  GETSENTRY_ORG,
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
 import { db } from '@/utils/db';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
 import { bolt } from '@api/slack';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
 import { getTimestamp } from '@utils/db/getTimestamp';
@@ -43,7 +42,7 @@ function tick(timeout = 10) {
 
 describe('requiredChecks', function () {
   let fastify: Fastify;
-  let octokit;
+  const org = GETSENTRY_ORG;
   const postMessage = bolt.client.chat.postMessage as jest.Mock;
   const updateMessage = bolt.client.chat.update as jest.Mock;
   const SCHEMA = Object.entries(TARGETS.brokenBuilds.schema).map(
@@ -66,9 +65,8 @@ describe('requiredChecks', function () {
   beforeEach(async function () {
     fastify = await buildServer(false);
     await requiredChecks();
-    octokit = await getClient(ClientType.App, 'getsentry');
 
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
@@ -100,7 +98,7 @@ describe('requiredChecks', function () {
 
   afterEach(async function () {
     fastify.close();
-    octokit.repos.getCommit.mockClear();
+    org.api.repos.getCommit.mockClear();
     postMessage.mockClear();
     updateMessage.mockClear();
     mockDataset.mockClear();
@@ -198,7 +196,7 @@ describe('requiredChecks', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(2);
 
     // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(2);
@@ -332,12 +330,12 @@ describe('requiredChecks', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(2);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(2);
 
     // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(2);
 
-    octokit.repos.getCommit.mockClear();
+    org.api.repos.getCommit.mockClear();
     (postMessage as jest.Mock).mockClear();
     // Signal the same check run as above, should not post again to slack
     await createGitHubEvent(fastify, 'check_run', {
@@ -377,14 +375,14 @@ describe('requiredChecks', function () {
         },
       },
     });
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(0);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(0);
 
     // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(0);
   });
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -449,7 +447,7 @@ describe('requiredChecks', function () {
     });
 
     // Only called once because we don't need to look for sentry commit
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(1);
 
     // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(2);
@@ -697,7 +695,7 @@ describe('requiredChecks', function () {
   });
 
   it('saves state of a failed check, and updates slack message when it is passing again (ignoring any following failed tests)', async function () {
-    octokit.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -765,7 +763,7 @@ describe('requiredChecks', function () {
     });
 
     // Only called once because we don't need to look for sentry commit
-    expect(octokit.repos.getCommit).toHaveBeenCalledTimes(1);
+    expect(org.api.repos.getCommit).toHaveBeenCalledTimes(1);
 
     // This is called twice because we use threads to list the job statuses
     expect(postMessage).toHaveBeenCalledTimes(2);

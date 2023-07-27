@@ -22,9 +22,7 @@ import { Fastify } from '@types';
 import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
-import { DRY_RUN } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { DRY_RUN, GETSENTRY_ORG } from '@/config';
 import { db } from '@utils/db';
 import * as dbFunctions from '@utils/metrics';
 
@@ -36,7 +34,7 @@ jest.spyOn(dbFunctions, 'insert');
 jest.spyOn(dbFunctions, 'insertOss');
 jest.mock('@/config', () => {
   const actualEnvVariables = jest.requireActual('@/config');
-  return { ...actualEnvVariables, DRY_RUN: true };
+  return { ...actualEnvVariables, DRY_RUN: false };
 });
 
 const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
@@ -48,7 +46,7 @@ const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
 
 describe('github webhook', function () {
   let fastify: Fastify;
-  let octokit;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async () => {
     await db.migrate.latest();
@@ -66,7 +64,6 @@ describe('github webhook', function () {
 
   beforeEach(async function () {
     fastify = await buildServer(false);
-    octokit = await getClient(ClientType.App, 'getsentry');
     metrics();
   });
 
@@ -74,7 +71,7 @@ describe('github webhook', function () {
     fastify.close();
     (dbFunctions.insertOss as jest.Mock).mockClear();
     (dbFunctions.insert as jest.Mock).mockClear();
-    octokit.orgs.checkMembershipForUser.mockClear();
+    org.api.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
@@ -134,7 +131,7 @@ describe('github webhook', function () {
         action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
@@ -153,7 +150,7 @@ describe('github webhook', function () {
       label: {
         id: 1362934389,
         node_id: 'MDU6TGFiZWwxMzYyOTM0Mzg5',
-        url: 'https://api.github.com/repos/Enterprise/Hello-World/labels/bug',
+        url: 'https://api.github.com/repos/getsentry/Hello-World/labels/bug',
         name: 'bug',
         color: 'd73a4a',
         default: true,
@@ -174,7 +171,7 @@ describe('github webhook', function () {
         action: 'labeled',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,
@@ -208,7 +205,7 @@ describe('github webhook', function () {
         action: 'opened',
         created_at: '2019-05-15T15:20:18Z',
         object_id: 1,
-        repository: 'Enterprise/Hello-World',
+        repository: 'getsentry/Hello-World',
         type: 'issues',
         updated_at: '2019-05-15T15:20:18Z',
         user_id: 21031067,

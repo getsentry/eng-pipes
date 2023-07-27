@@ -1,9 +1,6 @@
-import { GitHubOrg } from '../api/github/org';
+import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
-import {
-  GitHubOrgs,
-  loadGitHubOrgsFromEnvironment,
-} from './loadGitHubOrgsFromEnvironment';
+import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
   (process.env.ENV === 'production' &&
@@ -22,7 +19,7 @@ export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
 export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =
   process.env.GOCD_SENTRYIO_BE_PIPELINE_GROUP || 'getsentry-backend';
 export const GOCD_SENTRYIO_BE_PIPELINE_NAME =
-  process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'getsentry-backend';
+  process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'deploy-getsentry-backend-us';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
 export const FEED_DEPLOY_CHANNEL_ID =
@@ -111,66 +108,24 @@ export const WAITING_FOR_PRODUCT_OWNER_LABEL = 'Waiting for: Product Owner';
 export const MAX_TRIAGE_DAYS = 2;
 export const MAX_ROUTE_DAYS = 1;
 
-// Only add the `PERSONAL_TEST_REPO` to the array of `SENTRY_REPOS_WITH_ROUTING` if it has actually been set
-// in the instantiating environment.
-export const PERSONAL_TEST_REPO = process.env.PERSONAL_TEST_REPO;
-export const PERSONAL_TEST_REPOS = PERSONAL_TEST_REPO
-  ? [PERSONAL_TEST_REPO]
-  : [];
-
-export const SENTRY_REPOS_WITH_ROUTING: Set<string> = new Set([
-  'sentry',
-  'sentry-docs',
-  ...PERSONAL_TEST_REPOS,
-]);
-export const SENTRY_REPOS_WITHOUT_ROUTING: Set<string> = new Set([
-  'arroyo',
-  'cdc',
-  'craft',
-  'relay',
-  'responses',
-  'self-hosted',
-  'sentry-native',
-  'snuba',
-  'snuba-sdk',
-  'symbolic',
-  'symbolicator',
-  'test-ttt-simple',
-  'wal2json',
-
-  // Web team, T1
-  'sentry-javascript',
-  'sentry-python',
-  'sentry-php',
-  'sentry-laravel',
-  'sentry-symfony',
-  'sentry-ruby',
-
-  // Mobile team, T1
-  // https://www.notion.so/sentry/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
-  'sentry-cocoa',
-  'sentry-java',
-  'sentry-react-native',
-  'sentry-unity',
-  'sentry-dart',
-  'sentry-android-gradle-plugin',
-  'sentry-dotnet',
-  'sentry-dart-plugin',
-]);
-
-export const SENTRY_REPOS: Set<string> = new Set([
-  ...SENTRY_REPOS_WITH_ROUTING,
-  ...SENTRY_REPOS_WITHOUT_ROUTING,
-]);
-
 /**
- * Personal Access Token for the Sentry bot used to do things that aren't possible with the App account, e.g. querying org membership
+ * As far as we can tell, it's not possible to check private org membership
+ * from an app installation. Therefore, we use a Personal Access Token for a
+ * bot account that is itself an org member.
+ *
+ * If you set FORCE... we will *always* use user auth instead of app
+ * installation auth, to make dev life easier.
  */
-export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
+export const GH_USER_CLIENT = makeUserTokenClient(
+  process.env.GH_USER_TOKEN || ''
+);
+export const FORCE_USER_TOKEN_GITHUB_CLIENT =
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == 'true' ||
+  process.env.FORCE_USER_TOKEN_GITHUB_CLIENT == '1';
 
 /**
- * Load GitHubOrgs. We [want to] support processing events coming at us from
- * multiple GitHub orgs and this is how we [plan to] encapsulate it all.
+ * Load GitHubOrgs. We support processing events coming at us from multiple
+ * GitHub orgs and this is how we encapsulate it all.
  *
  * Some of the logic in eng-pipes is meant *only* for the `getsentry` org
  * (things related to CI/CD, mostly), so we want to have a global reference to
@@ -179,30 +134,16 @@ export const GH_USER_TOKEN = process.env.GH_USER_TOKEN || '';
  * that's the status quo). The default org below is intended to accomplish
  * that. We're also fine with trusting that there are no webhook routes
  * pointing at these parts of the codebase by which events from other GitHub
- * orgs could leak into `getsentry`. Eep.
+ * orgs could potentially leak into `getsentry`. Eep.
  *
  * Other logic (mostly related to automations for issues and discussions)
  * operates on whatever org--possibly `getsentry`--we find in the payloads from
  * GitHub. For those we use the GH_ORGS registry.
  */
-export const GH_ORGS: GitHubOrgs = loadGitHubOrgsFromEnvironment(process.env);
-export const GETSENTRY_ORG =
-  process.env.GH_APP_IDENTIFIER && process.env.GH_APP_SECRET_KEY
-    ? GH_ORGS.get(process.env.GETSENTRY_ORG || 'getsentry')
-    : new GitHubOrg({
-        num: -1,
-        slug: '☢️  no getsentry org configured ☢️',
-        appAuth: {
-          appId: -1,
-          privateKey: '',
-        },
-        project: {
-          node_id: '',
-          product_area_field_id: '',
-          status_field_id: '',
-          response_due_date_field_id: '',
-        },
-      });
+export const GH_ORGS: GitHubOrgs = loadGitHubOrgs(process.env);
+export const GETSENTRY_ORG = GH_ORGS.get(
+  process.env.GETSENTRY_ORG_SLUG || 'getsentry'
+);
 
 /**
  * Business Hours by Office

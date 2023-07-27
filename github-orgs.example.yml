@@ -1,0 +1,16 @@
+your-org-CHANGEME:
+  appAuth:
+    appId: ''
+    privateKey: 'GH_APP_PRIVATE_KEY' # leave this, it names an env var to pull from
+    installationId: ''
+  project:
+    nodeId: ''
+    fieldIds:
+      productArea: ''
+      status: ''
+      responseDue: ''
+  repos:
+    withRouting:
+      - 'foo'
+    withoutRouting:
+      - 'bar'

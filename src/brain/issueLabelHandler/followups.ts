@@ -4,19 +4,11 @@ import moment from 'moment-timezone';
 
 import {
   GH_ORGS,
-  SENTRY_REPOS,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import {
-  addIssueToGlobalIssuesProject,
-  modifyDueByDate,
-  modifyProjectIssueField,
-} from '@api/github/helpers';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
@@ -25,12 +17,18 @@ import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 
-function isNotInARepoWeCareAboutForFollowups(payload) {
-  return !SENTRY_REPOS.has(payload.repository.name);
+function isNotInARepoWeCareAboutForFollowups(payload, org) {
+  return !org.repos.all.includes(payload.repository.name);
 }
 
 function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
+}
+
+function isWaitingForSupport(payload) {
+  return payload.issue.labels.some(
+    ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
+  );
 }
 
 function isCommentFromCollaborator(payload) {
@@ -60,6 +58,7 @@ export async function updateCommunityFollowups({
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
     isCommentFromCollaborator,
+    isWaitingForSupport,
     isPullRequest,
     isFromABot,
   ];
@@ -68,8 +67,6 @@ export async function updateCommunityFollowups({
     return;
   }
 
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
@@ -78,35 +75,31 @@ export async function updateCommunityFollowups({
   )?.name;
 
   if (isWaitingForCommunityLabelOnIssue) {
-    await octokit.issues.removeLabel({
-      owner,
+    await org.api.issues.removeLabel({
+      owner: org.slug,
       repo: repo,
       issue_number: issueNumber,
       name: WAITING_FOR_COMMUNITY_LABEL,
     });
   }
 
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
     labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
   });
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
 
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.status_field_id,
-    octokit
+    org.project.fieldIds.status
   );
 
   tx.finish();
@@ -133,8 +126,6 @@ export async function ensureOneWaitingForLabel({
   }
 
   const { issue, label } = payload;
-  const owner = payload.repository.owner.login;
-  const octokit = await getClient(ClientType.App, owner);
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
   // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
@@ -146,28 +137,24 @@ export async function ensureOneWaitingForLabel({
   )?.name;
 
   if (labelToRemove != null) {
-    await octokit.issues.removeLabel({
-      owner: owner,
+    await org.api.issues.removeLabel({
+      owner: org.slug,
       repo: repo,
       issue_number: issueNumber,
       name: labelToRemove,
     });
   }
 
-  const itemId: string = await addIssueToGlobalIssuesProject(
-    org,
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
     repo,
-    issueNumber,
-    octokit
+    issueNumber
   );
 
-  await modifyProjectIssueField(
-    org,
+  await org.modifyProjectIssueField(
     itemId,
     labelName,
-    org.project.status_field_id,
-    octokit
+    org.project.fieldIds.status
   );
 
   let timeToRespondBy;
@@ -185,12 +172,10 @@ export async function ensureOneWaitingForLabel({
     timeToRespondBy = '';
   }
 
-  await modifyDueByDate(
-    org,
+  await org.modifyDueByDate(
     itemId,
     timeToRespondBy,
-    org.project.response_due_date_field_id,
-    octokit
+    org.project.fieldIds.responseDue
   );
 
   tx.finish();

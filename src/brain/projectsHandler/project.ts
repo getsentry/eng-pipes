@@ -2,34 +2,28 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
-import {
-  getIssueDetailsFromNodeId,
-  getKeyValueFromProjectField,
-} from '@api/github/helpers';
 import { shouldSkip } from '@utils/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
-  return payload?.projects_v2_item?.project_node_id !== org.project.node_id;
+  return payload?.projects_v2_item?.project_node_id !== org.project.nodeId;
 }
 
 function isNotAProjectFieldWeCareAbout(payload, org) {
   return (
     payload?.changes?.field_value?.field_node_id !==
-      org.project.product_area_field_id &&
-    payload?.changes?.field_value?.field_node_id !== org.project.status_field_id
+      org.project.fieldIds.productArea &&
+    payload?.changes?.field_value?.field_node_id !== org.project.fieldIds.status
   );
 }
 
 function getFieldName(payload, org) {
   if (
     payload?.changes?.field_value?.field_node_id ===
-    org.project.product_area_field_id
+    org.project.fieldIds.productArea
   ) {
     return 'Product Area';
   } else if (
-    payload?.changes?.field_value?.field_node_id === org.project.status_field_id
+    payload?.changes?.field_value?.field_node_id === org.project.fieldIds.status
   ) {
     return 'Status';
   }
@@ -64,13 +58,10 @@ export async function syncLabelsWithProjectField({
     return;
   }
 
-  const owner = payload?.organization?.login || '';
-  const octokit = await getClient(ClientType.App, owner);
   const fieldName = getFieldName(payload, org);
-  const fieldValue = await getKeyValueFromProjectField(
+  const fieldValue = await org.getKeyValueFromProjectField(
     payload.projects_v2_item.node_id,
-    fieldName,
-    octokit
+    fieldName
   );
 
   // Single select field value has been unset, so don't do anything
@@ -78,13 +69,12 @@ export async function syncLabelsWithProjectField({
     return;
   }
 
-  const issueInfo = await getIssueDetailsFromNodeId(
-    payload.projects_v2_item.content_node_id,
-    octokit
+  const issueInfo = await org.getIssueDetailsFromNodeId(
+    payload.projects_v2_item.content_node_id
   );
 
-  await octokit.issues.addLabels({
-    owner,
+  await org.api.issues.addLabels({
+    owner: org.slug,
     repo: issueInfo.repo,
     issue_number: issueInfo.number,
     labels: [

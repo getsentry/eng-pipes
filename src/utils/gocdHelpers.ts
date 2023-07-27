@@ -78,7 +78,7 @@ export function getProgressColor(pipeline: GoCDPipeline) {
   }
 }
 
-export function firstMaterialSHA(
+export function firstGitMaterialSHA(
   deploy: DBGoCDDeployment | undefined
 ): string | null {
   if (!deploy) {
@@ -87,9 +87,14 @@ export function firstMaterialSHA(
   if (deploy.pipeline_build_cause.length == 0) {
     return null;
   }
-  const bc = deploy.pipeline_build_cause[0];
-  if (bc.modifications.length == 0) {
-    return null;
+  for (const bc of deploy.pipeline_build_cause) {
+    if (!bc.material || bc.material.type != 'git') {
+      continue;
+    }
+    if (bc.modifications.length == 0) {
+      continue;
+    }
+    return bc.modifications[0].revision;
   }
-  return bc.modifications[0].revision;
+  return null;
 }

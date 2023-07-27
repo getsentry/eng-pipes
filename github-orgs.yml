@@ -1,0 +1,63 @@
+getsentry:
+  appAuth:
+    appId: 66573
+    privateKey: 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'
+    installationId: 9303463
+  project:
+    nodeId: 'PVT_kwDOABVQ184AOGW8'
+    fieldIds:
+      productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno'
+      status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0'
+      responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg'
+  repos:
+    withRouting:
+      - 'sentry'
+      - 'sentry-docs'
+
+    withoutRouting:
+      - 'arroyo'
+      - 'cdc'
+      - 'craft'
+      - 'relay'
+      - 'responses'
+      - 'self-hosted'
+      - 'sentry-native'
+      - 'snuba'
+      - 'snuba-sdk'
+      - 'symbolic'
+      - 'symbolicator'
+      - 'test-ttt-simple'
+      - 'wal2json'
+
+      # Web team T1
+      - 'sentry-javascript'
+      - 'sentry-python'
+      - 'sentry-php'
+      - 'sentry-laravel'
+      - 'sentry-symfony'
+      - 'sentry-ruby'
+
+      # Mobile team T1
+      # www.notion.so/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
+      - 'sentry-cocoa'
+      - 'sentry-java'
+      - 'sentry-react-native'
+      - 'sentry-unity'
+      - 'sentry-dart'
+      - 'sentry-android-gradle-plugin'
+      - 'sentry-dotnet'
+      - 'sentry-dart-plugin'
+codecov:
+  appAuth:
+    appId: 343171
+    privateKey: 'GH_APP_PRIVATE_KEY_FOR_CODECOV'
+    installationId: 40036835
+  project:
+    nodeId: 'PVT_kwDOAH2Fnc4ARzsq'
+    fieldIds:
+      productArea: 'PVTSSF_lADOAH2Fnc4ARzsqzgLXyZg'
+      status: 'PVTSSF_lADOAH2Fnc4ARzsqzgLXyI4'
+      responseDue: 'PVTF_lADOAH2Fnc4ARzsqzgLXyhE'
+  repos:
+    withoutRouting:
+      - 'feedback'

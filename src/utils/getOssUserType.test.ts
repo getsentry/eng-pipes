@@ -1,5 +1,4 @@
-import { ClientType } from '@api/github/clientType';
-import { getClient } from '@api/github/getClient';
+import { GH_USER_CLIENT } from '@/config';
 
 import { getOssUserType } from './getOssUserType';
 
@@ -8,12 +7,12 @@ describe('getUserOssType', function () {
   const repository = {
     owner: {
       type: 'Organization',
-      login: 'Enterprise',
+      login: 'getsentry',
     },
   };
 
   beforeAll(async function () {
-    octokit = await getClient(ClientType.User);
+    octokit = GH_USER_CLIENT;
   });
   beforeEach(function () {
     octokit.orgs.checkMembershipForUser.mockClear();

@@ -30,7 +30,7 @@ The events sent by the bot are defined under "Subscribe to bot events" in the "E
 - [A message was posted in a direct message channel](https://api.slack.com/events/message.im)
 - [A member's data has changed](https://api.slack.com/events/user_change).
 
-### Github Sentry Webhooks
+### GitHub Sentry Webhooks
 
 Under Sentry's [webhooks](https://github.com/organizations/getsentry/settings/hooks) there's webhooks to the production backend with the route "webhooks/github".
 
@@ -53,8 +53,7 @@ You can grab GitHub secrets in their respective configuration pages: [GitHub App
 
 You will also need to set up some of these environment variables if you want to test this locally, e.g. using `direnv` or something similar
 
-- `GH_APP_IDENTIFIER` - GitHub App identifier
-- `GH_APP_SECRET_KEY` - GitHub App private key
+- `GH_APP_PRIVATE_KEY` - GitHub App private key for your test app. It needs to all be on one line, with literal `\n`s instead of newlines (these seem to be required).
 - `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 - `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
 - `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
@@ -91,9 +90,7 @@ You'll also need to create a private key for the service account (it should down
 
 ## Configuring a test environment
 
-NOTE: These steps will cover more aspects over time. For now it focuses on testing Slack/Github changes.
-
-1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost.
+1. Set up [Ngrok](https://ngrok.io/) to redirect calls to your localhost ([smee.io](https://smee.io/) also works).
 
     - If you haven't already, sign up for an ngrok account and grab the auth token from [the setup page](https://dashboard.ngrok.com/get-started/setup).
     - `ngrok config add-authtoken <YOUR_NGROK_AUTH_TOKEN>`
@@ -124,42 +121,55 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
     - Reload your server for the new env vars to apply and resend the verification payloads
     - You will have to do this with multiple settings, thus, you will have to repeat reloading your server as you add new variables
 
-1. Create a new personal GitHub organization at `<YOUR_GITHUB_USERNAME>/eng-pipes-org`
+1. [Create a GitHub organization](https://github.com/account/organizations/new?plan=free). Name it what you like.
 
-    - In that organization, create a [new GitHub App](https://github.com/settings/apps/new)
-    - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
-    - Place the secrets in your `.env` (see [Setup Secrets](#setup-secrets) below)
-    - Go to the `Permissions & events` sidebar menu entry of the GitHub app configuration, and grant maximum non-`Admin` access (`Read and write` where possible, `Read only` everywhere else) for every line in `Repository permissions` (NOTE: We use a more constrained permission-set in production, but for initial setup enabling maximal permissions is fine; permissions can be whittled down later as needed.)
-    - For `Organization permissions`, grant `Read and write` for `Members` and `Projects`
-    - In the `Subscribe to events` section, check every possible box
-    - Go to `Install App` in the sidebar menu of the GitHub app configuration, and install the app for your personal GitHub organization
-    - When prompted, choose `All repositories`
+    - After the organization has been created, go to its `Settings`, then select `Personal access tokens` from the sidebar to enable tokens.
+    - In the setup menu, select `Allow access via fine-grained personal access tokens`, then `Do not require administrator approval`, and finally `Allow access via personal access tokens (classic)`.
+    - In your organization, create a new repository named something like `testing-eng-pipes`.
 
-1. In your personal organization, create a new personal GitHub repository at `eng-pipes-org/eng-pipes-dev`.
+1.  [Create a personal access token](https://github.com/settings/tokens/new).
 
-    - After the organization has been created, go to its `Settings`, then select `Personal access tokens` from the sidebar to enable tokens
-    - In the setup menu, select `Allow access via fine-grained personal access tokens`, then `Do not require administrator approval`, and finally `Allow access via personal access tokens (classic)`
-    - Now, go to your own account `Settings`, select `Developer Settings` from the sidebar, then choose to `Generate personal access token (classic)`
     - Title the new token `Eng-pipes development token`, give this token 90 days until expiration, and enable the following permissions: `read:org` and `read:user`.
     - On the next page, copy the displayed token into the `GH_USER_TOKEN` field of your `.env` file.
 
-    > :warning: **You are giving this token rather broad permissions to your entire GitHub account, not just the `eng-pipes-org`, so be very careful and ensure it does not leave your machine!**
+      > :warning: **You are giving this token permissions to all orgs across GitHub that you are a member of (though some, like `getsentry`, are configured to require approval before PATs have access). Be careful and ensure it does not leave your machine!**
 
-1. In your personal GitHub organization, create a new project called `Eng-pipes test project`
+1.  [Create a GitHub App](https://github.com/settings/apps/new).
 
-    - Go to the project's `Settings`, then modify the `Status` field to only have the following options (note the capitalization): `Waiting for: Community`, `Waiting for: Product Owner`, and `Waiting for: Support`
-    - Add a new field (note the capitalization) called `Respond By` of type `Text`
-    - Add a new field (note the capitalization) called `Product Area` of type `Single select`, with the following options: `Alerts`, `Crons`, `Dashboards`, `Discover`, `Issues,` `Performance`, `Profiling`, `Projects`, `Relays`, `Releases`, and `User Feedback`
+    - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
+    - Create and download a private key and add it to your `.env` under `GH_APP_PRIVATE_KEY`. You'll need to convert newlines to literal `\n`. (See also [Setup Secrets](#setup-secrets) above.)
+    - Go to the `Permissions & events` sidebar menu entry of the GitHub app configuration, and grant maximum non-`Admin` access (`Read and write` where possible, `Read only` everywhere else) for every line in `Repository permissions` (NOTE: We use a more constrained permission-set in production, but for initial setup enabling maximal permissions is fine; permissions can be whittled down later as needed.)
+    - For `Organization permissions`, grant `Read and write` for `Members` and `Projects`
+    - In the `Subscribe to events` section, check every possible box
+    - Go to `Install App` in the sidebar menu of the GitHub app configuration, and install the app for your GitHub organization.
+    - When prompted, choose `All repositories`.
 
-1. In your personal GitHub repository at `eng-pipes-org/eng-pipes-dev`, go to `Issues`, then click `Labels`
+1. In your GitHub organization, create a new project called `GitHub Issues Someone Else Cares About`.
+
+    - Go to the project's `Settings`, then modify the `Status` field to only have the following options (note the capitalization): `Waiting for: Community`, `Waiting for: Product Owner`, and `Waiting for: Support`.
+    - Add a new field (note the capitalization) called `Response Due` of type `Text`.
+    - Add a new field (note the capitalization) called `Product Area` of type `Single select`, with the following options: `Alerts`, `Crons`, `Dashboards`, `Discover`, `Issues,` `Performance`, `Profiling`, `Projects`, `Relays`, `Releases`, and `User Feedback`.
+
+1. In your GitHub repository at `[your-org]/testing-eng-pipes-or-whatever`, go to `Issues`, then click `Labels`.
 
     - Add the labels `Waiting for: Community`, `Waiting for: Product Owner`, and `Waiting for: Support`,
     - Add the labels `Product Area: Alerts`, `Product Area: Crons`, `Product Area: Dashboards`, `Product Area: Discover`, `Product Area: Issues,` `Product Area: Performance`, `Product Area: Profiling`, `Product Area: Projects`, `Product Area: Relays`, `Product Area: Releases`, and `Product Area: User Feedback`
 
-1. In a terminal, log into the Github CLI using `gh auth login` and following the prompts
+1. Copy the file `github-orgs.example.yml` to `github-orgs.local.yml`.
 
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-an-organization-project) GraphQL query to identify the node ID of your personal GitHub organization; set the `ISSUES_PROJECT_NODE_ID` variable in your `.env` file to match
-    - Use [this](https://docs.github.com/en/issues/planning-and-tracking-with-projects/automating-your-project/using-the-api-to-manage-projects#finding-the-node-id-of-a-field) GraphQL query to identify the node ID of your project fields, and use those IDs to populate the `STATUS_FIELD_ID`, `PRODUCT_AREA_FIELD_ID`, and `RESPONSE_DUE_DATE_FIELD_ID` in your `.env` file
+    - Set an environment variable, `GH_ORGS_YML=github-orgs.local.yml`.
+
+    - Modify the top-level key to the slug of your organization.
+
+    - Set `appId` to the "App ID" from General > About in the UI for your app.
+
+    - Set `installationId` to the ID at the end of the URL for your app's installation on your org (confused yet?).
+
+    - Leave the `privateKey` as-is, it's the name of an environment variable to pull from (the main `github-orgs.yml` holds public config and is checked into version control).
+
+    - In a terminal, log into the GitHub CLI using `gh auth login`.
+
+    - Use the script at `bin/get-project-ids.sh $orgSlug $projectNumber` to determine the ids to set in `github-orgs.yml` for your project.
 
 1. Follow the steps of the "Development & tests" section below to get the server running.
 
@@ -174,7 +184,7 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
 
 1. Verify that the GitHub -> eng-pipes server pipeline works
 
-    - In your `eng-pipes-dev` GitHub repository, create a new issue
+    - In your `testing-eng-pipes` GitHub repository, create a new issue
     - You should see your localhost app response with a 200 status code:
 
     ![success!](/docs/successful_github_event.png 'Successful GitHub webhook reception')
@@ -182,7 +192,7 @@ NOTE: These steps will cover more aspects over time. For now it focuses on testi
 1. Verify that the GitHub -> eng-pipes server -> Slack pipeline works
 
     - In your Slack workspace, create a `#test` channel, and in that channel type `/notify-for-triage Alerts sfo` to setup Slack messages
-    - Create a new issue in `eng-pipes-org/eng-pipes-dev`, then add the `Product Area: Alerts` label to it
+    - Create a new issue in `[your-org]/testing-eng-pipes`, then add the `Product Area: Alerts` label to it
     - You should see a 200 status code in the ngrok window, plus a description of the message in the `yarn dev` window, and a Slack message describing the new issue in the `#test` channel of your Slack workspace
 
 Congratulations, you're all setup!
@@ -236,7 +246,7 @@ yarn test
 
 This section only matters if you want to gather metrics from other projects than the ones we currently do.
 
-Install [the Github application](https://github.com/organizations/getsentry/settings/apps/getsantry/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
+Install [the GitHub application](https://github.com/organizations/getsentry/settings/apps/getsantry/installations) to relevant repos (you will need to contact IT for access to this app). This app is used for GitHub API access to the repos it is installed on.
 
 ### Deploying
 
