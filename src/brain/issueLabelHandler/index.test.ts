@@ -111,8 +111,7 @@ describe('issueLabelHandler', function () {
         name: repo,
         owner: { login: GETSENTRY_ORG.slug },
       },
-      issue: { state, labels }, // mix in labels stored in mock
-      author_association,
+      issue: { state, labels, author_association }, // mix in labels stored in mock
     };
 
     if (label) {
