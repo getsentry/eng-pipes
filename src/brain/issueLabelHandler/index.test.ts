@@ -598,6 +598,15 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).toEqual(new Set([]));
     });
 
+    it('should not add `Waiting for: Product Owner` label when community member comments and issue is waiting for support', async function () {
+      await createPR('routing-repo');
+      await addLabel(WAITING_FOR_SUPPORT_LABEL);
+      await addComment('routing-repo', 'Skywalker', true);
+      expect(org.api.issues._labels).toEqual(
+        new Set([WAITING_FOR_SUPPORT_LABEL])
+      );
+    });
+
     it('should add `Waiting for: Product Owner` label when community member comments and issue is not waiting for community', async function () {
       await setupIssue();
       await addComment('routing-repo', 'Skywalker');
