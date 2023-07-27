@@ -42,6 +42,7 @@ export async function getRelevantCommit(ref: string) {
 
     return data;
   } catch (err) {
+    console.error('Failed to get relevant commits:', err);
     Sentry.captureException(err);
     return null;
   }

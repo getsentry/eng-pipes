@@ -204,12 +204,11 @@ async function filterCommits(pipeline, commits) {
 }
 
 async function getCommitsInDeployment(
-  org: GitHubOrg,
   sha: string,
   prevsha: string | null
 ): Promise<CompareCommits['commits']> {
   if (prevsha && prevsha !== sha) {
-    const { data } = await org.api.repos.compareCommits({
+    const { data } = await GETSENTRY_ORG.api.repos.compareCommits({
       owner: GETSENTRY_ORG.slug,
       repo: GETSENTRY_REPO_SLUG,
       head: sha,
@@ -217,7 +216,7 @@ async function getCommitsInDeployment(
     });
     return data.commits;
   }
-  const resp = await org.api.repos.getCommit({
+  const resp = await GETSENTRY_ORG.api.repos.getCommit({
     owner: GETSENTRY_ORG.slug,
     repo: GETSENTRY_REPO_SLUG,
     ref: sha,
@@ -277,7 +276,6 @@ export async function handler(resBody: GoCDResponse) {
       pipeline.name
     );
     const commits = await getCommitsInDeployment(
-      GETSENTRY_ORG,
       sha,
       firstGitMaterialSHA(latestDeploy)
     );
@@ -288,8 +286,8 @@ export async function handler(resBody: GoCDResponse) {
       ...(await updateSlack(pipeline, relevantCommitShas)),
     ]);
   } catch (err) {
+    console.error('Failed to get notify on GoCD stage event:', err);
     Sentry.captureException(err);
-    console.error(err);
   } finally {
     tx.finish();
   }
