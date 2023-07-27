@@ -105,6 +105,49 @@ export async function updateCommunityFollowups({
   tx.finish();
 }
 
+export async function clearWaitingForProductOwnerStatus({
+  id,
+  payload,
+  ...rest
+}: EmitterWebhookEvent<'issues.unlabeled'>) {
+  const tx = Sentry.startTransaction({
+    op: 'brain',
+    name: 'issueLabelHandler.isNotWaitingForProductOwnerLabel',
+  });
+
+  const org = GH_ORGS.getForPayload(payload);
+
+  const reasonsToDoNothing = [
+    isNotInARepoWeCareAboutForFollowups,
+    isNotWaitingForLabel,
+    isFromABot,
+  ];
+  if (await shouldSkip(payload, org, reasonsToDoNothing)) {
+    return;
+  }
+
+  const { label } = payload;
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
+  // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
+  // @ts-ignore
+  const labelName = label.name;
+
+  const itemId: string = await org.addIssueToGlobalIssuesProject(
+    payload.issue.node_id,
+    repo,
+    issueNumber
+  );
+
+  await org.clearProjectIssueField(
+    itemId,
+    labelName,
+    org.project.fieldIds.status
+  );
+
+  tx.finish();
+}
+
 export async function ensureOneWaitingForLabel({
   id,
   payload,
