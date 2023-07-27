@@ -25,6 +25,12 @@ function isNotWaitingForLabel(payload) {
   return !payload.label?.name.startsWith(WAITING_FOR_LABEL_PREFIX);
 }
 
+function isWaitingForSupport(payload) {
+  return payload.issue.labels.some(
+    ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
+  );
+}
+
 function isContractor(payload) {
   // Contractors are outside collaborators on GitHub
   return payload.comment.author_association === 'COLLABORATOR';
@@ -51,6 +57,7 @@ export async function updateCommunityFollowups({
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
+    isWaitingForSupport,
     isContractor,
     isPullRequest,
     isFromABot,
