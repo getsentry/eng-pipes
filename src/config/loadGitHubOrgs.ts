@@ -59,8 +59,16 @@ export class GitHubOrgs {
 
 export function loadGitHubOrgs(env) {
   let configs = {};
-  const filepath = env.GH_ORGS_YML || 'github-orgs.yml';
+  let filepath = env.GH_ORGS_YML || 'github-orgs.yml';
   if (filepath) {
+    if (process.cwd().endsWith('/src')) {
+      // GH_ORGS_YML assumes that cwd is the project root, so work around Knex
+      // migrations cd'ing into the directory of the knexfile.ts. We could do
+      // something fancier to protect against the general case, but let's keep
+      // it simple for now.
+
+      filepath = '../' + filepath;
+    }
     configs = yaml.load(fs.readFileSync(filepath));
   }
 
