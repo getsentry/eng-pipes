@@ -100,12 +100,7 @@ describe('issueLabelHandler', function () {
     });
   }
 
-  function makePayload(
-    repo?: string,
-    label?: string,
-    sender?: string,
-    state?: string
-  ) {
+  function makePayload({ repo, label, sender, state, author_association }) {
     repo = repo || 'test-ttt-simple';
     state = state || 'open';
 
@@ -116,7 +111,7 @@ describe('issueLabelHandler', function () {
         name: repo,
         owner: { login: GETSENTRY_ORG.slug },
       },
-      issue: { state, labels }, // mix in labels stored in mock
+      issue: { state, labels, author_association }, // mix in labels stored in mock
     };
 
     if (label) {
@@ -125,11 +120,21 @@ describe('issueLabelHandler', function () {
     return payload;
   }
 
-  async function createIssue(repo?: string, username?: string) {
+  async function createIssue(
+    repo?: string,
+    username?: string,
+    author_association?: string
+  ) {
     await createGitHubEvent(
       fastify,
       'issues.opened',
-      makePayload(repo, undefined, username)
+      makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association,
+      })
     );
   }
 
@@ -137,7 +142,13 @@ describe('issueLabelHandler', function () {
     await createGitHubEvent(
       fastify,
       'pull_request.opened',
-      makePayload(repo, undefined, username)
+      makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association: undefined,
+      })
     );
   }
 
@@ -145,7 +156,13 @@ describe('issueLabelHandler', function () {
     await createGitHubEvent(
       fastify,
       'issues.labeled',
-      makePayload(repo, label, undefined, state)
+      makePayload({
+        repo,
+        label,
+        sender: undefined,
+        state,
+        author_association: undefined,
+      })
     );
     org.api.issues.addLabels({ labels: [label] });
   }
@@ -162,7 +179,13 @@ describe('issueLabelHandler', function () {
       throw `Unknown user: '${username}'`;
     }
     const payload = {
-      ...makePayload(repo, undefined, username),
+      ...makePayload({
+        repo,
+        label: undefined,
+        sender: username,
+        state: undefined,
+        author_association: undefined,
+      }),
       comment: { author_association: membership },
     };
     if (isPR) {
@@ -247,6 +270,13 @@ describe('issueLabelHandler', function () {
       expectAdding();
       expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
+    });
+
+    it('skips adding `Waiting for: Product Owner` for external collaborators', async function () {
+      await createIssue(undefined, 'External User', 'COLLABORATOR');
+      expectNotWaitingforProductOwner();
+      expectNoAdding();
+      expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
     });
 
     it('skips adding `Waiting for: Product Owner` in untracked repos', async function () {
@@ -366,6 +396,14 @@ describe('issueLabelHandler', function () {
 
     it('skips adding `Waiting for: Support` for internal users', async function () {
       await createIssue('routing-repo', 'Picard');
+      expectNotWaitingForSupport();
+      expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
+      expect(org.api.issues._comments).toEqual([]);
+      expect(addIssueToGlobalIssuesProjectSpy).not.toHaveBeenCalled();
+    });
+
+    it('skips adding `Waiting for: Support` for external collaborators', async function () {
+      await createIssue('sentry-docs', 'External User', 'COLLABORATOR');
       expectNotWaitingForSupport();
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([]);

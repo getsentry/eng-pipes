@@ -31,7 +31,7 @@ function isWaitingForSupport(payload) {
   );
 }
 
-function isContractor(payload) {
+function isCommentFromCollaborator(payload) {
   // Contractors are outside collaborators on GitHub
   return payload.comment.author_association === 'COLLABORATOR';
 }
@@ -57,8 +57,8 @@ export async function updateCommunityFollowups({
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
     isNotFromAnExternalOrGTMUser,
+    isCommentFromCollaborator,
     isWaitingForSupport,
-    isContractor,
     isPullRequest,
     isFromABot,
   ];

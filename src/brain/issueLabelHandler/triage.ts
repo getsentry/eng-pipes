@@ -1,7 +1,11 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
-import { GH_ORGS, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
+import {
+  GH_ORGS,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+} from '@/config';
+import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
 import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
@@ -42,6 +46,7 @@ export async function markWaitingForProductOwner({
     isNotInARepoWeCareAboutForTriage,
     isAlreadyUntriaged,
     isNotFromAnExternalOrGTMUser,
+    isFromOutsideCollaborator,
   ];
   if (await shouldSkip(payload, org, reasonsToSkipTriage)) {
     return;
