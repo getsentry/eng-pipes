@@ -26,7 +26,9 @@ function isNotWaitingForLabel(payload) {
 }
 
 function isWaitingForSupport(payload) {
-  return payload.label?.name === WAITING_FOR_SUPPORT_LABEL;
+  return payload.issue.labels.some(
+    ({ name }) => name === WAITING_FOR_SUPPORT_LABEL
+  );
 }
 
 function isContractor(payload) {
