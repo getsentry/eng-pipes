@@ -170,3 +170,10 @@ type GoCDApprovalType = 'success' | 'manual';
 type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 
 type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
+
+export interface OptionsAutomatorResponse {
+  region : string;
+  dryRun: boolean;
+  drifted: string[];
+  updated: string[];
+}

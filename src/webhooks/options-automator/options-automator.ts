@@ -7,30 +7,30 @@ import { FastifyRequest } from 'fastify';
 import { OptionsAutomatorResponse } from '@types';
 
 import { bolt } from '@/api/slack';
+import { toString } from 'lodash';
 
 //import { ChatPostMessageArguments } from '@slack/web-api';
-import * as Sentry from '@sentry/node';
 
 export async function handler(request: FastifyRequest<{ Body: OptionsAutomatorResponse }>) {
     const { body }: { body: OptionsAutomatorResponse } = request;
     console.log('hi', body);
     
-    await messageSlack('hello');
+    await messageSlack(body);
     return {};
 
 }
 
-export async function messageSlack(message : string) {    
+export async function messageSlack(message : OptionsAutomatorResponse) {    
+    const parsed = toString(message);
     try {
     // @ts-ignore
     return await bolt.client.chat.postMessage({
-        text: message,
+        text: parsed,
         channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
         unfurl_links: false
     });
     } catch (err) {
-        console.log('we broke', err);
-        Sentry.captureException(err);
+        console.log(err);
         return;
     }
 }
