@@ -129,7 +129,7 @@ export async function clearWaitingForProductOwnerStatus({
   const { label } = payload;
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
-  if (label.name === undefined) {
+  if (label?.name == null) {
     Sentry.captureException(
       `Webhook label name is undefined for ${repo}/${issueNumber}`
     );
@@ -175,7 +175,7 @@ export async function ensureOneWaitingForLabel({
   const { issue, label } = payload;
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
-  if (label.name === undefined) {
+  if (label?.name == null) {
     Sentry.captureException(
       `Webhook label name is undefined for ${repo}/${issueNumber}`
     );
