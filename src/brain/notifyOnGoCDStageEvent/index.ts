@@ -268,10 +268,6 @@ export async function handler(resBody: GoCDResponse) {
   });
   Sentry.configureScope((scope) => scope.setSpan(tx));
 
-  // Create an error object here before we make any async calls so that we
-  // have a helpful stack trace if it errors
-  const preservedError = new Error('notifyOnGoCDStageEvent Error');
-
   // Get the range of commits for this payload
   try {
     const latestDeploy = await getLastGetSentryGoCDDeploy(
@@ -290,7 +286,7 @@ export async function handler(resBody: GoCDResponse) {
     ]);
   } catch (err) {
     console.error('Failed to get notify on GoCD stage event:', err);
-    Sentry.captureException(preservedError, err);
+    Sentry.captureException(err);
   } finally {
     tx.finish();
   }

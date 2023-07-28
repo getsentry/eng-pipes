@@ -10,10 +10,6 @@ import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG, SENTRY_REPO_SLUG } from '@/config';
  * In this case, it will return the sentry commit.
  */
 export async function getRelevantCommit(ref: string) {
-  // Create an error object here before we make any async calls so that we
-  // have a helpful stack trace if it errors
-  const preservedError = new Error('getRelevantCommit Error');
-
   try {
     // Attempt to get the getsentry commit first
     const { data: commit } = await GETSENTRY_ORG.api.repos.getCommit({
@@ -47,7 +43,7 @@ export async function getRelevantCommit(ref: string) {
     return data;
   } catch (err) {
     console.error('Failed to get relevant commits:', err);
-    Sentry.captureException(preservedError, err);
+    Sentry.captureException(err);
     return null;
   }
 }
