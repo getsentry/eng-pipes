@@ -25,7 +25,11 @@ export const ALL_MESSAGE_SUFFIX = [
 // GoCD does not provide details about all pipeline stages, so we can't
 // know if a GoCD notification is the last stage in the pipeline or not.
 // We use these names to determine if the deployment is complete or not.
-export const FINAL_STAGE_NAMES = ['deploy', 'deploy-primary'];
+export const FINAL_STAGE_NAMES = [
+  'deploy',
+  'deploy-primary',
+  'pipeline-complete',
+];
 const GETSENTRY_PIPELINES = [
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
