@@ -15,6 +15,7 @@ import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
+import * as isFromABot from '@utils/isFromABot';
 
 import { issueLabelHandler } from '.';
 
@@ -546,17 +547,21 @@ describe('issueLabelHandler', function () {
   describe('followups test cases', function () {
     let modifyProjectIssueFieldSpy,
       modifyDueByDateSpy,
-      addIssueToGlobalIssuesProjectSpy;
+      addIssueToGlobalIssuesProjectSpy,
+      clearProjectIssueFieldSpy;
     beforeAll(function () {
       modifyProjectIssueFieldSpy = jest
         .spyOn(org, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
-      modifyDueByDateSpy = jest
-        .spyOn(org, 'modifyDueByDate')
-        .mockImplementation(jest.fn());
       addIssueToGlobalIssuesProjectSpy = jest
         .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('itemId');
+      modifyDueByDateSpy = jest
+        .spyOn(org, 'modifyDueByDate')
+        .mockImplementation(jest.fn());
+      clearProjectIssueFieldSpy = jest
+        .spyOn(org, 'clearProjectIssueField')
+        .mockImplementation(jest.fn());
     });
     afterEach(function () {
       jest.clearAllMocks();
@@ -748,5 +753,59 @@ describe('issueLabelHandler', function () {
         org.project.fieldIds.responseDue
       );
     });
+
+    it.each([
+      WAITING_FOR_PRODUCT_OWNER_LABEL,
+      WAITING_FOR_SUPPORT_LABEL,
+      WAITING_FOR_COMMUNITY_LABEL,
+    ])(
+      "should clear project issue status field if user removes '%s'",
+      async function (label) {
+        await setupIssue();
+        await addLabel(label, 'routing-repo');
+        await createGitHubEvent(
+          fastify,
+          'issues.unlabeled',
+          makePayload({
+            repo: 'routing-repo',
+            label,
+            sender: undefined,
+            state: undefined,
+            author_association: undefined,
+          })
+        );
+        org.api.issues.removeLabel(label);
+        expect(clearProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+          'itemId',
+          label,
+          org.project.fieldIds.status
+        );
+      }
+    );
+
+    it.each([
+      WAITING_FOR_PRODUCT_OWNER_LABEL,
+      WAITING_FOR_SUPPORT_LABEL,
+      WAITING_FOR_COMMUNITY_LABEL,
+    ])(
+      "should not clear project issue status field if bot removes '%s'",
+      async function (label) {
+        await setupIssue();
+        await addLabel(label, 'routing-repo');
+        await createGitHubEvent(
+          fastify,
+          'issues.unlabeled',
+          makePayload({
+            repo: 'routing-repo',
+            label,
+            sender: 'getsentry-bot',
+            state: undefined,
+            author_association: undefined,
+          })
+        );
+        org.api.issues.removeLabel(label);
+        expect(clearProjectIssueFieldSpy).not.toHaveBeenCalled();
+      }
+    );
   });
 });

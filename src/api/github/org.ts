@@ -157,6 +157,32 @@ export class GitHubOrg {
     await this.sendGraphQuery(modifyProjectIssueFieldMutation, data);
   }
 
+  async clearProjectIssueField(
+    itemId: string,
+    projectFieldOption: string,
+    fieldId: string
+  ) {
+    const modifyProjectIssueFieldMutation = `mutation {
+      clearProjectV2ItemFieldValue(
+        input: {
+          projectId: "${this.project.nodeId}"
+          itemId: "${itemId}"
+          fieldId: "${fieldId}"
+        }
+      ) {
+        projectV2Item {
+          id
+        }
+      }
+    }`;
+    const data = {
+      itemId,
+      projectFieldOption,
+      fieldId,
+    };
+    await this.sendGraphQuery(modifyProjectIssueFieldMutation, data);
+  }
+
   async modifyDueByDate(
     itemId: string,
     projectFieldOption: string,

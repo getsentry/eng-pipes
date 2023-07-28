@@ -4,11 +4,11 @@ getsentry:
     privateKey: 'STUB'
     installationId: -1
   project:
-    nodeId: ''
+    nodeId: 'projectNodeId'
     fieldIds:
-      productArea: ''
-      status: ''
-      responseDue: ''
+      productArea: 'productAreaFieldId'
+      status: 'statusFieldId'
+      responseDue: 'responseDueFieldId'
   repos:
     withRouting:
       - routing-repo
