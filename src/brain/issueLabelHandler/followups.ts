@@ -112,7 +112,7 @@ export async function clearWaitingForProductOwnerStatus({
 }: EmitterWebhookEvent<'issues.unlabeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.isNotWaitingForProductOwnerLabel',
+    name: 'issueLabelHandler.clearWaitingForProductOwnerStatus',
   });
 
   const org = GH_ORGS.getForPayload(payload);
@@ -129,8 +129,12 @@ export async function clearWaitingForProductOwnerStatus({
   const { label } = payload;
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
-  // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
-  // @ts-ignore
+  if (label.name === undefined) {
+    Sentry.captureException(
+      `Webhook label name is undefined for ${repo}/${issueNumber}`
+    );
+    return;
+  }
   const labelName = label.name;
 
   const itemId: string = await org.addIssueToGlobalIssuesProject(
@@ -171,8 +175,12 @@ export async function ensureOneWaitingForLabel({
   const { issue, label } = payload;
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
-  // Here label will never be undefined, ts is erroring here but is handled in the shouldSkip above
-  // @ts-ignore
+  if (label.name === undefined) {
+    Sentry.captureException(
+      `Webhook label name is undefined for ${repo}/${issueNumber}`
+    );
+    return;
+  }
   const labelName = label.name;
 
   const labelToRemove = issue.labels?.find(

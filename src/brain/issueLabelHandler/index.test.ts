@@ -153,21 +153,6 @@ describe('issueLabelHandler', function () {
     );
   }
 
-  async function removeLabel(label: string, repo?: string, sender?: string) {
-    await createGitHubEvent(
-      fastify,
-      'issues.unlabeled',
-      makePayload({
-        repo,
-        label,
-        sender,
-        state: undefined,
-        author_association: undefined,
-      })
-    );
-    org.api.issues.removeLabel(label);
-  }
-
   async function addLabel(label: string, repo?: string, state?: string) {
     await createGitHubEvent(
       fastify,
@@ -778,7 +763,18 @@ describe('issueLabelHandler', function () {
       async function (label) {
         await setupIssue();
         await addLabel(label, 'routing-repo');
-        await removeLabel(label);
+        await createGitHubEvent(
+          fastify,
+          'issues.unlabeled',
+          makePayload({
+            repo: 'routing-repo',
+            label,
+            sender: undefined,
+            state: undefined,
+            author_association: undefined,
+          })
+        );
+        org.api.issues.removeLabel(label);
         expect(clearProjectIssueFieldSpy).toHaveBeenLastCalledWith(
           'itemId',
           label,
@@ -796,7 +792,18 @@ describe('issueLabelHandler', function () {
       async function (label) {
         await setupIssue();
         await addLabel(label, 'routing-repo');
-        await removeLabel(label, undefined, 'getsentry-bot');
+        await createGitHubEvent(
+          fastify,
+          'issues.unlabeled',
+          makePayload({
+            repo: 'routing-repo',
+            label,
+            sender: 'getsentry-bot',
+            state: undefined,
+            author_association: undefined,
+          })
+        );
+        org.api.issues.removeLabel(label);
         expect(clearProjectIssueFieldSpy).not.toHaveBeenCalled();
       }
     );
