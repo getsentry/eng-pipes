@@ -1,10 +1,13 @@
+import { EngPipesOctokit as octokitClass } from '@api/github/engpipesOctokit';
 import { makeUserTokenClient } from '@api/github/makeUserTokenClient';
-import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
 
 describe('makeUserTokenClient', function () {
   it('is instantiated once', async function () {
     makeUserTokenClient('blah blah');
-    expect(octokitClass).toHaveBeenCalledWith({ auth: 'blah blah' });
+    expect(octokitClass).toHaveBeenCalledWith({
+      auth: 'blah blah',
+      throttle: expect.anything(),
+    });
   });
   it('throws an error for no token', async function () {
     expect(() => {

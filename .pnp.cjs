@@ -38,6 +38,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@google-cloud/bigquery", "npm:5.3.0"],
             ["@octokit/auth-app", "npm:3.6.1"],
             ["@octokit/plugin-retry", "npm:3.0.9"],
+            ["@octokit/plugin-throttling", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.2.3"],
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
             ["@octokit/webhooks", "npm:11.0.0"],
@@ -1763,6 +1764,30 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/plugin-retry", "npm:3.0.9"],
             ["@octokit/types", "npm:6.8.5"],
             ["bottleneck", "npm:2.19.5"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
+      ["@octokit/plugin-throttling", [
+        ["npm:5.2.3", {
+          "packageLocation": "./.yarn/cache/@octokit-plugin-throttling-npm-5.2.3-5d999395b6-ce7ca75d15.zip/node_modules/@octokit/plugin-throttling/",
+          "packageDependencies": [
+            ["@octokit/plugin-throttling", "npm:5.2.3"]
+          ],
+          "linkType": "SOFT",
+        }],
+        ["virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.2.3", {
+          "packageLocation": "./.yarn/__virtual__/@octokit-plugin-throttling-virtual-d221d53268/0/cache/@octokit-plugin-throttling-npm-5.2.3-5d999395b6-ce7ca75d15.zip/node_modules/@octokit/plugin-throttling/",
+          "packageDependencies": [
+            ["@octokit/plugin-throttling", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.2.3"],
+            ["@octokit/core", null],
+            ["@octokit/types", "npm:9.2.3"],
+            ["@types/octokit__core", null],
+            ["bottleneck", "npm:2.19.5"]
+          ],
+          "packagePeers": [
+            "@octokit/core",
+            "@types/octokit__core"
           ],
           "linkType": "HARD",
         }]
@@ -9889,6 +9914,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@google-cloud/bigquery", "npm:5.3.0"],
             ["@octokit/auth-app", "npm:3.6.1"],
             ["@octokit/plugin-retry", "npm:3.0.9"],
+            ["@octokit/plugin-throttling", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:5.2.3"],
             ["@octokit/rest", "npm:18.12.0"],
             ["@octokit/types", "npm:6.34.0"],
             ["@octokit/webhooks", "npm:11.0.0"],

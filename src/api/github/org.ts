@@ -13,7 +13,7 @@ import {
 // circular import or something. Try it out if you want. :)
 import { FORCE_USER_TOKEN_GITHUB_CLIENT, GH_USER_CLIENT } from '../../config';
 
-import { OctokitWithRetries } from './octokitWithRetries';
+import { EngPipesOctokit } from './engpipesOctokit';
 
 export class GitHubOrg {
   slug: string;
@@ -47,9 +47,29 @@ export class GitHubOrg {
       // Hack for easier dev, avoids setting up a test org.
       this.api = GH_USER_CLIENT;
     } else {
-      this.api = new OctokitWithRetries({
+      this.api = new EngPipesOctokit({
         authStrategy: createAppAuth,
         auth: this.appAuth,
+        throttle: {
+          onRateLimit: (retryAfter, options, octokit, retryCount) => {
+            octokit.log.warn(
+              `Request quota exhausted for request ${options.method} ${options.url}`
+            );
+
+            if (retryCount < 1) {
+              // only retries once
+              octokit.log.info(`Retrying after ${retryAfter} seconds!`);
+              return true;
+            }
+            return false;
+          },
+          onSecondaryRateLimit: (retryAfter, options, octokit) => {
+            // does not retry, only logs a warning
+            octokit.log.warn(
+              `SecondaryRateLimit detected for request ${options.method} ${options.url}`
+            );
+          },
+        },
       });
     }
   }

@@ -1,7 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app';
 
 import { GETSENTRY_ORG } from '@/config';
-import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
+import { EngPipesOctokit as octokitClass } from '@api/github/engpipesOctokit';
 
 import { GitHubOrg } from './org';
 
@@ -29,6 +29,7 @@ describe('constructor', function () {
         privateKey: 'so secret',
         installationId: 432,
       },
+      throttle: expect.anything(),
     });
   });
 

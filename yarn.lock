@@ -1225,6 +1225,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@octokit/plugin-throttling@npm:v5.2.3":
+  version: 5.2.3
+  resolution: "@octokit/plugin-throttling@npm:5.2.3"
+  dependencies:
+    "@octokit/types": ^9.0.0
+    bottleneck: ^2.15.3
+  peerDependencies:
+    "@octokit/core": ^4.0.0
+  checksum: ce7ca75d150c63cf1bbcb5b385513bd8cd1f714c5e59f33d25c2afd08fa730250055ef8dffa74113f92e7fb3f209a147442242151607a513f55e4ce382c8e80c
+  languageName: node
+  linkType: hard
+
 "@octokit/request-error@npm:^2.0.0":
   version: 2.0.5
   resolution: "@octokit/request-error@npm:2.0.5"
@@ -8250,6 +8262,7 @@ resolve@^1.3.2:
     "@google-cloud/bigquery": ^5.3.0
     "@octokit/auth-app": ^3.6.1
     "@octokit/plugin-retry": ^3.0.9
+    "@octokit/plugin-throttling": v5.2.3
     "@octokit/rest": ^18.12.0
     "@octokit/types": ^6.34.0
     "@octokit/webhooks": ^11.0.0

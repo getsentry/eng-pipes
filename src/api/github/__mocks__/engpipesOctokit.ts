@@ -10,11 +10,11 @@ import { MockOctokitError } from './mockError';
 //   https://jestjs.io/docs/27.x/es6-class-mocks
 //   https://jestjs.io/docs/27.x/mock-function-api#jestmockedclass
 
-export const OctokitWithRetries = jest.fn(() => {
-  return OctokitWithRetries;
+export const EngPipesOctokit = jest.fn(() => {
+  return EngPipesOctokit;
 });
 
-OctokitWithRetries.actions = {
+EngPipesOctokit.actions = {
   listWorkflowRunsForRepo: jest.fn(),
   cancelWorkflowRun: jest.fn(),
   getJobForWorkflowRun: jest.fn(async ({ job_id }) => {
@@ -22,7 +22,7 @@ OctokitWithRetries.actions = {
   }),
 };
 
-OctokitWithRetries.apps = {
+EngPipesOctokit.apps = {
   getOrgInstallation: jest.fn(async ({ org }) => {
     return {
       data: {
@@ -32,7 +32,7 @@ OctokitWithRetries.apps = {
   }),
 };
 
-OctokitWithRetries.checks = {
+EngPipesOctokit.checks = {
   listForRef: jest.fn(),
   listAnnotations: jest.fn(async () => {
     return {
@@ -71,13 +71,13 @@ OctokitWithRetries.checks = {
   }),
 };
 
-OctokitWithRetries.git = {
+EngPipesOctokit.git = {
   getCommit: jest.fn(),
 };
 
-OctokitWithRetries.graphql = jest.fn();
+EngPipesOctokit.graphql = jest.fn();
 
-OctokitWithRetries.issues = {
+EngPipesOctokit.issues = {
   _labels: new Set([]),
   _comments: [],
   addLabels: jest.fn(async function (payload) {
@@ -94,7 +94,7 @@ OctokitWithRetries.issues = {
   update: jest.fn(),
 };
 
-OctokitWithRetries.orgs = {
+EngPipesOctokit.orgs = {
   checkMembershipForUser: jest.fn(async function ({ org, username }) {
     let status = 302;
     if (org === 'getsentry' || org === null) {
@@ -108,13 +108,13 @@ OctokitWithRetries.orgs = {
   }),
 };
 
-OctokitWithRetries.paginate = jest.fn();
+EngPipesOctokit.paginate = jest.fn();
 
-OctokitWithRetries.pulls = {
+EngPipesOctokit.pulls = {
   get: jest.fn(),
 };
 
-OctokitWithRetries.repos = {
+EngPipesOctokit.repos = {
   getCommit: jest.fn(),
 
   listPullRequestsAssociatedWithCommit: jest.fn(),
@@ -153,7 +153,7 @@ OctokitWithRetries.repos = {
   }),
 };
 
-OctokitWithRetries.request = jest.fn(async (URL, x) => {
+EngPipesOctokit.request = jest.fn(async (URL, x) => {
   if (URL.includes && URL.includes('/GTM/')) {
     let status = 302;
     if (x.org === 'getsentry' || x.org === null) {
@@ -168,7 +168,7 @@ OctokitWithRetries.request = jest.fn(async (URL, x) => {
   return {};
 });
 
-OctokitWithRetries.teams = {
+EngPipesOctokit.teams = {
   getByName: jest.fn(async function (payload) {
     if (
       payload.team_slug === 'product-owners-test' ||
