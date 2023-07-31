@@ -27,5 +27,6 @@ gcloud run deploy product-eng-webhooks \
   --allow-unauthenticated \
   --add-cloudsql-instances ${DB_INSTANCE_CONNECTION_NAME} \
   --region=us-west1
+gcloud run services update-traffic product-eng-webhooks --to-latest
 
 
