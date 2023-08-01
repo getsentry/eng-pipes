@@ -65,7 +65,7 @@ export type CheckRun = EmitterWebhookEvent<'check_run'>['payload']['check_run'];
 //
 // Need to do this as we can't convert a string literal union to an array of literals
 export const CHECK_RUN_PROPERTIES = ['id', 'head_sha', 'html_url'] as const;
-export type CheckRunProperty = typeof CHECK_RUN_PROPERTIES[number];
+export type CheckRunProperty = (typeof CHECK_RUN_PROPERTIES)[number];
 export type CheckRunForRequiredChecksText = Pick<CheckRun, CheckRunProperty>;
 
 export type GoCDResponse = GoCDStageResponse | GoCDAgentResponse;
@@ -172,8 +172,10 @@ type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
 
 export interface OptionsAutomatorResponse {
-  region : string;
-  dryRun: boolean;
-  drifted: string[];
-  updated: string[];
+  drifted_options: { option_name: string; option_value: string }[];
+  channel_updated_options: string[];
+  updated_options: { option_name: string; db_value: string; value: string }[];
+  set_options: { option_name: string; option_value: string }[];
+  unset_options: string[];
+  error_options: { option_name: string; error_msg: string }[];
 }
