@@ -90,7 +90,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
       channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
       unfurl_links: false,
     });
-    return bolt.client.chat.postMessage({
+    return await bolt.client.chat.postMessage({
       blocks: failedBlock,
       channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
       unfurl_links: false,
