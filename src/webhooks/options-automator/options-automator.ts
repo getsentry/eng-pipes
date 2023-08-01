@@ -16,7 +16,7 @@ export async function handler(
 }
 
 export async function messageSlack(message: OptionsAutomatorResponse) {
-  const successBlock: Array<KnownBlock> = [
+  const successBlock: KnownBlock[] = [
     slackblocks.header(
       slackblocks.plaintext('✅ Successfully Updated Options: ✅')
     ),
@@ -54,7 +54,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
     ),
   ];
 
-  const failedBlock = [
+  const failedBlock: KnownBlock[] = [
     slackblocks.header(slackblocks.plaintext('❌ FAILED TO UPDATE: ❌')),
     slackblocks.divider(),
     slackblocks.section(slackblocks.markdown('*DRIFTED OPTIONS:* ')),
