@@ -68,7 +68,7 @@ export async function getOssUserType(
 
     check = 'Team';
     status = await getResponseStatus(GH_USER_CLIENT.request, [
-      'GET /orgs/{orgSlug}/teams/GTM/memberships/{username}',
+      'GET /orgs/{org}/teams/GTM/memberships/{username}',
       { org: orgSlug, username },
     ]);
     if (status === 200) {
