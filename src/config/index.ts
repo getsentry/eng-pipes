@@ -28,6 +28,8 @@ export const FEED_DEV_INFRA_CHANNEL_ID =
   process.env.FEED_DEV_INFRA_CHANNEL_ID || 'C05816N2A2K';
 export const FEED_ENGINEERING_CHANNEL_ID =
   process.env.FEED_ENGINEERING_CHANNEL_ID || 'C1B4LB39D';
+export const FEED_SDKS_CHANNEL_ID =
+  process.env.FEED_SDKS_CHANNEL_ID || 'C05KQ0EMAT1';
 export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo

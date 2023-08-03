@@ -3,6 +3,7 @@ import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,
+  FEED_SDKS_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
@@ -14,6 +15,10 @@ import { DeployFeed } from './deployFeed';
 const ENGINEERING_PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
+];
+
+const SDKS_PIPELINE_FILTER = [
+  'deploy-release-registry',
 ];
 
 const DEV_INFRA_PIPELINE_FILTER = [
@@ -74,11 +79,34 @@ const engineeringFeed = new DeployFeed({
   },
 });
 
+// Post certain pipelines to #feed-sdks
+const sdksFeed = new DeployFeed({
+  feedName: 'sdksSlackFeed',
+  channelID: FEED_SDKS_CHANNEL_ID,
+  msgType: SlackMessage.FEED_ENGINGEERING_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    // We only want to log deploy-release-registry
+    if (!SDKS_PIPELINE_FILTER.includes(pipeline.name)) {
+      return false;
+    }
+
+    // We only care about raising an error if the deploy stage has failed.
+    if (!pipeline.stage.name.toLowerCase().includes('deploy')) {
+      return false;
+    }
+
+    // We only really care about creating new messages if the pipeline has
+    // failed.
+    return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+});
+
 export async function handler(body: GoCDResponse) {
   await Promise.all([
     deployFeed.handle(body),
     devinfraFeed.handle(body),
     engineeringFeed.handle(body),
+    sdksFeed.handle(body),
   ]);
 }
 
