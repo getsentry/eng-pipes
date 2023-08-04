@@ -691,7 +691,7 @@ describe('issueLabelHandler', function () {
       );
     });
 
-    it('should remove `Waiting for: Product Owner` label when staff member comments and issue is waiting for product owner', async function () {
+    it('should remove `Waiting for: Product Owner` label when staff member comments and issue already has `Waiting for: Product Owner` label', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
       await addComment('routing-repo', 'Picard');
@@ -702,7 +702,7 @@ describe('issueLabelHandler', function () {
       );
     });
 
-    it('should not remove `Waiting for: Community` label when staff member comments and issue is waiting for community', async function () {
+    it('should not remove `Waiting for: Community` label when staff member comments and issue has `Waiting for: Community` label', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_COMMUNITY_LABEL, 'routing-repo');
       await addComment('routing-repo', 'Picard');
@@ -715,7 +715,7 @@ describe('issueLabelHandler', function () {
       );
     });
 
-    it('should remove `Waiting for: Product Owner` label when collaborator comments and issue is waiting for product owner', async function () {
+    it('should remove `Waiting for: Product Owner` label when collaborator comments and issue already has `Waiting for: Product Owner` label', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
       await addComment('routing-repo', 'Troi');
