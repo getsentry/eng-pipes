@@ -86,15 +86,14 @@ export async function updateFollowupsOnComment({
         issue_number: issueNumber,
         name: WAITING_FOR_PRODUCT_OWNER_LABEL,
       });
+      const itemId: string = await org.addIssueToGlobalIssuesProject(
+        payload.issue.node_id,
+        repo,
+        issueNumber
+      );
+
+      await org.clearProjectIssueField(itemId, org.project.fieldIds.status);
     }
-
-    const itemId: string = await org.addIssueToGlobalIssuesProject(
-      payload.issue.node_id,
-      repo,
-      issueNumber
-    );
-
-    await org.clearProjectIssueField(itemId, org.project.fieldIds.status);
   } else {
     const isWaitingForCommunityLabelOnIssue = isLabelOnIssue(
       WAITING_FOR_COMMUNITY_LABEL
