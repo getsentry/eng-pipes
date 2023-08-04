@@ -691,6 +691,28 @@ describe('issueLabelHandler', function () {
       );
     });
 
+    it('should remove `Waiting for: Product Owner` label when staff member comments and issue is waiting for community', async function () {
+      await setupIssue();
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Picard');
+      expect(org.api.issues._labels).toEqual(new Set(['Product Area: Test']));
+      expect(clearProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        org.project.fieldIds.status
+      );
+    });
+
+    it('should remove `Waiting for: Product Owner` label when collaborator comments and issue is waiting for community', async function () {
+      await setupIssue();
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
+      await addComment('routing-repo', 'Troi');
+      expect(org.api.issues._labels).toEqual(new Set(['Product Area: Test']));
+      expect(clearProjectIssueFieldSpy).toHaveBeenLastCalledWith(
+        'itemId',
+        org.project.fieldIds.status
+      );
+    });
+
     it('should modify time to respond by when adding `Waiting for: Product Owner` label when calculateSLOViolationTriage returns null', async function () {
       await setupIssue();
       calculateSLOViolationTriageSpy.mockReturnValue(null);
@@ -738,7 +760,7 @@ describe('issueLabelHandler', function () {
     it('should not modify labels when community member comments and issue is waiting for product owner', async function () {
       await setupIssue();
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL, 'routing-repo');
-      await addComment('routing-repo', 'Picard');
+      await addComment('routing-repo', 'Skywalker');
       expect(org.api.issues._labels).toEqual(
         new Set(['Product Area: Test', WAITING_FOR_PRODUCT_OWNER_LABEL])
       );
@@ -777,7 +799,6 @@ describe('issueLabelHandler', function () {
         org.api.issues.removeLabel(label);
         expect(clearProjectIssueFieldSpy).toHaveBeenLastCalledWith(
           'itemId',
-          label,
           org.project.fieldIds.status
         );
       }

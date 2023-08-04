@@ -157,11 +157,7 @@ export class GitHubOrg {
     await this.sendGraphQuery(modifyProjectIssueFieldMutation, data);
   }
 
-  async clearProjectIssueField(
-    itemId: string,
-    projectFieldOption: string,
-    fieldId: string
-  ) {
+  async clearProjectIssueField(itemId: string, fieldId: string) {
     const modifyProjectIssueFieldMutation = `mutation {
       clearProjectV2ItemFieldValue(
         input: {
@@ -177,7 +173,6 @@ export class GitHubOrg {
     }`;
     const data = {
       itemId,
-      projectFieldOption,
       fieldId,
     };
     await this.sendGraphQuery(modifyProjectIssueFieldMutation, data);
