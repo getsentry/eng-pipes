@@ -28,16 +28,24 @@ export function plaintext(text: string): PlainTextElement {
   };
 }
 
-export function section(block: MrkdwnElement): KnownBlock {
-  return {
-    type: 'section',
-    text: block,
-  };
-}
-
-export function SectionBlock(fields: MrkdwnElement[]): KnownBlock {
-  return {
-    type: 'section',
-    fields: fields,
-  };
+export function section(block?: MrkdwnElement, fields?: MrkdwnElement[]): KnownBlock {
+  if (block && fields) {
+    return {
+      type: 'section',
+      text: block,
+      fields: fields,
+    };
+  } else if (block) {
+    return {
+      type: 'section',
+      text: block,
+    };
+  } else if (fields) {
+    return {
+      type: 'section',
+      fields: fields,
+    };
+  } else {
+    throw new Error('Either block or fields must be provided.');
+  }
 }

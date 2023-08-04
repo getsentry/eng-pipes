@@ -19,22 +19,11 @@ export async function handler(
 export async function messageSlack(message: OptionsAutomatorResponse) {
     const successBlock: KnownBlock[] = [
         slackblocks.header(slackblocks.plaintext('✅ Successfully Updated Options: ✅')),
-        ...(message.channel_updated_options.length > 0
-            ? [
-                slackblocks.divider(),
-                slackblocks.section(slackblocks.markdown('*Channel updated options:* ')),
-                slackblocks.SectionBlock(
-                message.channel_updated_options.map((option) =>
-                    slackblocks.markdown(`channel updated \`${option}\``)
-                )
-                ),
-            ]
-            : []),
         ...(message.updated_options.length > 0
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*Updated options:* ')),
-                slackblocks.SectionBlock(
+                slackblocks.section(
                 message.updated_options.map((option) =>
                     slackblocks.markdown(
                     `updated \`${option.option_name}\` with db value \`${option.db_value}\` and value \`${option.value}\``
@@ -47,7 +36,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*Set Options:* ')),
-                slackblocks.SectionBlock(
+                slackblocks.section(
                 message.set_options.map((option) =>
                     slackblocks.markdown(
                     `Set \`${option.option_name}\` with value \`${option.option_value}\``
@@ -60,7 +49,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*Unset Options:* ')),
-                slackblocks.SectionBlock(
+                slackblocks.section(
                 message.unset_options.map((option) =>
                     slackblocks.markdown(`Unset \`${option}\``)
                 )
@@ -75,7 +64,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*DRIFTED OPTIONS:* ')),
-                slackblocks.SectionBlock(
+                slackblocks.section(
                 message.drifted_options.map((option) =>
                     slackblocks.markdown(`\`${option}\` drifted.`)
                 )
@@ -86,7 +75,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*FAILED:* ')),
-                slackblocks.SectionBlock(
+                slackblocks.section(
                 message.error_options.map((option) =>
                     slackblocks.markdown(
                     `FAILED TO UPDATE \`${option.option_name}\` \nREASON: \`${option.error_msg}\``
@@ -95,14 +84,28 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 ),
             ]
             : []),
-        ...(message.set_options.length > 0
+        ...(message.unregistered_options.length > 0
             ? [
                 slackblocks.divider(),
-                slackblocks.section(slackblocks.markdown('*Set Options:* ')),
-                slackblocks.SectionBlock(
-                message.set_options.map((option) =>
+                slackblocks.section(slackblocks.markdown('*Unregistered Options:* ')),
+                slackblocks.section(
+                message.unregistered_options.map((option) =>
                     slackblocks.markdown(
-                    `Set \`${option.option_name}\` with value \`${option.option_value}\``
+                    `Option \`${option}\` is not registered!`
+                    )
+            )
+            ),
+        ]
+        : []),
+        ...(message.invalid_type_options.length > 0
+            ? [
+                slackblocks.divider(),
+                slackblocks.section(slackblocks.markdown('*Invalid Typed Options:* ')),
+                slackblocks.SectionBlock(
+                message.invalid_type_options.map((option) =>
+                    slackblocks.markdown(
+                    `Option \`${option.option_name}\` got type \`${option.got_type}\`, 
+                    but expected type \`${option.expected_type}\`.`
                     )
             )
             ),
