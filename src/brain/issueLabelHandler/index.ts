@@ -3,7 +3,7 @@ import { githubEvents } from '@api/github';
 import {
   clearWaitingForProductOwnerStatus,
   ensureOneWaitingForLabel,
-  updateCommunityFollowups,
+  updateFollowupsOnComment,
 } from './followups';
 import { markNotWaitingForSupport, markWaitingForSupport } from './route';
 import {
@@ -24,9 +24,9 @@ export async function issueLabelHandler() {
   githubEvents.on('issues.labeled', markNotWaitingForSupport);
   githubEvents.removeListener(
     'issue_comment.created',
-    updateCommunityFollowups
+    updateFollowupsOnComment
   );
-  githubEvents.on('issue_comment.created', updateCommunityFollowups);
+  githubEvents.on('issue_comment.created', updateFollowupsOnComment);
   githubEvents.removeListener('issues.labeled', ensureOneWaitingForLabel);
   githubEvents.on('issues.labeled', ensureOneWaitingForLabel);
   githubEvents.removeListener(

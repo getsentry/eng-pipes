@@ -42,22 +42,20 @@ function isPullRequest(payload) {
 
 // Markers of State
 
-export async function updateCommunityFollowups({
+export async function updateFollowupsOnComment({
   id,
   payload,
   ...rest
 }: EmitterWebhookEvent<'issue_comment.created'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.updateCommunityFollowups',
+    name: 'issueLabelHandler.updateFollowupsOnComment',
   });
 
   const org = GH_ORGS.getForPayload(payload);
 
   const reasonsToDoNothing = [
     isNotInARepoWeCareAboutForFollowups,
-    isNotFromAnExternalOrGTMUser,
-    isCommentFromCollaborator,
     isWaitingForSupport,
     isPullRequest,
     isFromABot,
@@ -70,37 +68,65 @@ export async function updateCommunityFollowups({
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
-  const isWaitingForCommunityLabelOnIssue = payload.issue.labels?.find(
-    ({ name }) => name === WAITING_FOR_COMMUNITY_LABEL
-  )?.name;
+  const isLabelOnIssue = (labelName) =>
+    payload.issue.labels?.find(({ name }) => name === labelName)?.name;
 
-  if (isWaitingForCommunityLabelOnIssue) {
-    await org.api.issues.removeLabel({
+  if (
+    (await isNotFromAnExternalOrGTMUser(payload)) ||
+    isCommentFromCollaborator(payload)
+  ) {
+    const isWaitingForProductOwnerLabelOnIssue = isLabelOnIssue(
+      WAITING_FOR_PRODUCT_OWNER_LABEL
+    );
+
+    if (isWaitingForProductOwnerLabelOnIssue) {
+      await org.api.issues.removeLabel({
+        owner: org.slug,
+        repo: repo,
+        issue_number: issueNumber,
+        name: WAITING_FOR_PRODUCT_OWNER_LABEL,
+      });
+      const itemId: string = await org.addIssueToGlobalIssuesProject(
+        payload.issue.node_id,
+        repo,
+        issueNumber
+      );
+
+      await org.clearProjectIssueField(itemId, org.project.fieldIds.status);
+    }
+  } else {
+    const isWaitingForCommunityLabelOnIssue = isLabelOnIssue(
+      WAITING_FOR_COMMUNITY_LABEL
+    );
+
+    if (isWaitingForCommunityLabelOnIssue) {
+      await org.api.issues.removeLabel({
+        owner: org.slug,
+        repo: repo,
+        issue_number: issueNumber,
+        name: WAITING_FOR_COMMUNITY_LABEL,
+      });
+    }
+
+    await org.api.issues.addLabels({
       owner: org.slug,
       repo: repo,
       issue_number: issueNumber,
-      name: WAITING_FOR_COMMUNITY_LABEL,
+      labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
     });
+
+    const itemId: string = await org.addIssueToGlobalIssuesProject(
+      payload.issue.node_id,
+      repo,
+      issueNumber
+    );
+
+    await org.modifyProjectIssueField(
+      itemId,
+      WAITING_FOR_PRODUCT_OWNER_LABEL,
+      org.project.fieldIds.status
+    );
   }
-
-  await org.api.issues.addLabels({
-    owner: org.slug,
-    repo: repo,
-    issue_number: issueNumber,
-    labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
-  });
-
-  const itemId: string = await org.addIssueToGlobalIssuesProject(
-    payload.issue.node_id,
-    repo,
-    issueNumber
-  );
-
-  await org.modifyProjectIssueField(
-    itemId,
-    WAITING_FOR_PRODUCT_OWNER_LABEL,
-    org.project.fieldIds.status
-  );
 
   tx.finish();
 }
@@ -135,7 +161,6 @@ export async function clearWaitingForProductOwnerStatus({
     );
     return;
   }
-  const labelName = label.name;
 
   const itemId: string = await org.addIssueToGlobalIssuesProject(
     payload.issue.node_id,
@@ -143,11 +168,7 @@ export async function clearWaitingForProductOwnerStatus({
     issueNumber
   );
 
-  await org.clearProjectIssueField(
-    itemId,
-    labelName,
-    org.project.fieldIds.status
-  );
+  await org.clearProjectIssueField(itemId, org.project.fieldIds.status);
 
   tx.finish();
 }
