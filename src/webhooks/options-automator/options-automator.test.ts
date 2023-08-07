@@ -39,7 +39,9 @@ describe('test message slack', function() {
     it('writes to slack', function() {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
         expect(postMessageSpy).toHaveBeenCalledTimes(2);
-        expect(postMessageSpy).toHaveBeenCalledWith({
+        const firstMessage = postMessageSpy.mock.calls[0][0];
+        const secondMessage = postMessageSpy.mock.calls[1][0];
+        expect(firstMessage).toEqual({
             blocks: [
                 {
                     type: "header",
@@ -118,5 +120,65 @@ describe('test message slack', function() {
                 text: "",
                 unfurl_links: false
         });
+        expect(secondMessage).toEqual({
+            blocks: [
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: "❌ FAILED TO UPDATE: ❌"
+                  }
+                },
+                {
+                  type: "divider"
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*DRIFTED OPTIONS:* "
+                  }
+                },
+                {
+                  type: "section",
+                  fields: [
+                    {
+                      type: "mrkdwn",
+                      text: "`drifted_option_1` drifted. value on db: `value_1`"
+                    },
+                    {
+                      type: "mrkdwn",
+                      text: "`drifted_option_2` drifted. value on db: `value_2`"
+                    }
+                  ]
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*FAILED:* "
+                  }
+                },
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "mrkdwn",
+                      "text": "FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`"
+                    },
+                    {
+                      "type": "mrkdwn",
+                      "text": "FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`"
+                    }
+                  ]
+                }
+              ],
+            channel: "C04URUC21C5",
+            text: "",
+            unfurl_links: false
+            });
     })
 })
