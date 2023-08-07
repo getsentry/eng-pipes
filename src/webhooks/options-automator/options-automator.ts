@@ -66,7 +66,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 slackblocks.section(slackblocks.markdown('*DRIFTED OPTIONS:* ')),
                 slackblocks.section(undefined,
                 message.drifted_options.map((option) =>
-                    slackblocks.markdown(`\`${option}\` drifted.`)
+                slackblocks.markdown(`\`${option.option_name}\` drifted. value on db: \`${option.option_value}\``)
                 )
                 ),
             ]
@@ -114,27 +114,15 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
     ];
 
     try {
-        await bolt.client.chat.postMessage({
-            channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-            blocks: successBlock,
-            text: "",
-            unfurl_links: false,
-          });
-        await bolt.client.chat.postMessage({
-        channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-        blocks: failedBlock,
-        text: "",
-        unfurl_links: false,
-        });
-        // if (successBlock.length > 1) {
-        //     await bolt.client.chat.postMessage({
-        //       channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-        //       blocks: successBlock,
-        //       text: "",
-        //       unfurl_links: false,
-        //     });
-        //   }
         
+        if (successBlock.length > 1) {
+            await bolt.client.chat.postMessage({
+              channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+              blocks: successBlock,
+              text: "",
+              unfurl_links: false,
+            });
+          }
           if (failedBlock.length > 1) {
             await bolt.client.chat.postMessage({
               channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
