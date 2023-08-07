@@ -42,6 +42,84 @@ describe('test message slack', function() {
         expect(postMessageSpy).toHaveBeenCalledWith({
             blocks: [
                 {
+                    type: "header",
+                    text: {
+                    type: "plain_text",
+                    text: "✅ Successfully Updated Options: ✅"
+                    }
+                },
+                {
+                    type: "divider"
+                },
+                {
+                    type: "section",
+                    text: {
+                    type: "mrkdwn",
+                    text: "*Updated options:* "
+                    }
+                },
+                {
+                    type: "section",
+                    fields: [
+                    {
+                        type: "mrkdwn",
+                        text: "updated `updated_option_1` with db value `db_value_1` and value `new_value_1`"
+                    }
+                    ]
+                },
+                {
+                    type: "divider"
+                },
+                {
+                    type: "section",
+                    text: {
+                    type: "mrkdwn",
+                    text: "*Set Options:* "
+                    }
+                },
+                {
+                    type: "section",
+                    fields: [
+                    {
+                        type: "mrkdwn",
+                        text: "Set `set_option_1` with value `set_value_1`"
+                    },
+                    {
+                        type: "mrkdwn",
+                        text: "Set `set_option_2` with value `set_value_2`"
+                    }
+                    ]
+                },
+                {
+                    type: "divider"
+                },
+                {
+                    type: "section",
+                    text: {
+                    type: "mrkdwn",
+                    text: "*Unset Options:* "
+                    }
+                },
+                {
+                    type: "section",
+                    fields: [
+                    {
+                        type: "mrkdwn",
+                        text: "Unset `unset_option_1`"
+                    },
+                    {
+                        type: "mrkdwn",
+                        text: "Unset `unset_option_2`"
+                    }
+                    ]
+                }
+                ],
+                text: "",
+                unfurl_links: false
+        });
+        expect(postMessageSpy).toHaveBeenCalledWith({
+            blocks: [
+                {
                   type: "header",
                   text: {
                     type: "plain_text",
@@ -97,85 +175,6 @@ describe('test message slack', function() {
               ],
               "text": "",
               "unfurl_links": false
-            });
-
-            expect(postMessageSpy).toHaveBeenCalledWith({
-                blocks: [
-                    {
-                      type: "header",
-                      text: {
-                        type: "plain_text",
-                        text: "✅ Successfully Updated Options: ✅"
-                      }
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: "*Updated options:* "
-                      }
-                    },
-                    {
-                      type: "section",
-                      fields: [
-                        {
-                          type: "mrkdwn",
-                          text: "updated `updated_option_1` with db value `db_value_1` and value `new_value_1`"
-                        }
-                      ]
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: "*Set Options:* "
-                      }
-                    },
-                    {
-                      type: "section",
-                      fields: [
-                        {
-                          type: "mrkdwn",
-                          text: "Set `set_option_1` with value `set_value_1`"
-                        },
-                        {
-                          type: "mrkdwn",
-                          text: "Set `set_option_2` with value `set_value_2`"
-                        }
-                      ]
-                    },
-                    {
-                      type: "divider"
-                    },
-                    {
-                      type: "section",
-                      text: {
-                        type: "mrkdwn",
-                        text: "*Unset Options:* "
-                      }
-                    },
-                    {
-                      type: "section",
-                      fields: [
-                        {
-                          type: "mrkdwn",
-                          text: "Unset `unset_option_1`"
-                        },
-                        {
-                          type: "mrkdwn",
-                          text: "Unset `unset_option_2`"
-                        }
-                      ]
-                    }
-                  ],
-                  text: "",
-                  unfurl_links: false
             });
     })
 })
