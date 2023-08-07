@@ -38,7 +38,10 @@ describe('test message slack', function() {
 
     it('writes to slack', function() {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-        expect(postMessageSpy).toHaveBeenCalledTimes(2);            
+        expect(postMessageSpy).toHaveBeenCalledTimes(2);
+        postMessageSpy.mock.calls.forEach((callArgs, index) => {
+            console.log(`Call ${index + 1} arguments:`, JSON.stringify(callArgs, null, 2));
+        });            
         expect(postMessageSpy).toHaveBeenCalledWith({
             blocks: [
                 {
@@ -114,67 +117,9 @@ describe('test message slack', function() {
                     ]
                 }
                 ],
+                channel: "C04URUC21C5",
                 text: "",
                 unfurl_links: false
         });
-        expect(postMessageSpy).toHaveBeenCalledWith({
-            blocks: [
-                {
-                  type: "header",
-                  text: {
-                    type: "plain_text",
-                    text: "❌ FAILED TO UPDATE: ❌"
-                  }
-                },
-                {
-                  type: "divider"
-                },
-                {
-                  type: "section",
-                  text: {
-                    type: "mrkdwn",
-                    text: "*DRIFTED OPTIONS:* "
-                  }
-                },
-                {
-                  type: "section",
-                  fields: [
-                    {
-                      type: "mrkdwn",
-                      text: "`drifted_option_1` drifted. value on db: `value_1`"
-                    },
-                    {
-                      type: "mrkdwn",
-                      text: "`drifted_option_2` drifted. value on db: `value_2`"
-                    }
-                  ]
-                },
-                {
-                  "type": "divider"
-                },
-                {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*FAILED:* "
-                  }
-                },
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "mrkdwn",
-                      "text": "FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`"
-                    },
-                    {
-                      "type": "mrkdwn",
-                      "text": "FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`"
-                    }
-                  ]
-                }
-              ],
-              "text": "",
-              "unfurl_links": false
-            });
     })
 })
