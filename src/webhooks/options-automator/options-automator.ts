@@ -71,12 +71,12 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 ),
             ]
             : []),
-        ...(message.error_options.length > 0
+        ...(message.not_writable_options.length > 0
             ? [
                 slackblocks.divider(),
                 slackblocks.section(slackblocks.markdown('*FAILED:* ')),
                 slackblocks.section(undefined,
-                message.error_options.map((option) =>
+                message.not_writable_options.map((option) =>
                     slackblocks.markdown(
                     `FAILED TO UPDATE \`${option.option_name}\` \nREASON: \`${option.error_msg}\``
                     )

@@ -153,28 +153,74 @@ describe('test message slack', function() {
                   ]
                 },
                 {
-                  "type": "divider"
+                  type: "divider"
                 },
                 {
-                  "type": "section",
-                  "text": {
-                    "type": "mrkdwn",
-                    "text": "*FAILED:* "
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*FAILED:* "
                   }
                 },
                 {
-                  "type": "section",
-                  "fields": [
+                  type: "section",
+                  fields: [
                     {
-                      "type": "mrkdwn",
-                      "text": "FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`"
+                      type: "mrkdwn",
+                      text: "FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`"
                     },
                     {
-                      "type": "mrkdwn",
-                      "text": "FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`"
+                      type: "mrkdwn",
+                      text: "FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`"
                     }
                   ]
-                }
+                },
+                {
+                    type: "divider"
+                },
+                {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: "*Unregistered Options:* "
+                    }
+                  },
+                  {
+                    type: "section",
+                    fields: [
+                      {
+                        type: "mrkdwn",
+                        text: "Option `unregisterd_option_1` is not registered!"
+                      },
+                      {
+                        type: "mrkdwn",
+                        text: "Option `unregisterd_option_2` is not registered!"
+                      }
+                    ]
+                  },
+                  {
+                    type: "divider"
+                },
+                {
+                    type: "section",
+                    text: {
+                      type: "mrkdwn",
+                      text: "*Invalid Typed Options:* "
+                    }
+                  },
+                  {
+                    type: "section",
+                    fields: [
+                        {
+                          type: "mrkdwn",
+                          text: "Option `invalid_type_option_1` got type `string`, \n                    but expected type `float`."
+                        },
+                        {
+                          type: "mrkdwn",
+                          text: "Option `invalid_type_option_2` got type `float`, \n                    but expected type `int`."
+                        }
+                    ]
+                  }
               ],
             channel: "C04URUC21C5",
             text: "",

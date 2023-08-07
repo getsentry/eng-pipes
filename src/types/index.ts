@@ -177,7 +177,7 @@ export interface OptionsAutomatorResponse {
   updated_options: { option_name: string; db_value: string; value: string }[];
   set_options: { option_name: string; option_value: string }[];
   unset_options: string[];
-  error_options: { option_name: string; error_msg: string }[];
+  not_writable_options: { option_name: string; error_msg: string }[];
   unregistered_options: string[];
   invalid_type_options: {option_name: string, got_type: string, expected_type: string }[];
 }
