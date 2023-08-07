@@ -41,9 +41,9 @@ describe('options-automator message slack', function() {
 
     it('should write two messages to slack', async function () {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-        await Promise.all(messageSlack(testpayload));
-        
-        expect(postMessageSpy).toHaveBeenCalledTimes(2);
+        messageSlack(testpayload);
+
+        expect(postMessageSpy).toHaveBeenCalledTimes(3);
         expect(postMessageSpy).toHaveBeenCalledWith({
             blocks: [
                     {

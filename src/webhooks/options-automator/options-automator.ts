@@ -131,9 +131,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
               unfurl_links: false,
             });
           }
-        return; 
       } catch (err) {
         Sentry.captureException(err);
-        return;
       }
 }
