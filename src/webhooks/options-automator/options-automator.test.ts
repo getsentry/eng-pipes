@@ -39,9 +39,6 @@ describe('test message slack', function() {
     it('writes to slack', function() {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
         expect(postMessageSpy).toHaveBeenCalledTimes(2);
-        postMessageSpy.mock.calls.forEach((callArgs, index) => {
-            console.log(`Call ${index + 1} arguments:`, JSON.stringify(callArgs, null, 2));
-        });            
         expect(postMessageSpy).toHaveBeenCalledWith({
             blocks: [
                 {
