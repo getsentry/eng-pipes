@@ -69,14 +69,16 @@ const closeStaleIssues = async (
           issue_number: issue.number,
           state: 'closed',
         });
+      } else if (!issueHasWaitingForCommunityLabel) {
+        // If issue is no longer waiting for community, it shouldn't be marked as stale
+        return org.api.issues.removeLabel({
+          owner: org.slug,
+          repo: repo,
+          issue_number: issue.number,
+          name: STALE_LABEL,
+        });
       }
-      // If issue is no longer waiting for community, it shouldn't be marked as stale
-      return org.api.issues.removeLabel({
-        owner: org.slug,
-        repo: repo,
-        issue_number: issue.number,
-        name: STALE_LABEL,
-      });
+      return Promise.resolve();
     })
   );
 };

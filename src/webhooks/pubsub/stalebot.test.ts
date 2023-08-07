@@ -134,4 +134,16 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
+
+  it('should not remove stale label if there is no activity recently and issue has label `Waiting for: Community`', async function () {
+    org.api.issues.listForRepo = () => [
+      {
+        ...issueInfo,
+        updated_at: '2023-04-06T10:28:13Z',
+        labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL],
+      },
+    ];
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).toContain(STALE_LABEL);
+  });
 });
