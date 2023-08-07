@@ -2,7 +2,7 @@ import { buildServer } from '@/buildServer';
 import testpayload from '@test/payloads/options-automator/testpayload.json';
 import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
-import messageSlack from './options-automator';
+import { messageSlack } from './options-automator';
 
 describe('options-automator webhook', function() {
     let fastify;
@@ -27,15 +27,6 @@ describe('options-automator webhook', function() {
     
         
       });
-    
-    it('writes to slack', async function (){
-        const response = await fastify.inject({
-            method: 'POST',
-            url: '/metrics/options-automator/webhook',
-            payload: testpayload,
-          });
-        
-    }) 
 });
 
 describe('options-automator message slack', function() {
@@ -51,6 +42,7 @@ describe('options-automator message slack', function() {
     it('should write two messages to slack', async function () {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
         await Promise.all(messageSlack(testpayload));
+        
         expect(postMessageSpy).toHaveBeenCalledTimes(2);
         expect(postMessageSpy).toHaveBeenCalledWith({
             blocks: [
