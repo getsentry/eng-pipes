@@ -16,68 +16,94 @@ const staleStatusUpdater = async (
   await Promise.all(
     issues.map((issue) => {
       const isPullRequest = issue.pull_request ? true : false;
-      const issueHasStaleLabel = issue.labels.some(
-        (label) => label === STALE_LABEL || label.name === STALE_LABEL
-      );
-      if (issueHasStaleLabel) {
-        if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
-          // Interestingly enough, this api works for both issues and pull requests
-          return org.api.issues.update({
+      if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
+        return Promise.all([
+          org.api.issues.addLabels({
             owner: org.slug,
             repo: repo,
             issue_number: issue.number,
-            state: 'closed',
-          });
-        } else if (now.diff(issue.updated_at, 'days') < DAYS_BEFORE_CLOSE) {
-          return org.api.issues.removeLabel({
+            labels: [STALE_LABEL],
+          }),
+          org.api.issues.createComment({
             owner: org.slug,
             repo: repo,
             issue_number: issue.number,
-            name: STALE_LABEL,
-          });
-        }
-        return Promise.resolve();
-      } else {
-        if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
-          return Promise.all([
-            org.api.issues.addLabels({
-              owner: org.slug,
-              repo: repo,
-              issue_number: issue.number,
-              labels: [STALE_LABEL],
-            }),
-            org.api.issues.createComment({
-              owner: org.slug,
-              repo: repo,
-              issue_number: issue.number,
-              body: `This ${
-                isPullRequest ? 'pull request' : 'issue'
-              } has gone three weeks without activity. In another week, I will close it.
+            body: `This ${
+              isPullRequest ? 'pull request' : 'issue'
+            } has gone three weeks without activity. In another week, I will close it.
 
 But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
 
 ----
 
 "A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
-            }),
-          ]);
-        }
-        return Promise.resolve();
+          }),
+        ]);
       }
+      return Promise.resolve();
+    })
+  );
+};
+
+const closeStaleIssues = async (
+  org: GitHubOrg,
+  repo: string,
+  staleIssues,
+  now: moment.Moment
+) => {
+  await Promise.all(
+    staleIssues.map((issue) => {
+      const issueHasWaitingForCommunityLabel = issue.labels.some(
+        (label) =>
+          label === WAITING_FOR_COMMUNITY_LABEL ||
+          label.name === WAITING_FOR_COMMUNITY_LABEL
+      );
+      if (
+        issueHasWaitingForCommunityLabel &&
+        now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE
+      ) {
+        // Interestingly enough, this api works for both issues and pull requests
+        return org.api.issues.update({
+          owner: org.slug,
+          repo: repo,
+          issue_number: issue.number,
+          state: 'closed',
+        });
+      }
+      // If issue is no longer waiting for community, it shouldn't be marked as stale
+      return org.api.issues.removeLabel({
+        owner: org.slug,
+        repo: repo,
+        issue_number: issue.number,
+        name: STALE_LABEL,
+      });
     })
   );
 };
 
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
-  org.repos.all.forEach(async (repo: string) => {
-    const issues = await org.api.paginate(org.api.issues.listForRepo, {
-      owner: org.slug,
-      repo,
-      state: 'open',
-      labels: WAITING_FOR_COMMUNITY_LABEL,
-      per_page: GH_API_PER_PAGE,
-    });
-    await staleStatusUpdater(org, repo, issues, now);
-  });
+  await Promise.all(
+    org.repos.all.map(async (repo: string) => {
+      const issuesWaitingForCommunity = await org.api.paginate(
+        org.api.issues.listForRepo,
+        {
+          owner: org.slug,
+          repo,
+          state: 'open',
+          labels: WAITING_FOR_COMMUNITY_LABEL,
+          per_page: GH_API_PER_PAGE,
+        }
+      );
+      const staleIssues = await org.api.paginate(org.api.issues.listForRepo, {
+        owner: org.slug,
+        repo,
+        state: 'open',
+        labels: STALE_LABEL,
+        per_page: GH_API_PER_PAGE,
+      });
+      await staleStatusUpdater(org, repo, issuesWaitingForCommunity, now);
+      await closeStaleIssues(org, repo, staleIssues, now);
+    })
+  );
 };
