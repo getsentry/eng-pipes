@@ -79,7 +79,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     ]);
   });
 
-  it('should not close issue if there is no activity after a week and an issue is stale but does not have label `Waiting for: Community`', async function () {
+  it('should not close stale issue that has been inactive for more than a week and does not have label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
@@ -88,7 +88,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
 
-  it('should close issue if there is no activity after a week and an issue has label `Waiting for: Community`', async function () {
+  it('should close issue if there is no activity after a week and issue has label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL] },
@@ -102,7 +102,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     });
   });
 
-  it('should not close issue if there is no activity under a week and an issue is stale', async function () {
+  it('should not close issue if there is no activity under a week and issue is stale', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
