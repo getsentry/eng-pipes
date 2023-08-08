@@ -171,4 +171,4 @@ type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 
 type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
 
-type GoCDBuildType = 'git';
+export type GoCDBuildType = 'git' | 'pipeline';

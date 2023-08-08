@@ -1,4 +1,9 @@
-import { DBGoCDDeployment, GoCDPipeline, GoCDBuildCause, GoCDBuildType } from '@types';
+import {
+  DBGoCDDeployment,
+  GoCDBuildCause,
+  GoCDBuildType,
+  GoCDPipeline,
+} from '@types';
 
 import {
   Color,
@@ -103,7 +108,10 @@ export function firstGitMaterialSHA(
   return null;
 }
 
-export function filterBuildCauses(pipeline: GoCDPipeline, type: GoCDBuildType): Array<GoCDBuildCause> {
+export function filterBuildCauses(
+  pipeline: GoCDPipeline,
+  type: GoCDBuildType
+): Array<GoCDBuildCause> {
   const buildCauses = pipeline['build-cause'];
   if (!buildCauses || buildCauses.length == 0) {
     return [];
@@ -111,11 +119,14 @@ export function filterBuildCauses(pipeline: GoCDPipeline, type: GoCDBuildType): 
 
   const blocks: Array<GoCDBuildCause> = [];
   for (const bc of buildCauses) {
-    if (!bc.material || bc.material.type !== type || bc.modifications.length == 0) {
+    if (
+      !bc.material ||
+      bc.material.type !== type ||
+      bc.modifications.length == 0
+    ) {
       continue;
     }
     blocks.push(bc);
   }
-  return [];
+  return blocks;
 }
-
