@@ -25,11 +25,7 @@ describe('gocdevents', function () {
         pipeline: { name: 'test-name', group: 'test-group' },
       },
     });
-    gocdevents.emit('agent', {
-      data: {
-        pipeline: { name: 'test-name', group: 'test-group' },
-      },
-    });
+    gocdevents.emit('agent', {});
 
     expect(starSpy).toHaveBeenCalledTimes(2);
     expect(stageSpy).toHaveBeenCalledTimes(1);
@@ -39,17 +35,13 @@ describe('gocdevents', function () {
   it('do not emit stage when no group is provided', () => {
     const starSpy = jest.fn();
     const stageSpy = jest.fn();
-    const agentSpy = jest.fn();
 
     gocdevents.on('*', starSpy);
     gocdevents.on('stage', stageSpy);
-    gocdevents.on('agent', agentSpy);
 
     gocdevents.emit('stage', { data: { pipeline: { name: 'test-name' } } });
-    gocdevents.emit('agent', { data: { pipeline: { name: 'test-name' } } });
 
-    expect(starSpy).toHaveBeenCalledTimes(1);
+    expect(starSpy).toHaveBeenCalledTimes(0);
     expect(stageSpy).toHaveBeenCalledTimes(0);
-    expect(agentSpy).toHaveBeenCalledTimes(1);
   });
 });
