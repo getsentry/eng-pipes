@@ -29,6 +29,7 @@ import {
   firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
+  filterBuildCauses,
 } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { GitHubOrg } from '@api/github/org';
@@ -259,7 +260,7 @@ export async function handler(resBody: GoCDResponse) {
   }
 
   // This is not a getsentry deploy.
-  const sha = getGetsentrySHA(pipeline['build-cause']);
+  const sha = getGetsentrySHA(filterBuildCauses(pipeline, 'git'));
   if (!sha) {
     return;
   }
