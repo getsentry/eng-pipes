@@ -172,3 +172,14 @@ type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
 
 export type GoCDBuildType = 'git' | 'pipeline';
+
+export interface OptionsAutomatorResponse {
+  drifted_options: { option_name: string; option_value: string }[];
+  channel_updated_options: string[];
+  updated_options: { option_name: string; db_value: string; value: string }[];
+  set_options: { option_name: string; option_value: string }[];
+  unset_options: string[];
+  not_writable_options: { option_name: string; error_msg: string }[];
+  unregistered_options: string[];
+  invalid_type_options: {option_name: string, got_type: string, expected_type: string }[];
+}

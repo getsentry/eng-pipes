@@ -1,4 +1,12 @@
-import { KnownBlock, MrkdwnElement } from '@slack/types';
+import { HeaderBlock, KnownBlock, MrkdwnElement, PlainTextElement } from '@slack/types';
+
+
+export function header(text: PlainTextElement): HeaderBlock {
+  return {
+    type: 'header',
+    text,
+  };
+}
 
 export function divider(): KnownBlock {
   return {
@@ -13,9 +21,23 @@ export function markdown(text: string): MrkdwnElement {
   };
 }
 
+export function plaintext(text: string): PlainTextElement {
+  return {
+    type: 'plain_text',
+    text,
+  };
+}
+
 export function section(block: MrkdwnElement): KnownBlock {
   return {
     type: 'section',
-    text: block,
-  };
+    text: block
+  }
+}
+
+export function sectionBlock(fields: MrkdwnElement[]): KnownBlock {
+  return {
+    type: 'section',
+    fields: fields
+  }
 }
