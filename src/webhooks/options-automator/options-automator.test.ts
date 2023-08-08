@@ -1,7 +1,10 @@
 import { buildServer } from '@/buildServer';
 import testpayload from '@test/payloads/options-automator/testpayload.json';
+import testemptypayload from '@test/payloads/options-automator/testemptypayload.json';
+import testparitalpayload from '@test/payloads/options-automator/testpartialpayload.json';
 import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
+import { messageSlack } from './options-automator';
 
 describe('options-automator webhook', function() {
     let fastify;
@@ -17,7 +20,7 @@ describe('options-automator webhook', function() {
         const response = await fastify.inject({
           method: 'POST',
           url: '/metrics/options-automator/webhook',
-          payload: testpayload,
+          payload: testemptypayload,
         });
     
         expect(response.statusCode).toBe(200);
@@ -36,8 +39,9 @@ describe('test message slack', function() {
       jest.clearAllMocks();
     });
 
-    it('writes to slack', function() {
+    it('writes to slack', async function() {
         const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+        await messageSlack(testpayload);
         expect(postMessageSpy).toHaveBeenCalledTimes(2);
         const firstMessage = postMessageSpy.mock.calls[0][0];
         const secondMessage = postMessageSpy.mock.calls[1][0];
@@ -221,6 +225,49 @@ describe('test message slack', function() {
                         }
                     ]
                   }
+              ],
+            channel: "C04URUC21C5",
+            text: "",
+            unfurl_links: false
+            });
+    })
+    it('writes drift only', async function() {
+        const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+        await messageSlack(testparitalpayload);
+        expect(postMessageSpy).toHaveBeenCalledTimes(1);
+        const message = postMessageSpy.mock.calls[0][0];
+        expect(message).toEqual({
+            blocks: [
+                {
+                  type: "header",
+                  text: {
+                    type: "plain_text",
+                    text: "❌ FAILED TO UPDATE: ❌"
+                  }
+                },
+                {
+                  type: "divider"
+                },
+                {
+                  type: "section",
+                  text: {
+                    type: "mrkdwn",
+                    text: "*DRIFTED OPTIONS:* "
+                  }
+                },
+                {
+                  type: "section",
+                  fields: [
+                    {
+                      type: "mrkdwn",
+                      text: "`drifted_option_1` drifted. value on db: `value_1`"
+                    },
+                    {
+                      type: "mrkdwn",
+                      text: "`drifted_option_2` drifted. value on db: `value_2`"
+                    }
+                  ]
+                },
               ],
             channel: "C04URUC21C5",
             text: "",
