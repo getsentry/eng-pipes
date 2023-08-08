@@ -14,7 +14,7 @@ interface GoCDEventEmitter {
 class GoCDEventEmitter extends EventEmitter {
   emit(event: GoCDEvents, reqBody: GoCDResponse) {
     // During GoCD deployments, group name is initially missing
-    if (event === 'stage' && !reqBody.data.pipeline.group) return;
+    if (event === 'stage' && !reqBody.data.pipeline.group) return false;
     super.emit('*', reqBody);
     return super.emit(event, reqBody);
   }
