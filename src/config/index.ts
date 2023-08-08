@@ -24,6 +24,8 @@ export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
 export const FEED_DEPLOY_CHANNEL_ID =
   process.env.FEED_DEPLOY_CHANNEL_ID || 'C051ED5GLN4';
+export const FEED_OPTIONS_AUTOMATOR_CHANNEL_ID =
+  process.env.FEED_OPTIONS_AUTOMATOR_CHANNEL_ID || 'C04URUC21C5';
 export const FEED_DEV_INFRA_CHANNEL_ID =
   process.env.FEED_DEV_INFRA_CHANNEL_ID || 'C05816N2A2K';
 export const FEED_ENGINEERING_CHANNEL_ID =
