@@ -2,6 +2,11 @@ import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
+import {
+  WAITING_FOR_COMMUNITY_LABEL,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+} from '../../config';
+
 import { triggerStaleBot } from './stalebot';
 
 describe('Stalebot Tests', function () {
@@ -9,7 +14,7 @@ describe('Stalebot Tests', function () {
   let origRepos;
 
   const issueInfo = {
-    labels: [],
+    labels: [WAITING_FOR_COMMUNITY_LABEL],
     updated_at: '2023-04-05T15:51:22Z',
   };
 
@@ -74,10 +79,19 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     ]);
   });
 
-  it('should close issue if there is no activity after a week and an issue is stale', async function () {
+  it('should not close stale issue that has been inactive for more than a week and does not have label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
+    ];
+    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
+    expect(issueUpdateSpy).toBeCalledTimes(0);
+  });
+
+  it('should close issue if there is no activity after a week and issue has label `Waiting for: Community`', async function () {
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [
+      { ...issueInfo, labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL] },
     ];
     await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
     expect(issueUpdateSpy).toHaveBeenCalledWith({
@@ -88,7 +102,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     });
   });
 
-  it('should not close issue if there is no activity under a week and an issue is stale', async function () {
+  it('should not close issue if there is no activity under a week and issue is stale', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
@@ -98,7 +112,6 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   });
 
   it('should remove stale label if there is activity but stale label exists on issue', async function () {
-    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       {
         ...issueInfo,
@@ -108,5 +121,29 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     ];
     await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+  });
+
+  it('should remove stale label if there is no activity recently but issue does not have `Waiting for: Community`', async function () {
+    org.api.issues.listForRepo = () => [
+      {
+        ...issueInfo,
+        updated_at: '2023-04-06T10:28:13Z',
+        labels: [STALE_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
+      },
+    ];
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+  });
+
+  it('should not remove stale label if there is no activity recently and issue has label `Waiting for: Community`', async function () {
+    org.api.issues.listForRepo = () => [
+      {
+        ...issueInfo,
+        updated_at: '2023-04-06T10:28:13Z',
+        labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL],
+      },
+    ];
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).toContain(STALE_LABEL);
   });
 });
