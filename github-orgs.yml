@@ -31,6 +31,7 @@ getsentry:
 
       # Web team T1
       - 'sentry-javascript'
+      - 'sentry-javascript-bundler-plugins'
       - 'sentry-python'
       - 'sentry-php'
       - 'sentry-laravel'
