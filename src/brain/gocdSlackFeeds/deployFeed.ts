@@ -15,7 +15,7 @@ import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getSlackMessage } from '@/utils/db/getSlackMessage';
 import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { firstGitMaterialSHA, getProgressColor } from '@/utils/gocdHelpers';
+import { firstGitMaterialSHA, getProgressColor, filterBuildCauses } from '@/utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;
@@ -167,20 +167,12 @@ export class DeployFeed {
   }
 
   async getShaBlock(pipeline: GoCDPipeline): Promise<KnownBlock | undefined> {
-    const buildCause = pipeline['build-cause'];
-    if (!buildCause || buildCause.length == 0) {
-      return;
-    }
-    const bc = pipeline['build-cause'][0];
-    if (
-      !bc ||
-      !bc.material ||
-      bc.material.type !== 'git' ||
-      bc.modifications.length == 0
-    ) {
+    const buildCauses = filterBuildCauses(pipeline, 'git');
+    if (buildCauses.length == 0) {
       return;
     }
 
+    const bc = buildCauses[0];
     const modification = bc.modifications[0];
     const sha = modification.revision.slice(0, 12);
     const gitConfig = bc.material['git-configuration'];
@@ -345,12 +337,11 @@ export class DeployFeed {
 
   getPipelineId(pipeline: GoCDPipeline) {
     let refId = `${pipeline.group}-${pipeline.name}/${pipeline.counter}`;
-    if (pipeline['build-cause'] && pipeline['build-cause'].length > 0) {
-      const bc = pipeline['build-cause'][0];
-      if (bc.modifications && bc.modifications.length > 0) {
-        const m = bc.modifications[0];
-        refId += `@${m.revision}`;
-      }
+    const buildCauses = filterBuildCauses(pipeline, 'git');
+    if (buildCauses.length > 0) {
+      const bc = buildCauses[0];
+      const m = bc.modifications[0];
+      refId += `@${m.revision}`;
     }
     return refId;
   }

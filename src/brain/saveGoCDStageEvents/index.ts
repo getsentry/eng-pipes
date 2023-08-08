@@ -1,4 +1,5 @@
 import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types';
+import {filterBuildCauses} from '@utils/gocdHelpers';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
 
@@ -50,15 +51,8 @@ export async function handler(resBody: GoCDResponse) {
 
 async function saveBuildMaterials(pipeline_id: string, pipeline: GoCDPipeline) {
   const gitMaterials: Array<DBGoCDBuildMaterial> = [];
-  for (const bc of pipeline['build-cause']) {
-    if (!bc.material || bc.material.type != 'git') {
-      // The material may be an upstream pipeline
-      continue;
-    }
-    if (bc.modifications.length == 0) {
-      continue;
-    }
-
+  const buildCauses = filterBuildCauses(pipeline, 'git');
+  for (const bc of buildCauses) {
     const gitConfig = bc.material['git-configuration'];
     const modification = bc.modifications[0];
 

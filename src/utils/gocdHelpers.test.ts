@@ -1,4 +1,4 @@
-import { firstGitMaterialSHA } from '@/utils/gocdHelpers';
+import { filterBuildCauses, firstGitMaterialSHA } from '@/utils/gocdHelpers';
 
 describe('firstGitMaterialSHA', () => {
   it('return nothing for no deploy', async function () {
@@ -61,5 +61,66 @@ describe('firstGitMaterialSHA', () => {
       ],
     });
     expect(got).toEqual('abc123');
+  });
+});
+
+describe('filterBuildCauses', () => {
+  it('filter build causes', function () {
+    const pipeline = {
+      'build-cause': [
+        {
+          id: 1,
+          material: {
+            type: 'git',
+          },
+          modifications: [{}],
+        },
+        {
+          id: 2,
+          material: {
+            type: 'git',
+          },
+          modifications: [],
+        },
+        {
+          id: 3,
+          material: {
+            type: 'pipeline',
+          },
+          modifications: [{}],
+        },
+        {
+          id: 4,
+          material: {
+            type: 'pipeline',
+          },
+          modifications: [],
+        },
+      ],
+    };
+
+    const gotGit = filterBuildCauses(pipeline, 'git');
+    expect(gotGit.length).toEqual(1);
+    expect(gotGit).toEqual([
+      {
+        id: 1,
+        material: {
+          type: 'git',
+        },
+        modifications: [{}],
+      },
+    ]);
+
+    const gotPipeline = filterBuildCauses(pipeline, 'pipeline');
+    expect(gotPipeline.length).toEqual(1);
+    expect(gotPipeline).toEqual([
+      {
+        id: 3,
+        material: {
+          type: 'pipeline',
+        },
+        modifications: [{}],
+      },
+    ]);
   });
 });

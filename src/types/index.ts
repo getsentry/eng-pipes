@@ -117,7 +117,7 @@ interface GoCDJob {
 export interface GoCDBuildCause {
   material: {
     'git-configuration': GoCDGitConfiguration;
-    type: string;
+    type: GoCDBuildType;
   };
   changed: boolean;
   modifications: Array<GoCDModification>;
@@ -170,6 +170,8 @@ type GoCDApprovalType = 'success' | 'manual';
 type GoCDResultType = 'Passed' | 'Failed' | 'Cancelled' | 'Unknown';
 
 type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
+
+export type GoCDBuildType = 'git' | 'pipeline';
 
 export interface OptionsAutomatorResponse {
   drifted_options: { option_name: string; option_value: string }[];
