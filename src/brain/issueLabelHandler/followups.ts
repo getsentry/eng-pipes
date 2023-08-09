@@ -40,6 +40,10 @@ function isPullRequest(payload) {
   return !!payload.issue.pull_request;
 }
 
+function isIssueClosed(payload) {
+  return payload.issue.state === 'closed';
+}
+
 // Markers of State
 
 export async function updateFollowupsOnComment({
@@ -59,6 +63,7 @@ export async function updateFollowupsOnComment({
     isWaitingForSupport,
     isPullRequest,
     isFromABot,
+    isIssueClosed,
   ];
 
   if (await shouldSkip(payload, org, reasonsToDoNothing)) {
