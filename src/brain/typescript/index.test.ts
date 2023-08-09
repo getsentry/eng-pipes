@@ -37,10 +37,26 @@ describe('slack app', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(getProgress).toHaveBeenCalledWith({});
     expect(getProgress).toHaveBeenCalledWith({
+      repo: 'sentry',
+      basePath: 'fixtures',
+      appDir: 'js-stubs',
+    });
+    expect(getProgress).toHaveBeenCalledWith({
       repo: 'getsentry',
       basePath: 'static/getsentry',
       appDir: 'gsApp',
     });
+    expect(getProgress).toHaveBeenCalledWith({
+      repo: 'getsentry',
+      basePath: 'static/getsentry',
+      appDir: 'gsAdmin',
+    });
+    expect(getProgress).toHaveBeenCalledWith({
+      repo: 'getsentry',
+      basePath: 'tests/js',
+      appDir: 'fixtures',
+    });
+    
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
     // @ts-ignore
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchInlineSnapshot(`
@@ -48,7 +64,7 @@ describe('slack app', function () {
         "blocks": Array [
           Object {
             "text": Object {
-              "text": ":typescript: progress: *50%* completed, *6* files remaining",
+              "text": ":typescript: progress: *50%* completed, *10* files remaining",
               "type": "mrkdwn",
             },
             "type": "section",
