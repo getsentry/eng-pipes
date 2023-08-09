@@ -80,7 +80,7 @@ describe('slack app', function () {
           },
         ],
         "channel": "channel_id",
-        "text": "TypeScript progress: 50% completed, 6 files remaining",
+        "text": "TypeScript progress: 50% completed, 10 files remaining",
         "ts": "1234123.123",
       }
     `);
