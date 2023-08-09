@@ -175,7 +175,6 @@ export type GoCDBuildType = 'git' | 'pipeline';
 
 export interface OptionsAutomatorResponse {
   drifted_options: { option_name: string; option_value: string }[];
-  channel_updated_options: string[];
   updated_options: { option_name: string; db_value: string; value: string }[];
   set_options: { option_name: string; option_value: string }[];
   unset_options: string[];
