@@ -62,9 +62,8 @@ const engineeringFeed = new DeployFeed({
       return false;
     }
 
-    // We only care about raising an error if the deploy-canary or
-    // deploy-primary stages have failed.
-    if (!pipeline.stage.name.toLowerCase().includes('deploy-')) {
+    // We don't care about the checks stage failing as it is flaky and noisy.
+    if (pipeline.stage.name.toLowerCase() === 'checks') {
       return false;
     }
 
