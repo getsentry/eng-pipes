@@ -26,7 +26,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 slackblocks.sectionBlock(
                 message.updated_options.map((option) =>
                     slackblocks.markdown(
-                    `updated \`${option.option_name}\` with db value \`${option.db_value}\` and value \`${option.value}\``
+                    `updated \`${option.option_name}\` with db value \`${option.db_value}\` to value \`${option.value}\``
                     )
                 )
                 ),
@@ -39,7 +39,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 slackblocks.sectionBlock(
                 message.set_options.map((option) =>
                     slackblocks.markdown(
-                    `Set \`${option.option_name}\` with value \`${option.option_value}\``
+                    `Set \`${option.option_name}\` to value \`${option.option_value}\``
                     )
                 )
                 ),
