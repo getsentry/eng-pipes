@@ -30,10 +30,6 @@ export const githubLabelHandler = async ({
     )
   ) {
     productAreaLabel = label.name;
-  } else if (label.name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
-    productAreaLabel = issue.labels?.find((label) =>
-      label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
-    )?.name;
   } else if (label.name === WAITING_FOR_SUPPORT_LABEL) {
     bolt.client.chat.postMessage({
       text: `⏲ Issue ready to route: <${issue.html_url}|#${issue.number} ${issue.title}>`,
