@@ -19,8 +19,8 @@ export async function handler(
 export async function messageSlack(message: OptionsAutomatorResponse) {
     const successBlock: KnownBlock[] = [
         slackblocks.header(slackblocks.plaintext(message.region
-            ? `✅ Successfully Updated Options: ✅ in ${message.region}:`
-            : '')),
+            ? `✅ Successfully Updated Options in ${message.region}: ✅`
+            : '✅ Successfully Updated Options ✅')),
         ...(message.updated_options.length > 0
             ? [
                 slackblocks.divider(),
@@ -62,8 +62,8 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
     
     const failedBlock: KnownBlock[] = [
         slackblocks.header(slackblocks.plaintext(message.region
-            ? `❌ FAILED TO UPDATE: ❌ in ${message.region}:`
-            : '')),
+            ? `❌ FAILED TO UPDATE in ${message.region}: ❌`
+            : '❌ FAILED TO UPDATE ❌')),
         ...(message.drifted_options.length > 0
             ? [
                 slackblocks.divider(),
