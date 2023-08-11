@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -euxo pipefail
 cd "$(dirname "$0")"
 cd ..
 gh repo clone https://github.com/getsentry/security-as-code /tmp/security-as-code

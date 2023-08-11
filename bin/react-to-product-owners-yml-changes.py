@@ -7,9 +7,6 @@ from os.path import dirname, join, realpath
 
 import yaml
 
-PREFIX = "Product Area: "
-
-
 def main():
     # Run from project root.
     os.chdir(realpath(join(dirname(sys.argv[0]), "..")))
