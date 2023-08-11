@@ -51,7 +51,7 @@ describe('test message slack', function() {
                     type: "header",
                     text: {
                     type: "plain_text",
-                    text: "✅ Successfully Updated Options: ✅"
+                    text: "✅ Successfully Updated Options in test_region: ✅"
                     }
                 },
                 {
@@ -130,7 +130,7 @@ describe('test message slack', function() {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: "❌ FAILED TO UPDATE: ❌"
+                    text: "❌ FAILED TO UPDATE in test_region: ❌"
                   }
                 },
                 {
