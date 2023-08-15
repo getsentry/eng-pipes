@@ -51,7 +51,7 @@ describe('test message slack', function() {
                     type: "header",
                     text: {
                     type: "plain_text",
-                    text: "✅ Successfully Updated Options: ✅"
+                    text: "✅ Successfully Updated Options in test_region: ✅"
                     }
                 },
                 {
@@ -69,7 +69,7 @@ describe('test message slack', function() {
                     fields: [
                     {
                         type: "mrkdwn",
-                        text: "updated `updated_option_1` with db value `db_value_1` and value `new_value_1`"
+                        text: "updated `updated_option_1` with db value `db_value_1` to value `new_value_1`"
                     }
                     ]
                 },
@@ -88,11 +88,11 @@ describe('test message slack', function() {
                     fields: [
                     {
                         type: "mrkdwn",
-                        text: "Set `set_option_1` with value `set_value_1`"
+                        text: "Set `set_option_1` to value `set_value_1`"
                     },
                     {
                         type: "mrkdwn",
-                        text: "Set `set_option_2` with value `set_value_2`"
+                        text: "Set `set_option_2` to value `set_value_2`"
                     }
                     ]
                 },
@@ -130,7 +130,7 @@ describe('test message slack', function() {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: "❌ FAILED TO UPDATE: ❌"
+                    text: "❌ FAILED TO UPDATE in test_region: ❌"
                   }
                 },
                 {
@@ -242,7 +242,7 @@ describe('test message slack', function() {
                   type: "header",
                   text: {
                     type: "plain_text",
-                    text: "❌ FAILED TO UPDATE: ❌"
+                    text: "❌ FAILED TO UPDATE in test_region: ❌"
                   }
                 },
                 {

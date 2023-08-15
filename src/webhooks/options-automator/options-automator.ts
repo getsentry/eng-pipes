@@ -18,7 +18,9 @@ export async function handler(
 
 export async function messageSlack(message: OptionsAutomatorResponse) {
     const successBlock: KnownBlock[] = [
-        slackblocks.header(slackblocks.plaintext('✅ Successfully Updated Options: ✅')),
+        slackblocks.header(slackblocks.plaintext(message.region
+            ? `✅ Successfully Updated Options in ${message.region}: ✅`
+            : '✅ Successfully Updated Options ✅')),
         ...(message.updated_options.length > 0
             ? [
                 slackblocks.divider(),
@@ -26,7 +28,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 slackblocks.sectionBlock(
                 message.updated_options.map((option) =>
                     slackblocks.markdown(
-                    `updated \`${option.option_name}\` with db value \`${option.db_value}\` and value \`${option.value}\``
+                    `updated \`${option.option_name}\` with db value \`${option.db_value}\` to value \`${option.value}\``
                     )
                 )
                 ),
@@ -39,7 +41,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
                 slackblocks.sectionBlock(
                 message.set_options.map((option) =>
                     slackblocks.markdown(
-                    `Set \`${option.option_name}\` with value \`${option.option_value}\``
+                    `Set \`${option.option_name}\` to value \`${option.option_value}\``
                     )
                 )
                 ),
@@ -59,7 +61,9 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
     ];
     
     const failedBlock: KnownBlock[] = [
-        slackblocks.header(slackblocks.plaintext('❌ FAILED TO UPDATE: ❌')),
+        slackblocks.header(slackblocks.plaintext(message.region
+            ? `❌ FAILED TO UPDATE in ${message.region}: ❌`
+            : '❌ FAILED TO UPDATE ❌')),
         ...(message.drifted_options.length > 0
             ? [
                 slackblocks.divider(),
