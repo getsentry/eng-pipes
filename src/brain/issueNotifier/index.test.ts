@@ -66,7 +66,7 @@ describe('issueNotifier Tests', function () {
           label: { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
           issue: { labels: [{ name: 'Product Area: Test', id: 'test-id2' }] },
         },
-        true,
+        false,
       ],
       [
         `Random label on Product Area + ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
