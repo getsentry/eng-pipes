@@ -1,0 +1,131 @@
+product_areas:
+  Alerts:
+  - team-issues
+  Crons:
+  - team-crons
+  Dashboards:
+  - team-discover-and-dashboards
+  Discover:
+  - team-discover-and-dashboards
+  Docs:
+  - team-docs
+  Footer:
+  - team-issues
+  Help:
+  - team-support
+  Issues:
+  - team-issues
+  Issues - Source Maps:
+  - team-processing
+  - team-web-sdks
+  - team-mobile-sdks
+  Issues - Suggested Fix:
+  - team-telemetry-experience
+  Performance:
+  - team-performance
+  Profiling:
+  - team-profiling
+  Projects:
+  - team-projects
+  Releases:
+  - team-issues
+  Replays:
+  - team-replays
+  SDKs - Mobile:
+  - team-mobile-sdks
+  SDKs - Native:
+  - team-mobile-sdks
+  - team-processing
+  SDKs - Web Backend:
+  - team-web-sdks
+  SDKs - Web Frontend:
+  - team-web-sdks
+  Settings:
+  - team-issues
+  Settings - Auth:
+  - team-enterprise
+  Settings - Developer Settings:
+  - team-enterprise
+  Settings - General:
+  - team-issues
+  Settings - Integrations:
+  - team-enterprise
+  Settings - Members:
+  - team-enterprise
+  Settings - Projects:
+  - team-enterprise
+  Settings - Relay:
+  - team-ingest
+  Settings - Repositories:
+  - team-enterprise
+  Settings - Security & Privacy:
+  - team-sentry-at-scale
+  Settings - Spend Allocation:
+  - team-enterprise
+  Settings - Spike Protection:
+  - team-enterprise
+  Settings - Teams:
+  - team-enterprise
+  Sign In:
+  - team-enterprise
+  Starfish:
+  - team-starfish
+  Starfish - API:
+  - team-starfish
+  Starfish - Database:
+  - team-starfish
+  Stats:
+  - team-enterprise
+  User Feedback:
+  - team-issues
+  What's New:
+  - team-product
+repos:
+  arroyo: team-sns
+  cdc: team-sns
+  craft: team-ospo
+  relay: team-ingest
+  responses: team-ospo
+  self-hosted: team-ospo
+  sentry-android-gradle-plugin: team-mobile-sdks
+  sentry-cocoa: team-mobile-sdks
+  sentry-dart: team-mobile-sdks
+  sentry-dart-plugin: team-mobile-sdks
+  sentry-dotnet: team-mobile-sdks
+  sentry-java: team-mobile-sdks
+  sentry-javascript: team-web-sdks
+  sentry-javascript-bundler-plugins: team-web-sdks
+  sentry-laravel: team-web-sdks
+  sentry-native: team-processing
+  sentry-php: team-web-sdks
+  sentry-python: team-web-sdks
+  sentry-react-native: team-mobile-sdks
+  sentry-ruby: team-web-sdks
+  sentry-symfony: team-web-sdks
+  sentry-unity: team-mobile-sdks
+  snuba: team-sns
+  snuba-sdk: team-sns
+  symbolic: team-processing
+  symbolicator: team-processing
+  wal2json: team-sns
+teams:
+  team-crons: null
+  team-discover-and-dashboards: null
+  team-docs: null
+  team-enterprise: null
+  team-ingest: null
+  team-issues: null
+  team-mobile-sdks: null
+  team-ospo: C04B27EECUB
+  team-performance: null
+  team-processing: null
+  team-product: null
+  team-profiling: null
+  team-projects: null
+  team-replays: null
+  team-sentry-at-scale: null
+  team-sns: null
+  team-starfish: null
+  team-support: null
+  team-telemetry-experience: null
+  team-web-sdks: null
