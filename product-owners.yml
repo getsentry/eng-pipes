@@ -1,4 +1,6 @@
 product_areas:
+  APIs:
+  - team-enterprise
   Alerts:
   - team-issues
   Crons:
@@ -25,8 +27,10 @@ product_areas:
   - team-performance
   Profiling:
   - team-profiling
-  Projects:
-  - team-projects
+  Projects - Project Creation:
+  - team-telemetry-experience
+  Projects - Project Details:
+  - team-issues
   Releases:
   - team-issues
   Replays:
@@ -121,7 +125,6 @@ teams:
   team-processing: null
   team-product: null
   team-profiling: null
-  team-projects: null
   team-replays: null
   team-sentry-at-scale: null
   team-sns: null
