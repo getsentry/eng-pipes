@@ -16,6 +16,11 @@ sfo:
     "2023-06-19", # Juneteenth
     "2023-07-03", # Day off (add to Independence Day)
     "2023-07-04", # Independence Day
+    "2023-08-21", # Hackweek
+    "2023-08-22",
+    "2023-08-23",
+    "2023-08-24",
+    "2023-08-25",
     "2023-09-01", # Day off (add to Labor Day)
     "2023-09-04", # Labor Day
     "2023-10-09", # Indigenous Peoples Day
@@ -44,6 +49,11 @@ sea:
     "2023-06-19", # Juneteenth
     "2023-07-03", # Day off (add to Independence Day)
     "2023-07-04", # Independence Day
+    "2023-08-21", # Hackweek
+    "2023-08-22",
+    "2023-08-23",
+    "2023-08-24",
+    "2023-08-25",
     "2023-09-01", # Day off (add to Labor Day)
     "2023-09-04", # Labor Day
     "2023-10-09", # Indigenous Peoples Day
@@ -73,6 +83,11 @@ vie:
     "2023-05-29", # Whit Monday
     "2023-06-08", # Corpus Christi
     "2023-08-15", # Assumption Day
+    "2023-08-21", # Hackweek
+    "2023-08-22",
+    "2023-08-23",
+    "2023-08-24",
+    "2023-08-25",
     "2023-10-26", # Austrian National Holiday
     "2023-11-01", # All Saints' Day
     "2023-12-08", # Immaculate Conception
@@ -96,6 +111,11 @@ yyz:
     "2023-04-07", # Good Friday
     "2023-04-10", # Easter Monday
     "2023-08-07", # Civic Holiday
+    "2023-08-21", # Hackweek
+    "2023-08-22",
+    "2023-08-23",
+    "2023-08-24",
+    "2023-08-25",
     "2023-07-03", # Day off (add to Independence Day)
     "2023-09-01", # Day off (add to Labor Day)
     "2023-09-04", # Labor Day
@@ -118,6 +138,11 @@ ams:
     "2023-05-05", # Liberation Day
     "2023-05-18", # Ascension
     "2023-05-29", # Whit Monday
+    "2023-08-21", # Hackweek
+    "2023-08-22",
+    "2023-08-23",
+    "2023-08-24",
+    "2023-08-25",
     "2023-12-25", # Christmas Day
     "2023-12-26", # Boxing Day
     "2023-12-27", # Unofficial days between Christmas and New Years
