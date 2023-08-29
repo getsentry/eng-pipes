@@ -226,7 +226,7 @@ describe('test message slack', function() {
                     ]
                   }
               ],
-            channel: "C04URUC21C5",
+            channel: "C05QM3AUDKJ",
             text: "",
             unfurl_links: false
             });
@@ -269,7 +269,7 @@ describe('test message slack', function() {
                   ]
                 },
               ],
-            channel: "C04URUC21C5",
+            channel: "C05QM3AUDKJ",
             text: "",
             unfurl_links: false
             });
