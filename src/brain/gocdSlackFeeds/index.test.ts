@@ -9,6 +9,7 @@ import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,
+  FEED_SDKS_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
