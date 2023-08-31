@@ -14,6 +14,7 @@ import { GoCDResponse } from '@/types';
 import { DeployFeed } from './deployFeed';
 
 const ENGINEERING_PIPELINE_FILTER = [
+  'deploy-getsentry-backend-s4s',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
@@ -96,11 +97,6 @@ const engineeringFeed = new DeployFeed({
   pipelineFilter: (pipeline) => {
     // We only want to log the getsentry FE and BE pipelines
     if (!ENGINEERING_PIPELINE_FILTER.includes(pipeline.name)) {
-      return false;
-    }
-
-    // We don't care about the checks stage failing as it is flaky and noisy.
-    if (pipeline.stage.name.toLowerCase() === 'checks') {
       return false;
     }
 
