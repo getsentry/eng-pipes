@@ -70,23 +70,11 @@ const devinfraFeed = new DeployFeed({
 
 // Post certain pipelines to #feed-sns
 const snsSaaSFeed = new DeployFeed({
-  feedName: 'snsSaasSlackFeed',
+  feedName: 'snsSaaSSlackFeed',
   channelID: FEED_SNS_SAAS_CHANNEL_ID,
   msgType: SlackMessage.FEED_SNS_SAAS_DEPLOY,
   pipelineFilter: (pipeline) => {
-    if (!SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name)) {
-      return false;
-    }
-
-    // Checks failing typically indicate GitHub flaking or a temporary
-    // issue with master. We have sentry alerts to monitor this.
-    if (pipeline.stage.name == 'checks') {
-      return false;
-    }
-
-    // We only really care about creating new messages if the pipeline has
-    // failed.
-    return pipeline.stage.result.toLowerCase() === 'failed';
+    return SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name);
   },
 });
 
@@ -96,19 +84,7 @@ const snsSTFeed = new DeployFeed({
   channelID: FEED_SNS_ST_CHANNEL_ID,
   msgType: SlackMessage.FEED_SNS_ST_DEPLOY,
   pipelineFilter: (pipeline) => {
-    if (!SNS_ST_PIPELINE_FILTER.includes(pipeline.name)) {
-      return false;
-    }
-
-    // Checks failing typically indicate GitHub flaking or a temporary
-    // issue with master. We have sentry alerts to monitor this.
-    if (pipeline.stage.name == 'checks') {
-      return false;
-    }
-
-    // We only really care about creating new messages if the pipeline has
-    // failed.
-    return pipeline.stage.result.toLowerCase() === 'failed';
+    return SNS_ST_PIPELINE_FILTER.includes(pipeline.name);
   },
 });
 
