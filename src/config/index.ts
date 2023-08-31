@@ -30,6 +30,10 @@ export const FEED_DEV_INFRA_CHANNEL_ID =
   process.env.FEED_DEV_INFRA_CHANNEL_ID || 'C05816N2A2K';
 export const FEED_ENGINEERING_CHANNEL_ID =
   process.env.FEED_ENGINEERING_CHANNEL_ID || 'C1B4LB39D';
+export const FEED_SNS_SAAS_CHANNEL_ID = // #feed-sns
+  process.env.FEED_SNS_SAAS_CHANNEL_ID || 'C0220QQNUHE';
+export const FEED_SNS_ST_CHANNEL_ID = // #feed-sns-st
+  process.env.FEED_SNS_ST_CHANNEL_ID || 'C0596EHDD9N';
 export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
