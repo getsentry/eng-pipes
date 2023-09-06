@@ -21,3 +21,4 @@ lib
 !.yarn/versions
 
 github-orgs.local.yml
+product-owners.local.yml

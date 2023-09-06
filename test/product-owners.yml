@@ -1,0 +1,11 @@
+product_areas:
+  One-Team:
+    - team-ospo
+  Multi-Team:
+    - team-issues
+    - team-enterprise
+repos:
+  test-ttt-simple: team-ospo
+teams:
+  team-ospo: C05A6BW303Y
+  team-issues: C05A6BW303Z

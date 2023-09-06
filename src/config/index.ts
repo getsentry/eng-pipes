@@ -1,3 +1,6 @@
+import fs from 'fs';
+
+import yaml from 'js-yaml';
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
 import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
@@ -147,6 +150,7 @@ export const GETSENTRY_ORG = GH_ORGS.get(
   process.env.GETSENTRY_ORG_SLUG || 'getsentry'
 );
 
+export const PRODUCT_OWNERS_YML = yaml.load(fs.readFileSync(process.env.PRODUCT_OWNERS_YML || 'product-owners.yml'));
 /**
  * Business Hours by Office
  */

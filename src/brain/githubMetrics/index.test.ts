@@ -108,6 +108,8 @@ describe('github webhook', function () {
         username: 'Codertocat',
         timeToTriageBy: null,
         timeToRouteBy: null,
+        product_area: null,
+        teams: []
       },
       { schema: SCHEMA }
     );
@@ -139,6 +141,8 @@ describe('github webhook', function () {
         username: 'Gowron',
         timeToTriageBy: null,
         timeToRouteBy: null,
+        product_area: null,
+        teams: []
       },
       { schema: SCHEMA }
     );
@@ -182,6 +186,8 @@ describe('github webhook', function () {
         target_name: 'bug',
         timeToTriageBy: null,
         timeToRouteBy: null,
+        product_area: null,
+        teams: []
       },
       { schema: SCHEMA }
     );
@@ -213,6 +219,8 @@ describe('github webhook', function () {
         username: 'human[bot]',
         timeToTriageBy: null,
         timeToRouteBy: null,
+        product_area: null,
+        teams: []
       },
       { schema: SCHEMA }
     );

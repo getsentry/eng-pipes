@@ -22,6 +22,7 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { db } from '@utils/db';
+import cloneDeep from 'lodash.clonedeep';
 
 import { insertOss } from './metrics';
 
@@ -34,10 +35,14 @@ describe('metrics tests', function () {
         id: 'user_id',
       },
       repository: {
-        full_name: 'test_repo',
+        full_name: 'getsentry/test_repo',
+        name: 'test_repo',
         owner: {
           type: 'Organization',
         },
+      },
+      organization: {
+        login: 'getsentry'
       },
       issue: {
         number: 1234,
@@ -76,7 +81,7 @@ describe('metrics tests', function () {
     });
 
     it('should calculate triage by timestamp if labeled waiting for product owner', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
@@ -86,7 +91,7 @@ describe('metrics tests', function () {
     });
 
     it('should calculate route by timestamp if labeled waiting for support', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_SUPPORT_LABEL;
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
@@ -96,7 +101,7 @@ describe('metrics tests', function () {
     });
 
     it('should not calculate timestamps if labeled waiting for product community', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_COMMUNITY_LABEL;
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
@@ -106,7 +111,7 @@ describe('metrics tests', function () {
     });
 
     it('should not calculate timestamps if unlabeled waiting for product community', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_COMMUNITY_LABEL;
       testPayload.action = 'unlabeled';
       const result = await insertOss('issues', testPayload);
@@ -117,7 +122,7 @@ describe('metrics tests', function () {
     });
 
     it('should not calculate timestamps if unlabeled waiting for product owner', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
       testPayload.action = 'unlabeled';
       const result = await insertOss('issues', testPayload);
@@ -128,13 +133,73 @@ describe('metrics tests', function () {
     });
 
     it('should not calculate timestamps if unlabeled waiting for support', async function () {
-      const testPayload = defaultPayload;
+      const testPayload = cloneDeep(defaultPayload);
       testPayload.label.name = WAITING_FOR_SUPPORT_LABEL;
       testPayload.action = 'unlabeled';
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         timeToRouteBy: null,
         timeToTriageBy: null,
+      });
+    });
+
+    it('should include product area and team in github event payload when product area label is added', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.label.name = "Product Area: One-Team";
+      testPayload.action = 'labeled';
+      testPayload.repository.name = 'routing-repo';
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: 'One-Team'
+      });
+    });
+
+    it('should include product area and team in github event payload when product area exists in issue labels', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.issue.labels = [{ name: "Product Area: One-Team" }];
+      testPayload.action = 'labeled';
+      testPayload.repository.name = 'routing-repo';
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: 'One-Team'
+      });
+    });
+
+    it('should include team in github event payload when repo has a team mapping', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.action = 'labeled';
+      testPayload.repository.name = 'test-ttt-simple';
+      testPayload.issue.labels = [];
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: null
+      });
+    });
+
+    it('should include team in github labeling event payload when repo has a team mapping', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.action = 'labeled';
+      testPayload.repository.name = 'test-ttt-simple';
+      testPayload.issue.labels = [];
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: null
+      });
+    });
+
+    it('should include team in github issue_comment event payload when repo has a team mapping', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.repository.name = 'test-ttt-simple';
+      testPayload.issue.labels = [];
+      testPayload.comment = { id: 123, created_at: null, updated_at: null };
+      const result = await insertOss('issue_comment', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: null
       });
     });
   });
