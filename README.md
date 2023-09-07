@@ -56,8 +56,11 @@ You will also need to set up some of these environment variables if you want to 
 - `GH_APP_PRIVATE_KEY` - GitHub App private key for your test app. It needs to all be on one line, with literal `\n`s instead of newlines (these seem to be required).
 - `GH_WEBHOOK_SECRET` - GitHub webhook secret to confirm that webhooks come from GitHub
 - `SENTRY_WEBPACK_WEBHOOK_SECRET` - Webhook secret that needs to match secret from CI. Records webpack asset sizes.
-- `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload
+- `SLACK_SIGNING_SECRET` - Slack webhook secret to verify payload that you can get from Basic Information -> App Credentials
 - `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
+
+After creating your github org, make sure to also add its slug to `.env` file:
+- `GETSENTRY_ORG_SLUG` - Github slug of the org you create in *Configuring a test environment* below
 
 Optional database configuration
 
