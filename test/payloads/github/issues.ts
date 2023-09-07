@@ -210,4 +210,8 @@ export default {
     type: 'User',
     site_admin: false,
   },
+  organization: {
+    id: 1234,
+    login: "getsentry"
+  }
 };

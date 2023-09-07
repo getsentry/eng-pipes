@@ -2,12 +2,14 @@ import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
 import { DRY_RUN, PROJECT } from '@/config';
+import { PRODUCT_AREA_LABEL_PREFIX } from '@/config';
 
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
 } from './businessHours';
 import { getOssUserType } from './getOssUserType';
+import { getTeams } from './getTeams';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 
@@ -38,6 +40,8 @@ export const TARGETS = {
       target_type: 'STRING',
       timeToRouteBy: 'TIMESTAMP',
       timeToTriageBy: 'TIMESTAMP',
+      product_area: 'STRING',
+      teams: 'ARRAY<STRING>',
     },
   },
 
@@ -254,6 +258,8 @@ export async function insertOss(
     repository: payload.repository.full_name,
     timeToRouteBy: null,
     timeToTriageBy: null,
+    product_area: null,
+    teams: null,
   };
 
   if (eventType === 'issues') {
@@ -271,6 +277,17 @@ export async function insertOss(
         data.target_id = label.id;
         data.target_name = label.name;
         data.target_type = 'label';
+        if (label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)) {
+          data.product_area = label.name;
+        } else {
+          data.product_area =
+            issue.labels?.find((label) =>
+              label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
+            )?.name || null;
+        }
+        data.product_area =
+          data.product_area &&
+          data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
         if (data.action === 'labeled') {
           data.timeToRouteBy = await calculateSLOViolationRoute(
             data.target_name
@@ -290,6 +307,13 @@ export async function insertOss(
     data.updated_at = comment.updated_at;
     data.target_id = issue.number;
     data.target_type = 'issue';
+    data.product_area =
+      issue.labels?.find((label) =>
+        label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
+      )?.name || null;
+    data.product_area =
+      data.product_area &&
+      data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
   } else if (eventType === 'pull_request') {
     const { action, pull_request, requested_reviewer, requested_team, label } =
       payload;
@@ -336,6 +360,11 @@ export async function insertOss(
     // Unknown payload event, ignoring...
     return {};
   }
+  data.teams = getTeams(
+    payload.repository.name,
+    data.product_area,
+    payload.organization.login
+  );
   return await _insert(data, TARGETS.oss);
 }
 

@@ -67,6 +67,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["js-yaml", "npm:4.1.0"],
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:2.4.2"],
             ["lint-staged", "npm:10.5.4"],
+            ["lodash.clonedeep", "npm:4.5.0"],
             ["lodash.merge", "npm:4.6.2"],
             ["markdownlint-cli", "npm:0.27.1"],
             ["middie", "npm:5.3.0"],
@@ -7795,6 +7796,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD",
         }]
       ]],
+      ["lodash.clonedeep", [
+        ["npm:4.5.0", {
+          "packageLocation": "./.yarn/cache/lodash.clonedeep-npm-4.5.0-fbc3cda4e5-92c46f094b.zip/node_modules/lodash.clonedeep/",
+          "packageDependencies": [
+            ["lodash.clonedeep", "npm:4.5.0"]
+          ],
+          "linkType": "HARD",
+        }]
+      ]],
       ["lodash.differencewith", [
         ["npm:4.5.0", {
           "packageLocation": "./.yarn/cache/lodash.differencewith-npm-4.5.0-0480e4d244-79b63aa84e.zip/node_modules/lodash.differencewith/",
@@ -9918,6 +9928,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["js-yaml", "npm:4.1.0"],
             ["knex", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:2.4.2"],
             ["lint-staged", "npm:10.5.4"],
+            ["lodash.clonedeep", "npm:4.5.0"],
             ["lodash.merge", "npm:4.6.2"],
             ["markdownlint-cli", "npm:0.27.1"],
             ["middie", "npm:5.3.0"],
