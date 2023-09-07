@@ -68,6 +68,8 @@ product_areas:
   - team-enterprise
   Settings - Spike Protection:
   - team-enterprise
+  Settings - Subscription:
+  - team-revenue
   Settings - Teams:
   - team-enterprise
   Sign In:
@@ -126,6 +128,7 @@ teams:
   team-product: null
   team-profiling: null
   team-replays: null
+  team-revenue: null
   team-sentry-at-scale: null
   team-sns: null
   team-starfish: null
