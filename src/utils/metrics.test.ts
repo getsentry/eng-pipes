@@ -15,6 +15,8 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
+import cloneDeep from 'lodash.clonedeep';
+
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
@@ -22,7 +24,6 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { db } from '@utils/db';
-import cloneDeep from 'lodash.clonedeep';
 
 import { insertOss } from './metrics';
 
@@ -42,7 +43,7 @@ describe('metrics tests', function () {
         },
       },
       organization: {
-        login: 'getsentry'
+        login: 'getsentry',
       },
       issue: {
         number: 1234,
@@ -145,25 +146,25 @@ describe('metrics tests', function () {
 
     it('should include product area and team in github event payload when product area label is added', async function () {
       const testPayload = cloneDeep(defaultPayload);
-      testPayload.label.name = "Product Area: One-Team";
+      testPayload.label.name = 'Product Area: One-Team';
       testPayload.action = 'labeled';
       testPayload.repository.name = 'routing-repo';
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         teams: ['team-ospo'],
-        product_area: 'One-Team'
+        product_area: 'One-Team',
       });
     });
 
     it('should include product area and team in github event payload when product area exists in issue labels', async function () {
       const testPayload = cloneDeep(defaultPayload);
-      testPayload.issue.labels = [{ name: "Product Area: One-Team" }];
+      testPayload.issue.labels = [{ name: 'Product Area: One-Team' }];
       testPayload.action = 'labeled';
       testPayload.repository.name = 'routing-repo';
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         teams: ['team-ospo'],
-        product_area: 'One-Team'
+        product_area: 'One-Team',
       });
     });
 
@@ -175,7 +176,7 @@ describe('metrics tests', function () {
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         teams: ['team-ospo'],
-        product_area: null
+        product_area: null,
       });
     });
 
@@ -187,7 +188,7 @@ describe('metrics tests', function () {
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
         teams: ['team-ospo'],
-        product_area: null
+        product_area: null,
       });
     });
 
@@ -199,7 +200,19 @@ describe('metrics tests', function () {
       const result = await insertOss('issue_comment', testPayload);
       expect(result).toMatchObject({
         teams: ['team-ospo'],
-        product_area: null
+        product_area: null,
+      });
+    });
+
+    it('should include product area and team in github issue_comment event payload when given product area in routing repo', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.repository.name = 'routing-repo';
+      testPayload.issue.labels = [{ name: 'Product Area: One-Team' }];
+      testPayload.comment = { id: 123, created_at: null, updated_at: null };
+      const result = await insertOss('issue_comment', testPayload);
+      expect(result).toMatchObject({
+        teams: ['team-ospo'],
+        product_area: 'One-Team',
       });
     });
   });
