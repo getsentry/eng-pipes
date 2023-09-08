@@ -23,6 +23,8 @@ product_areas:
   - team-mobile-sdks
   Issues - Suggested Fix:
   - team-telemetry-experience
+  Org Relocation:
+  - team-ospo
   Performance:
   - team-performance
   Profiling:
