@@ -23,6 +23,8 @@ product_areas:
   - team-mobile-sdks
   Issues - Suggested Fix:
   - team-telemetry-experience
+  Org Relocation:
+  - team-ospo
   Performance:
   - team-performance
   Profiling:
@@ -109,6 +111,7 @@ repos:
   sentry-ruby: team-web-sdks
   sentry-symfony: team-web-sdks
   sentry-unity: team-mobile-sdks
+  sentry-wizard: team-web-sdks
   snuba: team-sns
   snuba-sdk: team-sns
   symbolic: team-processing
