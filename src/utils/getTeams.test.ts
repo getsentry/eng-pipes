@@ -32,7 +32,7 @@ describe('getTeams', function () {
   });
 
   it('should return empty array if org is codecov', () => {
-    expect(getTeams('codecov', 'Multi-Team', 'getsentry')).toEqual([]);
+    expect(getTeams('codecov-repo', 'Multi-Team', 'codecov')).toEqual([]);
   });
 
   it('should return empty array if team is not defined in product owners yml', () => {
