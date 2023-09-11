@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { getTeams } from './getTeams';
 
 // Check tests/product-owners.yml for data used for tests here
@@ -27,5 +29,29 @@ describe('getTeams', function () {
       'team-issues',
       'team-enterprise',
     ]);
+  });
+
+  it('should return empty array if org is codecov', () => {
+    expect(getTeams('codecov', 'Multi-Team', 'getsentry')).toEqual([]);
+  });
+
+  it('should return empty array if team is not defined in product owners yml', () => {
+    const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
+    expect(getTeams('undefined-team-repo', 'Multi-Team', 'getsentry')).toEqual(
+      []
+    );
+    expect(captureMessageSpy).toHaveBeenCalledWith(
+      'Teams is not defined for getsentry/undefined-team-repo'
+    );
+  });
+
+  it('should return empty array if product area is not defined in product owners yml', () => {
+    const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
+    expect(
+      getTeams('routing-repo', 'Undefined Product Area', 'getsentry')
+    ).toEqual([]);
+    expect(captureMessageSpy).toHaveBeenCalledWith(
+      'Teams is not defined for Undefined Product Area'
+    );
   });
 });

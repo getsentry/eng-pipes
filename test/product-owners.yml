@@ -6,6 +6,7 @@ product_areas:
     - team-enterprise
 repos:
   test-ttt-simple: team-ospo
+  routing-repo: team-ospo
 teams:
   team-ospo: C05A6BW303Y
   team-issues: C05A6BW303Z

@@ -14,3 +14,19 @@ getsentry:
       - routing-repo
     withoutRouting:
       - test-ttt-simple
+      - undefined-team-repo
+
+codecov:
+  appAuth:
+    appId: -1
+    privateKey: 'STUB'
+    installationId: -1
+  project:
+    nodeId: 'projectNodeId'
+    fieldIds:
+      productArea: 'productAreaFieldId'
+      status: 'statusFieldId'
+      responseDue: 'responseDueFieldId'
+  repos:
+    withoutRouting:
+      - 'feedback'
