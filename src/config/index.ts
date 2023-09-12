@@ -105,10 +105,6 @@ export enum BuildStatus {
  */
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
 export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
-export const STATUS_LABEL_PREFIX = 'Status: ';
-export const BACKLOG_LABEL = 'Status: Backlog';
-export const IN_PROGRESS_LABEL = 'Status: In Progress';
-export const UNKNOWN_LABEL = 'Status: Unknown';
 export const STALE_LABEL = 'Stale';
 export const WAITING_FOR_LABEL_PREFIX = 'Waiting for: ';
 export const WAITING_FOR_SUPPORT_LABEL = 'Waiting for: Support';

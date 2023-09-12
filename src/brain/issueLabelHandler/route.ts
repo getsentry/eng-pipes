@@ -2,9 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import {
-  BACKLOG_LABEL,
   GH_ORGS,
-  IN_PROGRESS_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -28,10 +26,6 @@ function isNotInARepoWeCareAboutForRouting(payload, org) {
 function isValidLabel(payload) {
   return (
     !payload.label?.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) ||
-    payload.issue.labels?.some(
-      (label) =>
-        label.name === BACKLOG_LABEL || label.name === IN_PROGRESS_LABEL
-    ) ||
     payload.issue.state !== 'open'
   );
 }

@@ -362,8 +362,8 @@ export async function insertOss(
   }
   data.teams = getTeams(
     payload.repository.name,
+    payload.organization.login,
     data.product_area,
-    payload.organization.login
   );
   return await _insert(data, TARGETS.oss);
 }

@@ -3,15 +3,16 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  BACKLOG_LABEL,
   PRODUCT_AREA_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
+  PRODUCT_OWNERS_YML
 } from '@/config';
 import { Issue } from '@/types';
 import { isChannelInBusinessHours } from '@/utils/businessHours';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { getTeams } from '@utils/getTeams'
 
 const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';
@@ -48,6 +49,7 @@ type IssueSLOInfo = {
   productAreaLabel: string;
   triageBy: string;
   createdAt: string;
+  channelId: string;
 };
 
 type SlackMessageBlocks = {
@@ -84,14 +86,6 @@ const getIssueProductAreaLabel = (issue: Issue) => {
     getLabelName(label).startsWith(PRODUCT_AREA_LABEL_PREFIX)
   );
   return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
-};
-
-// TODO: Remove this once Status: Backlog is gone.
-const filterIssuesOnBacklog = (issue: Issue) => {
-  return (
-    issue.labels.find((label) => getLabelName(label) === BACKLOG_LABEL) ==
-    undefined
-  );
 };
 
 // Note that the `ordinal` field is the literal number that will show up, not the index in the
@@ -145,115 +139,120 @@ export const getTriageSLOTimestamp = async (
 export const constructSlackMessage = (
   notificationChannels: Record<string, string[]>,
   productAreaToIssuesMap: Record<string, IssueSLOInfo[]>,
+  channelToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
+  
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
     let hasEnoughTimePassedSinceIssueCreation = false;
     const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
     const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
     const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
+    const addIssueToQueue = ({ url, number, title, triageBy, createdAt }) => {
+      // Escape issue title for < and > characters
+      const escapedIssueTitle = title
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+      const hoursLeft = now.diff(triageBy, 'hours') * -1;
+      const minutesLeft =
+        now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+      const daysLeft = now.diff(triageBy, 'days') * -1;
+      hasEnoughTimePassedSinceIssueCreation =
+        hasEnoughTimePassedSinceIssueCreation ||
+        now.diff(createdAt, 'hours') > 4;
+      if (daysLeft <= -1) {
+        const daysText =
+          daysLeft * -1 === 1
+            ? `${daysLeft * -1} day`
+            : `${daysLeft * -1} days`;
+        overdueIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${daysText} overdue`,
+        });
+      } else if (hoursLeft < -4) {
+        const hoursText =
+          hoursLeft * -1 === 1
+            ? `${hoursLeft * -1} hour`
+            : `${hoursLeft * -1} hours`;
+        overdueIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${hoursText} overdue`,
+        });
+      } else if (hoursLeft <= -1) {
+        const minutesText =
+          minutesLeft * -1 === 1
+            ? `${minutesLeft * -1} minute`
+            : `${minutesLeft * -1} minutes`;
+        const hoursText =
+          hoursLeft * -1 === 1
+            ? `${hoursLeft * -1} hour`
+            : `${hoursLeft * -1} hours`;
+        overdueIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${hoursText} ${minutesText} overdue`,
+        });
+      } else if (hoursLeft == 0 && minutesLeft <= 0) {
+        const minutesText =
+          minutesLeft * -1 === 1
+            ? `${minutesLeft * -1} minute`
+            : `${minutesLeft * -1} minutes`;
+        overdueIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${minutesText} overdue`,
+        });
+      } else if (hoursLeft == 0 && minutesLeft >= 0) {
+        const minutesText =
+          minutesLeft === 1
+            ? `${minutesLeft} minute`
+            : `${minutesLeft} minutes`;
+        actFastIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${minutesText} left`,
+        });
+      } else if (hoursLeft <= 4) {
+        const minutesText =
+          minutesLeft === 1
+            ? `${minutesLeft} minute`
+            : `${minutesLeft} minutes`;
+        const hoursText =
+          hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
+        actFastIssues.push({
+          triageBy,
+          issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+          timeLeft: `${hoursText} ${minutesText} left`,
+        });
+      } else {
+        if (daysLeft < 1) {
+          triageQueueIssues.push({
+            triageBy,
+            issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+            timeLeft: `${hoursLeft} hours left`,
+          });
+        } else {
+          const daysText =
+            daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
+          triageQueueIssues.push({
+            triageBy,
+            issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
+            timeLeft: `${daysText} left`,
+          });
+        }
+      }
+    }
     if (await isChannelInBusinessHours(channelId, now)) {
       notificationChannels[channelId].map((productArea) => {
-        productAreaToIssuesMap[productArea].forEach(
-          ({ url, number, title, triageBy, createdAt }) => {
-            // Escape issue title for < and > characters
-            const escapedIssueTitle = title
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;');
-            const hoursLeft = now.diff(triageBy, 'hours') * -1;
-            const minutesLeft =
-              now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
-            const daysLeft = now.diff(triageBy, 'days') * -1;
-            hasEnoughTimePassedSinceIssueCreation =
-              hasEnoughTimePassedSinceIssueCreation ||
-              now.diff(createdAt, 'hours') > 4;
-            if (daysLeft <= -1) {
-              const daysText =
-                daysLeft * -1 === 1
-                  ? `${daysLeft * -1} day`
-                  : `${daysLeft * -1} days`;
-              overdueIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${daysText} overdue`,
-              });
-            } else if (hoursLeft < -4) {
-              const hoursText =
-                hoursLeft * -1 === 1
-                  ? `${hoursLeft * -1} hour`
-                  : `${hoursLeft * -1} hours`;
-              overdueIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${hoursText} overdue`,
-              });
-            } else if (hoursLeft <= -1) {
-              const minutesText =
-                minutesLeft * -1 === 1
-                  ? `${minutesLeft * -1} minute`
-                  : `${minutesLeft * -1} minutes`;
-              const hoursText =
-                hoursLeft * -1 === 1
-                  ? `${hoursLeft * -1} hour`
-                  : `${hoursLeft * -1} hours`;
-              overdueIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${hoursText} ${minutesText} overdue`,
-              });
-            } else if (hoursLeft == 0 && minutesLeft <= 0) {
-              const minutesText =
-                minutesLeft * -1 === 1
-                  ? `${minutesLeft * -1} minute`
-                  : `${minutesLeft * -1} minutes`;
-              overdueIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${minutesText} overdue`,
-              });
-            } else if (hoursLeft == 0 && minutesLeft >= 0) {
-              const minutesText =
-                minutesLeft === 1
-                  ? `${minutesLeft} minute`
-                  : `${minutesLeft} minutes`;
-              actFastIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${minutesText} left`,
-              });
-            } else if (hoursLeft <= 4) {
-              const minutesText =
-                minutesLeft === 1
-                  ? `${minutesLeft} minute`
-                  : `${minutesLeft} minutes`;
-              const hoursText =
-                hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
-              actFastIssues.push({
-                triageBy,
-                issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                timeLeft: `${hoursText} ${minutesText} left`,
-              });
-            } else {
-              if (daysLeft < 1) {
-                triageQueueIssues.push({
-                  triageBy,
-                  issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                  timeLeft: `${hoursLeft} hours left`,
-                });
-              } else {
-                const daysText =
-                  daysLeft === 1 ? `${daysLeft} day` : `${daysLeft} days`;
-                triageQueueIssues.push({
-                  triageBy,
-                  issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
-                  timeLeft: `${daysText} left`,
-                });
-              }
-            }
-          }
-        );
+        productAreaToIssuesMap[productArea].forEach(addIssueToQueue);
       });
+
+      if (channelToIssuesMap[channelId]) {
+        channelToIssuesMap[channelId].map(addIssueToQueue);
+      }
 
       const sortAndFlattenIssuesArray = (issues) =>
         issues
@@ -379,6 +378,24 @@ export const constructSlackMessage = (
   });
 };
 
+const getChannelIdForIssue = (repo: string, org: string, productArea: string | undefined) => {
+  const team = getTeams(repo, org, productArea);
+  return PRODUCT_OWNERS_YML["teams"][team]['slack_channel'];
+}
+
+const groupIssuesByChannelId = (issuesToNotifyAbout: IssueSLOInfo[]): Record<string, IssueSLOInfo[]> => {
+  const channelToIssueMap: Record<string, IssueSLOInfo[]> = {};
+  issuesToNotifyAbout.forEach((issue: IssueSLOInfo) => {
+    if (issue['channelId'] in channelToIssueMap) {
+      channelToIssueMap[issue['channelId']].push(issue);
+    }
+    else {
+      channelToIssueMap[issue['channelI']] = [issue];
+    }
+  }, {})
+  return channelToIssueMap;
+}
+
 export const notifyProductOwnersForUntriagedIssues = async (
   org: GitHubOrg,
   now: moment.Moment
@@ -399,8 +416,27 @@ export const notifyProductOwnersForUntriagedIssues = async (
       per_page: GH_API_PER_PAGE,
     });
 
+    // TODO: make this the default behavior when channel IDs are all moved to security-as-code
+    if (org.repos.withoutRouting[repo]) {
+      const issuesWithSLOInfo = untriagedIssues
+        .map(async (issue) => ({
+          url: issue.html_url,
+          number: issue.number,
+          title: issue.title,
+          triageBy: await getTriageSLOTimestamp(
+            org,
+            repo,
+            issue.number,
+            issue.node_id
+          ),
+          createdAt: issue.created_at,
+          channelId: getChannelIdForIssue(repo, org.slug, undefined),
+      }));
+
+      return Promise.all(issuesWithSLOInfo);
+    }
+
     const issuesWithSLOInfo = untriagedIssues
-      .filter(filterIssuesOnBacklog)
       .map(async (issue) => ({
         url: issue.html_url,
         number: issue.number,
@@ -419,11 +455,12 @@ export const notifyProductOwnersForUntriagedIssues = async (
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all([...org.repos.withRouting].map(getIssueSLOInfoForRepo))
+    await Promise.all([...org.repos.withRouting, ...org.repos.withoutRouting].map(getIssueSLOInfoForRepo))
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues
   const productAreaToIssuesMap: Record<string, IssueSLOInfo[]> = {};
+  const channelToIssuesMap: Record<string, IssueSLOInfo[]> = {};
   const productAreasToNotify = new Set() as Set<string>;
   issuesToNotifyAbout.forEach((data) => {
     if (data.productAreaLabel in productAreaToIssuesMap) {
@@ -431,6 +468,14 @@ export const notifyProductOwnersForUntriagedIssues = async (
     } else {
       productAreaToIssuesMap[data.productAreaLabel] = [data];
       productAreasToNotify.add(data.productAreaLabel);
+    }
+    if (data.channelId) {
+      if (data.channelId in channelToIssuesMap) {
+        channelToIssuesMap[data.channelId].push(data);
+      }
+      else {
+        channelToIssuesMap[data.channelId] = [data];
+      }
     }
   });
   // Get a mapping from Channels to subscribed product areas
@@ -449,6 +494,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const notifications = constructSlackMessage(
     notificationChannels,
     productAreaToIssuesMap,
+    channelToIssuesMap,
     now
   );
   // Do all this in parallel and wait till all finish

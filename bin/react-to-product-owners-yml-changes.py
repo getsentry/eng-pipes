@@ -21,7 +21,8 @@ def main():
 
     for team, fields in product_owners_yml['by_team'].items():
         # TODO: remove ternary here and require a slack channel for teams
-        team_to_slack_channel_map[team] = fields['slack_channel'] if 'slack_channel' in fields else None
+        team_to_slack_channel_map[team]['slack_channel'] = fields['slack_channel'] if 'slack_channel' in fields else None
+        team_to_slack_channel_map[team]['timezones'] = fields['timezones'] if 'timezones' in fields else None
 
     for repo, team in product_owners_yml['by_repo'].items():
         repo_to_team_map[repo] = team

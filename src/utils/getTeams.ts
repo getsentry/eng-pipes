@@ -4,8 +4,8 @@ import { GH_ORGS, PRODUCT_OWNERS_YML } from '@/config';
 
 export function getTeams(
   repo: string,
-  productArea: string,
-  org: string
+  org: string,
+  productArea: string | undefined
 ): string[] {
   const orgObj = GH_ORGS.get(org);
   // TODO: include codecov
