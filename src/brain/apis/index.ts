@@ -1,7 +1,7 @@
 import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
-import getProgress from './getProgress';
+import getProgress, { OWNERSHIP_FILE_LINK } from './getProgress';
 
 export function apis() {
   bolt.event(
@@ -31,7 +31,7 @@ export function apis() {
         getProgress(team),
       ]);
 
-      if (resps.includes('INVALID')) {
+      if (resps[0].message === 'INVALID_TEAM') {
         await client.chat.update({
             channel: String(message.channel),
             ts: String(message.ts),
@@ -40,13 +40,14 @@ export function apis() {
                 {
                     type: 'section',
                     text: {
-                    type: 'mrkdwn',
-                    text: 'Team name is not valid or does not own any APIs. Review <https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json|ownerhisp> and <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update on the endpoints> if needed. ',
+                        type: 'mrkdwn',
+                        text: `Team name is not valid or does not own any APIs. Review <${OWNERSHIP_FILE_LINK}|ownerhisp> and <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update on the endpoints> if needed. `,
                     },
                 },
             ],
           });
       } else {
+        if (resps[0])
         await client.chat.update({
             channel: String(message.channel),
             ts: String(message.ts),
@@ -56,13 +57,19 @@ export function apis() {
                 type: 'section',
                 text: {
                   type: 'mrkdwn',
-                  text: String(resps),
+                  text: String(resps[0].message),
                 },
               },
+              resps[0].should_show_docs === true ? {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: `Please <${resps[0].review_link}|review> unowned and experimental APIs and  <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
+                },
+              }: null,
             ],
           });
       }
-     
     })
   );
 }

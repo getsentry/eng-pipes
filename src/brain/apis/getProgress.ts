@@ -1,5 +1,7 @@
 import { Octokit } from '@octokit/rest';
 
+export const OWNERSHIP_FILE_LINK = "https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json";
+
 function get_emoji_for_type(type, api_rate) {
   switch (type) {
     case "public":
@@ -31,7 +33,8 @@ function get_message_for_team(ownership_data, team) {
       get_message_line_for_type(team_data, 'private', total) +
       get_message_line_for_type(team_data, 'experimental', total) + 
       get_message_line_for_type(team_data, 'unknown', total),
-    should_show_docs: team_data["unknown"].length + team_data["experimental"].length > 0
+    should_show_docs: team_data["unknown"].length + team_data["experimental"].length > 0,
+    review_link: `${OWNERSHIP_FILE_LINK}#L${team_data["block_start"]}`,
   }
 }
 
@@ -60,12 +63,20 @@ export default async function getProgress(team: string) {
   const ownership_data = JSON.parse(buff.toString('ascii').trim());
   if (team == '') {
     // TODO: show data for all the teams
-    return 'Under Construction';
+    return {
+      message: 'Under Construction',
+      should_show_docs: false,
+      review_link: OWNERSHIP_FILE_LINK,
+    }
   } 
   
   if (ownership_data.hasOwnProperty(team)) {
-    return get_message_for_team(ownership_data, team).message;
+    return get_message_for_team(ownership_data, team);
   }
   
-  return 'INVALID';
+  return {
+    message: 'INVALID_TEAM',
+    should_show_docs: false,
+    review_link: OWNERSHIP_FILE_LINK,
+  };
 }
