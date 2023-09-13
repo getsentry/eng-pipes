@@ -212,6 +212,6 @@ export default {
   },
   organization: {
     id: 1234,
-    login: "getsentry"
-  }
+    login: 'getsentry',
+  },
 };

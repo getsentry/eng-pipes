@@ -573,8 +573,8 @@ const payload = {
   },
   organization: {
     id: 1234,
-    login: "getsentry"
-  }
+    login: 'getsentry',
+  },
 };
 
 export default payload;

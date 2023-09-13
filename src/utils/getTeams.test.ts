@@ -9,9 +9,7 @@ describe('getTeams', function () {
   });
 
   it('should return array with one team if repo does not have routing', () => {
-    expect(getTeams('test-ttt-simple', 'getsentry')).toEqual([
-      'team-ospo',
-    ]);
+    expect(getTeams('test-ttt-simple', 'getsentry')).toEqual(['team-ospo']);
   });
 
   it('should return empty array if repo has routing and no product area is passed', () => {
@@ -48,7 +46,7 @@ describe('getTeams', function () {
   it('should return empty array if product area is not defined in product owners yml', () => {
     const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
     expect(
-      getTeams('routing-repo', 'getsentry', 'Undefined Product Area',)
+      getTeams('routing-repo', 'getsentry', 'Undefined Product Area')
     ).toEqual([]);
     expect(captureMessageSpy).toHaveBeenCalledWith(
       'Teams is not defined for Undefined Product Area'

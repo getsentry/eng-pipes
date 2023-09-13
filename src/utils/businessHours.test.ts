@@ -33,7 +33,6 @@ import {
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
   getOffices,
-  getSortedOffices,
   isChannelInBusinessHours,
 } from './businessHours';
 
@@ -625,33 +624,6 @@ describe('businessHours tests', function () {
         text: '-Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-    });
-  });
-
-  describe('getSortedOffices', function () {
-    it('should get sfo and vie office in sorted order for product area test if new office is added', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test sfo',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Product Area: Test')).toEqual([
-        'vie',
-        'sfo',
-      ]);
-    });
-
-    it('should get sfo, vie, yyz offices in sorted order for product area test if new office is added', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test yyz',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Product Area: Test')).toEqual([
-        'vie',
-        'yyz',
-        'sfo',
-      ]);
     });
   });
 });

@@ -4,15 +4,18 @@ import moment from 'moment-timezone';
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   PRODUCT_AREA_LABEL_PREFIX,
+  PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-  PRODUCT_OWNERS_YML
 } from '@/config';
 import { Issue } from '@/types';
-import { isChannelInBusinessHours } from '@/utils/businessHours';
+import {
+  isChannelInBusinessHours,
+  isTimeInBusinessHours,
+} from '@/utils/businessHours';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { getTeams } from '@utils/getTeams'
+import { getTeams } from '@utils/getTeams';
 
 const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';
@@ -42,14 +45,16 @@ type SlackMessageOrderedIssueItem = {
   ];
 };
 
+// TODO(team-ospo/issues/198): Clean up undefined types
 type IssueSLOInfo = {
   url: string;
   number: number;
   title: string;
-  productAreaLabel: string;
+  productAreaLabel?: string;
   triageBy: string;
   createdAt: string;
-  channelId: string;
+  channelId?: string;
+  isChannelInBusinessHours?: boolean;
 };
 
 type SlackMessageBlocks = {
@@ -142,21 +147,19 @@ export const constructSlackMessage = (
   channelToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
-  
+  const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
+  const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
+  const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
     // Group issues into buckets based on time left until SLA
     let hasEnoughTimePassedSinceIssueCreation = false;
-    const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
-    const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
-    const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
     const addIssueToQueue = ({ url, number, title, triageBy, createdAt }) => {
       // Escape issue title for < and > characters
       const escapedIssueTitle = title
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
       const hoursLeft = now.diff(triageBy, 'hours') * -1;
-      const minutesLeft =
-        now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
+      const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
       const daysLeft = now.diff(triageBy, 'days') * -1;
       hasEnoughTimePassedSinceIssueCreation =
         hasEnoughTimePassedSinceIssueCreation ||
@@ -244,14 +247,16 @@ export const constructSlackMessage = (
           });
         }
       }
-    }
-    if (await isChannelInBusinessHours(channelId, now)) {
+    };
+    // TODO(team-ospo/issues/198): remove usage of isChannelInBusinessHours
+    if (channelToIssuesMap[channelId] || (await isChannelInBusinessHours(channelId, now))
+    ) {
       notificationChannels[channelId].map((productArea) => {
         productAreaToIssuesMap[productArea].forEach(addIssueToQueue);
       });
 
       if (channelToIssuesMap[channelId]) {
-        channelToIssuesMap[channelId].map(addIssueToQueue);
+        channelToIssuesMap[channelId].filter(issue => issue.isChannelInBusinessHours).forEach(addIssueToQueue);
       }
 
       const sortAndFlattenIssuesArray = (issues) =>
@@ -378,23 +383,23 @@ export const constructSlackMessage = (
   });
 };
 
-const getChannelIdForIssue = (repo: string, org: string, productArea: string | undefined) => {
+const getChannelIdForIssue = (
+  repo: string,
+  org: string,
+  productArea: string | undefined
+) => {
   const team = getTeams(repo, org, productArea);
-  return PRODUCT_OWNERS_YML["teams"][team]['slack_channel'];
-}
+  return PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'];
+};
 
-const groupIssuesByChannelId = (issuesToNotifyAbout: IssueSLOInfo[]): Record<string, IssueSLOInfo[]> => {
-  const channelToIssueMap: Record<string, IssueSLOInfo[]> = {};
-  issuesToNotifyAbout.forEach((issue: IssueSLOInfo) => {
-    if (issue['channelId'] in channelToIssueMap) {
-      channelToIssueMap[issue['channelId']].push(issue);
-    }
-    else {
-      channelToIssueMap[issue['channelI']] = [issue];
-    }
-  }, {})
-  return channelToIssueMap;
-}
+const getOfficesForIssue = (
+  repo: string,
+  org: string,
+) => {
+  // For now, repos will only map to one team
+  const team = getTeams(repo, org, undefined);
+  return PRODUCT_OWNERS_INFO['teams'][team]['offices'];
+};
 
 export const notifyProductOwnersForUntriagedIssues = async (
   org: GitHubOrg,
@@ -416,32 +421,12 @@ export const notifyProductOwnersForUntriagedIssues = async (
       per_page: GH_API_PER_PAGE,
     });
 
-    // TODO: make this the default behavior when channel IDs are all moved to security-as-code
-    if (org.repos.withoutRouting[repo]) {
-      const issuesWithSLOInfo = untriagedIssues
-        .map(async (issue) => ({
-          url: issue.html_url,
-          number: issue.number,
-          title: issue.title,
-          triageBy: await getTriageSLOTimestamp(
-            org,
-            repo,
-            issue.number,
-            issue.node_id
-          ),
-          createdAt: issue.created_at,
-          channelId: getChannelIdForIssue(repo, org.slug, undefined),
-      }));
-
-      return Promise.all(issuesWithSLOInfo);
-    }
-
-    const issuesWithSLOInfo = untriagedIssues
-      .map(async (issue) => ({
+    // TODO(team-ospo/issues/198): Consolidate logic between repos with routing and repos without routing
+    if (org.repos.withoutRouting.includes(repo)) {
+      const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
         url: issue.html_url,
         number: issue.number,
         title: issue.title,
-        productAreaLabel: getIssueProductAreaLabel(issue),
         triageBy: await getTriageSLOTimestamp(
           org,
           repo,
@@ -449,13 +434,38 @@ export const notifyProductOwnersForUntriagedIssues = async (
           issue.node_id
         ),
         createdAt: issue.created_at,
+        channelId: getChannelIdForIssue(repo, org.slug, undefined),
+        isChannelInBusinessHours: getOfficesForIssue(repo, org.slug)
+          .map((office: any) => isTimeInBusinessHours(now, office))
+          .includes(true),
       }));
+
+      return Promise.all(issuesWithSLOInfo);
+    }
+
+    const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
+      url: issue.html_url,
+      number: issue.number,
+      title: issue.title,
+      productAreaLabel: getIssueProductAreaLabel(issue),
+      triageBy: await getTriageSLOTimestamp(
+        org,
+        repo,
+        issue.number,
+        issue.node_id
+      ),
+      createdAt: issue.created_at,
+    }));
 
     return Promise.all(issuesWithSLOInfo);
   };
 
   const issuesToNotifyAbout = (
-    await Promise.all([...org.repos.withRouting, ...org.repos.withoutRouting].map(getIssueSLOInfoForRepo))
+    await Promise.all(
+      [...org.repos.withRouting, ...org.repos.withoutRouting].map(
+        getIssueSLOInfoForRepo
+      )
+    )
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues
@@ -463,21 +473,22 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const channelToIssuesMap: Record<string, IssueSLOInfo[]> = {};
   const productAreasToNotify = new Set() as Set<string>;
   issuesToNotifyAbout.forEach((data) => {
-    if (data.productAreaLabel in productAreaToIssuesMap) {
-      productAreaToIssuesMap[data.productAreaLabel].push(data);
-    } else {
-      productAreaToIssuesMap[data.productAreaLabel] = [data];
-      productAreasToNotify.add(data.productAreaLabel);
-    }
     if (data.channelId) {
       if (data.channelId in channelToIssuesMap) {
         channelToIssuesMap[data.channelId].push(data);
-      }
-      else {
+      } else {
         channelToIssuesMap[data.channelId] = [data];
+      }
+    } else if (data.productAreaLabel) {
+      if (data.productAreaLabel in productAreaToIssuesMap) {
+        productAreaToIssuesMap[data.productAreaLabel].push(data);
+      } else {
+        productAreaToIssuesMap[data.productAreaLabel] = [data];
+        productAreasToNotify.add(data.productAreaLabel);
       }
     }
   });
+  // TODO(team-ospo/issues/198): Remove this once not needed
   // Get a mapping from Channels to subscribed product areas
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
@@ -489,6 +500,8 @@ export const notifyProductOwnersForUntriagedIssues = async (
     res[channel_id] = productAreas;
     return res;
   }, {});
+
+  Object.keys(channelToIssuesMap).forEach(channelId => { notificationChannels[channelId] = [] })
 
   // Notify all channels associated with the relevant `Product Area: *` label per issue
   const notifications = constructSlackMessage(

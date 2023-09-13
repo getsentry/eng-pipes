@@ -56,7 +56,7 @@ describe('slack app', function () {
       basePath: 'tests/js',
       appDir: 'fixtures',
     });
-    
+
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
     // @ts-ignore
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchInlineSnapshot(`
