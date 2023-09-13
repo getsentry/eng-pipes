@@ -1,5 +1,9 @@
-import { HeaderBlock, KnownBlock, MrkdwnElement, PlainTextElement } from '@slack/types';
-
+import {
+  HeaderBlock,
+  KnownBlock,
+  MrkdwnElement,
+  PlainTextElement,
+} from '@slack/types';
 
 export function header(text: PlainTextElement): HeaderBlock {
   return {
@@ -31,13 +35,13 @@ export function plaintext(text: string): PlainTextElement {
 export function section(block: MrkdwnElement): KnownBlock {
   return {
     type: 'section',
-    text: block
-  }
+    text: block,
+  };
 }
 
 export function sectionBlock(fields: MrkdwnElement[]): KnownBlock {
   return {
     type: 'section',
-    fields: fields
-  }
+    fields: fields,
+  };
 }

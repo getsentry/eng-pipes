@@ -181,5 +181,9 @@ export interface OptionsAutomatorResponse {
   unset_options: string[];
   not_writable_options: { option_name: string; error_msg: string }[];
   unregistered_options: string[];
-  invalid_type_options: {option_name: string, got_type: string, expected_type: string }[];
+  invalid_type_options: {
+    option_name: string;
+    got_type: string;
+    expected_type: string;
+  }[];
 }

@@ -15,7 +15,11 @@ import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getSlackMessage } from '@/utils/db/getSlackMessage';
 import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
-import { firstGitMaterialSHA, getProgressColor, filterBuildCauses } from '@/utils/gocdHelpers';
+import {
+  filterBuildCauses,
+  firstGitMaterialSHA,
+  getProgressColor,
+} from '@/utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;
