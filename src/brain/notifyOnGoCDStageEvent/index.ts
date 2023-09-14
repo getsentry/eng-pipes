@@ -25,11 +25,11 @@ import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
+  filterBuildCauses,
   FINAL_STAGE_NAMES,
   firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
-  filterBuildCauses,
 } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { GitHubOrg } from '@api/github/org';

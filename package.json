@@ -108,8 +108,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --cache --fix",
-      "yarn test --findRelatedTests"
+      "eslint --cache --fix"
     ],
     "*.md": [
       "markdownlint"
