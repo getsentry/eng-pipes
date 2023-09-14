@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest';
 
 export const OWNERSHIP_FILE_LINK = "https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json";
+export const INVALID_TEAM_ERROR = "INVALID_TEAM_ERROR";
 
 function get_emoji_for_type(type, api_rate) {
   switch (type) {
@@ -38,7 +39,7 @@ function get_message_for_team(ownership_data, team) {
   }
 }
 
-export default async function getProgress(team: string) {
+export default async function getStats(team: string) {
   const octokitWithToken = new Octokit({
     auth: process.env.GITHUB_PERSONAL_TOKEN,
   });  
@@ -60,7 +61,7 @@ export default async function getProgress(team: string) {
   }
 
   const buff = Buffer.from(resp.data.content, 'base64');
-  const ownership_data = JSON.parse(buff.toString('ascii').trim());
+  const ownership_data = JSON.parse(buff.toString('ascii'));
   if (team == '') {
     // TODO: show data for all the teams
     return {
@@ -70,12 +71,12 @@ export default async function getProgress(team: string) {
     }
   } 
   
-  if (ownership_data.hasOwnProperty(team)) {
+  if (ownership_data.team != null) {
     return get_message_for_team(ownership_data, team);
   }
   
   return {
-    message: 'INVALID_TEAM',
+    message: INVALID_TEAM_ERROR,
     should_show_docs: false,
     review_link: OWNERSHIP_FILE_LINK,
   };
