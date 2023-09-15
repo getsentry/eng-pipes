@@ -99,7 +99,7 @@
     "node": ">= 12.0.0"
   },
   "volta": {
-    "node": "14.15.5"
+    "node": "18.17.1"
   },
   "husky": {
     "hooks": {
@@ -114,5 +114,5 @@
       "markdownlint"
     ]
   },
-  "packageManager": "yarn@3.1.1"
+  "packageManager": "yarn@3.6.3"
 }
