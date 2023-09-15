@@ -61,6 +61,7 @@ export function loadGitHubOrgs(env) {
   let configs = {};
   let filepath = env.GH_ORGS_YML || 'github-orgs.yml';
   if (filepath) {
+    // TODO(eng-pipes/issues#610): Clean up this hacky workaround
     if (process.cwd().endsWith('/src')) {
       // GH_ORGS_YML assumes that cwd is the project root, so work around Knex
       // migrations cd'ing into the directory of the knexfile.ts. We could do

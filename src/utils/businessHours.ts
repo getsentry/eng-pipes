@@ -173,7 +173,7 @@ export async function getNextAvailableBusinessHourWindow(
     offices =
       PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)]['offices'];
   } else {
-    // TODO(team-ospo/issues/198): Stop querying db by product area
+    // TODO(team-ospo/issues#198): Stop querying db by product area
     offices = await getOffices(productArea);
     if (offices.length === 0) {
       offices = await getOffices('Product Area: Other');

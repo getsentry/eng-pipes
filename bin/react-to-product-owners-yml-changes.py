@@ -20,7 +20,7 @@ def main():
         product_area_to_team_map[product_area] = fields['teams']
 
     for team, fields in product_owners_yml['by_team'].items():
-        # TODO: remove ternary here and require a slack channel for teams
+        # TODO(team-ospo/issues#198):: remove ternary here and require a slack channel for teams
         team_to_info_map[team] = {}
         team_to_info_map[team]['slack_channel'] = fields['slack_channel'] if 'slack_channel' in fields else None
         team_to_info_map[team]['offices'] = fields['offices'] if 'offices' in fields else None

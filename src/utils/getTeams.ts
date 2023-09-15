@@ -5,10 +5,10 @@ import { GH_ORGS, PRODUCT_OWNERS_INFO } from '@/config';
 export function getTeams(
   repo: string,
   org: string,
-  productArea: string | undefined
+  productArea?: string
 ): string[] {
   const orgObj = GH_ORGS.get(org);
-  // TODO: include codecov
+  // TODO(team-ospo/issues#200): include codecov
   if (org === 'codecov') {
     return [];
   }

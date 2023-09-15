@@ -45,7 +45,7 @@ type SlackMessageOrderedIssueItem = {
   ];
 };
 
-// TODO(team-ospo/issues/198): Clean up undefined types
+// TODO(team-ospo/issues#198): Clean up undefined types
 type IssueSLOInfo = {
   url: string;
   number: number;
@@ -248,7 +248,7 @@ export const constructSlackMessage = (
         }
       }
     };
-    // TODO(team-ospo/issues/198): remove usage of isChannelInBusinessHours
+    // TODO(team-ospo/issues#198): remove usage of isChannelInBusinessHours
     if (
       (channelToIssuesMap[channelId] &&
         channelToIssuesMap[channelId].length > 0) ||
@@ -390,7 +390,7 @@ export const constructSlackMessage = (
 
 export const getChannelIdForIssue = (repo: string, org: string) => {
   const teams = getTeams(repo, org, undefined);
-  // TODO(team-ospo/issues/198): Support multiple teams
+  // TODO(team-ospo/issues#198): Support multiple teams
   if (!teams.length) {
     return null;
   }
@@ -402,7 +402,7 @@ export const getOfficesForRepo = (repo: string, org: string) => {
   if (!teams.length) {
     return [];
   }
-  // TODO(team-ospo/issues/198): Support multiple teams
+  // TODO(team-ospo/issues#198): Support multiple teams
   return PRODUCT_OWNERS_INFO['teams'][teams[0]]['offices'];
 };
 
@@ -426,7 +426,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
       per_page: GH_API_PER_PAGE,
     });
 
-    // TODO(team-ospo/issues/198): Consolidate logic between repos with routing and repos without routing
+    // TODO(team-ospo/issues#198): Consolidate logic between repos with routing and repos without routing
     if (org.repos.withoutRouting.includes(repo)) {
       const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
         url: issue.html_url,
@@ -493,7 +493,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
       }
     }
   });
-  // TODO(team-ospo/issues/198): Remove this once not needed
+  // TODO(team-ospo/issues#198): Remove this once not needed
   // Get a mapping from Channels to subscribed product areas
   const notificationChannels: Record<string, string[]> = (
     await getLabelsTable()
@@ -506,7 +506,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
     return res;
   }, {});
 
-  // TODO(team-ospo/issues/198): Remove this and completely rework logic
+  // TODO(team-ospo/issues#198): Remove this and completely rework logic
   Object.keys(channelToIssuesMap).forEach((channelId) => {
     if (!notificationChannels[channelId]) {
       notificationChannels[channelId] = [];
