@@ -13,7 +13,7 @@ def main():
 
     product_owners_yml = yaml.safe_load(open(sys.argv[1]))
     product_area_to_team_map = {}
-    team_to_slack_channel_map = {}
+    team_to_info_map = {}
     repo_to_team_map = {}
 
     for product_area, fields in product_owners_yml['by_area'].items():
@@ -21,8 +21,9 @@ def main():
 
     for team, fields in product_owners_yml['by_team'].items():
         # TODO: remove ternary here and require a slack channel for teams
-        team_to_slack_channel_map[team]['slack_channel'] = fields['slack_channel'] if 'slack_channel' in fields else None
-        team_to_slack_channel_map[team]['offices'] = fields['offices'] if 'offices' in fields else None
+        team_to_info_map[team] = {}
+        team_to_info_map[team]['slack_channel'] = fields['slack_channel'] if 'slack_channel' in fields else None
+        team_to_info_map[team]['offices'] = fields['offices'] if 'offices' in fields else None
 
     for repo, team in product_owners_yml['by_repo'].items():
         repo_to_team_map[repo] = team
@@ -32,7 +33,7 @@ def main():
     with open(fp, 'w') as file:
         data = {
             'product_areas': product_area_to_team_map,
-            'teams': team_to_slack_channel_map,
+            'teams': team_to_info_map,
             'repos': repo_to_team_map
         }
         yaml.dump(data, file)
