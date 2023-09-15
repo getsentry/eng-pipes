@@ -73,7 +73,6 @@ export function apis() {
                     blocks,
                 });
             } catch (ex) {
-                console.log(ex);
                 await client.chat.update({
                     channel: String(message.channel),
                     ts: String(message.ts),
