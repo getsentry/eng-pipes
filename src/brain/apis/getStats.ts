@@ -1,9 +1,24 @@
-import { Octokit } from '@octokit/rest';
+import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '@/config';
 
 export const OWNERSHIP_FILE_LINK = "https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json";
 export const INVALID_TEAM_ERROR = "INVALID_TEAM_ERROR";
 
-function get_emoji_for_type(type, api_rate) {
+const COLUMN_WIDTH = 21;
+function getEmojiForType(type: string, api_rate: number, is_short_message: boolean) {
+  if (is_short_message) {
+    switch (type) {
+      case "public":
+        return api_rate < 10 ? "☒" : "";
+      case "private":
+        return "";
+      case "unknown": 
+        return api_rate > 0 ? "☒" : "";
+      case "experimental":
+        return api_rate > 0 ? "☒" : ""
+    }
+    return "";
+  }
+
   switch (type) {
     case "public":
       return api_rate == 0 ? ":sad_blob:" : api_rate < 20 ? ":blob-unamused:" : api_rate > 50 ? ":party-sunglasses-blob:" : "";
@@ -15,38 +30,63 @@ function get_emoji_for_type(type, api_rate) {
   return "";
 }
 
-function get_message_line_for_type(team_data, type, total) {
+function getShortMessageForType(team_data, type, total) {
   const api_rate = Math.round(team_data[type].length* 100/total)
-  const emoji = get_emoji_for_type(type, api_rate)
+  const emoji = getEmojiForType(type, api_rate, true)
+  return strAdjustLength(`${api_rate}% ${emoji}`, type.length + 3);
+}
+
+function getMessageLineForType(team_data, type, total) {
+  const api_rate = Math.round(team_data[type].length* 100/total)
+  const emoji = getEmojiForType(type, api_rate, false);
   return `• ${type}: ${team_data[type].length} (${api_rate}%) ${emoji} \n`
 }
 
-function get_message_for_team(ownership_data, team) {
+function getTotalApisForTeam(team_data) {
+  return team_data["public"].length + 
+    team_data["private"].length + 
+    team_data["experimental"].length + 
+    team_data["unknown"].length; 
+}
+
+function getMessageForTeam(ownership_data, team) {
   const team_data = ownership_data[team];
-  const total = 
-      team_data["public"].length + 
-      team_data["private"].length + 
-      team_data["experimental"].length + 
-      team_data["unknown"].length; 
+  const total = getTotalApisForTeam(team_data);
   return {
     message: `Publish status for ${team} APIs:\n` +
-      get_message_line_for_type(team_data, 'public', total) + 
-      get_message_line_for_type(team_data, 'private', total) +
-      get_message_line_for_type(team_data, 'experimental', total) + 
-      get_message_line_for_type(team_data, 'unknown', total),
+      getMessageLineForType(team_data, 'public', total) + 
+      getMessageLineForType(team_data, 'private', total) +
+      getMessageLineForType(team_data, 'experimental', total) + 
+      getMessageLineForType(team_data, 'unknown', total),
     should_show_docs: team_data["unknown"].length + team_data["experimental"].length > 0,
     review_link: `${OWNERSHIP_FILE_LINK}#L${team_data["block_start"]}`,
   }
 }
 
-export default async function getStats(team: string) {
-  const octokitWithToken = new Octokit({
-    auth: process.env.GITHUB_PERSONAL_TOKEN,
-  });  
-  
-  const resp = await octokitWithToken.rest.repos.getContent({
-    owner: 'getsentry',
-    repo: 'sentry',
+function strAdjustLength(word: string, target: number) {
+  if (word.length < target) {
+    return word + ' '.repeat(target - word.length);
+  } 
+  return word;
+}
+
+function getOverallStats(ownership_data) {
+  let response = strAdjustLength('Team Name', COLUMN_WIDTH) + '| Public(%) | Private(%) | Experimental(%) | Unknown(%)\n';
+  ownership_data.forEach((team_data, team) => {
+    const total = getTotalApisForTeam(team_data);
+    response = response + `<${OWNERSHIP_FILE_LINK}#L${team_data["block_start"]}|${team}>` + strAdjustLength("", COLUMN_WIDTH - team.length) + "| " + 
+      getShortMessageForType(team_data, "public", total) + ' | ' +
+      getShortMessageForType(team_data, "private", total) + ' | ' +
+      getShortMessageForType(team_data, "experimental", total) + ' | ' +
+      getShortMessageForType(team_data, "unknown", total) + "\n"
+  });
+  return response;
+}
+
+export async function getOwnershipData() {
+  const resp = await GETSENTRY_ORG.api.rest.repos.getContent({
+    owner: GETSENTRY_ORG.slug,
+    repo: SENTRY_REPO_SLUG,
     path: 'src/sentry/apidocs/api_ownership_stats_dont_modify.json',
   });
 
@@ -61,18 +101,22 @@ export default async function getStats(team: string) {
   }
 
   const buff = Buffer.from(resp.data.content, 'base64');
-  const ownership_data = JSON.parse(buff.toString('ascii'));
+  return JSON.parse(buff.toString('ascii'));
+}
+
+export default async function getStats(team: string) {
+  const ownership_data = await getOwnershipData()
+  // If team is not mentioned return stats for all
   if (team == '') {
-    // TODO: show data for all the teams
     return {
-      message: 'Under Construction',
-      should_show_docs: false,
+      message: getOverallStats(new Map(Object.entries(ownership_data))),
+      should_show_docs: true,
       review_link: OWNERSHIP_FILE_LINK,
     }
   } 
   
-  if (ownership_data.team != null) {
-    return get_message_for_team(ownership_data, team);
+  if (ownership_data[team] != null) {
+    return getMessageForTeam(ownership_data, team);
   }
   
   return {

@@ -48,28 +48,32 @@ export function apis() {
                     return;
                 }
 
-                await client.chat.update({
-                    channel: String(message.channel),
-                    ts: String(message.ts),
-                    text: response.message,
-                    blocks: [
-                        {
-                        type: 'section',
-                        text: {
-                            type: 'mrkdwn',
-                            text: response.message,
-                        },
-                        },
-                        response.should_show_docs === true ? {
+                let blocks = [{
+                    type: 'section',
+                    text: {
+                        type: 'mrkdwn',
+                        text: team == '' ? "```" + response.message + "```" : response.message,
+                    },
+                }];
+                    
+                if (response.should_show_docs === true) {
+                    blocks.push( {
                         type: 'section',
                         text: {
                             type: 'mrkdwn',
                             text: `Please <${response.review_link}|review> unowned and experimental APIs and  <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
                         },
-                        }: null,
-                    ],
+                    });
+                }
+
+                await client.chat.update({
+                    channel: String(message.channel),
+                    ts: String(message.ts),
+                    text: 'API Ownership Stats',
+                    blocks,
                 });
             } catch (ex) {
+                console.log(ex);
                 await client.chat.update({
                     channel: String(message.channel),
                     ts: String(message.ts),
