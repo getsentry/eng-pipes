@@ -15,6 +15,7 @@ getsentry:
     withoutRouting:
       - test-ttt-simple
       - undefined-team-repo
+      - vie-repo
 
 codecov:
   appAuth:

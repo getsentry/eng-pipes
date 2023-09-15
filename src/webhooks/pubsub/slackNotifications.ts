@@ -147,10 +147,10 @@ export const constructSlackMessage = (
   channelToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
 ) => {
-  const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
-  const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
-  const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
   return Object.keys(notificationChannels).flatMap(async (channelId) => {
+    const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
+    const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
+    const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
     // Group issues into buckets based on time left until SLA
     let hasEnoughTimePassedSinceIssueCreation = false;
     const addIssueToQueue = ({ url, number, title, triageBy, createdAt }) => {
@@ -249,14 +249,19 @@ export const constructSlackMessage = (
       }
     };
     // TODO(team-ospo/issues/198): remove usage of isChannelInBusinessHours
-    if (channelToIssuesMap[channelId] || (await isChannelInBusinessHours(channelId, now))
+    if (
+      (channelToIssuesMap[channelId] &&
+        channelToIssuesMap[channelId].length > 0) ||
+      (await isChannelInBusinessHours(channelId, now))
     ) {
       notificationChannels[channelId].map((productArea) => {
         productAreaToIssuesMap[productArea].forEach(addIssueToQueue);
       });
 
       if (channelToIssuesMap[channelId]) {
-        channelToIssuesMap[channelId].filter(issue => issue.isChannelInBusinessHours).forEach(addIssueToQueue);
+        channelToIssuesMap[channelId]
+          .filter((issue) => issue.isChannelInBusinessHours)
+          .forEach(addIssueToQueue);
       }
 
       const sortAndFlattenIssuesArray = (issues) =>
@@ -383,22 +388,22 @@ export const constructSlackMessage = (
   });
 };
 
-const getChannelIdForIssue = (
-  repo: string,
-  org: string,
-  productArea: string | undefined
-) => {
-  const team = getTeams(repo, org, productArea);
-  return PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'];
+export const getChannelIdForIssue = (repo: string, org: string) => {
+  const teams = getTeams(repo, org, undefined);
+  // TODO(team-ospo/issues/198): Support multiple teams
+  if (!teams.length) {
+    return null;
+  }
+  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['slack_channel'];
 };
 
-const getOfficesForIssue = (
-  repo: string,
-  org: string,
-) => {
-  // For now, repos will only map to one team
-  const team = getTeams(repo, org, undefined);
-  return PRODUCT_OWNERS_INFO['teams'][team]['offices'];
+export const getOfficesForRepo = (repo: string, org: string) => {
+  const teams = getTeams(repo, org, undefined);
+  if (!teams.length) {
+    return [];
+  }
+  // TODO(team-ospo/issues/198): Support multiple teams
+  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['offices'];
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
@@ -434,8 +439,8 @@ export const notifyProductOwnersForUntriagedIssues = async (
           issue.node_id
         ),
         createdAt: issue.created_at,
-        channelId: getChannelIdForIssue(repo, org.slug, undefined),
-        isChannelInBusinessHours: getOfficesForIssue(repo, org.slug)
+        channelId: getChannelIdForIssue(repo, org.slug),
+        isChannelInBusinessHours: getOfficesForRepo(repo, org.slug)
           .map((office: any) => isTimeInBusinessHours(now, office))
           .includes(true),
       }));
@@ -501,7 +506,12 @@ export const notifyProductOwnersForUntriagedIssues = async (
     return res;
   }, {});
 
-  Object.keys(channelToIssuesMap).forEach(channelId => { notificationChannels[channelId] = [] })
+  // TODO(team-ospo/issues/198): Remove this and completely rework logic
+  Object.keys(channelToIssuesMap).forEach((channelId) => {
+    if (!notificationChannels[channelId]) {
+      notificationChannels[channelId] = [];
+    }
+  });
 
   // Notify all channels associated with the relevant `Product Area: *` label per issue
   const notifications = constructSlackMessage(

@@ -4,9 +4,22 @@ product_areas:
   Multi-Team:
     - team-issues
     - team-enterprise
+  Test:
+    - team-ospo
 repos:
   test-ttt-simple: team-ospo
   routing-repo: team-ospo
+  vie-repo: team-ingest
 teams:
-  team-ospo: C05A6BW303Y
-  team-issues: C05A6BW303Z
+  team-ospo:
+    slack_channel: C05A6BW303Y
+    offices:
+      - sea
+  team-issues:
+    slack_channel: C05A6BW303Z
+    offices:
+      - sfo
+  team-ingest:
+    slack_channel: C05A6BW303X
+    offices:
+      - vie

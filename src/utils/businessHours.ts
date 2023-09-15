@@ -5,6 +5,7 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
+  GH_ORGS,
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   OFFICE_TIME_ZONES,
@@ -15,6 +16,7 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { bolt } from '@api/slack';
+
 import { getTeams } from './getTeams';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
@@ -34,7 +36,7 @@ export async function calculateTimeToRespondBy(
   productArea: string,
   repo?: string,
   org?: string,
-  testTimestamp?: string,
+  testTimestamp?: string
 ) {
   let cursor =
     testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
@@ -44,7 +46,7 @@ export async function calculateTimeToRespondBy(
       productArea,
       cursor,
       repo,
-      org,
+      org
     );
     const { start, end }: BusinessHourWindow = nextBusinessHours;
     cursor = start;
@@ -56,7 +58,12 @@ export async function calculateTimeToRespondBy(
   return cursor.toISOString();
 }
 
-export async function calculateSLOViolationTriage(target_name: string, labels: any, repo?: string, org?: string) {
+export async function calculateSLOViolationTriage(
+  target_name: string,
+  labels: any,
+  repo?: string,
+  org?: string
+) {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     const productArea = labels?.find((label) =>
@@ -159,20 +166,17 @@ export async function getNextAvailableBusinessHourWindow(
   productArea: string,
   momentTime: moment.Moment,
   repo?: string,
-  org?: string,
+  org?: string
 ): Promise<BusinessHourWindow> {
   let offices: string[] = [];
-  if (repo && org) {
-    offices = PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)]['offices'];
-  }
-  else {
+  if (repo && org && GH_ORGS.get(org).repos.withoutRouting.includes(repo)) {
+    offices =
+      PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)]['offices'];
+  } else {
     // TODO(team-ospo/issues/198): Stop querying db by product area
     offices = await getOffices(productArea);
     if (offices.length === 0) {
       offices = await getOffices('Product Area: Other');
-      if (offices.length === 0) {
-        throw new Error('Other productArea not subscribed to any offices.');
-      }
     }
   }
   const businessHourWindows: BusinessHourWindow[] = [];
@@ -220,7 +224,11 @@ export async function getNextAvailableBusinessHourWindow(
   return businessHourWindows[0];
 }
 
-export async function getOffices(productArea: string, repo?: string, org?: string) {
+export async function getOffices(
+  productArea: string,
+  repo?: string,
+  org?: string
+) {
   if (!productArea) {
     return [];
   }
