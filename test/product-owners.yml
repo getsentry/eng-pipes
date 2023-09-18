@@ -10,6 +10,7 @@ repos:
   test-ttt-simple: team-ospo
   routing-repo: team-ospo
   vie-repo: team-ingest
+  test-null: team-null
 teams:
   team-ospo:
     slack_channel: C05A6BW303Y
@@ -23,3 +24,6 @@ teams:
     slack_channel: C05A6BW303X
     offices:
       - vie
+  team-null:
+    slack_channel: null
+    offices: null

@@ -16,6 +16,7 @@ getsentry:
       - test-ttt-simple
       - undefined-team-repo
       - vie-repo
+      - test-null
 
 codecov:
   appAuth:
