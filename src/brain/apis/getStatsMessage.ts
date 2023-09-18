@@ -1,4 +1,4 @@
-import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '@/config';
+import getOwnershipData from './getOwnershipData';
 
 export const OWNERSHIP_FILE_LINK = "https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json";
 export const INVALID_TEAM_ERROR = "INVALID_TEAM_ERROR";
@@ -83,28 +83,7 @@ function getOverallStats(ownership_data) {
   return response;
 }
 
-export async function getOwnershipData() {
-  const resp = await GETSENTRY_ORG.api.rest.repos.getContent({
-    owner: GETSENTRY_ORG.slug,
-    repo: SENTRY_REPO_SLUG,
-    path: 'src/sentry/apidocs/api_ownership_stats_dont_modify.json',
-  });
-
-  if (!('content' in resp.data)) {
-    throw new Error('content not in response');
-  }
-  if (!('encoding' in resp.data)) {
-    throw new Error('encoding not in response');
-  }
-  if (resp.data.encoding !== 'base64') {
-    throw new Error(`Unexpected content encoding: ${resp.data.encoding}`);
-  }
-
-  const buff = Buffer.from(resp.data.content, 'base64');
-  return JSON.parse(buff.toString('ascii'));
-}
-
-export default async function getStats(team: string) {
+export default async function getStatsMessage(team: string) {
   const ownership_data = await getOwnershipData()
   // If team is not mentioned return stats for all
   if (team == '') {

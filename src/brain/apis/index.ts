@@ -1,7 +1,7 @@
 import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
-import getStats, { INVALID_TEAM_ERROR, OWNERSHIP_FILE_LINK } from './getStats';
+import getStatsMessage, { INVALID_TEAM_ERROR, OWNERSHIP_FILE_LINK } from './getStatsMessage';
 
 export function apis() {
     bolt.event(
@@ -29,7 +29,7 @@ export function apis() {
             });
 
             try {
-                const response = await getStats(team);
+                const response = await getStatsMessage(team);
                 if (response.message === INVALID_TEAM_ERROR) {
                     await client.chat.update({
                         channel: String(message.channel),
