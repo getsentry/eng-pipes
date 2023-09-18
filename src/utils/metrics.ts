@@ -294,7 +294,9 @@ export async function insertOss(
           );
           data.timeToTriageBy = await calculateSLOViolationTriage(
             data.target_name,
-            issue.labels
+            issue.labels,
+            payload.repository.name,
+            payload.organization.login,
           );
         }
       }
@@ -362,8 +364,8 @@ export async function insertOss(
   }
   data.teams = getTeams(
     payload.repository.name,
-    data.product_area,
-    payload.organization.login
+    payload.organization.login,
+    data.product_area
   );
   return await _insert(data, TARGETS.oss);
 }

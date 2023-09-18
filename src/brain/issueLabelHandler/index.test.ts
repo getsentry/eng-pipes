@@ -496,38 +496,6 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
-    it('should not reroute if Status: Backlog is exists on issue', async function () {
-      await createIssue('routing-repo');
-      await addLabel('Product Area: Test', 'routing-repo');
-      expectWaitingforProductOwner();
-      expectNotWaitingForSupport();
-      await addLabel('Status: Backlog', 'routing-repo');
-      await addLabel('Product Area: Rerouted', 'routing-repo');
-      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
-      expect(org.api.issues._labels).toContain('Product Area: Test');
-      expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
-      ]);
-      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
-    });
-
-    it('should not reroute if Status: In Progress exists on issue', async function () {
-      await createIssue('routing-repo');
-      await addLabel('Product Area: Test', 'routing-repo');
-      expectWaitingforProductOwner();
-      expectNotWaitingForSupport();
-      await addLabel('Status: In Progress', 'routing-repo');
-      await addLabel('Product Area: Rerouted', 'routing-repo');
-      expect(org.api.issues._labels).toContain('Product Area: Rerouted');
-      expect(org.api.issues._labels).toContain('Product Area: Test');
-      expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
-      ]);
-      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
-    });
-
     it('should not reroute if issue is closed', async function () {
       await createIssue('routing-repo');
       await addLabel('Product Area: Test', 'routing-repo');

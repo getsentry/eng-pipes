@@ -1,31 +1,31 @@
 import * as Sentry from '@sentry/node';
 
-import { GH_ORGS, PRODUCT_OWNERS_YML } from '@/config';
+import { GH_ORGS, PRODUCT_OWNERS_INFO } from '@/config';
 
 export function getTeams(
   repo: string,
-  productArea: string,
-  org: string
+  org: string,
+  productArea?: string
 ): string[] {
   const orgObj = GH_ORGS.get(org);
-  // TODO: include codecov
+  // TODO(team-ospo/issues#200): include codecov
   if (org === 'codecov') {
     return [];
   }
   if (orgObj.repos.withoutRouting.includes(`${repo}`)) {
-    if (!PRODUCT_OWNERS_YML['repos'][repo]) {
+    if (!PRODUCT_OWNERS_INFO['repos'][repo]) {
       Sentry.captureMessage(`Teams is not defined for ${org}/${repo}`);
       return [];
     }
-    return [PRODUCT_OWNERS_YML['repos'][repo]];
+    return [PRODUCT_OWNERS_INFO['repos'][repo]];
   }
   if (orgObj.repos.withRouting.includes(`${repo}`)) {
     if (productArea) {
-      if (!PRODUCT_OWNERS_YML['product_areas'][productArea]) {
+      if (!PRODUCT_OWNERS_INFO['product_areas'][productArea]) {
         Sentry.captureMessage(`Teams is not defined for ${productArea}`);
         return [];
       }
-      return PRODUCT_OWNERS_YML['product_areas'][productArea];
+      return PRODUCT_OWNERS_INFO['product_areas'][productArea];
     }
   }
   return [];

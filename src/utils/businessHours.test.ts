@@ -33,9 +33,9 @@ import {
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
   getOffices,
-  getSortedOffices,
   isChannelInBusinessHours,
 } from './businessHours';
+import * as businessHourfunctions from './businessHours';
 
 describe('businessHours tests', function () {
   let say, respond, client, ack;
@@ -113,6 +113,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           testTimestamps[i].timestamp
         );
         expect(result).toEqual(triageResults[i]);
@@ -122,6 +124,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           testTimestamps[i].timestamp
         );
         expect(result).toEqual(routingResults[i]);
@@ -132,6 +136,8 @@ describe('businessHours tests', function () {
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
         'Product Area: Undefined',
+        undefined,
+        undefined,
         '2023-12-18T00:00:00.000Z'
       );
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
@@ -141,6 +147,8 @@ describe('businessHours tests', function () {
       const result = await calculateTimeToRespondBy(
         MAX_TRIAGE_DAYS,
         'Product Area: Null',
+        undefined,
+        undefined,
         '2023-12-18T00:00:00.000Z'
       );
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
@@ -150,6 +158,8 @@ describe('businessHours tests', function () {
       const result = await calculateTimeToRespondBy(
         MAX_ROUTE_DAYS,
         'Product Area: Test',
+        undefined,
+        undefined,
         '2023-01-31T00:00:00.000Z'
       );
       expect(result).toEqual('2023-02-01T00:00:00.000Z');
@@ -159,6 +169,8 @@ describe('businessHours tests', function () {
       const result = await calculateTimeToRespondBy(
         MAX_ROUTE_DAYS,
         'Product Area: Test',
+        undefined,
+        undefined,
         '2022-12-31T00:00:00.000Z'
       );
       expect(result).toEqual('2023-01-04T01:00:00.000Z');
@@ -169,6 +181,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
@@ -179,6 +193,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2023-12-24T00:00:00.000Z'
         );
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
@@ -194,6 +210,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2023-10-02T00:00:00.000Z'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
@@ -210,6 +228,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2023-10-02T00:00:00.000Z'
         );
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
@@ -219,6 +239,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2022-12-17T00:00:00.000Z'
         );
         expect(result).toEqual('2022-12-20T00:00:00.000Z');
@@ -233,6 +255,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_ROUTE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2022-12-20T15:30:00.000Z'
         );
         expect(result).toEqual('2022-12-20T23:30:00.000Z');
@@ -247,6 +271,8 @@ describe('businessHours tests', function () {
         const result = await calculateTimeToRespondBy(
           MAX_TRIAGE_DAYS,
           'Product Area: Test',
+          undefined,
+          undefined,
           '2022-12-20T15:30:00.000Z'
         );
         expect(result).toEqual('2022-12-21T14:30:00.000Z');
@@ -625,33 +651,6 @@ describe('businessHours tests', function () {
         text: '-Test yyz',
       };
       await slackHandler({ command, ack, say, respond, client });
-    });
-  });
-
-  describe('getSortedOffices', function () {
-    it('should get sfo and vie office in sorted order for product area test if new office is added', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test sfo',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Product Area: Test')).toEqual([
-        'vie',
-        'sfo',
-      ]);
-    });
-
-    it('should get sfo, vie, yyz offices in sorted order for product area test if new office is added', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test yyz',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getSortedOffices('Product Area: Test')).toEqual([
-        'vie',
-        'yyz',
-        'sfo',
-      ]);
     });
   });
 });

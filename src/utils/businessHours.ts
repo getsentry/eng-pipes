@@ -5,15 +5,19 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
+  GH_ORGS,
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   OFFICE_TIME_ZONES,
   PRODUCT_AREA_LABEL_PREFIX,
+  PRODUCT_OWNERS_INFO,
   TEAM_OSPO_CHANNEL_ID,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { bolt } from '@api/slack';
+
+import { getTeams } from './getTeams';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
@@ -28,9 +32,11 @@ interface BusinessHourWindow {
 }
 
 export async function calculateTimeToRespondBy(
-  numDays,
-  productArea,
-  testTimestamp?
+  numDays: number,
+  productArea: string,
+  repo?: string,
+  org?: string,
+  testTimestamp?: string
 ) {
   let cursor =
     testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
@@ -38,7 +44,9 @@ export async function calculateTimeToRespondBy(
   while (msRemaining > 0) {
     const nextBusinessHours = await getNextAvailableBusinessHourWindow(
       productArea,
-      cursor
+      cursor,
+      repo,
+      org
     );
     const { start, end }: BusinessHourWindow = nextBusinessHours;
     cursor = start;
@@ -50,25 +58,30 @@ export async function calculateTimeToRespondBy(
   return cursor.toISOString();
 }
 
-export async function calculateSLOViolationTriage(target_name, labels) {
+export async function calculateSLOViolationTriage(
+  target_name: string,
+  labels: any,
+  repo?: string,
+  org?: string
+) {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     const productArea = labels?.find((label) =>
       label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
     )?.name;
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, productArea);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, productArea, repo, org);
   }
   // calculate time to triage for issues that are rerouted
   else if (
     target_name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
     labels?.some((label) => label.name === WAITING_FOR_PRODUCT_OWNER_LABEL)
   ) {
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, target_name);
+    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, target_name, repo, org);
   }
   return null;
 }
 
-export async function calculateSLOViolationRoute(target_name) {
+export async function calculateSLOViolationRoute(target_name: string) {
   if (target_name === WAITING_FOR_SUPPORT_LABEL) {
     return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Product Area: Unknown');
   }
@@ -150,14 +163,20 @@ export const isChannelInBusinessHours = async (
 };
 
 export async function getNextAvailableBusinessHourWindow(
-  productArea,
-  momentTime
+  productArea: string,
+  momentTime: moment.Moment,
+  repo?: string,
+  org?: string
 ): Promise<BusinessHourWindow> {
-  let offices = await getOffices(productArea);
-  if (offices.length === 0) {
-    offices = await getOffices('Product Area: Other');
+  let offices: string[] = [];
+  if (repo && org && GH_ORGS.get(org).repos.withoutRouting.includes(repo)) {
+    offices =
+      PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)]['offices'];
+  } else {
+    // TODO(team-ospo/issues#198): Stop querying db by product area
+    offices = await getOffices(productArea);
     if (offices.length === 0) {
-      throw new Error('Other productArea not subscribed to any offices.');
+      offices = await getOffices('Product Area: Other');
     }
   }
   const businessHourWindows: BusinessHourWindow[] = [];
@@ -205,7 +224,11 @@ export async function getNextAvailableBusinessHourWindow(
   return businessHourWindows[0];
 }
 
-export async function getOffices(productArea) {
+export async function getOffices(
+  productArea: string,
+  repo?: string,
+  org?: string
+) {
   if (!productArea) {
     return [];
   }
@@ -213,11 +236,4 @@ export async function getOffices(productArea) {
     await cacheOffices(productArea);
   }
   return officesCache[productArea];
-}
-
-export async function getSortedOffices(productArea) {
-  const timezoneOrder = ['vie', 'ams', 'yyz', 'sfo', 'sea'];
-  return (await getOffices(productArea)).sort(
-    (a, b) => timezoneOrder.indexOf(a) - timezoneOrder.indexOf(b)
-  );
 }

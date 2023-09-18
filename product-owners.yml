@@ -118,23 +118,64 @@ repos:
   symbolicator: team-processing
   wal2json: team-sns
 teams:
-  team-crons: null
-  team-discover-and-dashboards: null
-  team-docs: null
-  team-enterprise: null
-  team-ingest: null
-  team-issues: null
-  team-mobile-sdks: null
-  team-ospo: C04B27EECUB
-  team-performance: null
-  team-processing: null
-  team-product: null
-  team-profiling: null
-  team-replays: null
-  team-revenue: null
-  team-sentry-at-scale: null
-  team-sns: null
-  team-starfish: null
-  team-support: null
-  team-telemetry-experience: null
-  team-web-sdks: null
+  team-crons:
+    offices: null
+    slack_channel: null
+  team-discover-and-dashboards:
+    offices: null
+    slack_channel: null
+  team-docs:
+    offices: null
+    slack_channel: null
+  team-enterprise:
+    offices: null
+    slack_channel: null
+  team-ingest:
+    offices: null
+    slack_channel: null
+  team-issues:
+    offices: null
+    slack_channel: null
+  team-mobile-sdks:
+    offices: null
+    slack_channel: null
+  team-ospo:
+    offices:
+    - sea
+    slack_channel: C04B27EECUB
+  team-performance:
+    offices: null
+    slack_channel: null
+  team-processing:
+    offices: null
+    slack_channel: null
+  team-product:
+    offices: null
+    slack_channel: null
+  team-profiling:
+    offices: null
+    slack_channel: null
+  team-replays:
+    offices: null
+    slack_channel: null
+  team-revenue:
+    offices: null
+    slack_channel: null
+  team-sentry-at-scale:
+    offices: null
+    slack_channel: null
+  team-sns:
+    offices: null
+    slack_channel: null
+  team-starfish:
+    offices: null
+    slack_channel: null
+  team-support:
+    offices: null
+    slack_channel: null
+  team-telemetry-experience:
+    offices: null
+    slack_channel: null
+  team-web-sdks:
+    offices: null
+    slack_channel: null

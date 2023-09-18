@@ -239,7 +239,9 @@ export async function ensureOneWaitingForLabel({
     timeToRespondBy =
       (await calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        issue.labels
+        issue.labels,
+        repo,
+        payload.organization?.login
       )) || moment().toISOString();
   } else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
     timeToRespondBy =

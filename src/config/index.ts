@@ -106,10 +106,6 @@ export enum BuildStatus {
  */
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
 export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
-export const STATUS_LABEL_PREFIX = 'Status: ';
-export const BACKLOG_LABEL = 'Status: Backlog';
-export const IN_PROGRESS_LABEL = 'Status: In Progress';
-export const UNKNOWN_LABEL = 'Status: Unknown';
 export const STALE_LABEL = 'Stale';
 export const WAITING_FOR_LABEL_PREFIX = 'Waiting for: ';
 export const WAITING_FOR_SUPPORT_LABEL = 'Waiting for: Support';
@@ -155,8 +151,12 @@ export const GETSENTRY_ORG = GH_ORGS.get(
   process.env.GETSENTRY_ORG_SLUG || 'getsentry'
 );
 
-export const PRODUCT_OWNERS_YML = yaml.load(
-  fs.readFileSync(process.env.PRODUCT_OWNERS_YML || 'product-owners.yml')
+// TODO(eng-pipes/issues#610): Clean up this hacky workaround
+export const PRODUCT_OWNERS_YML = process.cwd().endsWith('/src')
+  ? `../${process.env.PRODUCT_OWNERS_YML || 'product-owners.yml'}`
+  : process.env.PRODUCT_OWNERS_YML || 'product-owners.yml';
+export const PRODUCT_OWNERS_INFO = yaml.load(
+  fs.readFileSync(PRODUCT_OWNERS_YML)
 );
 /**
  * Business Hours by Office

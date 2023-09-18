@@ -36,8 +36,8 @@ describe('metrics tests', function () {
         id: 'user_id',
       },
       repository: {
-        full_name: 'getsentry/test_repo',
-        name: 'test_repo',
+        full_name: 'getsentry/routing-repo',
+        name: 'routing-repo',
         owner: {
           type: 'Organization',
         },
@@ -88,6 +88,18 @@ describe('metrics tests', function () {
       expect(result).toMatchObject({
         timeToRouteBy: null,
         timeToTriageBy: '2017-02-16T01:00:00.000Z',
+      });
+    });
+
+    it('should calculate triage by timestamp if labeled waiting for product owner for teams in vie', async function () {
+      const testPayload = cloneDeep(defaultPayload);
+      testPayload.repository.full_name = 'getsentry/vie-repo';
+      testPayload.repository.name = 'vie-repo';
+      testPayload.label.name = WAITING_FOR_PRODUCT_OWNER_LABEL;
+      const result = await insertOss('issues', testPayload);
+      expect(result).toMatchObject({
+        timeToRouteBy: null,
+        timeToTriageBy: '2017-02-16T12:51:48.000Z',
       });
     });
 
