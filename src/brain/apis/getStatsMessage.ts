@@ -14,7 +14,7 @@ function getEmojiForType(type: string, api_rate: number, is_short_message: boole
       case "unknown": 
         return api_rate > 0 ? "☒" : "";
       case "experimental":
-        return api_rate > 0 ? "☒" : ""
+        return api_rate > 0 ? "☒" : "";
     }
     return "";
   }
