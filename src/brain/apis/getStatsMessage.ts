@@ -33,7 +33,8 @@ function getEmojiForType(type: string, api_rate: number, is_short_message: boole
 function getShortMessageForType(team_data, type, total) {
   const api_rate = Math.round(team_data[type].length* 100/total)
   const emoji = getEmojiForType(type, api_rate, true)
-  return strAdjustLength(`${api_rate}% ${emoji}`, type.length + 3);
+  const rate_string = strAdjustLength(api_rate.toString(), 3);
+  return strAdjustLength(`${rate_string} ${emoji}`, type.length + 3);
 }
 
 function getMessageLineForType(team_data, type, total) {
