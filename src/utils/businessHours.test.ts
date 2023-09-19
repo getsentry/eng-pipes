@@ -474,6 +474,21 @@ describe('businessHours tests', function () {
       );
     });
 
+    it('should get sfo timezones for repo with no offices defined', async function () {
+      const { start, end } = await getNextAvailableBusinessHourWindow(
+        undefined,
+        moment('2022-12-08T12:00:00.000Z').utc(),
+        'test-null',
+        'getsentry'
+      );
+      expect(start.valueOf()).toEqual(
+        moment('2022-12-08T17:00:00.000Z').valueOf()
+      );
+      expect(end.valueOf()).toEqual(
+        moment('2022-12-09T01:00:00.000Z').valueOf()
+      );
+    });
+
     it('should get sfo timezones for Product Area: Test', async function () {
       const { start, end } = await getNextAvailableBusinessHourWindow(
         'Product Area: Test',
