@@ -402,8 +402,8 @@ export const getOfficesForRepo = (repo: string, org: string) => {
   if (!teams.length) {
     return [];
   }
-  // TODO(team-ospo/issues#198): Support multiple teams
-  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['offices'];
+  // TODO(team-ospo/issues#198): Support multiple teams, default to sfo for now if offices is null
+  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['offices'] || ['sfo'];
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (

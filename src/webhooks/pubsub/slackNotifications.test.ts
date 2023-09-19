@@ -125,6 +125,9 @@ describe('Triage Notification Tests', function () {
     it('will return null if inputs are invalid', () => {
       expect(getOfficesForRepo('garbage-repo', 'getsentry')).toEqual([]);
     });
+    it('will return sfo if office for repo is null', () => {
+      expect(getOfficesForRepo('test-null', 'getsentry')).toEqual(['sfo']);
+    });
   });
   describe('constructSlackMessage', function () {
     let boltPostMessageSpy;
