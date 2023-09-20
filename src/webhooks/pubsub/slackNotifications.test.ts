@@ -1545,5 +1545,31 @@ describe('Triage Notification Tests', function () {
         text: '👋 Triage Reminder ⏰',
       });
     });
+
+    it('should not report issues to slack from codecov repos', async function () {
+      org.api.paginate = jest
+        .fn()
+        .mockReturnValueOnce([])
+        .mockReturnValueOnce([
+          {
+            html_url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue 1',
+            node_id: 'node_id',
+            labels: [
+              { name: 'Waiting for: Product Owner' },
+              { name: 'Product Area: Test' },
+            ],
+            createdAt: '2022-12-08T21:00:00.000Z',
+            repo: 'test-ttt-simple',
+          },
+        ])
+        .mockReturnValue([]);
+      org.slug = 'codecov';
+      getIssueDueDateFromProjectSpy.mockReturnValue('2022-12-12T21:00:00.000Z');
+      const now = moment('2022-12-12T21:00:00.000Z');
+      await notifyProductOwnersForUntriagedIssues(org, now);
+      expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
   });
 });
