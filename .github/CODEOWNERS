@@ -1,0 +1,4 @@
+/brain/gocdSlackFeeds/                    @getsentry/dev-infra
+/brain/notifyOnGoCDStageEvent/            @getsentry/dev-infra
+/brain/pleaseDeployNotifier/              @getsentry/dev-infra
+/brain/saveGoCDStageEvents/               @getsentry/dev-infra
