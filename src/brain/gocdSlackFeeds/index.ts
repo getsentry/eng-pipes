@@ -102,6 +102,11 @@ const engineeringFeed = new DeployFeed({
       return false;
     }
 
+    // Checks create a lot of noise that is normally not actionable
+    if (pipeline.stage.name === 'checks') {
+      return false;
+    }
+
     // We only really care about creating new messages if the pipeline has
     // failed.
     return pipeline.stage.result.toLowerCase() === 'failed';

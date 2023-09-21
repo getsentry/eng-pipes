@@ -60,6 +60,7 @@ You will also need to set up some of these environment variables if you want to 
 - `SLACK_BOT_USER_ACCESS_TOKEN` - The Slack Bot User OAuth Access Token from the `Oauth & Permissions` section of your Slack app
 
 After creating your github org, make sure to also add its slug to `.env` file:
+
 - `GETSENTRY_ORG_SLUG` - Github slug of the org you create in *Configuring a test environment* below
 - `SENTRY_REPO` - Github slug of your test repo that you create in *Configuring a test environment* below
 
@@ -131,14 +132,14 @@ You'll also need to create a private key for the service account (it should down
     - In the setup menu, select `Allow access via fine-grained personal access tokens`, then `Do not require administrator approval`, and finally `Allow access via personal access tokens (classic)`.
     - In your organization, create a new repository named something like `testing-eng-pipes`.
 
-1.  [Create a personal access token](https://github.com/settings/tokens/new).
+1. [Create a personal access token](https://github.com/settings/tokens/new).
 
     - Title the new token `Eng-pipes development token`, give this token 90 days until expiration, and enable the following permissions: `read:org` and `read:user`.
     - On the next page, copy the displayed token into the `GH_USER_TOKEN` field of your `.env` file.
 
       > :warning: **You are giving this token permissions to all orgs across GitHub that you are a member of (though some, like `getsentry`, are configured to require approval before PATs have access). Be careful and ensure it does not leave your machine!**
 
-1.  [Create a GitHub App](https://github.com/settings/apps/new).
+1. [Create a GitHub App](https://github.com/settings/apps/new).
 
     - Set the webhook to your ngrok tunnel with the GH route (e.g. `<NGROK_INSTANCE>/webhooks/github`)
     - Create and download a private key and add it to your `.env` under `GH_APP_PRIVATE_KEY`. You'll need to convert newlines to literal `\n`. (See also [Setup Secrets](#setup-secrets) above.)
@@ -234,7 +235,7 @@ docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127
 # Install dependencies
 yarn install
 # Update DB
- yarn migrate migrate:latest
+yarn migrate:latest
 # Start dev (it won't work until you set up some of the variables in .env file)
 yarn dev
 ```
@@ -245,6 +246,14 @@ Running tests:
 # Testing
 yarn test
 ```
+
+## Troubleshooting
+
+If after installing dependencies via `yarn install` you see 'Cannot find module' errors, make sure you are
+using the workspace's version of typescript. You should see a prompt in the bottom right of VSCode asking
+you to install the workspace version of typescript. If you don't see this prompt, you can set it manually
+by opening the command palette by pressing `cmd+shift+p` and selecting `TypeScript: Select TypeScript Version`.
+Then select `Use Workspace Version`.
 
 ### Setting up new projects
 

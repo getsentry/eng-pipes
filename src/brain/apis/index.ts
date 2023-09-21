@@ -69,7 +69,7 @@ export function apis() {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `Please <${response.review_link}|review> unowned and experimental APIs and  <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
+              text: `Please <${response.review_link}|review> unknown and experimental APIs and <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
             },
           });
         }

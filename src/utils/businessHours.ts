@@ -170,8 +170,9 @@ export async function getNextAvailableBusinessHourWindow(
 ): Promise<BusinessHourWindow> {
   let offices: string[] = [];
   if (repo && org && GH_ORGS.get(org).repos.withoutRouting.includes(repo)) {
-    offices =
-      PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)]['offices'];
+    offices = PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)][
+      'offices'
+    ] || ['sfo'];
   } else {
     // TODO(team-ospo/issues#198): Stop querying db by product area
     offices = await getOffices(productArea);

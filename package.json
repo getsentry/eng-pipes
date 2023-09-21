@@ -22,10 +22,12 @@
     "dev": "yarn clean && NODE_ENV=development nodemon --ignore '*.test.ts' --watch src/ -e ts --exec \"yarn start:clean\"",
     "inspect:clean": "yarn build && yarn inspect",
     "inspect": "NODE_ENV=development node --inspect --async-stack-traces ./lib/index.js",
-    "migrate": "yarn knex --knexfile ./src/knexfile.ts migrate:latest",
+    "migrate": "yarn knex --knexfile ./src/knexfile.ts",
+    "migrate:latest": "yarn migrate migrate:latest",
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
-    "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
+    "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\"",
+    "lint:fix": "yarn lint --fix",
     "test": "yarn jest --useStderr --runInBand",
     "test:debug": "yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
@@ -108,10 +110,10 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn eslint --cache --ext .ts 'src' 'test/**/*.ts' --fix"
+      "yarn lint:fix --cache"
     ],
     "*.md": [
-      "markdownlint"
+      "yarn markdownlint --fix"
     ]
   },
   "packageManager": "yarn@3.6.3"

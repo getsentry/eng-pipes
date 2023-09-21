@@ -36,8 +36,8 @@ describe('api stats', function () {
     const response = await getStatsMessage('');
     expect(response.message).toBe(
       'Team Name            | Public(%) | Private(%) | Experimental(%) | Unknown(%)\n' +
-        '<https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json#L1|team1>                | 100%      | 0%         | 0%              | 0%        \n' +
-        '<https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json#L7|team2>                | 0% ☒      | 0%         | 33% ☒           | 67% ☒     \n'
+        '<https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json#L1|team1>                | 100       | 0          | 0               | 0         \n' +
+        '<https://github.com/getsentry/sentry/blob/master/src/sentry/apidocs/api_ownership_stats_dont_modify.json#L7|team2>                | 0   ☒     | 0          | 33  ☒           | 67  ☒     \n'
     );
   });
 });
