@@ -247,6 +247,14 @@ Running tests:
 yarn test
 ```
 
+## Troubleshooting
+
+If after installing dependencies via `yarn install` you see 'Cannot find module' errors, make sure you are
+using the workspace's version of typescript. You should see a prompt in the bottom right of VSCode asking
+you to install the workspace version of typescript. If you don't see this prompt, you can set it manually
+by opening the command palette by pressing `cmd+shift+p` and selecting `TypeScript: Select TypeScript Version`.
+Then select `Use Workspace Version`.
+
 ### Setting up new projects
 
 This section only matters if you want to gather metrics from other projects than the ones we currently do.
