@@ -102,10 +102,11 @@ jobs:
         with:
           node-version: '14'
 
+      - name: yarn version
+        run: yarn --version
+
       - name: yarn install
-        run: |
-          yarn --version
-          yarn install --immutable
+        run: yarn install --immutable
 
       - name: tsc
         run: yarn build
