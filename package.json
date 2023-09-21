@@ -25,7 +25,8 @@
     "migrate": "yarn knex --knexfile ./src/knexfile.ts",
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
-    "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
+    "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\"",
+    "lint:fix": "yarn lint --fix",
     "test": "yarn jest --useStderr --runInBand",
     "test:debug": "yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
@@ -108,7 +109,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --cache --fix"
+      "yarn lint:fix --cache"
     ],
     "*.md": [
       "markdownlint"

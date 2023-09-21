@@ -296,7 +296,7 @@ export async function insertOss(
             data.target_name,
             issue.labels,
             payload.repository.name,
-            payload.organization.login,
+            payload.organization.login
           );
         }
       }
