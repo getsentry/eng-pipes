@@ -23,6 +23,7 @@
     "inspect:clean": "yarn build && yarn inspect",
     "inspect": "NODE_ENV=development node --inspect --async-stack-traces ./lib/index.js",
     "migrate": "yarn knex --knexfile ./src/knexfile.ts",
+    "migrate:latest": "yarn migrate migrate:latest",
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\"",
@@ -112,7 +113,7 @@
       "yarn lint:fix --cache"
     ],
     "*.md": [
-      "markdownlint"
+      "yarn markdownlint --fix"
     ]
   },
   "packageManager": "yarn@3.6.3"
