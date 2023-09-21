@@ -47,38 +47,6 @@ const deployFeed = new DeployFeed({
   feedName: 'gocdSlackFeed',
   channelID: FEED_DEPLOY_CHANNEL_ID,
   msgType: SlackMessage.FEED_ENG_DEPLOY,
-  async replyCallback(pipeline, message) {
-    // eslint-disable-next-line no-console
-    console.log(message, message?.blocks);
-    if (!pipeline.name.includes('getsentry-backend')) {
-      return [];
-    }
-    const [base, head] = await getBaseHead(pipeline);
-    if (!head) {
-      return [];
-    }
-    // eslint-disable-next-line no-console
-    console.log('base', base, 'head', head);
-    const authors = await getAuthors('getsentry', base, head);
-    const uniqueAuthors = authors.filter(
-      (author, index, self) =>
-        self.findIndex((a) => a.email === author.email) === index
-    );
-    // const users = await Promise.all(
-    //   uniqueAuthors.map((author) => {
-    //     return getUser({ email: author.email, githubUser: author.login });
-    //   })
-    // );
-    return uniqueAuthors.map((author) => {
-      return {
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `${author?.login}`,
-        },
-      };
-    });
-  },
 });
 
 // Post certain pipelines to #feed-dev-infra

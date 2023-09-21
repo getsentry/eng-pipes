@@ -32,7 +32,7 @@ export class DeployFeed {
   private msgType: SlackMessage;
   private pipelineFilter: PipelineFilterCallback | undefined;
   private replyCallback:
-    | ((pipeline: GoCDPipeline, message?: any) => Promise<Block[]>)
+    | ((pipeline: GoCDPipeline) => Promise<Block[]>)
     | undefined;
 
   constructor({
@@ -311,24 +311,6 @@ export class DeployFeed {
     return body;
   }
 
-  // async hasBotRepliedToMessage(resp: any): Promise<boolean> {
-  //   if (!resp.ok || !resp.ts || !resp.channel) {
-  //     return false;
-  //   }
-  //   // eslint-disable-next-line no-console
-  //   // console.log('hasBotRepliedToMessage', resp);
-  //   // const replies = await bolt.client.bots..replies({
-  //   //   channel: resp.channel,
-  //   //   ts: resp.ts,
-  //   // });
-  //   // if (!replies.ok || !replies.messages) {
-  //   //   return false;
-  //   // }
-  //   // // eslint-disable-next-line no-console
-  //   // console.log(replies.messages, bolt.client.bots);
-  //   return false;
-  // }
-
   async newSlackMessage(refId: string, pipeline: GoCDPipeline) {
     if (this.pipelineFilter && !this.pipelineFilter(pipeline)) {
       return;
@@ -388,7 +370,7 @@ export class DeployFeed {
     if (!messages.length) {
       const postMessage = await this.newSlackMessage(refId, pipeline);
       if (postMessage && this.replyCallback) {
-        const replyBlocks = await this.replyCallback(pipeline, postMessage);
+        const replyBlocks = await this.replyCallback(pipeline);
         if (replyBlocks.length > 0) {
           await bolt.client.chat.postMessage({
             channel: `${postMessage.channel}`,
@@ -414,6 +396,6 @@ interface DeployFeedArgs {
   channelID: string;
   msgType: SlackMessage;
   pipelineFilter?: PipelineFilterCallback;
-  replyCallback?: (pipeline: GoCDPipeline, message?: any) => Promise<Block[]>;
+  replyCallback?: (pipeline: GoCDPipeline) => Promise<Block[]>;
 }
 type PipelineFilterCallback = (pipeline: GoCDPipeline) => boolean;
