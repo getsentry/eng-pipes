@@ -5,7 +5,6 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  GH_ORGS,
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   OFFICE_TIME_ZONES,
@@ -19,13 +18,12 @@ import { bolt } from '@api/slack';
 
 import { getTeams } from './getTeams';
 
+const officesCache = {};
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;
 
 const holidayFile = fs.readFileSync('holidays.yml');
 const HOLIDAY_CONFIG = yaml.load(holidayFile);
-
-const officesCache = {};
 interface BusinessHourWindow {
   start: moment.Moment;
   end: moment.Moment;
@@ -34,8 +32,8 @@ interface BusinessHourWindow {
 export async function calculateTimeToRespondBy(
   numDays: number,
   productArea: string,
-  repo?: string,
-  org?: string,
+  repo: string,
+  org: string,
   testTimestamp?: string
 ) {
   let cursor =
@@ -61,8 +59,8 @@ export async function calculateTimeToRespondBy(
 export async function calculateSLOViolationTriage(
   target_name: string,
   labels: any,
-  repo?: string,
-  org?: string
+  repo: string,
+  org: string
 ) {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
@@ -81,9 +79,18 @@ export async function calculateSLOViolationTriage(
   return null;
 }
 
-export async function calculateSLOViolationRoute(target_name: string) {
+export async function calculateSLOViolationRoute(
+  target_name: string,
+  repo: string,
+  org: string
+) {
   if (target_name === WAITING_FOR_SUPPORT_LABEL) {
-    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Product Area: Unknown');
+    return calculateTimeToRespondBy(
+      MAX_ROUTE_DAYS,
+      'Product Area: Unknown',
+      repo,
+      org
+    );
   }
   return null;
 }
@@ -165,23 +172,19 @@ export const isChannelInBusinessHours = async (
 export async function getNextAvailableBusinessHourWindow(
   productArea: string,
   momentTime: moment.Moment,
-  repo?: string,
-  org?: string
+  repo: string,
+  org: string
 ): Promise<BusinessHourWindow> {
-  let offices: string[] = [];
-  if (repo && org && GH_ORGS.get(org).repos.withoutRouting.includes(repo)) {
-    offices = PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)][
-      'offices'
-    ] || ['sfo'];
-  } else {
-    // TODO(team-ospo/issues#198): Stop querying db by product area
-    offices = await getOffices(productArea);
-    if (offices.length === 0) {
-      offices = await getOffices('Product Area: Other');
-    }
-  }
+  let offices: Set<string> = new Set<string>();
+  const teams = getTeams(repo, org, productArea);
+  offices = teams.reduce((acc, team) => {
+    PRODUCT_OWNERS_INFO['teams'][team]['offices'].forEach((office) => {
+      acc.add(office);
+    });
+    return acc;
+  }, new Set<string>());
   const businessHourWindows: BusinessHourWindow[] = [];
-  offices.forEach((office) => {
+  [...offices].forEach((office) => {
     const momentIterator = moment(momentTime.valueOf()).utc();
     let isWeekend,
       dayOfTheWeek,
