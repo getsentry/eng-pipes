@@ -15,6 +15,8 @@ on:
     branches:
       - main
   pull_request:
+    branches:
+      - main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
@@ -49,6 +51,9 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '18'
+
+      - name: yarn version
+        run: yarn --version
 
       - name: yarn install
         run: yarn install --immutable
@@ -98,10 +103,7 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
-
-      - name: yarn version
-        run: yarn --version
+          node-version: '18'
 
       - name: yarn install
         run: yarn install --immutable
