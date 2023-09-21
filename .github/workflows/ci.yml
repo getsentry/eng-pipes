@@ -56,7 +56,7 @@ jobs:
         run: yarn --version
 
       - name: yarn install
-        run: yarn install --immutable
+        run: yarn install
 
       - name: tsc
         run: yarn build
