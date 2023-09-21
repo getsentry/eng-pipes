@@ -22,7 +22,7 @@
     "dev": "yarn clean && NODE_ENV=development nodemon --ignore '*.test.ts' --watch src/ -e ts --exec \"yarn start:clean\"",
     "inspect:clean": "yarn build && yarn inspect",
     "inspect": "NODE_ENV=development node --inspect --async-stack-traces ./lib/index.js",
-    "migrate": "yarn knex --knexfile ./src/knexfile.ts",
+    "migrate": "yarn knex --knexfile ./src/knexfile.ts migrate:latest",
     "start:clean": "yarn build && yarn start",
     "start": "node --async-stack-traces ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\" --fix",
@@ -108,7 +108,7 @@
   },
   "lint-staged": {
     "*.ts": [
-      "eslint --cache --fix"
+      "yarn eslint --cache --ext .ts 'src' 'test/**/*.ts' --fix"
     ],
     "*.md": [
       "markdownlint"

@@ -36,9 +36,11 @@ describe('slack app', function () {
     );
     expect(response.statusCode).toBe(200);
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(getStatsMessage).toHaveBeenCalledWith("enterprise");
-    
+    expect(getStatsMessage).toHaveBeenCalledWith('enterprise');
+
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.update.mock.calls[0][0].blocks[0].text.text).toBe(STATS_TEXT)
+    expect(bolt.client.chat.update.mock.calls[0][0].blocks[0].text.text).toBe(
+      STATS_TEXT
+    );
   });
 });

@@ -11,6 +11,8 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 
+import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
+
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';
 export const FAILED_MSG = 'failed to deploy';
@@ -129,4 +131,31 @@ export function filterBuildCauses(
     blocks.push(bc);
   }
   return blocks;
+}
+
+export async function getBaseHead(
+  pipeline: GoCDPipeline
+): Promise<[string | null, string | null]> {
+  const buildCauses = filterBuildCauses(pipeline, 'git');
+  if (buildCauses.length == 0) {
+    return [null, null];
+  }
+
+  const latestBuildCause = buildCauses[0];
+  const latestModification = latestBuildCause.modifications[0];
+
+  const latestDeploy = await getLastGetSentryGoCDDeploy(
+    pipeline.group,
+    pipeline.name
+  );
+  if (!latestDeploy) {
+    return [null, latestModification.revision];
+  }
+
+  const latestSha = firstGitMaterialSHA(latestDeploy);
+  if (!latestSha) {
+    return [null, latestModification.revision];
+  }
+
+  return [latestSha, latestModification.revision];
 }

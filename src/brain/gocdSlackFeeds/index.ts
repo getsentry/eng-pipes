@@ -1,3 +1,4 @@
+import { getAuthors } from '@/api/github/getAuthors';
 import { gocdevents } from '@/api/gocdevents';
 import {
   FEED_DEPLOY_CHANNEL_ID,
@@ -10,6 +11,7 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDResponse } from '@/types';
+import { getBaseHead } from '@/utils/gocdHelpers';
 
 import { DeployFeed } from './deployFeed';
 
@@ -45,6 +47,38 @@ const deployFeed = new DeployFeed({
   feedName: 'gocdSlackFeed',
   channelID: FEED_DEPLOY_CHANNEL_ID,
   msgType: SlackMessage.FEED_ENG_DEPLOY,
+  async replyCallback(pipeline, message) {
+    // eslint-disable-next-line no-console
+    console.log(message, message?.blocks);
+    if (!pipeline.name.includes('getsentry-backend')) {
+      return [];
+    }
+    const [base, head] = await getBaseHead(pipeline);
+    if (!head) {
+      return [];
+    }
+    // eslint-disable-next-line no-console
+    console.log('base', base, 'head', head);
+    const authors = await getAuthors('getsentry', base, head);
+    const uniqueAuthors = authors.filter(
+      (author, index, self) =>
+        self.findIndex((a) => a.email === author.email) === index
+    );
+    // const users = await Promise.all(
+    //   uniqueAuthors.map((author) => {
+    //     return getUser({ email: author.email, githubUser: author.login });
+    //   })
+    // );
+    return uniqueAuthors.map((author) => {
+      return {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `${author?.login}`,
+        },
+      };
+    });
+  },
 });
 
 // Post certain pipelines to #feed-dev-infra
@@ -103,6 +137,54 @@ const engineeringFeed = new DeployFeed({
     // We only really care about creating new messages if the pipeline has
     // failed.
     return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+  replyCallback: async (pipeline) => {
+    if (
+      pipeline.stage.name.includes('canary') &&
+      pipeline.stage.result.toLowerCase() === 'failed'
+    ) {
+      const [base, head] = await getBaseHead(pipeline);
+      if (!head) {
+        return [];
+      }
+      const authors = await getAuthors('getsentry', base, head);
+      const uniqueAuthors = authors.filter(
+        (author, index, self) =>
+          self.findIndex((a) => a.email === author.email) === index
+      );
+      const ccString = uniqueAuthors
+        .map((author) => {
+          return `${author.login}`;
+        })
+        .join(' ');
+      return [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: ':double_vertical_bar: Canary has been paused',
+            emoji: true,
+          },
+        },
+        {
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text: 'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.',
+          },
+        },
+        {
+          type: 'context',
+          elements: [
+            {
+              type: 'mrkdwn',
+              text: `cc'ing the following people who had commits in this deploy:\n${ccString}`,
+            },
+          ],
+        },
+      ];
+    }
+    return [];
   },
 });
 
