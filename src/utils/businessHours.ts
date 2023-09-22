@@ -169,7 +169,7 @@ export async function getNextAvailableBusinessHourWindow(
   org?: string
 ): Promise<BusinessHourWindow> {
   let offices: string[] = [];
-  // TODO(team-ospo#200): Add codecov support
+  // TODO(getsentry/team-ospo#200): Add codecov support
   if (repo && org && GETSENTRY_ORG.repos.withoutRouting.includes(repo)) {
     offices = PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)][
       'offices'
