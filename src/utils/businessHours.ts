@@ -178,13 +178,18 @@ export async function getNextAvailableBusinessHourWindow(
   let offices: Set<string> = new Set<string>();
   const teams = getTeams(repo, org, productArea);
   offices = teams.reduce((acc, team) => {
-    PRODUCT_OWNERS_INFO['teams'][team]['offices'].forEach((office) => {
-      acc.add(office);
-    });
+    if (PRODUCT_OWNERS_INFO['teams'][team]['offices']) {
+      PRODUCT_OWNERS_INFO['teams'][team]['offices'].forEach((office) => {
+        acc.add(office);
+      });
+    }
     return acc;
   }, new Set<string>());
+  if (!offices.size) {
+    offices = new Set<string>().add('sfo');
+  }
   const businessHourWindows: BusinessHourWindow[] = [];
-  [...offices].forEach((office) => {
+  ([...offices] || ['sfo']).forEach((office) => {
     const momentIterator = moment(momentTime.valueOf()).utc();
     let isWeekend,
       dayOfTheWeek,
@@ -228,11 +233,7 @@ export async function getNextAvailableBusinessHourWindow(
   return businessHourWindows[0];
 }
 
-export async function getOffices(
-  productArea: string,
-  repo?: string,
-  org?: string
-) {
+export async function getOffices(productArea: string) {
   if (!productArea) {
     return [];
   }

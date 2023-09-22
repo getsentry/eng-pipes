@@ -41,16 +41,13 @@ type SlackMessageOrderedIssueItem = {
   ];
 };
 
-// TODO(team-ospo/issues#198): Clean up undefined types
 type IssueSLOInfo = {
   url: string;
   number: number;
   title: string;
-  productAreaLabel?: string;
   triageBy: string;
   createdAt: string;
-  channels?: Set<ChannelItem>;
-  isChannelInBusinessHours?: boolean;
+  channels: ChannelItem[];
 };
 
 type SlackMessageBlocks = {
@@ -379,21 +376,24 @@ export const getChannelsForIssue = (
   org: string,
   productArea: string,
   now: moment.Moment
-): Set<ChannelItem> => {
+): ChannelItem[] => {
   const teams = getTeams(repo, org, productArea);
   if (!teams.length) {
-    return new Set();
+    return [];
   }
-  const channels: Set<ChannelItem> = teams.reduce((acc, team) => {
-    const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'];
-    acc.add({
-      channelId: PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'],
-      isChannelInBusinessHours: (offices || ['sfo'])
-        .map((office: any) => isTimeInBusinessHours(now, office))
-        .includes(true),
-    });
-    return acc;
-  }, new Set<ChannelItem>());
+  const channels: ChannelItem[] = teams.reduce(
+    (acc: ChannelItem[], team: string) => {
+      const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'];
+      acc.push({
+        channelId: PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'],
+        isChannelInBusinessHours: (offices || ['sfo'])
+          .map((office: any) => isTimeInBusinessHours(now, office))
+          .includes(true),
+      });
+      return acc;
+    },
+    []
+  );
   return channels;
 };
 
