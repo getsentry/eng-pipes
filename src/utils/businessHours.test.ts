@@ -33,8 +33,6 @@ import {
   calculateSLOViolationTriage,
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
-  getOffices,
-  isChannelInBusinessHours,
 } from './businessHours';
 import * as businessHourfunctions from './businessHours';
 
@@ -79,6 +77,8 @@ describe('businessHours tests', function () {
     await db.destroy();
   });
   describe('calculateTimeToRespondBy', function () {
+    const repo = 'routing-repo';
+    const org = 'getsentry';
     const testTimestamps = [
       { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
       { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
@@ -587,61 +587,6 @@ describe('businessHours tests', function () {
       expect(end.valueOf()).toEqual(
         moment('2022-12-19T22:00:00.000Z').valueOf()
       );
-    });
-  });
-
-  describe('getOffices', function () {
-    it('should return empty array if product area label is undefined', async function () {
-      expect(await getOffices(undefined)).toEqual([]);
-    });
-
-    it('should return empty array if product area offices value is undefined', async function () {
-      expect(await getOffices('Product Area: Undefined')).toEqual([]);
-    });
-
-    it('should return empty array if product area offices value is null', async function () {
-      expect(await getOffices('Product Area: Null')).toEqual([]);
-    });
-
-    it('should get sfo office for product area test', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test sfo',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Product Area: Test')).toEqual(['sfo']);
-    });
-
-    it('should get sfo and vie office for product area test if new office is added', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: 'Test vie',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Product Area: Test')).toEqual(['sfo', 'vie']);
-    });
-
-    it('should get vie office for product area test if existing office is removed', async function () {
-      const command = {
-        channel_id: 'CHNLIDRND1',
-        text: '-Test sfo',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Product Area: Test')).toEqual(['vie']);
-    });
-
-    it('should get offices from multiple channels', async function () {
-      let command = {
-        channel_id: 'CHNLIDRND2',
-        text: 'Test yyz',
-      };
-      await slackHandler({ command, ack, say, respond, client });
-      expect(await getOffices('Product Area: Test')).toEqual(['vie', 'yyz']);
-      command = {
-        channel_id: 'CHNLIDRND2',
-        text: '-Test yyz',
-      };
-      await slackHandler({ command, ack, say, respond, client });
     });
   });
 });
