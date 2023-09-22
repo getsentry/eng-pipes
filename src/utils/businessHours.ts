@@ -5,7 +5,7 @@ import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
-  GH_ORGS,
+  GETSENTRY_ORG,
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
   OFFICE_TIME_ZONES,
@@ -169,7 +169,8 @@ export async function getNextAvailableBusinessHourWindow(
   org?: string
 ): Promise<BusinessHourWindow> {
   let offices: string[] = [];
-  if (repo && org && GH_ORGS.get(org).repos.withoutRouting.includes(repo)) {
+  // TODO(getsentry/team-ospo#200): Add codecov support
+  if (repo && org && GETSENTRY_ORG.repos.withoutRouting.includes(repo)) {
     offices = PRODUCT_OWNERS_INFO['teams'][getTeams(repo, org, undefined)][
       'offices'
     ] || ['sfo'];

@@ -428,24 +428,29 @@ export const notifyProductOwnersForUntriagedIssues = async (
 
     // TODO(team-ospo/issues#198): Consolidate logic between repos with routing and repos without routing
     if (org.repos.withoutRouting.includes(repo)) {
-      const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
-        url: issue.html_url,
-        number: issue.number,
-        title: issue.title,
-        triageBy: await getTriageSLOTimestamp(
-          org,
-          repo,
-          issue.number,
-          issue.node_id
-        ),
-        createdAt: issue.created_at,
-        channelId: getChannelIdForIssue(repo, org.slug),
-        isChannelInBusinessHours: getOfficesForRepo(repo, org.slug)
-          .map((office: any) => isTimeInBusinessHours(now, office))
-          .includes(true),
-      }));
+      // TODO(team-ospo/issues#200): Add codecov support
+      if (org.slug != 'codecov') {
+        const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
+          url: issue.html_url,
+          number: issue.number,
+          title: issue.title,
+          triageBy: await getTriageSLOTimestamp(
+            org,
+            repo,
+            issue.number,
+            issue.node_id
+          ),
+          createdAt: issue.created_at,
+          channelId: getChannelIdForIssue(repo, org.slug),
+          isChannelInBusinessHours: getOfficesForRepo(repo, org.slug)
+            .map((office: any) => isTimeInBusinessHours(now, office))
+            .includes(true),
+        }));
 
-      return Promise.all(issuesWithSLOInfo);
+        return Promise.all(issuesWithSLOInfo);
+      }
+
+      return Promise.all([]);
     }
 
     const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
