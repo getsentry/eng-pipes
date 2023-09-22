@@ -1448,6 +1448,66 @@ describe('Triage Notification Tests', function () {
       });
     });
 
+    it('should not report issues for codecov repo', async function () {
+      org.api.paginate = jest
+        .fn()
+        .mockReturnValueOnce([
+          {
+            html_url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue 1',
+            node_id: 'node_id',
+            labels: [
+              { name: 'Waiting for: Product Owner' },
+              { name: 'Product Area: Test' },
+            ],
+            createdAt: '2022-12-08T21:00:00.000Z',
+            repo: 'routing-repo',
+          },
+          {
+            html_url: 'https://test.com/issues/2',
+            number: 2,
+            title: 'Test Issue 2',
+            node_id: 'node_id',
+            labels: [
+              { name: 'Waiting for: Product Owner' },
+              { name: 'Product Area: Other' },
+            ],
+            createdAt: '2022-12-08T21:00:00.000Z',
+            repo: 'routing-repo',
+          },
+        ])
+        .mockReturnValueOnce([
+          {
+            html_url: 'https://test.com/issues/3',
+            number: 3,
+            title: 'Open Source Issue 1',
+            node_id: 'node_id',
+            labels: [{ name: 'Waiting for: Product Owner' }],
+            createdAt: '2022-12-08T21:00:00.000Z',
+            repo: 'test-ttt-simple',
+          },
+          {
+            html_url: 'https://test.com/issues/4',
+            number: 4,
+            title: 'Open Source Issue 2',
+            node_id: 'node_id',
+            labels: [{ name: 'Waiting for: Product Owner' }],
+            createdAt: '2022-12-08T21:00:00.000Z',
+            repo: 'test-ttt-simple',
+          },
+        ])
+        .mockReturnValue([]);
+      getIssueDueDateFromProjectSpy
+        .mockReturnValueOnce('2022-12-09T20:00:00.000Z')
+        .mockReturnValueOnce('2022-12-12T13:00:00.000Z')
+        .mockReturnValue('2022-12-12T21:00:00.000Z');
+      const now = moment('2022-12-12T04:00:00.000Z');
+      org.slug = 'codecov';
+      await notifyProductOwnersForUntriagedIssues(org, now);
+      expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
+
     it('should not report issues when out of business hours', async function () {
       org.api.paginate = jest
         .fn()

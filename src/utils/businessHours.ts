@@ -177,14 +177,17 @@ export async function getNextAvailableBusinessHourWindow(
 ): Promise<BusinessHourWindow> {
   let offices: Set<string> = new Set<string>();
   const teams = getTeams(repo, org, productArea);
-  offices = teams.reduce((acc, team) => {
-    if (PRODUCT_OWNERS_INFO['teams'][team]['offices']) {
-      PRODUCT_OWNERS_INFO['teams'][team]['offices'].forEach((office) => {
-        acc.add(office);
-      });
-    }
-    return acc;
-  }, new Set<string>());
+  // TODO(getsentry/team-ospo#200): Add codecov support
+  if (org !== 'codecov') {
+    offices = teams.reduce((acc, team) => {
+      if (PRODUCT_OWNERS_INFO['teams'][team]['offices']) {
+        PRODUCT_OWNERS_INFO['teams'][team]['offices'].forEach((office) => {
+          acc.add(office);
+        });
+      }
+      return acc;
+    }, new Set<string>());
+  }
   if (!offices.size) {
     offices = new Set<string>().add('sfo');
   }

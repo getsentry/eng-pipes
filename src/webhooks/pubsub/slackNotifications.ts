@@ -417,25 +417,29 @@ export const notifyProductOwnersForUntriagedIssues = async (
       per_page: GH_API_PER_PAGE,
     });
 
-    const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
-      url: issue.html_url,
-      number: issue.number,
-      title: issue.title,
-      triageBy: await getTriageSLOTimestamp(
-        org,
-        repo,
-        issue.number,
-        issue.node_id
-      ),
-      createdAt: issue.created_at,
-      channels: getChannelsForIssue(
-        repo,
-        org.slug,
-        getIssueProductAreaLabel(issue),
-        now
-      ),
-    }));
+    let issuesWithSLOInfo: IssueSLOInfo[] = [];
 
+    // TODO(team-ospo/issues#200): Add codecov support
+    if (org.slug !== 'codecov') {
+      issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
+        url: issue.html_url,
+        number: issue.number,
+        title: issue.title,
+        triageBy: await getTriageSLOTimestamp(
+          org,
+          repo,
+          issue.number,
+          issue.node_id
+        ),
+        createdAt: issue.created_at,
+        channels: getChannelsForIssue(
+          repo,
+          org.slug,
+          getIssueProductAreaLabel(issue),
+          now
+        ),
+      }));
+    }
     return Promise.all(issuesWithSLOInfo);
   };
 
