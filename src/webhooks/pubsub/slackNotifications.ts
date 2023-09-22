@@ -409,37 +409,35 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    const untriagedIssues = await org.api.paginate(org.api.issues.listForRepo, {
-      owner: org.slug,
-      repo,
-      state: 'open',
-      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
-      per_page: GH_API_PER_PAGE,
-    });
+    const untriagedIssues =
+      org.slug === 'codecov'
+        ? []
+        : await org.api.paginate(org.api.issues.listForRepo, {
+            owner: org.slug,
+            repo,
+            state: 'open',
+            labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
+            per_page: GH_API_PER_PAGE,
+          });
 
-    let issuesWithSLOInfo: IssueSLOInfo[] = [];
-
-    // TODO(team-ospo/issues#200): Add codecov support
-    if (org.slug !== 'codecov') {
-      issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
-        url: issue.html_url,
-        number: issue.number,
-        title: issue.title,
-        triageBy: await getTriageSLOTimestamp(
-          org,
-          repo,
-          issue.number,
-          issue.node_id
-        ),
-        createdAt: issue.created_at,
-        channels: getChannelsForIssue(
-          repo,
-          org.slug,
-          getIssueProductAreaLabel(issue),
-          now
-        ),
-      }));
-    }
+    const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
+      url: issue.html_url,
+      number: issue.number,
+      title: issue.title,
+      triageBy: await getTriageSLOTimestamp(
+        org,
+        repo,
+        issue.number,
+        issue.node_id
+      ),
+      createdAt: issue.created_at,
+      channels: getChannelsForIssue(
+        repo,
+        org.slug,
+        getIssueProductAreaLabel(issue),
+        now
+      ),
+    }));
     return Promise.all(issuesWithSLOInfo);
   };
 
