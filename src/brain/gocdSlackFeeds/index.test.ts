@@ -9,6 +9,7 @@ import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,
+  GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
@@ -21,6 +22,7 @@ jest.mock('@api/getUser');
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
+  const org = GETSENTRY_ORG;
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -43,6 +45,33 @@ describe('gocdSlackFeeds', function () {
   });
 
   it('post and update message to all feeds', async function () {
+    const user = {
+      email: 'test@sentry.io',
+      slackUser: 'U1234',
+      githubUser: 'githubUser',
+    };
+    await db('users').insert(user);
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
@@ -58,7 +87,27 @@ describe('gocdSlackFeeds', function () {
     // First Event
     await handler(gocdPayload);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const canaryReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+        ),
+        slackblocks.section(
+          slackblocks.markdown(
+            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+          )
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+          )
+        ),
+      ],
+    };
 
     const wantPostMsg = {
       text: 'GoCD deployment started',
@@ -90,17 +139,18 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(canaryReply);
+    expect(postCalls[1][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
     );
-    expect(postCalls[2][0]).toMatchObject(
+    expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
     );
 
@@ -164,7 +214,8 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+    // The reply message is not updated
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);

@@ -119,7 +119,7 @@ export function filterBuildCauses(
     return [];
   }
 
-  const blocks: Array<GoCDBuildCause> = [];
+  const filteredCauses: Array<GoCDBuildCause> = [];
   for (const bc of buildCauses) {
     if (
       !bc.material ||
@@ -128,9 +128,9 @@ export function filterBuildCauses(
     ) {
       continue;
     }
-    blocks.push(bc);
+    filteredCauses.push(bc);
   }
-  return blocks;
+  return filteredCauses;
 }
 
 export async function getBaseAndHeadCommit(

@@ -4,7 +4,7 @@ export async function getAuthors(
   repo: string,
   baseCommit: string | null,
   headCommit: string
-) {
+): Promise<Array<{ email: string | undefined; login: string | undefined }>> {
   try {
     const commitsComparison = await GETSENTRY_ORG.api.repos.compareCommits({
       owner: GETSENTRY_ORG.slug,
@@ -20,7 +20,6 @@ export async function getAuthors(
     }
     return commitsComparison.data.commits.map((commitStatus) => {
       return {
-        name: commitStatus.commit.author?.name,
         email: commitStatus.commit.author?.email,
         login: commitStatus.author?.login,
       };

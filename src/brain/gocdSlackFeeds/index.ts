@@ -162,8 +162,8 @@ const engineeringFeed = new DeployFeed({
       context(
         markdown(
           `cc'ing the following ${
-            uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length}` : ''
-          } people who have commits in this deploy:\n${ccString}`
+            uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+          }people who have commits in this deploy:\n${ccString}`
         )
       ),
     ];
