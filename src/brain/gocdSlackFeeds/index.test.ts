@@ -45,12 +45,6 @@ describe('gocdSlackFeeds', function () {
   });
 
   it('post and update message to all feeds', async function () {
-    const user = {
-      email: 'test@sentry.io',
-      slackUser: 'U1234',
-      githubUser: 'githubUser',
-    };
-    await db('users').insert(user);
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
