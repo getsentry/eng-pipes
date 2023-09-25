@@ -130,16 +130,18 @@ const engineeringFeed = new DeployFeed({
     const authors = await getAuthors('getsentry', base, head);
     // If there are no authors, we can't cc anyone
     if (authors.length === 0) return [];
-    const uniqueAuthors = authors.filter(
-      (author, index, self) =>
-        self.findIndex((a) => a.email === author.email) === index
-    );
-    const uniqueUsers = filterNulls(
+    // Get all users who have a slack account
+    const users = filterNulls(
       await Promise.all(
-        uniqueAuthors.map((author) =>
+        authors.map((author) =>
           getUser({ email: author.email, githubUser: author.login })
         )
       )
+    ).filter((user) => user.slackUser);
+    // Filter out duplicate users
+    const uniqueUsers = users.filter(
+      (user, index, self) =>
+        index === self.findIndex((u) => u.slackUser === user.slackUser)
     );
     // If there are no users, we can't cc anyone
     if (uniqueUsers.length === 0) return [];
