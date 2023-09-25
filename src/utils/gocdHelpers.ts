@@ -133,7 +133,7 @@ export function filterBuildCauses(
   return blocks;
 }
 
-export async function getBaseHead(
+export async function getBaseAndHeadCommit(
   pipeline: GoCDPipeline
 ): Promise<[string | null, string | null]> {
   const buildCauses = filterBuildCauses(pipeline, 'git');
