@@ -121,8 +121,6 @@ const engineeringFeed = new DeployFeed({
     return pipeline.stage.result.toLowerCase() === 'failed';
   },
   replyCallback: async (pipeline) => {
-    // eslint-disable-next-line no-console
-    console.log(pipeline?.['build-cause']);
     if (
       pipeline.stage.name.includes('canary') &&
       pipeline.stage.result.toLowerCase() === 'failed'
