@@ -219,8 +219,9 @@ export class DeployFeed {
     switch (stage.result.toLowerCase()) {
       case 'unknown':
         return 'In progress';
+      default:
+        return stage.result;
     }
-    return stage.result;
   }
 
   stageEmoji(pipeline: GoCDPipeline): string {
@@ -234,8 +235,9 @@ export class DeployFeed {
         return '🛑';
       case 'unknown':
         return '⏳';
+      default:
+        return '❓';
     }
-    return '❓';
   }
 
   async getMessageBlocks(pipeline: GoCDPipeline): Promise<Array<KnownBlock>> {

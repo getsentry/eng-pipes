@@ -61,8 +61,9 @@ export function getProgressSuffix(pipeline: GoCDPipeline) {
       return CANCELLED_MSG;
     case 'unknown':
       return INPROGRESS_MSG;
+    default:
+      return '';
   }
-  return '';
 }
 
 export function getProgressColor(pipeline: GoCDPipeline) {
