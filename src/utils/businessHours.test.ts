@@ -77,8 +77,6 @@ describe('businessHours tests', function () {
     await db.destroy();
   });
   describe('calculateTimeToRespondBy', function () {
-    const repo = 'routing-repo';
-    const org = 'getsentry';
     const testTimestamps = [
       { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },
       { day: 'Tuesday', timestamp: '2022-11-15T23:36:00.000Z' },
