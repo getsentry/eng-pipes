@@ -106,7 +106,7 @@ describe('DeployFeed', () => {
       channelID: 'example-channel-id',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
       pipelineFilter: (pipeline: GoCDPipeline) => {
-        return pipeline.name == 'ONLY_THIS_PIPELINE';
+        return pipeline.name === 'ONLY_THIS_PIPELINE';
       },
     });
     await feed.handle(gocdPayload);
@@ -517,13 +517,13 @@ describe('DeployFeed', () => {
 
   it('post message with commits in deploy link for getsentry', async () => {
     org.api.repos.getContent.mockImplementation((args) => {
-      if (args.owner != 'getsentry') {
+      if (args.owner !== 'getsentry') {
         throw new Error(`Unexpected getContent() owner: ${args.owner}`);
       }
-      if (args.repo != 'getsentry') {
+      if (args.repo !== 'getsentry') {
         throw new Error(`Unexpected getContent() owner: ${args.owner}`);
       }
-      if (args.path != 'sentry-version') {
+      if (args.path !== 'sentry-version') {
         throw new Error(`Unexpected getContent() owner: ${args.owner}`);
       }
       const mapping = {
