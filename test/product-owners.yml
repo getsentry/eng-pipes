@@ -40,3 +40,7 @@ teams:
   team-null:
     slack_channel: null
     offices: null
+  team-enterprise:
+    slack_channel: C05A6BW303A
+    offices:
+      - yyz

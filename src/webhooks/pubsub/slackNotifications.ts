@@ -409,6 +409,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
+    // TODO(team-ospo/issues#200): Add codecov support
     const untriagedIssues =
       org.slug === 'codecov'
         ? []
