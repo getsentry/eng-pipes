@@ -1,4 +1,8 @@
-import { filterBuildCauses, firstGitMaterialSHA } from '@/utils/gocdHelpers';
+import {
+  filterBuildCauses,
+  firstGitMaterialSHA,
+  getBaseAndHeadCommit,
+} from '@/utils/gocdHelpers';
 
 describe('firstGitMaterialSHA', () => {
   it('return nothing for no deploy', async function () {
@@ -122,5 +126,42 @@ describe('filterBuildCauses', () => {
         modifications: [{}],
       },
     ]);
+  });
+
+  describe('getBaseAndHeadCommit', () => {
+    it('return nothing when there is no build cause', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [],
+      });
+      expect(got).toEqual([null, null]);
+    });
+
+    it('return nothing when there is no git build cause', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [
+          {
+            material: {
+              type: 'other',
+            },
+            modifications: [{}],
+          },
+        ],
+      });
+      expect(got).toEqual([null, null]);
+    });
+
+    it('return nothing when there is no modifications', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [
+          {
+            material: {
+              type: 'git',
+            },
+            modifications: [],
+          },
+        ],
+      });
+      expect(got).toEqual([null, null]);
+    });
   });
 });

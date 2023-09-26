@@ -137,7 +137,7 @@ export async function getBaseAndHeadCommit(
   pipeline: GoCDPipeline
 ): Promise<[string | null, string | null]> {
   const buildCauses = filterBuildCauses(pipeline, 'git');
-  if (buildCauses.length == 0) {
+  if (buildCauses.length === 0) {
     return [null, null];
   }
 
