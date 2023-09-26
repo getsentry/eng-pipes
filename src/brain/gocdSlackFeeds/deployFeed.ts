@@ -153,7 +153,7 @@ export class DeployFeed {
         modification.revision
       );
 
-      if (shas[0] && shas[1] && shas[0] != shas[1]) {
+      if (shas[0] && shas[1] && shas[0] !== shas[1]) {
         const sentryCompareURL = this.compareURL(
           orgSlug,
           SENTRY_REPO_SLUG,
@@ -172,7 +172,7 @@ export class DeployFeed {
 
   async getShaBlock(pipeline: GoCDPipeline): Promise<KnownBlock | undefined> {
     const buildCauses = filterBuildCauses(pipeline, 'git');
-    if (buildCauses.length == 0) {
+    if (buildCauses.length === 0) {
       return;
     }
 
@@ -291,7 +291,7 @@ export class DeployFeed {
     if (approvedBy) {
       // We check for "changes" since `getUser() can return an email
       // for this even though it may not match.
-      if (approvedBy == 'changes') {
+      if (approvedBy === 'changes') {
         body = `GoCD auto-deployment started`;
       } else {
         const user = await getUser({ email: approvedBy });

@@ -94,14 +94,14 @@ export function firstGitMaterialSHA(
   if (!deploy) {
     return null;
   }
-  if (deploy.pipeline_build_cause.length == 0) {
+  if (deploy.pipeline_build_cause.length === 0) {
     return null;
   }
   for (const bc of deploy.pipeline_build_cause) {
-    if (!bc.material || bc.material.type != 'git') {
+    if (!bc.material || bc.material.type !== 'git') {
       continue;
     }
-    if (bc.modifications.length == 0) {
+    if (bc.modifications.length === 0) {
       continue;
     }
     return bc.modifications[0].revision;
@@ -114,7 +114,7 @@ export function filterBuildCauses(
   type: GoCDBuildType
 ): Array<GoCDBuildCause> {
   const buildCauses = pipeline['build-cause'];
-  if (!buildCauses || buildCauses.length == 0) {
+  if (!buildCauses || buildCauses.length === 0) {
     return [];
   }
 
@@ -123,7 +123,7 @@ export function filterBuildCauses(
     if (
       !bc.material ||
       bc.material.type !== type ||
-      bc.modifications.length == 0
+      bc.modifications.length === 0
     ) {
       continue;
     }

@@ -210,7 +210,8 @@ export async function ensureOneWaitingForLabel({
   const labelName = label.name;
 
   const labelToRemove = issue.labels?.find(
-    ({ name }) => name.startsWith(WAITING_FOR_LABEL_PREFIX) && name != labelName
+    ({ name }) =>
+      name.startsWith(WAITING_FOR_LABEL_PREFIX) && name !== labelName
   )?.name;
 
   if (labelToRemove != null) {

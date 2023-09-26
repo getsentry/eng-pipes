@@ -24,6 +24,7 @@ module.exports = {
     'no-unused-vars': 'off',
     'prefer-const': 'error',
     'default-case': 'error',
+    eqeqeq: ['error', 'smart'],
     'simple-import-sort/imports': [
       'error',
       {

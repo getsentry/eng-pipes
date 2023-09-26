@@ -59,7 +59,7 @@ const devinfraFeed = new DeployFeed({
 
     // Checks failing typically indicate GitHub flaking or a temporary
     // issue with master. We have sentry alerts to monitor this.
-    if (pipeline.stage.name == 'checks') {
+    if (pipeline.stage.name === 'checks') {
       return false;
     }
 
