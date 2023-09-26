@@ -19,11 +19,13 @@ product_areas:
   - team-issues
   Issues - Source Maps:
   - team-processing
-  - team-web-sdks
+  - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
   - team-telemetry-experience
   Org Relocation:
+  - team-ospo
+  Other:
   - team-ospo
   Performance:
   - team-performance
@@ -43,9 +45,9 @@ product_areas:
   - team-mobile-sdks
   - team-processing
   SDKs - Web Backend:
-  - team-web-sdks
+  - team-web-backend-sdks
   SDKs - Web Frontend:
-  - team-web-sdks
+  - team-web-frontend-sdks
   Settings:
   - team-issues
   Settings - Auth:
@@ -84,6 +86,8 @@ product_areas:
   - team-starfish
   Stats:
   - team-enterprise
+  Unknown:
+  - team-ospo
   User Feedback:
   - team-issues
   What's New:
@@ -99,19 +103,23 @@ repos:
   sentry-cocoa: team-mobile-sdks
   sentry-dart: team-mobile-sdks
   sentry-dart-plugin: team-mobile-sdks
-  sentry-dotnet: team-mobile-sdks
-  sentry-java: team-mobile-sdks
-  sentry-javascript: team-web-sdks
-  sentry-javascript-bundler-plugins: team-web-sdks
-  sentry-laravel: team-web-sdks
-  sentry-native: team-processing
-  sentry-php: team-web-sdks
-  sentry-python: team-web-sdks
+  sentry-dotnet: team-web-backend-sdks
+  sentry-electron: team-web-frontend-sdks
+  sentry-elixir: team-web-backend-sdks
+  sentry-go: team-web-backend-sdks
+  sentry-java: team-backend-sdks
+  sentry-javascript: team-web-frontend-sdks
+  sentry-javascript-bundler-plugins: team-web-frontend-sdks
+  sentry-laravel: team-web-backend-sdks
+  sentry-native: team-mobile-sdks
+  sentry-php: team-web-backend-sdks
+  sentry-python: team-web-backend-sdks
   sentry-react-native: team-mobile-sdks
-  sentry-ruby: team-web-sdks
-  sentry-symfony: team-web-sdks
-  sentry-unity: team-mobile-sdks
-  sentry-wizard: team-web-sdks
+  sentry-ruby: team-web-backend-sdks
+  sentry-symfony: team-web-backend-sdks
+  sentry-unity: team-web-backend-sdks
+  sentry-unreal: team-web-backend-sdks
+  sentry-wizard: team-web-frontend-sdks
   snuba: team-sns
   snuba-sdk: team-sns
   symbolic: team-processing
@@ -119,63 +127,87 @@ repos:
   wal2json: team-sns
 teams:
   team-crons:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C049DHYN3LZ
   team-discover-and-dashboards:
-    offices: null
-    slack_channel: null
+    offices:
+    - yyz
+    slack_channel: C05F7G32M4Z
   team-docs:
-    offices: null
-    slack_channel: null
+    offices:
+    - sea
+    - sfo
+    slack_channel: C05CR9FM4AE
   team-enterprise:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: CSD1XPPQA
   team-ingest:
-    offices: null
-    slack_channel: null
+    offices:
+    - vie
+    slack_channel: C019637C760
   team-issues:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C0549083GJJ
   team-mobile-sdks:
-    offices: null
-    slack_channel: null
+    offices:
+    - vie
+    slack_channel: CP4UUUF1S
   team-ospo:
     offices:
     - sea
     slack_channel: C04B27EECUB
   team-performance:
-    offices: null
-    slack_channel: null
+    offices:
+    - yyz
+    slack_channel: C04Q3BDL8MA
   team-processing:
-    offices: null
-    slack_channel: null
+    offices:
+    - vie
+    slack_channel: C05LK7YQRFE
   team-product:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C055Y9KB1AS
   team-profiling:
-    offices: null
+    offices:
+    - sfo
     slack_channel: null
   team-replays:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C04B0K358QM
   team-revenue:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C018ZU6704S
   team-sentry-at-scale:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: CSD1XPPQA
   team-sns:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    slack_channel: C05M9TU0RRR
   team-starfish:
     offices: null
     slack_channel: null
   team-support:
-    offices: null
-    slack_channel: null
+    offices:
+    - sfo
+    - yyz
+    slack_channel: C02KHRNRZ1B
   team-telemetry-experience:
-    offices: null
-    slack_channel: null
-  team-web-sdks:
-    offices: null
-    slack_channel: null
+    offices:
+    - vie
+    slack_channel: C047YNXDDA7
+  team-web-backend-sdks:
+    offices:
+    - vie
+    slack_channel: C032NTYCA3B
+  team-web-frontend-sdks:
+    offices:
+    - vie
+    slack_channel: C031EJRRDS8
