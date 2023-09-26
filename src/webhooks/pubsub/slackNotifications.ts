@@ -198,7 +198,7 @@ export const constructSlackMessage = (
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
           timeLeft: `${hoursText} ${minutesText} overdue`,
         });
-      } else if (hoursLeft == 0 && minutesLeft <= 0) {
+      } else if (hoursLeft === 0 && minutesLeft <= 0) {
         const minutesText =
           minutesLeft * -1 === 1
             ? `${minutesLeft * -1} minute`
@@ -208,7 +208,7 @@ export const constructSlackMessage = (
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
           timeLeft: `${minutesText} overdue`,
         });
-      } else if (hoursLeft == 0 && minutesLeft >= 0) {
+      } else if (hoursLeft === 0 && minutesLeft >= 0) {
         const minutesText =
           minutesLeft === 1
             ? `${minutesLeft} minute`
@@ -429,7 +429,7 @@ export const notifyProductOwnersForUntriagedIssues = async (
     // TODO(team-ospo/issues#198): Consolidate logic between repos with routing and repos without routing
     if (org.repos.withoutRouting.includes(repo)) {
       // TODO(team-ospo/issues#200): Add codecov support
-      if (org.slug != 'codecov') {
+      if (org.slug !== 'codecov') {
         const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
           url: issue.html_url,
           number: issue.number,

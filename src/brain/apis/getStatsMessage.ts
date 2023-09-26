@@ -26,7 +26,7 @@ function getEmojiForType(
 
   switch (type) {
     case 'public':
-      return api_rate == 0
+      return api_rate === 0
         ? ':sad_blob:'
         : api_rate < 20
         ? ':blob-unamused:'
@@ -37,7 +37,7 @@ function getEmojiForType(
       return '';
     case 'unknown':
     case 'experimental':
-      return api_rate == 0
+      return api_rate === 0
         ? ':party-sunglasses-blob:'
         : api_rate > 50
         ? ':sad_blob:'
@@ -117,7 +117,7 @@ function getOverallStats(ownership_data) {
 export default async function getStatsMessage(team: string) {
   const ownership_data = await getOwnershipData();
   // If team is not mentioned return stats for all
-  if (team == '') {
+  if (team === '') {
     return {
       message: getOverallStats(new Map(Object.entries(ownership_data))),
       should_show_docs: true,
