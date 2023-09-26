@@ -1140,7 +1140,9 @@ describe('requiredChecks', function () {
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
 
     const calls = (saveSlackMessage.saveSlackMessage as jest.Mock).mock.calls;
+    // Was causing a flakey test, so we sort the calls to make sure they are in the right order
     const sortedCalls = calls.sort((callA, callB) => {
+      // Some extra assertions to make sure the calls are what we expect
       expect(callA.length).toBe(3);
       expect(callB.length).toBe(3);
       expect(callA[1]).toHaveProperty('id');
