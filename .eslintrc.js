@@ -22,6 +22,8 @@ module.exports = {
   rules: {
     'no-console': ['error', { allow: ['warn', 'error'] }],
     'no-unused-vars': 'off',
+    'prefer-const': 'error',
+    'default-case': 'error',
     'simple-import-sort/imports': [
       'error',
       {

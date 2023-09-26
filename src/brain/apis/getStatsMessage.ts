@@ -20,8 +20,9 @@ function getEmojiForType(
         return api_rate > 0 ? '☒' : '';
       case 'experimental':
         return api_rate > 0 ? '☒' : '';
+      default:
+        return '';
     }
-    return '';
   }
 
   switch (type) {
@@ -42,8 +43,9 @@ function getEmojiForType(
         : api_rate > 50
         ? ':sad_blob:'
         : ':blob-unamused:';
+    default:
+      return '';
   }
-  return '';
 }
 
 function getShortMessageForType(team_data, type, total) {

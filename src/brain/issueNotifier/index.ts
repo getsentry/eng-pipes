@@ -235,6 +235,7 @@ export const slackHandler = async ({ command, ack, say, respond, client }) => {
         // sure we are in the channel when they subscribe to notifications makes sense
         // but leaving when they unsubscribe is not sure game.
         break;
+      default:
     }
     // Update cache for the offices mapped to each product area
     await cacheOffices(label_name);
