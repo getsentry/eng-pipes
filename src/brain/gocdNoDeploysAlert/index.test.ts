@@ -142,6 +142,7 @@ describe('gocdSlackFeeds', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
+          group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
           name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
           stage: {
             name: 'deploy-canary',

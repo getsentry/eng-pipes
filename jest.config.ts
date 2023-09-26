@@ -6,6 +6,7 @@ module.exports = {
     '!migrations/**',
     '!src/types/**',
   ],
+  coverageReporters: ['clover', 'json', 'lcov', 'text', 'html'],
   testEnvironment: 'node',
   testRunner: 'jest-circus/runner',
   roots: ['<rootDir>/src/', '<rootDir>/test/'],
