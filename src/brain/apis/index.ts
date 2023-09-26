@@ -15,7 +15,7 @@ export function apis() {
       }
 
       const params = event.text.trim().split('apis ');
-      const team = params.length == 2 ? params[1] : '';
+      const team = params.length === 2 ? params[1] : '';
       const message = await say({
         text: ':sentry-loading: fetching status ...',
         blocks: [
@@ -57,7 +57,7 @@ export function apis() {
             text: {
               type: 'mrkdwn',
               text:
-                team == ''
+                team === ''
                   ? '```' + response.message + '```'
                   : response.message,
             },

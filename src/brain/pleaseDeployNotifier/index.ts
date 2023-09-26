@@ -38,7 +38,7 @@ async function getGoCDDeployBlock(deployInfo, user): Promise<KnownBlock[]> {
       text: {
         type: 'mrkdwn',
         text: getUpdatedGoCDDeployMessage({
-          isUserDeploying: deployInfo.stage_approved_by == user.email,
+          isUserDeploying: deployInfo.stage_approved_by === user.email,
           slackUser: user.slackUser,
           pipeline: deployInfo,
         }),

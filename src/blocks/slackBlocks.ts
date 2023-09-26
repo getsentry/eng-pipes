@@ -45,3 +45,10 @@ export function sectionBlock(fields: MrkdwnElement[]): KnownBlock {
     fields: fields,
   };
 }
+
+export function context(block: MrkdwnElement): KnownBlock {
+  return {
+    type: 'context',
+    elements: [block],
+  };
+}

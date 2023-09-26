@@ -65,7 +65,7 @@ describe('getUpdatedGoCDDeployMessage', function () {
   for (const s of scenarios) {
     it(`return message for ${s.currentUser} - ${s.state}`, async function () {
       const got = getUpdatedGoCDDeployMessage({
-        isUserDeploying: s.currentUser == CURRENT_USER,
+        isUserDeploying: s.currentUser === CURRENT_USER,
         slackUser: s.currentUser,
         pipeline: {
           pipeline_name: 'example-pipeline',

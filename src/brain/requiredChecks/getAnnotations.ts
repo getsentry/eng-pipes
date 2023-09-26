@@ -58,7 +58,7 @@ function filterAnnotations(annotations: Annotation[]) {
   // Do not consider warnings when trying to filter out "Process completed with
   // exit code <...>" message
   const failureAnnotations = filteredAnnotations.filter(
-    (annotation) => annotation.annotation_level == 'failure'
+    (annotation) => annotation.annotation_level === 'failure'
   );
 
   // Now we can filter out any "Process completed with exit code <...>."

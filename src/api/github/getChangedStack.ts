@@ -31,7 +31,7 @@ export async function getChangedStack(ref: string, repo: string) {
         ].includes(name)
     );
 
-    if (checkRuns.length == 0) {
+    if (checkRuns.length === 0) {
       // Track this event in case the check status name changes in the future.
       Sentry.captureMessage(`Failed to identify the type of commit`, {
         extra: {
