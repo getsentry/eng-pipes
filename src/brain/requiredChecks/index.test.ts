@@ -1138,23 +1138,32 @@ describe('requiredChecks', function () {
     expect(updateMessage).toHaveBeenCalledTimes(3);
 
     expect(saveSlackMessage.saveSlackMessage).toHaveBeenCalledTimes(3);
-    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
-      1,
-      expect.anything(),
-      expect.anything(),
-      expect.objectContaining({ status: BuildStatus.UNKNOWN })
-    );
-    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
-      2,
-      expect.anything(),
-      expect.anything(),
-      expect.objectContaining({ status: BuildStatus.UNKNOWN })
-    );
-    expect(saveSlackMessage.saveSlackMessage).toHaveBeenNthCalledWith(
-      3,
-      expect.anything(),
-      expect.anything(),
-      expect.objectContaining({ status: BuildStatus.FIXED })
-    );
+
+    const calls = (saveSlackMessage.saveSlackMessage as jest.Mock).mock.calls;
+    const sortedCalls = calls.sort((callA, callB) => {
+      expect(callA.length).toBe(3);
+      expect(callB.length).toBe(3);
+      expect(callA[1]).toHaveProperty('id');
+      expect(callB[1]).toHaveProperty('id');
+      return Number(callB[1].id) - Number(callA[1].id);
+    });
+
+    expect(sortedCalls).toEqual([
+      [
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ status: BuildStatus.UNKNOWN }),
+      ],
+      [
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ status: BuildStatus.UNKNOWN }),
+      ],
+      [
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({ status: BuildStatus.FIXED }),
+      ],
+    ]);
   });
 });
