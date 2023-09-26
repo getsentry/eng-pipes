@@ -51,7 +51,7 @@ describe('gocdSlackFeeds', function () {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
       }
       if (args.repo !== 'getsentry') {
-        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
       }
       return {
         status: 200,
@@ -246,7 +246,7 @@ describe('gocdSlackFeeds', function () {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
       }
       if (args.repo !== 'getsentry') {
-        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
       }
       return {
         status: 200,
@@ -463,7 +463,7 @@ describe('gocdSlackFeeds', function () {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
       }
       if (args.repo !== 'getsentry') {
-        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
       }
       return {
         status: 200,
