@@ -1,5 +1,10 @@
 import * as Sentry from '@sentry/node';
-import { KnownBlock, MessageAttachment, MrkdwnElement } from '@slack/types';
+import {
+  Block,
+  KnownBlock,
+  MessageAttachment,
+  MrkdwnElement,
+} from '@slack/types';
 
 import { getUser } from '@/api/getUser';
 import { bolt } from '@/api/slack';
@@ -26,17 +31,22 @@ export class DeployFeed {
   private slackChannelID: string;
   private msgType: SlackMessage;
   private pipelineFilter: PipelineFilterCallback | undefined;
+  private replyCallback:
+    | ((pipeline: GoCDPipeline) => Promise<Block[]>)
+    | undefined;
 
   constructor({
     feedName,
     channelID,
     msgType,
     pipelineFilter,
+    replyCallback,
   }: DeployFeedArgs) {
     this.feedName = feedName;
     this.slackChannelID = channelID;
     this.msgType = msgType;
     this.pipelineFilter = pipelineFilter;
+    this.replyCallback = replyCallback;
   }
 
   async handle(resBody: GoCDResponse) {
@@ -328,10 +338,12 @@ export class DeployFeed {
         text: body,
       }
     );
+
+    return message;
   }
 
   async updateSlackMessage(message: any, attachment: MessageAttachment) {
-    await bolt.client.chat.update({
+    return bolt.client.chat.update({
       ts: message.ts,
       channel: this.slackChannelID,
       // NOTE: Using the message context means the message text contains
@@ -358,7 +370,18 @@ export class DeployFeed {
     // Look for associated slack messages based on pipeline
     const messages = await getSlackMessage(this.msgType, [refId]);
     if (!messages.length) {
-      await this.newSlackMessage(refId, pipeline);
+      const postMessage = await this.newSlackMessage(refId, pipeline);
+      if (postMessage && this.replyCallback) {
+        const replyBlocks = await this.replyCallback(pipeline);
+        if (replyBlocks.length > 0) {
+          await bolt.client.chat.postMessage({
+            channel: `${postMessage.channel}`,
+            thread_ts: `${postMessage.ts}`,
+            text: '',
+            blocks: replyBlocks,
+          });
+        }
+      }
     } else {
       const attachment = await this.getMessageAttachment(pipeline);
       await Promise.all(
@@ -375,5 +398,6 @@ interface DeployFeedArgs {
   channelID: string;
   msgType: SlackMessage;
   pipelineFilter?: PipelineFilterCallback;
+  replyCallback?: (pipeline: GoCDPipeline) => Promise<Block[]>;
 }
 type PipelineFilterCallback = (pipeline: GoCDPipeline) => boolean;
