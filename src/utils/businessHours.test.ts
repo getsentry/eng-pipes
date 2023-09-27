@@ -299,7 +299,7 @@ describe('businessHours tests', function () {
     it('should not calculate SLO violation if label is not untriaged', async function () {
       const result = await calculateSLOViolationTriage(
         'Status: Test',
-        [{ name: 'Test' }],
+        [{ name: 'Product Area: Test' }],
         'routing-repo',
         GETSENTRY_ORG.slug
       );
@@ -309,7 +309,7 @@ describe('businessHours tests', function () {
     it('should not calculate SLO violation if label is unrouted', async function () {
       const result = await calculateSLOViolationTriage(
         WAITING_FOR_SUPPORT_LABEL,
-        [{ name: 'Test' }],
+        [{ name: 'Product Area: Test' }],
         'routing-repo',
         GETSENTRY_ORG.slug
       );
@@ -319,7 +319,7 @@ describe('businessHours tests', function () {
     it('should calculate SLO violation if label is untriaged', async function () {
       const result = await calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        [{ name: 'Test' }],
+        [{ name: 'Product Area: Test' }],
         'routing-repo',
         GETSENTRY_ORG.slug
       );
@@ -329,7 +329,7 @@ describe('businessHours tests', function () {
     it('should calculate SLO violation if label is waiting for product owner', async function () {
       const result = await calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
-        [{ name: 'Test' }],
+        [{ name: 'Product Area: Test' }],
         'routing-repo',
         GETSENTRY_ORG.slug
       );

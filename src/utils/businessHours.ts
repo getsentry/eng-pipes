@@ -60,9 +60,9 @@ export async function calculateSLOViolationTriage(
 ) {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
-    const productArea = labels?.find((label) =>
-      label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)
-    )?.name;
+    const productArea = labels
+      ?.find((label) => label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX))
+      ?.name.slice(PRODUCT_AREA_LABEL_PREFIX.length);
     return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, productArea, repo, org);
   }
   // calculate time to triage for issues that are rerouted
@@ -70,7 +70,12 @@ export async function calculateSLOViolationTriage(
     target_name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
     labels?.some((label) => label.name === WAITING_FOR_PRODUCT_OWNER_LABEL)
   ) {
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, target_name, repo, org);
+    return calculateTimeToRespondBy(
+      MAX_TRIAGE_DAYS,
+      target_name.slice(PRODUCT_AREA_LABEL_PREFIX.length),
+      repo,
+      org
+    );
   }
   return null;
 }
