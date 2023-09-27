@@ -15,7 +15,7 @@ export function getTeams(
   if (orgObj.repos.withoutRouting.includes(`${repo}`)) {
     if (!PRODUCT_OWNERS_INFO['repos'][repo]) {
       Sentry.captureMessage(`Teams is not defined for ${org}/${repo}`);
-      return ['team-ospo'];
+      return [];
     }
     return [PRODUCT_OWNERS_INFO['repos'][repo]];
   }
@@ -23,10 +23,10 @@ export function getTeams(
     if (productArea) {
       if (!PRODUCT_OWNERS_INFO['product_areas'][productArea]) {
         Sentry.captureMessage(`Teams is not defined for ${productArea}`);
-        return ['team-ospo'];
+        return [];
       }
       return PRODUCT_OWNERS_INFO['product_areas'][productArea];
     }
   }
-  return ['team-ospo'];
+  return [];
 }

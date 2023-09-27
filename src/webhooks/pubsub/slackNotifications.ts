@@ -1,20 +1,24 @@
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
+import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
-import { isTimeInBusinessHours } from '@/utils/businessHours';
+import {
+  isChannelInBusinessHours,
+  isTimeInBusinessHours,
+} from '@/utils/businessHours';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getTeams } from '@utils/getTeams';
 
 const GH_API_PER_PAGE = 100;
-const DEFAULT_PRODUCT_AREA = 'Other';
+const DEFAULT_PRODUCT_AREA_LABEL = 'Product Area: Other';
 const getChannelLastNotifiedTable = () => db('channel_last_notified');
 
 // An item with all of its relevant properties stringified as markdown.
@@ -41,24 +45,22 @@ type SlackMessageOrderedIssueItem = {
   ];
 };
 
+// TODO(team-ospo/issues#198): Clean up undefined types
 type IssueSLOInfo = {
   url: string;
   number: number;
   title: string;
+  productAreaLabel?: string;
   triageBy: string;
   createdAt: string;
-  channels: ChannelItem[];
+  channelId?: string;
+  isChannelInBusinessHours?: boolean;
 };
 
 type SlackMessageBlocks = {
   type: string;
   text?: object;
   fields?: object;
-};
-
-type ChannelItem = {
-  channelId: string;
-  isChannelInBusinessHours: boolean;
 };
 
 export const opts = {
@@ -81,17 +83,14 @@ export const opts = {
   },
 };
 
-const getLabelName = (label?: Issue['labels'][number]): string =>
+const getLabelName = (label?: Issue['labels'][number]) =>
   typeof label === 'string' ? label : label?.name || '';
 
-const getIssueProductAreaLabel = (issue: Issue): string => {
+const getIssueProductAreaLabel = (issue: Issue) => {
   const label = issue.labels.find((label) =>
     getLabelName(label).startsWith(PRODUCT_AREA_LABEL_PREFIX)
   );
-  return (
-    getLabelName(label).slice(PRODUCT_AREA_LABEL_PREFIX.length) ||
-    DEFAULT_PRODUCT_AREA
-  );
+  return getLabelName(label) || DEFAULT_PRODUCT_AREA_LABEL;
 };
 
 // Note that the `ordinal` field is the literal number that will show up, not the index in the
@@ -123,7 +122,7 @@ export const getTriageSLOTimestamp = async (
   repo: string,
   issueNumber: number,
   issueNodeId: string
-): Promise<string> => {
+) => {
   const issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
     issueNodeId,
     repo,
@@ -143,10 +142,12 @@ export const getTriageSLOTimestamp = async (
 };
 
 export const constructSlackMessage = (
+  notificationChannels: Record<string, string[]>,
+  productAreaToIssuesMap: Record<string, IssueSLOInfo[]>,
   channelToIssuesMap: Record<string, IssueSLOInfo[]>,
   now: moment.Moment
-): Promise<any>[] => {
-  return Object.keys(channelToIssuesMap).flatMap(async (channelId) => {
+) => {
+  return Object.keys(notificationChannels).flatMap(async (channelId) => {
     const overdueIssues: SlackMessageUnorderedIssueItem[] = [];
     const actFastIssues: SlackMessageUnorderedIssueItem[] = [];
     const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
@@ -247,154 +248,162 @@ export const constructSlackMessage = (
         }
       }
     };
+    // TODO(team-ospo/issues#198): remove usage of isChannelInBusinessHours
+    if (
+      (channelToIssuesMap[channelId] &&
+        channelToIssuesMap[channelId].length > 0) ||
+      (await isChannelInBusinessHours(channelId, now))
+    ) {
+      notificationChannels[channelId].map((productArea) => {
+        productAreaToIssuesMap[productArea].forEach(addIssueToQueue);
+      });
 
-    channelToIssuesMap[channelId].forEach(addIssueToQueue);
+      if (channelToIssuesMap[channelId]) {
+        channelToIssuesMap[channelId]
+          .filter((issue) => issue.isChannelInBusinessHours)
+          .forEach(addIssueToQueue);
+      }
 
-    const sortAndFlattenIssuesArray = (issues) =>
-      issues
-        .sort(
-          (a, b) => moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
-        )
-        .map((item, index) => {
-          return addOrderingToSlackMessageItem(item, index + 1).fields;
-        })
-        .flat();
+      const sortAndFlattenIssuesArray = (issues) =>
+        issues
+          .sort(
+            (a, b) =>
+              moment(a.triageBy).valueOf() - moment(b.triageBy).valueOf()
+          )
+          .map((item, index) => {
+            return addOrderingToSlackMessageItem(item, index + 1).fields;
+          })
+          .flat();
 
-    const messageBlocks: SlackMessageBlocks[] = [
-      {
-        type: 'header',
-        text: {
-          type: 'plain_text',
-          text: 'Hey! You have some tickets to triage:',
+      const messageBlocks: SlackMessageBlocks[] = [
+        {
+          type: 'header',
+          text: {
+            type: 'plain_text',
+            text: 'Hey! You have some tickets to triage:',
+          },
         },
-      },
-      {
-        type: 'divider',
-      },
-    ];
-    if (overdueIssues.length > 0) {
-      const formattedIssues = sortAndFlattenIssuesArray(overdueIssues);
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          { type: 'mrkdwn', text: `🚨 *Overdue*` },
-          { type: 'mrkdwn', text: `😰` },
-        ],
-      });
-      for (let i = 0; i < formattedIssues.length; i += 2) {
+        {
+          type: 'divider',
+        },
+      ];
+      if (overdueIssues.length > 0) {
+        const formattedIssues = sortAndFlattenIssuesArray(overdueIssues);
         messageBlocks.push({
           type: 'section',
-          fields: [formattedIssues[i], formattedIssues[i + 1]],
+          fields: [
+            { type: 'mrkdwn', text: `🚨 *Overdue*` },
+            { type: 'mrkdwn', text: `😰` },
+          ],
         });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
       }
-    }
-    if (actFastIssues.length > 0) {
-      const formattedIssues = sortAndFlattenIssuesArray(actFastIssues);
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⌛️ *Act fast!*`,
-          },
-          { type: 'mrkdwn', text: `😨` },
-        ],
-      });
-      for (let i = 0; i < formattedIssues.length; i += 2) {
+      if (actFastIssues.length > 0) {
+        const formattedIssues = sortAndFlattenIssuesArray(actFastIssues);
         messageBlocks.push({
           type: 'section',
-          fields: [formattedIssues[i], formattedIssues[i + 1]],
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⌛️ *Act fast!*`,
+            },
+            { type: 'mrkdwn', text: `😨` },
+          ],
         });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
       }
-    }
-    const result = await getChannelLastNotifiedTable()
-      .where({ channel_id: channelId })
-      .select('last_notified_at');
-    const hasEnoughTimePassedSinceLastNotification =
-      result.length > 0
-        ? now.diff(result[0].last_notified_at, 'hours') >= 4
-        : true;
-    const shouldNotifyForOnlyTriagedQueue =
-      hasEnoughTimePassedSinceLastNotification &&
-      hasEnoughTimePassedSinceIssueCreation;
-    const formattedIssues = sortAndFlattenIssuesArray(triageQueueIssues);
-    if (
-      triageQueueIssues.length > 0 &&
-      overdueIssues.length === 0 &&
-      actFastIssues.length === 0
-    ) {
-      messageBlocks.push({
-        type: 'section',
-        fields: [
-          {
-            type: 'mrkdwn',
-            text: `⏳ *Triage Queue*`,
-          },
-          { type: 'mrkdwn', text: `😯` },
-        ],
-      });
-      for (let i = 0; i < formattedIssues.length; i += 2) {
-        messageBlocks.push({
-          type: 'section',
-          fields: [formattedIssues[i], formattedIssues[i + 1]],
-        });
-      }
-    }
-    /*
-      Two cases to skip sending message
-      1. No issues in any queue
-      2. Issues are in triage queue but channel doesn't need to be notified
-    */
-    if (
-      (overdueIssues.length === 0 &&
-        actFastIssues.length === 0 &&
-        triageQueueIssues.length === 0) ||
-      (overdueIssues.length === 0 &&
-        actFastIssues.length === 0 &&
+      const result = await getChannelLastNotifiedTable()
+        .where({ channel_id: channelId })
+        .select('last_notified_at');
+      const hasEnoughTimePassedSinceLastNotification =
+        result.length > 0
+          ? now.diff(result[0].last_notified_at, 'hours') >= 4
+          : true;
+      const shouldNotifyForOnlyTriagedQueue =
+        hasEnoughTimePassedSinceLastNotification &&
+        hasEnoughTimePassedSinceIssueCreation;
+      const formattedIssues = sortAndFlattenIssuesArray(triageQueueIssues);
+      if (
         triageQueueIssues.length > 0 &&
-        !shouldNotifyForOnlyTriagedQueue)
-    ) {
-      return Promise.resolve();
+        overdueIssues.length === 0 &&
+        actFastIssues.length === 0
+      ) {
+        messageBlocks.push({
+          type: 'section',
+          fields: [
+            {
+              type: 'mrkdwn',
+              text: `⏳ *Triage Queue*`,
+            },
+            { type: 'mrkdwn', text: `😯` },
+          ],
+        });
+        for (let i = 0; i < formattedIssues.length; i += 2) {
+          messageBlocks.push({
+            type: 'section',
+            fields: [formattedIssues[i], formattedIssues[i + 1]],
+          });
+        }
+      }
+      /*
+        Two cases to skip sending message
+        1. No issues in any queue
+        2. Issues are in triage queue but channel doesn't need to be notified
+      */
+      if (
+        (overdueIssues.length === 0 &&
+          actFastIssues.length === 0 &&
+          triageQueueIssues.length === 0) ||
+        (overdueIssues.length === 0 &&
+          actFastIssues.length === 0 &&
+          triageQueueIssues.length > 0 &&
+          !shouldNotifyForOnlyTriagedQueue)
+      ) {
+        return Promise.resolve();
+      }
+      return bolt.client.chat
+        .postMessage({
+          channel: channelId,
+          text: '👋 Triage Reminder ⏰',
+          blocks: messageBlocks,
+        })
+        .then(async () => {
+          await getChannelLastNotifiedTable()
+            .insert({ channel_id: channelId, last_notified_at: now })
+            .onConflict('channel_id')
+            .merge();
+        });
     }
-    return bolt.client.chat
-      .postMessage({
-        channel: channelId,
-        text: '👋 Triage Reminder ⏰',
-        blocks: messageBlocks,
-      })
-      .then(async () => {
-        await getChannelLastNotifiedTable()
-          .insert({ channel_id: channelId, last_notified_at: now })
-          .onConflict('channel_id')
-          .merge();
-      });
+    return Promise.resolve();
   });
 };
 
-export const getChannelsForIssue = (
-  repo: string,
-  org: string,
-  productArea: string,
-  now: moment.Moment
-): ChannelItem[] => {
-  const teams = getTeams(repo, org, productArea);
+export const getChannelIdForIssue = (repo: string, org: string) => {
+  const teams = getTeams(repo, org, undefined);
+  // TODO(team-ospo/issues#198): Support multiple teams
+  if (!teams.length) {
+    return null;
+  }
+  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['slack_channel'];
+};
+
+export const getOfficesForRepo = (repo: string, org: string) => {
+  const teams = getTeams(repo, org, undefined);
   if (!teams.length) {
     return [];
   }
-  const channels: ChannelItem[] = teams.reduce(
-    (acc: ChannelItem[], team: string) => {
-      const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'];
-      acc.push({
-        channelId: PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'],
-        isChannelInBusinessHours: (offices || ['sfo'])
-          .map((office: any) => isTimeInBusinessHours(now, office))
-          .includes(true),
-      });
-      return acc;
-    },
-    []
-  );
-  return channels;
+  // TODO(team-ospo/issues#198): Support multiple teams, default to sfo for now if offices is null
+  return PRODUCT_OWNERS_INFO['teams'][teams[0]]['offices'] || ['sfo'];
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
@@ -409,22 +418,46 @@ export const notifyProductOwnersForUntriagedIssues = async (
   const getIssueSLOInfoForRepo = async (
     repo: string
   ): Promise<IssueSLOInfo[]> => {
-    // TODO(team-ospo/issues#200): Add codecov support
-    const untriagedIssues =
-      org.slug === 'codecov'
-        ? []
-        : await org.api.paginate(org.api.issues.listForRepo, {
-            owner: org.slug,
+    const untriagedIssues = await org.api.paginate(org.api.issues.listForRepo, {
+      owner: org.slug,
+      repo,
+      state: 'open',
+      labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
+      per_page: GH_API_PER_PAGE,
+    });
+
+    // TODO(team-ospo/issues#198): Consolidate logic between repos with routing and repos without routing
+    if (org.repos.withoutRouting.includes(repo)) {
+      // TODO(team-ospo/issues#200): Add codecov support
+      if (org.slug !== 'codecov') {
+        const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
+          url: issue.html_url,
+          number: issue.number,
+          title: issue.title,
+          triageBy: await getTriageSLOTimestamp(
+            org,
             repo,
-            state: 'open',
-            labels: WAITING_FOR_PRODUCT_OWNER_LABEL,
-            per_page: GH_API_PER_PAGE,
-          });
+            issue.number,
+            issue.node_id
+          ),
+          createdAt: issue.created_at,
+          channelId: getChannelIdForIssue(repo, org.slug),
+          isChannelInBusinessHours: getOfficesForRepo(repo, org.slug)
+            .map((office: any) => isTimeInBusinessHours(now, office))
+            .includes(true),
+        }));
+
+        return Promise.all(issuesWithSLOInfo);
+      }
+
+      return Promise.all([]);
+    }
 
     const issuesWithSLOInfo = untriagedIssues.map(async (issue) => ({
       url: issue.html_url,
       number: issue.number,
       title: issue.title,
+      productAreaLabel: getIssueProductAreaLabel(issue),
       triageBy: await getTriageSLOTimestamp(
         org,
         repo,
@@ -432,13 +465,8 @@ export const notifyProductOwnersForUntriagedIssues = async (
         issue.node_id
       ),
       createdAt: issue.created_at,
-      channels: getChannelsForIssue(
-        repo,
-        org.slug,
-        getIssueProductAreaLabel(issue),
-        now
-      ),
     }));
+
     return Promise.all(issuesWithSLOInfo);
   };
 
@@ -451,24 +479,52 @@ export const notifyProductOwnersForUntriagedIssues = async (
   ).flat();
 
   // Get an N-to-N mapping of "Product Area: *" labels to issues
+  const productAreaToIssuesMap: Record<string, IssueSLOInfo[]> = {};
   const channelToIssuesMap: Record<string, IssueSLOInfo[]> = {};
+  const productAreasToNotify = new Set() as Set<string>;
   issuesToNotifyAbout.forEach((data) => {
-    if (data.channels) {
-      data.channels.forEach((channel) => {
-        if (
-          channel.channelId in channelToIssuesMap &&
-          channel.isChannelInBusinessHours
-        ) {
-          channelToIssuesMap[channel.channelId].push(data);
-        } else {
-          channelToIssuesMap[channel.channelId] = [data];
-        }
-      });
+    if (data.channelId) {
+      if (data.channelId in channelToIssuesMap) {
+        channelToIssuesMap[data.channelId].push(data);
+      } else {
+        channelToIssuesMap[data.channelId] = [data];
+      }
+    } else if (data.productAreaLabel) {
+      if (data.productAreaLabel in productAreaToIssuesMap) {
+        productAreaToIssuesMap[data.productAreaLabel].push(data);
+      } else {
+        productAreaToIssuesMap[data.productAreaLabel] = [data];
+        productAreasToNotify.add(data.productAreaLabel);
+      }
+    }
+  });
+  // TODO(team-ospo/issues#198): Remove this once not needed
+  // Get a mapping from Channels to subscribed product areas
+  const notificationChannels: Record<string, string[]> = (
+    await getLabelsTable()
+      .select('label_name', 'channel_id')
+      .whereIn('label_name', Array.from(productAreasToNotify))
+  ).reduce((res, { label_name, channel_id }) => {
+    const productAreas = res[channel_id] || [];
+    productAreas.push(label_name);
+    res[channel_id] = productAreas;
+    return res;
+  }, {});
+
+  // TODO(team-ospo/issues#198): Remove this and completely rework logic
+  Object.keys(channelToIssuesMap).forEach((channelId) => {
+    if (!notificationChannels[channelId]) {
+      notificationChannels[channelId] = [];
     }
   });
 
   // Notify all channels associated with the relevant `Product Area: *` label per issue
-  const notifications = constructSlackMessage(channelToIssuesMap, now);
+  const notifications = constructSlackMessage(
+    notificationChannels,
+    productAreaToIssuesMap,
+    channelToIssuesMap,
+    now
+  );
   // Do all this in parallel and wait till all finish
   await Promise.all(notifications);
 };

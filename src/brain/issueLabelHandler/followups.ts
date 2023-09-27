@@ -242,15 +242,12 @@ export async function ensureOneWaitingForLabel({
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         issue.labels,
         repo,
-        org.slug
+        payload.organization?.login
       )) || moment().toISOString();
   } else if (labelName === WAITING_FOR_SUPPORT_LABEL) {
     timeToRespondBy =
-      (await calculateSLOViolationRoute(
-        WAITING_FOR_SUPPORT_LABEL,
-        repo,
-        org.slug
-      )) || moment().toISOString();
+      (await calculateSLOViolationRoute(WAITING_FOR_SUPPORT_LABEL)) ||
+      moment().toISOString();
   } else {
     timeToRespondBy = '';
   }

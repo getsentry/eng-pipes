@@ -5,19 +5,10 @@ product_areas:
     - team-issues
     - team-enterprise
   Test:
-    - team-issues
-  Non-Overlapping Timezone:
-    - team-ingest
-    - team-issues
-  All-Timezones:
-    - team-ingest
-    - team-issues
-    - team-enterprise
-  Overlapping Timezone:
-    - team-issues
-    - team-enterprise
+    - team-ospo
 repos:
-  test-ttt-simple: team-issues
+  test-ttt-simple: team-ospo
+  routing-repo: team-ospo
   vie-repo: team-ingest
   test-null: team-null
 teams:
@@ -25,10 +16,6 @@ teams:
     slack_channel: C05A6BW303Y
     offices:
       - sea
-  team-enterprise:
-    slack_channel: C05A6BW303B
-    offices:
-      - yyz
   team-issues:
     slack_channel: C05A6BW303Z
     offices:
