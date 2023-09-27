@@ -1,6 +1,17 @@
-import { filterBuildCauses, firstGitMaterialSHA } from '@/utils/gocdHelpers';
+import {
+  filterBuildCauses,
+  firstGitMaterialSHA,
+  getBaseAndHeadCommit,
+} from '@/utils/gocdHelpers';
+import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
+
+jest.mock('@utils/db/getLatestDeploy');
 
 describe('firstGitMaterialSHA', () => {
+  afterEach(async function () {
+    jest.clearAllMocks();
+  });
+
   it('return nothing for no deploy', async function () {
     const got = firstGitMaterialSHA(null);
     expect(got).toEqual(null);
@@ -122,5 +133,104 @@ describe('filterBuildCauses', () => {
         modifications: [{}],
       },
     ]);
+  });
+
+  describe('getBaseAndHeadCommit', () => {
+    it('return nothing when there is no build cause', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [],
+      });
+      expect(got).toEqual([null, null]);
+    });
+
+    it('return nothing when there is no git build cause', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [
+          {
+            material: {
+              type: 'other',
+            },
+            modifications: [{}],
+          },
+        ],
+      });
+      expect(got).toEqual([null, null]);
+    });
+
+    it('return nothing when there is no modifications', async function () {
+      const got = await getBaseAndHeadCommit({
+        'build-cause': [
+          {
+            material: {
+              type: 'git',
+            },
+            modifications: [],
+          },
+        ],
+      });
+      expect(got).toEqual([null, null]);
+    });
+
+    it('return just head commit when there is no deploy', async function () {
+      // @ts-ignore
+      getLastGetSentryGoCDDeploy.mockReturnValue(null);
+
+      const got = await getBaseAndHeadCommit({
+        group: 'example-pipeline-group',
+        name: 'example-pipeline-name',
+        'build-cause': [
+          {
+            material: {
+              type: 'git',
+            },
+            modifications: [
+              {
+                revision: 'abc123',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(got).toEqual([null, 'abc123']);
+    });
+
+    it('return base and head commit when there is a deploy', async function () {
+      const mockReturnValue = {
+        pipeline_build_cause: [
+          {
+            material: {
+              type: 'git',
+            },
+            modifications: [
+              {
+                revision: 'def456',
+              },
+            ],
+          },
+        ],
+      };
+      // @ts-ignore
+      getLastGetSentryGoCDDeploy.mockReturnValue(mockReturnValue);
+
+      const got = await getBaseAndHeadCommit({
+        group: 'example-pipeline-group',
+        name: 'example-pipeline-name',
+        'build-cause': [
+          {
+            material: {
+              type: 'git',
+            },
+            modifications: [
+              {
+                revision: 'abc123',
+              },
+            ],
+          },
+        ],
+      });
+
+      expect(got).toEqual(['def456', 'abc123']);
+    });
   });
 });

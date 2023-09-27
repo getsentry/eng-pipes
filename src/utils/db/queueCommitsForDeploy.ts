@@ -9,7 +9,7 @@ import { db } from '.';
 export async function queueCommitsForDeploy(
   commits: CompareCommits['commits']
 ) {
-  if (commits.length == 0) {
+  if (commits.length === 0) {
     return;
   }
 

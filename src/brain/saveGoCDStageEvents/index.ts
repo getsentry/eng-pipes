@@ -65,7 +65,7 @@ async function saveBuildMaterials(pipeline_id: string, pipeline: GoCDPipeline) {
     });
   }
 
-  if (gitMaterials.length == 0) {
+  if (gitMaterials.length === 0) {
     return;
   }
 

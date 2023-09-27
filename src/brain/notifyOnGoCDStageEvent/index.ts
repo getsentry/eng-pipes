@@ -195,8 +195,8 @@ async function filterCommits(pipeline, commits) {
     // NOTE: We do not handle scenarios where the commit has both
     // frontend and backend changes.
     if (
-      (isFrontendOnly && pipeline.name == GOCD_SENTRYIO_FE_PIPELINE_NAME) ||
-      (isBackendOnly && pipeline.name == GOCD_SENTRYIO_BE_PIPELINE_NAME)
+      (isFrontendOnly && pipeline.name === GOCD_SENTRYIO_FE_PIPELINE_NAME) ||
+      (isBackendOnly && pipeline.name === GOCD_SENTRYIO_BE_PIPELINE_NAME)
     ) {
       relevantCommitShas.push(sha);
     }
@@ -232,7 +232,7 @@ function getGetsentrySHA(buildcauses: Array<GoCDBuildCause>) {
       continue;
     }
     const url = bc.material['git-configuration'].url;
-    if (url.indexOf(`${GETSENTRY_ORG.slug}/${GETSENTRY_REPO_SLUG}`) != -1) {
+    if (url.indexOf(`${GETSENTRY_ORG.slug}/${GETSENTRY_REPO_SLUG}`) !== -1) {
       return bc.modifications[0].revision;
     }
   }

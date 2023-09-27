@@ -11,6 +11,8 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 
+import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
+
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';
 export const FAILED_MSG = 'failed to deploy';
@@ -61,8 +63,9 @@ export function getProgressSuffix(pipeline: GoCDPipeline) {
       return CANCELLED_MSG;
     case 'unknown':
       return INPROGRESS_MSG;
+    default:
+      return '';
   }
-  return '';
 }
 
 export function getProgressColor(pipeline: GoCDPipeline) {
@@ -93,14 +96,14 @@ export function firstGitMaterialSHA(
   if (!deploy) {
     return null;
   }
-  if (deploy.pipeline_build_cause.length == 0) {
+  if (deploy.pipeline_build_cause.length === 0) {
     return null;
   }
   for (const bc of deploy.pipeline_build_cause) {
-    if (!bc.material || bc.material.type != 'git') {
+    if (!bc.material || bc.material.type !== 'git') {
       continue;
     }
-    if (bc.modifications.length == 0) {
+    if (bc.modifications.length === 0) {
       continue;
     }
     return bc.modifications[0].revision;
@@ -113,20 +116,47 @@ export function filterBuildCauses(
   type: GoCDBuildType
 ): Array<GoCDBuildCause> {
   const buildCauses = pipeline['build-cause'];
-  if (!buildCauses || buildCauses.length == 0) {
+  if (!buildCauses || buildCauses.length === 0) {
     return [];
   }
 
-  const blocks: Array<GoCDBuildCause> = [];
+  const filteredCauses: Array<GoCDBuildCause> = [];
   for (const bc of buildCauses) {
     if (
       !bc.material ||
       bc.material.type !== type ||
-      bc.modifications.length == 0
+      bc.modifications.length === 0
     ) {
       continue;
     }
-    blocks.push(bc);
+    filteredCauses.push(bc);
   }
-  return blocks;
+  return filteredCauses;
+}
+
+export async function getBaseAndHeadCommit(
+  pipeline: GoCDPipeline
+): Promise<[string | null, string | null]> {
+  const buildCauses = filterBuildCauses(pipeline, 'git');
+  if (buildCauses.length === 0) {
+    return [null, null];
+  }
+
+  const latestBuildCause = buildCauses[0];
+  const latestModification = latestBuildCause.modifications[0];
+
+  const latestDeploy = await getLastGetSentryGoCDDeploy(
+    pipeline.group,
+    pipeline.name
+  );
+  if (!latestDeploy) {
+    return [null, latestModification.revision];
+  }
+
+  const latestSha = firstGitMaterialSHA(latestDeploy);
+  if (!latestSha) {
+    return [null, latestModification.revision];
+  }
+
+  return [latestSha, latestModification.revision];
 }

@@ -197,7 +197,7 @@ export const constructSlackMessage = (
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
           timeLeft: `${hoursText} ${minutesText} overdue`,
         });
-      } else if (hoursLeft == 0 && minutesLeft <= 0) {
+      } else if (hoursLeft === 0 && minutesLeft <= 0) {
         const minutesText =
           minutesLeft * -1 === 1
             ? `${minutesLeft * -1} minute`
@@ -207,7 +207,7 @@ export const constructSlackMessage = (
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
           timeLeft: `${minutesText} overdue`,
         });
-      } else if (hoursLeft == 0 && minutesLeft >= 0) {
+      } else if (hoursLeft === 0 && minutesLeft >= 0) {
         const minutesText =
           minutesLeft === 1
             ? `${minutesLeft} minute`

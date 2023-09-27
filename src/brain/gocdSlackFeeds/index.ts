@@ -1,4 +1,13 @@
+import { getUser } from '@/api/getUser';
+import { getAuthors } from '@/api/github/getAuthors';
 import { gocdevents } from '@/api/gocdevents';
+import {
+  context,
+  header,
+  markdown,
+  plaintext,
+  section,
+} from '@/blocks/slackBlocks';
 import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
@@ -10,6 +19,8 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDResponse } from '@/types';
+import { filterNulls } from '@/utils/arrays';
+import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 
 import { DeployFeed } from './deployFeed';
 
@@ -59,7 +70,7 @@ const devinfraFeed = new DeployFeed({
 
     // Checks failing typically indicate GitHub flaking or a temporary
     // issue with master. We have sentry alerts to monitor this.
-    if (pipeline.stage.name == 'checks') {
+    if (pipeline.stage.name === 'checks') {
       return false;
     }
 
@@ -108,6 +119,54 @@ const engineeringFeed = new DeployFeed({
     // We only really care about creating new messages if the pipeline has
     // failed.
     return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+  replyCallback: async (pipeline) => {
+    const hasFailedCanary =
+      pipeline.stage.name.includes('canary') &&
+      pipeline.stage.result.toLowerCase() === 'failed';
+    if (!hasFailedCanary) return [];
+    const [base, head] = await getBaseAndHeadCommit(pipeline);
+    if (!head) return [];
+    const authors = await getAuthors('getsentry', base, head);
+    // If there are no authors, we can't cc anyone
+    if (authors.length === 0) return [];
+    // Get all users who have a slack account
+    const users = filterNulls(
+      await Promise.all(
+        authors.map((author) =>
+          getUser({ email: author.email, githubUser: author.login })
+        )
+      )
+    ).filter((user) => user.slackUser);
+    // Filter out duplicate users
+    const uniqueUsers = users.filter(
+      (user, index, self) =>
+        index === self.findIndex((u) => u.slackUser === user.slackUser)
+    );
+    // If there are no users, we can't cc anyone
+    if (uniqueUsers.length === 0) return [];
+    // Pick at most 10 users to cc
+    const ccUsers = uniqueUsers.slice(0, 10);
+    const ccString = ccUsers
+      .map((user) => {
+        return `<@${user.slackUser}>`;
+      })
+      .join(' ');
+    return [
+      header(plaintext(':double_vertical_bar: Canary has been paused')),
+      section(
+        markdown(
+          'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+        )
+      ),
+      context(
+        markdown(
+          `cc'ing the following ${
+            uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+          }people who have commits in this deploy:\n${ccString}`
+        )
+      ),
+    ];
   },
 });
 
