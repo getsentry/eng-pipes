@@ -382,7 +382,7 @@ describe('requiredChecks', function () {
   });
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(() => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -695,7 +695,7 @@ describe('requiredChecks', function () {
   });
 
   it('saves state of a failed check, and updates slack message when it is passing again (ignoring any following failed tests)', async function () {
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(() => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {

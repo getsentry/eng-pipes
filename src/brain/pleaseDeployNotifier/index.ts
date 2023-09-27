@@ -209,7 +209,7 @@ async function handler({
 export async function pleaseDeployNotifier() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
-  bolt.action(/gocd-deploy/, async ({ ack, body, context }) => {
+  bolt.action(/gocd-deploy/, async ({ ack, body }) => {
     await ack();
     Sentry.withScope(async (scope) => {
       scope.setUser({

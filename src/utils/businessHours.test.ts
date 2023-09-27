@@ -35,7 +35,6 @@ import {
   getOffices,
   isChannelInBusinessHours,
 } from './businessHours';
-import * as businessHourfunctions from './businessHours';
 
 describe('businessHours tests', function () {
   let say, respond, client, ack;

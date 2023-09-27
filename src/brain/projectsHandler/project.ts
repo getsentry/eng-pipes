@@ -38,9 +38,7 @@ function isMissingNodeId(payload) {
 }
 
 export async function syncLabelsWithProjectField({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'projects_v2_item.edited'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',

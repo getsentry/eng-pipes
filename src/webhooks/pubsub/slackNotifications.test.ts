@@ -41,15 +41,6 @@ describe('Triage Notification Tests', function () {
   });
   describe('getTriageSLOTimestamp', function () {
     let getIssueDueDateFromProjectSpy;
-    const sampleComment = {
-      user: {
-        type: 'Bot',
-        login: 'getsantry[bot]',
-      },
-      body: `Routing to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/
-        #3-triage), due by **<time datetime=2023-01-05T16:00:00.000Z>Thu Jan 05 2023 16:00:00 GMT+0000</time>**.`,
-      created_at: '2022-12-27T21:14:14Z',
-    };
     beforeAll(function () {
       jest
         .spyOn(org, 'addIssueToGlobalIssuesProject')

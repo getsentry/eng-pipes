@@ -36,7 +36,7 @@ describe('pleaseDeployNotifier', function () {
     jest.spyOn(actions, 'actionViewUndeployedCommits');
 
     pleaseDeployNotifier();
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
@@ -1091,7 +1091,7 @@ describe('pleaseDeployNotifier', function () {
   });
 
   it('links user to frontend-only deploy from a getsentry commit', async function () {
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1271,7 +1271,7 @@ Remove "always()" from GHA workflows`,
   });
 
   it('links user to backend-only deploy from a getsentry commit', async function () {
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1451,7 +1451,7 @@ Remove "always()" from GHA workflows`,
   });
 
   it('does not allow frontend deploy if head commit is a backend change', async function () {
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
@@ -1656,14 +1656,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    org.api.paginate.mockImplementation((_, { ref, repo }) => {
+    org.api.paginate.mockImplementation((_, { ref, _repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {
@@ -1790,14 +1790,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    org.api.paginate.mockImplementation((_, { ref, repo }) => {
+    org.api.paginate.mockImplementation((_, { ref, _repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {
@@ -1972,14 +1972,14 @@ Remove "always()" from GHA workflows`,
       revision: '333333',
     });
 
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
     });
 
-    org.api.checks.listForRef.mockImplementation(({ ref, repo }) => {
+    org.api.checks.listForRef.mockImplementation(({ ref, _repo }) => {
       if (ref === '6d225cb77225ac655d817a7551a26fff85090fe6') {
         return [
           {

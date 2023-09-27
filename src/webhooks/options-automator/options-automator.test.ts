@@ -3,7 +3,6 @@ import testparitalpayload from '@test/payloads/options-automator/testpartialpayl
 import testpayload from '@test/payloads/options-automator/testpayload.json';
 
 import { buildServer } from '@/buildServer';
-import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
 
 import { messageSlack } from './options-automator';
@@ -30,13 +29,6 @@ describe('options-automator webhook', function () {
 });
 
 describe('test message slack', function () {
-  let boltPostMessageSpy;
-  const org = GETSENTRY_ORG;
-
-  beforeEach(async function () {
-    boltPostMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-  });
-
   afterEach(function () {
     jest.clearAllMocks();
   });

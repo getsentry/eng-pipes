@@ -28,9 +28,7 @@ function isWaitingForProductOwnerLabel(payload) {
 // Markers of State
 
 export async function markWaitingForProductOwner({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
@@ -76,9 +74,7 @@ export async function markWaitingForProductOwner({
 }
 
 export async function markNotWaitingForProductOwner({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',

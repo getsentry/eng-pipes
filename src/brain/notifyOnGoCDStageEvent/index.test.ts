@@ -130,7 +130,7 @@ describe('notifyOnGoCDStageEvent', function () {
       },
     }));
 
-    org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
+    org.api.repos.getCommit.mockImplementation(({ repo }) => {
       const defaultPayload = require('@test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
