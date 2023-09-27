@@ -228,8 +228,8 @@ export async function getNextAvailableBusinessHourWindow(
 
 export async function getOffices(
   productArea: string,
-  repo?: string,
-  org?: string
+  _repo?: string,
+  _org?: string
 ) {
   if (!productArea) {
     return [];

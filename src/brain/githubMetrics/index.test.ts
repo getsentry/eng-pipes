@@ -78,9 +78,12 @@ describe('github webhook', function () {
   });
 
   it('does not call insert on dry run', async function () {
+    // @ts-ignore
     DRY_RUN = true;
     await createGitHubEvent(fastify, 'pull_request');
     expect(mockInsert).not.toHaveBeenCalled();
+    // @ts-ignore
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     DRY_RUN = false;
   });
 

@@ -1,7 +1,5 @@
 import getStatsMessage from './getStatsMessage';
 
-const STATS_TEXT = 'Some random team stats';
-
 jest.mock('./getOwnershipData', () =>
   jest.fn(() => ({
     team1: {

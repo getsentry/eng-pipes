@@ -1,8 +1,6 @@
-import moment from 'moment-timezone';
-
 import { createGitHubEvent } from '@test/utils/github';
 
-import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
+import { getLabelsTable } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_ORG,
@@ -15,7 +13,6 @@ import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
-import * as isFromABot from '@utils/isFromABot';
 
 import { issueLabelHandler } from '.';
 
@@ -23,7 +20,6 @@ describe('issueLabelHandler', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG;
   const errors = jest.fn();
-  let say, respond, client, ack;
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
 
   beforeAll(async function () {
@@ -41,17 +37,6 @@ describe('issueLabelHandler', function () {
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
-    say = jest.fn();
-    respond = jest.fn();
-    client = {
-      conversations: {
-        info: jest
-          .fn()
-          .mockReturnValue({ channel: { name: 'test', is_member: true } }),
-        join: jest.fn(),
-      },
-    };
-    ack = jest.fn();
     jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
@@ -521,6 +506,7 @@ describe('issueLabelHandler', function () {
       modifyProjectIssueFieldSpy = jest
         .spyOn(org, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       addIssueToGlobalIssuesProjectSpy = jest
         .spyOn(org, 'addIssueToGlobalIssuesProject')
         .mockReturnValue('itemId');

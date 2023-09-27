@@ -41,9 +41,7 @@ function shouldLabelBeRemoved(labelName, target_name) {
 // Markers of State
 
 export async function markWaitingForSupport({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
@@ -101,9 +99,7 @@ async function routeIssue(org, productAreaLabelName) {
 }
 
 export async function markNotWaitingForSupport({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',

@@ -646,7 +646,7 @@ describe('DeployFeed', () => {
   });
 
   it('handle error if get content fails', async () => {
-    org.api.repos.getContent.mockImplementation((args) => {
+    org.api.repos.getContent.mockImplementation((_args) => {
       throw new Error('Injected error');
     });
 
