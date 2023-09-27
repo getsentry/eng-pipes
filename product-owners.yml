@@ -33,7 +33,7 @@ product_areas:
   - team-ospo
   Performance:
   - team-performance
-  Performance - Query Insights:
+  Performance - Queries:
   - team-starfish
   Profiling:
   - team-profiling
@@ -113,11 +113,11 @@ repos:
   sentry-electron: team-web-frontend-sdks
   sentry-elixir: team-web-backend-sdks
   sentry-go: team-web-backend-sdks
-  sentry-java: team-backend-sdks
+  sentry-java: team-cross-platform-java
   sentry-javascript: team-web-frontend-sdks
   sentry-javascript-bundler-plugins: team-web-frontend-sdks
   sentry-laravel: team-web-backend-sdks
-  sentry-native: team-mobile-sdks
+  sentry-native: team-cross-platform-native
   sentry-php: team-web-backend-sdks
   sentry-python: team-web-backend-sdks
   sentry-react-native: team-mobile-sdks
@@ -136,6 +136,13 @@ teams:
     offices:
     - sfo
     slack_channel: C049DHYN3LZ
+  team-cross-platform-java:
+    offices:
+    - vie
+    slack_channel: CL09TLWAF
+  team-cross-platform-native:
+    offices: null
+    slack_channel: C027HJCKP0V
   team-discover-and-dashboards:
     offices:
     - yyz
