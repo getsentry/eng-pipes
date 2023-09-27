@@ -187,7 +187,7 @@ describe('metrics tests', function () {
       testPayload.issue.labels = [];
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
-        teams: ['team-ospo'],
+        teams: ['team-issues'],
         product_area: null,
       });
     });
@@ -199,7 +199,7 @@ describe('metrics tests', function () {
       testPayload.issue.labels = [];
       const result = await insertOss('issues', testPayload);
       expect(result).toMatchObject({
-        teams: ['team-ospo'],
+        teams: ['team-issues'],
         product_area: null,
       });
     });
@@ -211,7 +211,7 @@ describe('metrics tests', function () {
       testPayload.comment = { id: 123, created_at: null, updated_at: null };
       const result = await insertOss('issue_comment', testPayload);
       expect(result).toMatchObject({
-        teams: ['team-ospo'],
+        teams: ['team-issues'],
         product_area: null,
       });
     });
