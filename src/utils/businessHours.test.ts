@@ -15,6 +15,7 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
+import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
@@ -272,12 +273,14 @@ describe('businessHours tests', function () {
     });
 
     it('should calculate SLO violation if label is unrouted', async function () {
+      const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
       const result = await calculateSLOViolationRoute(
         WAITING_FOR_SUPPORT_LABEL,
         'routing-repo',
         GETSENTRY_ORG.slug
       );
       expect(result).not.toEqual(null);
+      expect(captureMessageSpy).not.toHaveBeenCalled();
     });
   });
 
