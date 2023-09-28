@@ -1,3 +1,5 @@
+import '@sentry/tracing';
+
 import * as Sentry from '@sentry/node';
 
 import { BuildStatus, Color } from '@/config';

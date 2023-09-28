@@ -35,9 +35,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/types", "npm:6.34.0"],\
             ["@octokit/webhooks", "npm:11.0.0"],\
             ["@sentry/cli", "npm:2.20.1"],\
-            ["@sentry/integrations", "npm:6.16.1"],\
-            ["@sentry/node", "npm:6.16.1"],\
-            ["@sentry/tracing", "npm:6.16.1"],\
+            ["@sentry/integrations", "npm:7.72.0"],\
+            ["@sentry/node", "npm:7.72.0"],\
+            ["@sentry/tracing", "npm:7.72.0"],\
             ["@slack/bolt", "npm:3.1.1"],\
             ["@slack/types", "npm:2.0.0"],\
             ["@slack/web-api", "npm:6.0.0"],\
@@ -1910,6 +1910,19 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@sentry-internal/tracing", [\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-internal-tracing-npm-7.72.0-406c899356-10917f9bad.zip/node_modules/@sentry-internal/tracing/",\
+          "packageDependencies": [\
+            ["@sentry-internal/tracing", "npm:7.72.0"],\
+            ["@sentry/core", "npm:7.72.0"],\
+            ["@sentry/types", "npm:7.72.0"],\
+            ["@sentry/utils", "npm:7.72.0"],\
+            ["tslib", "npm:2.6.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@sentry/cli", [\
         ["npm:2.20.1", {\
           "packageLocation": "./.yarn/unplugged/@sentry-cli-npm-2.20.1-5b79d11da4/node_modules/@sentry/cli/",\
@@ -1925,104 +1938,73 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@sentry/core", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-core-npm-6.16.1-ccb2712d14-76f49b270d.zip/node_modules/@sentry/core/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-core-npm-7.72.0-a7ca716b95-e85473d0d9.zip/node_modules/@sentry/core/",\
           "packageDependencies": [\
-            ["@sentry/core", "npm:6.16.1"],\
-            ["@sentry/hub", "npm:6.16.1"],\
-            ["@sentry/minimal", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["@sentry/utils", "npm:6.16.1"],\
-            ["tslib", "npm:1.12.0"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@sentry/hub", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-hub-npm-6.16.1-a54b11cd35-032cd76e9d.zip/node_modules/@sentry/hub/",\
-          "packageDependencies": [\
-            ["@sentry/hub", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["@sentry/utils", "npm:6.16.1"],\
-            ["tslib", "npm:1.12.0"]\
+            ["@sentry/core", "npm:7.72.0"],\
+            ["@sentry/types", "npm:7.72.0"],\
+            ["@sentry/utils", "npm:7.72.0"],\
+            ["tslib", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sentry/integrations", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-integrations-npm-6.16.1-12c492ea65-966213e0ab.zip/node_modules/@sentry/integrations/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-integrations-npm-7.72.0-d458eabe5d-42d3ecbe43.zip/node_modules/@sentry/integrations/",\
           "packageDependencies": [\
-            ["@sentry/integrations", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["@sentry/utils", "npm:6.16.1"],\
+            ["@sentry/integrations", "npm:7.72.0"],\
+            ["@sentry/types", "npm:7.72.0"],\
+            ["@sentry/utils", "npm:7.72.0"],\
             ["localforage", "npm:1.9.0"],\
-            ["tslib", "npm:1.12.0"]\
-          ],\
-          "linkType": "HARD"\
-        }]\
-      ]],\
-      ["@sentry/minimal", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-minimal-npm-6.16.1-6e33d9c96c-c928c94ce7.zip/node_modules/@sentry/minimal/",\
-          "packageDependencies": [\
-            ["@sentry/minimal", "npm:6.16.1"],\
-            ["@sentry/hub", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["tslib", "npm:1.12.0"]\
+            ["tslib", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sentry/node", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-node-npm-6.16.1-824338bc82-f682f57cb2.zip/node_modules/@sentry/node/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-node-npm-7.72.0-bee0343d67-b1a44ff054.zip/node_modules/@sentry/node/",\
           "packageDependencies": [\
-            ["@sentry/node", "npm:6.16.1"],\
-            ["@sentry/core", "npm:6.16.1"],\
-            ["@sentry/hub", "npm:6.16.1"],\
-            ["@sentry/tracing", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["@sentry/utils", "npm:6.16.1"],\
-            ["cookie", "npm:0.4.1"],\
+            ["@sentry/node", "npm:7.72.0"],\
+            ["@sentry-internal/tracing", "npm:7.72.0"],\
+            ["@sentry/core", "npm:7.72.0"],\
+            ["@sentry/types", "npm:7.72.0"],\
+            ["@sentry/utils", "npm:7.72.0"],\
+            ["cookie", "npm:0.5.0"],\
             ["https-proxy-agent", "npm:5.0.0"],\
             ["lru_map", "npm:0.3.3"],\
-            ["tslib", "npm:1.12.0"]\
+            ["tslib", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sentry/tracing", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-tracing-npm-6.16.1-750c5653cd-c6a6f7acbd.zip/node_modules/@sentry/tracing/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-tracing-npm-7.72.0-0daf131d02-604baec341.zip/node_modules/@sentry/tracing/",\
           "packageDependencies": [\
-            ["@sentry/tracing", "npm:6.16.1"],\
-            ["@sentry/hub", "npm:6.16.1"],\
-            ["@sentry/minimal", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["@sentry/utils", "npm:6.16.1"],\
-            ["tslib", "npm:1.12.0"]\
+            ["@sentry/tracing", "npm:7.72.0"],\
+            ["@sentry-internal/tracing", "npm:7.72.0"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sentry/types", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-types-npm-6.16.1-1ec86a14a4-994791c471.zip/node_modules/@sentry/types/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-types-npm-7.72.0-50f7c75d34-1122ef5c87.zip/node_modules/@sentry/types/",\
           "packageDependencies": [\
-            ["@sentry/types", "npm:6.16.1"]\
+            ["@sentry/types", "npm:7.72.0"]\
           ],\
           "linkType": "HARD"\
         }]\
       ]],\
       ["@sentry/utils", [\
-        ["npm:6.16.1", {\
-          "packageLocation": "./.yarn/cache/@sentry-utils-npm-6.16.1-1f5a50ce50-6a94b7a470.zip/node_modules/@sentry/utils/",\
+        ["npm:7.72.0", {\
+          "packageLocation": "./.yarn/cache/@sentry-utils-npm-7.72.0-9563a19fd0-0cd88bb7b6.zip/node_modules/@sentry/utils/",\
           "packageDependencies": [\
-            ["@sentry/utils", "npm:6.16.1"],\
-            ["@sentry/types", "npm:6.16.1"],\
-            ["tslib", "npm:1.12.0"]\
+            ["@sentry/utils", "npm:7.72.0"],\
+            ["@sentry/types", "npm:7.72.0"],\
+            ["tslib", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -9958,9 +9940,9 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/types", "npm:6.34.0"],\
             ["@octokit/webhooks", "npm:11.0.0"],\
             ["@sentry/cli", "npm:2.20.1"],\
-            ["@sentry/integrations", "npm:6.16.1"],\
-            ["@sentry/node", "npm:6.16.1"],\
-            ["@sentry/tracing", "npm:6.16.1"],\
+            ["@sentry/integrations", "npm:7.72.0"],\
+            ["@sentry/node", "npm:7.72.0"],\
+            ["@sentry/tracing", "npm:7.72.0"],\
             ["@slack/bolt", "npm:3.1.1"],\
             ["@slack/types", "npm:2.0.0"],\
             ["@slack/web-api", "npm:6.0.0"],\
@@ -10892,6 +10874,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./.yarn/cache/tslib-npm-1.12.0-ad2f310c6d-80cb5c4c86.zip/node_modules/tslib/",\
           "packageDependencies": [\
             ["tslib", "npm:1.12.0"]\
+          ],\
+          "linkType": "HARD"\
+        }],\
+        ["npm:2.6.2", {\
+          "packageLocation": "./.yarn/cache/tslib-npm-2.6.2-4fc8c068d9-329ea56123.zip/node_modules/tslib/",\
+          "packageDependencies": [\
+            ["tslib", "npm:2.6.2"]\
           ],\
           "linkType": "HARD"\
         }]\
