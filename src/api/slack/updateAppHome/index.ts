@@ -19,7 +19,7 @@ export async function updateAppHome(slackUser: string) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*Welcome home, <@${slackUser}> :house:* - this is under :construction:`,
+        text: `*Welcome home, <@${slackUser}> :house:*`,
       },
     },
     {
@@ -33,16 +33,46 @@ export async function updateAppHome(slackUser: string) {
 
   // If user has a known github login, then show deploy notification prefs
   if (user?.githubUser) {
-    blocks.push({
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: `Deploy Notifications (currently: ${
-          disableSlackNotifications ? 'off' : 'on'
-        })`,
-        emoji: true,
+    blocks.push(
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: `Deploy Notifications (currently: ${
+            disableSlackNotifications ? 'off' : 'on'
+          })`,
+          emoji: true,
+        },
       },
-    });
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Your GitHub username is currently set to *${user.githubUser}*`,
+        },
+      },
+      {
+        type: 'input',
+        block_id: 'github-login-input',
+        dispatch_action: true,
+        label: {
+          type: 'plain_text',
+          text: 'Update GitHub username',
+        },
+        element: {
+          type: 'plain_text_input',
+          action_id: 'set-github-login',
+          placeholder: {
+            type: 'plain_text',
+            text: 'Enter your GitHub username and press Enter to save',
+          },
+          initial_value: user.githubUser,
+          dispatch_action_config: {
+            trigger_actions_on: ['on_enter_pressed'],
+          },
+        },
+      }
+    );
     blocks.push({
       type: 'actions',
       elements: [
