@@ -126,10 +126,7 @@ const engineeringFeed = new DeployFeed({
       pipeline.stage.result.toLowerCase() === 'failed';
     if (!hasFailedCanary) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
-    if (!head) return [];
-    const authors = await getAuthors('getsentry', base, head);
-    // If there are no authors, we can't cc anyone
-    if (authors.length === 0) return [];
+    const authors = head ? await getAuthors('getsentry', base, head) : [];
     // Get all users who have a slack account
     const users = filterNulls(
       await Promise.all(
@@ -143,8 +140,6 @@ const engineeringFeed = new DeployFeed({
       (user, index, self) =>
         index === self.findIndex((u) => u.slackUser === user.slackUser)
     );
-    // If there are no users, we can't cc anyone
-    if (uniqueUsers.length === 0) return [];
     // Pick at most 10 users to cc
     const ccUsers = uniqueUsers.slice(0, 10);
     const ccString = ccUsers
@@ -152,21 +147,26 @@ const engineeringFeed = new DeployFeed({
         return `<@${user.slackUser}>`;
       })
       .join(' ');
-    return [
+    const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
       section(
         markdown(
           'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
         )
       ),
-      context(
-        markdown(
-          `cc'ing the following ${
-            uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
-          }people who have commits in this deploy:\n${ccString}`
-        )
-      ),
     ];
+    if (ccUsers.length > 0) {
+      blocks.push(
+        context(
+          markdown(
+            `cc'ing the following ${
+              uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+            }people who have commits in this deploy:\n${ccString}`
+          )
+        )
+      );
+    }
+    return blocks;
   },
 });
 

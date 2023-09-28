@@ -228,6 +228,184 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
+  it('post and update message to all feeds without author', async function () {
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'notGithubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const canaryReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+        ),
+        slackblocks.section(
+          slackblocks.markdown(
+            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+          )
+        ),
+      ],
+    };
+
+    const wantPostMsg = {
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *deploy-canary*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(canaryReply);
+    expect(postCalls[1][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(postCalls[2][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(postCalls[3][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    let slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+
+    const wantSlack = {
+      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
+      channel: 'channel_id',
+      ts: '1234123.123',
+      context: {
+        text: 'GoCD deployment started',
+      },
+    };
+    expect(slackMessages[0]).toMatchObject(wantSlack);
+    expect(slackMessages[1]).toMatchObject(wantSlack);
+    expect(slackMessages[2]).toMatchObject(wantSlack);
+
+    // Second Event
+    await handler(
+      merge({}, gocdPayload, {
+        data: {
+          pipeline: {
+            stage: {
+              'approved-by': 'changes',
+              result: 'Passed',
+            },
+          },
+        },
+      })
+    );
+
+    const wantUpdate = {
+      ts: '1234123.123',
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('✅ *deploy-canary*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Passed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+    // The reply message is not updated
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    updateCalls.sort(sortMessages);
+    expect(updateCalls[0][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(updateCalls[1][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(updateCalls[2][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+  });
+
   it('post and update message to all feeds with multiple authors', async function () {
     getUser.mockImplementation((args) => {
       switch (args.email) {
