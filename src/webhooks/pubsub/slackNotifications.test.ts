@@ -743,32 +743,6 @@ describe('Triage Notification Tests', function () {
       });
     });
     it('should always notify if issue SLA is in the act fast queue on every hour', async function () {
-      const notificationChannels = {
-        channel1: ['Product Area: Test'],
-        channel2: ['Product Area: Test', 'Product Area: Other'],
-      };
-      const productAreaToIssuesMap = {
-        'Product Area: Test': [
-          {
-            url: 'https://test.com/issues/1',
-            number: 1,
-            title: 'Test Issue',
-            productAreaLabel: 'Product Area: Test',
-            triageBy: '2022-12-12T21:00:00.000Z',
-            createdAt: '2022-12-10T21:00:00.000Z',
-          },
-        ],
-        'Product Area: Other': [
-          {
-            url: 'https://test.com/issues/2',
-            number: 2,
-            title: 'Open Source Issue',
-            productAreaLabel: 'Product Area: Other',
-            triageBy: '2022-12-12T20:00:00.000Z',
-            createdAt: '2022-12-10T21:00:00.000Z',
-          },
-        ],
-      };
       const channelToIssuesMap = {
         channel1: [
           {

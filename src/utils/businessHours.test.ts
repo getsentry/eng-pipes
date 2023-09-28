@@ -17,7 +17,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import moment from 'moment-timezone';
 
-import { getLabelsTable, slackHandler } from '@/brain/issueNotifier';
+import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   GETSENTRY_ORG,
   MAX_ROUTE_DAYS,
@@ -25,7 +25,6 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import {
@@ -36,7 +35,6 @@ import {
 } from './businessHours';
 
 describe('businessHours tests', function () {
-  let say, respond, client, ack;
   beforeAll(async function () {
     await db.migrate.latest();
     await getLabelsTable().insert({
@@ -59,17 +57,6 @@ describe('businessHours tests', function () {
       channel_id: 'CHNLIDRND1',
       offices: ['sfo'],
     });
-    say = jest.fn();
-    respond = jest.fn();
-    client = {
-      conversations: {
-        info: jest
-          .fn()
-          .mockReturnValue({ channel: { name: 'test', is_member: true } }),
-        join: jest.fn(),
-      },
-    };
-    ack = jest.fn();
   });
   afterAll(async function () {
     await db('label_to_channel').delete();
@@ -295,6 +282,16 @@ describe('businessHours tests', function () {
   });
 
   describe('calculateSLOViolationTriage', function () {
+    it('should calculate SLO violation when product area is not defined', async function () {
+      const result = await calculateSLOViolationTriage(
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        [{ name: 'Test' }],
+        'routing-repo',
+        GETSENTRY_ORG.slug
+      );
+      expect(result).not.toEqual(null);
+    });
+
     it('should not calculate SLO violation if label is not untriaged', async function () {
       const result = await calculateSLOViolationTriage(
         'Status: Test',

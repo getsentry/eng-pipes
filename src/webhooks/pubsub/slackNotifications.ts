@@ -455,13 +455,12 @@ export const notifyProductOwnersForUntriagedIssues = async (
   issuesToNotifyAbout.forEach((data) => {
     if (data.channels) {
       data.channels.forEach((channel) => {
-        if (
-          channel.channelId in channelToIssuesMap &&
-          channel.isChannelInBusinessHours
-        ) {
-          channelToIssuesMap[channel.channelId].push(data);
-        } else {
-          channelToIssuesMap[channel.channelId] = [data];
+        if (channel.isChannelInBusinessHours) {
+          if (channel.channelId in channelToIssuesMap) {
+            channelToIssuesMap[channel.channelId].push(data);
+          } else {
+            channelToIssuesMap[channel.channelId] = [data];
+          }
         }
       });
     }

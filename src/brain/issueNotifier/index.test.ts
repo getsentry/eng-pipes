@@ -7,7 +7,7 @@ import {
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { getLabelsTable, githubLabelHandler, slackHandler } from '.';
+import { getLabelsTable, githubLabelHandler } from '.';
 
 const NUM_CHANNELS = 2;
 
