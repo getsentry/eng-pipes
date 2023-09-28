@@ -47,9 +47,7 @@ function isIssueClosed(payload) {
 // Markers of State
 
 export async function updateFollowupsOnComment({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issue_comment.created'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
@@ -137,9 +135,7 @@ export async function updateFollowupsOnComment({
 }
 
 export async function clearWaitingForProductOwnerStatus({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.unlabeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
@@ -179,9 +175,7 @@ export async function clearWaitingForProductOwnerStatus({
 }
 
 export async function ensureOneWaitingForLabel({
-  id,
   payload,
-  ...rest
 }: EmitterWebhookEvent<'issues.labeled'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',

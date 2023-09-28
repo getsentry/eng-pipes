@@ -7,7 +7,7 @@ import * as Sentry from '@sentry/node';
  * based on the service name.
  */
 
-export function WebhookRouter(server) {
+export function WebhookRouter(_server) {
   return async function (request, reply) {
     const rootDir = __dirname;
     let handler;

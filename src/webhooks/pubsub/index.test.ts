@@ -17,8 +17,6 @@ class MockReply {
 }
 
 describe('slack app', function () {
-  let reply;
-
   async function pubSub(operationSlug: string) {
     const request = {
       body: {

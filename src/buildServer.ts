@@ -73,7 +73,7 @@ export async function buildServer(
     }
   );
 
-  server.get('/', {}, async (request, reply) => {
+  server.get('/', {}, async (_request, _reply) => {
     return '';
   });
 

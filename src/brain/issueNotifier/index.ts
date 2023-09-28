@@ -14,7 +14,7 @@ import { wrapHandler } from '@utils/wrapHandler';
 export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
-  payload: { issue, label, repository },
+  payload: { issue, label },
 }: EmitterWebhookEvent<'issues.labeled'>): Promise<void> => {
   if (!label) {
     return undefined;
