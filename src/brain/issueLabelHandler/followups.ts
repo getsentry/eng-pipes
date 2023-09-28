@@ -1,3 +1,5 @@
+import '@sentry/tracing';
+
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
