@@ -363,10 +363,6 @@ export const constructSlackMessage = (
         blocks: messageBlocks,
       })
       .then(async () => {
-        // Would be helpful to have some logs around sending slack triage notifications for debugging
-        // TODO(getsentry/eng-pipes#641): Remove this
-        // eslint-disable-next-line no-console
-        console.log(`Sent slack triage message to ${channelId}.`);
         await getChannelLastNotifiedTable()
           .insert({ channel_id: channelId, last_notified_at: now })
           .onConflict('channel_id')
