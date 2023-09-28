@@ -141,8 +141,7 @@ teams:
     - vie
     slack_channel: CL09TLWAF
   team-cross-platform-native:
-    offices:
-    - vie
+    offices: null
     slack_channel: C027HJCKP0V
   team-discover-and-dashboards:
     offices:
@@ -168,7 +167,7 @@ teams:
   team-mobile-sdks:
     offices:
     - vie
-    slack_channel: CP4UUUF1S
+    slack_channel: C0190510ABF
   team-ospo:
     offices:
     - sea
