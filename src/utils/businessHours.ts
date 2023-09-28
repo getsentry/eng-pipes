@@ -86,12 +86,7 @@ export async function calculateSLOViolationRoute(
   org: string
 ) {
   if (target_name === WAITING_FOR_SUPPORT_LABEL) {
-    return calculateTimeToRespondBy(
-      MAX_ROUTE_DAYS,
-      'Product Area: Unknown',
-      repo,
-      org
-    );
+    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Unknown', repo, org);
   }
   return null;
 }
