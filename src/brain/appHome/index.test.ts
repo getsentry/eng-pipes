@@ -50,7 +50,7 @@ describe('appHome', function () {
       Array [
         Object {
           "text": Object {
-            "text": "*Welcome home, <@U018H4DA8N5> :house:* - this is under :construction:",
+            "text": "*Welcome home, <@U018H4DA8N5> :house:*",
             "type": "mrkdwn",
           },
           "type": "section",
@@ -69,6 +69,36 @@ describe('appHome', function () {
             "type": "plain_text",
           },
           "type": "header",
+        },
+        Object {
+          "text": Object {
+            "text": "Your GitHub username is currently set to *githubUser*",
+            "type": "mrkdwn",
+          },
+          "type": "section",
+        },
+        Object {
+          "block_id": "github-login-input",
+          "dispatch_action": true,
+          "element": Object {
+            "action_id": "set-github-login",
+            "dispatch_action_config": Object {
+              "trigger_actions_on": Array [
+                "on_enter_pressed",
+              ],
+            },
+            "initial_value": "githubUser",
+            "placeholder": Object {
+              "text": "Enter your GitHub username and press Enter to save",
+              "type": "plain_text",
+            },
+            "type": "plain_text_input",
+          },
+          "label": Object {
+            "text": "Update GitHub username",
+            "type": "plain_text",
+          },
+          "type": "input",
         },
         Object {
           "elements": Array [
@@ -138,7 +168,7 @@ describe('appHome', function () {
       Array [
         Object {
           "text": Object {
-            "text": "*Welcome home, <@U018H4DA8N5> :house:* - this is under :construction:",
+            "text": "*Welcome home, <@U018H4DA8N5> :house:*",
             "type": "mrkdwn",
           },
           "type": "section",
@@ -167,6 +197,7 @@ describe('appHome', function () {
                 "on_enter_pressed",
               ],
             },
+            "initial_value": "",
             "placeholder": Object {
               "text": "Enter your GitHub username and press Enter to save",
               "type": "plain_text",
