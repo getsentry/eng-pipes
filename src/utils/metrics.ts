@@ -1,8 +1,7 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
-import { DRY_RUN, PROJECT } from '@/config';
-import { PRODUCT_AREA_LABEL_PREFIX } from '@/config';
+import { DRY_RUN, PRODUCT_AREA_LABEL_PREFIX, PROJECT } from '@/config';
 
 import {
   calculateSLOViolationRoute,

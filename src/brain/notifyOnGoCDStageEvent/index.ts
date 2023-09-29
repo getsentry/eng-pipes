@@ -7,8 +7,8 @@ import {
   GoCDBuildCause,
   GoCDPipeline,
   GoCDResponse,
+  GoCDStageData,
 } from '@types';
-import { GoCDStageData } from '@types';
 
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';

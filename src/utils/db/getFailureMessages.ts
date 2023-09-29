@@ -1,5 +1,4 @@
-import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
-import { BuildStatus } from '@/config';
+import { BuildStatus, GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { db } from '@utils/db';
 import { getTimestamp } from '@utils/db/getTimestamp';
