@@ -25,6 +25,7 @@ module.exports = {
     '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
     'prefer-const': 'error',
     'default-case': 'error',
+    'no-duplicate-imports': 'error',
     eqeqeq: ['error', 'smart'],
     'simple-import-sort/imports': [
       'error',
