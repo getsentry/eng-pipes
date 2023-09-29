@@ -18,6 +18,8 @@ export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 export const SENTRY_REPO_SLUG = process.env.SENTRY_REPO || 'sentry';
 export const GETSENTRY_REPO_SLUG = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
+export const GOCD_SENTRYIO_FE_PIPELINE_GROUP =
+  process.env.GOCD_SENTRYIO_FE_PIPELINE_GROUP || 'getsentry-frontend';
 export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry-frontend';
 export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =

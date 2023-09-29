@@ -19,7 +19,7 @@ export async function updateAppHome(slackUser: string) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*Welcome home, <@${slackUser}> :house:* - this is under :construction:`,
+        text: `*Welcome home, <@${slackUser}> :house:*`,
       },
     },
     {

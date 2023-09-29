@@ -1,5 +1,4 @@
-import { getUser } from '@/api/getUser';
-import { getAuthors } from '@/api/github/getAuthors';
+import { getCommitterSlackUsers } from '@/api/github/getAuthors';
 import { gocdevents } from '@/api/gocdevents';
 import {
   context,
@@ -14,12 +13,12 @@ import {
   FEED_ENGINEERING_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
+  GETSENTRY_REPO_SLUG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDResponse } from '@/types';
-import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 
 import { DeployFeed } from './deployFeed';
@@ -127,29 +126,14 @@ const engineeringFeed = new DeployFeed({
     if (!hasFailedCanary) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
     if (!head) return [];
-    const authors = await getAuthors('getsentry', base, head);
-    // If there are no authors, we can't cc anyone
-    if (authors.length === 0) return [];
-    // Get all users who have a slack account
-    const users = filterNulls(
-      await Promise.all(
-        authors.map((author) =>
-          getUser({ email: author.email, githubUser: author.login })
-        )
-      )
-    ).filter((user) => user.slackUser);
-    // Filter out duplicate users
-    const uniqueUsers = users.filter(
-      (user, index, self) =>
-        index === self.findIndex((u) => u.slackUser === user.slackUser)
-    );
+    const users = await getCommitterSlackUsers(GETSENTRY_REPO_SLUG, base, head);
     // If there are no users, we can't cc anyone
-    if (uniqueUsers.length === 0) return [];
+    if (users.length === 0) return [];
     // Pick at most 10 users to cc
-    const ccUsers = uniqueUsers.slice(0, 10);
+    const ccUsers = users.slice(0, 10);
     const ccString = ccUsers
       .map((user) => {
-        return `<@${user.slackUser}>`;
+        return `<@${user}>`;
       })
       .join(' ');
     return [
@@ -162,7 +146,7 @@ const engineeringFeed = new DeployFeed({
       context(
         markdown(
           `cc'ing the following ${
-            uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+            users.length > ccUsers.length ? `${ccUsers.length} of ${users.length} ` : ''
           }people who have commits in this deploy:\n${ccString}`
         )
       ),
