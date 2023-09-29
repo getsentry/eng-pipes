@@ -197,6 +197,7 @@ describe('appHome', function () {
                 "on_enter_pressed",
               ],
             },
+            "initial_value": "",
             "placeholder": Object {
               "text": "Enter your GitHub username and press Enter to save",
               "type": "plain_text",
