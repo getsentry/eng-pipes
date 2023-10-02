@@ -172,6 +172,8 @@ export async function getNextAvailableBusinessHourWindow(
     });
   });
   // Sort the business hours by the starting date, we only care about the closest business hour window
-  businessHourWindows.sort((a: any, b: any) => a.start - b.start);
+  businessHourWindows.sort((a: BusinessHourWindow, b: BusinessHourWindow) =>
+    a.start.diff(b.start)
+  );
   return businessHourWindows[0];
 }

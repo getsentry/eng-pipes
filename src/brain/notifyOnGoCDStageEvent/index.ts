@@ -120,7 +120,7 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
 async function updateSlack(
   pipeline: GoCDPipeline,
   relevantCommitShas: Array<string>
-): Promise<Array<Promise<any>>> {
+): Promise<Array<Promise<void>>> {
   // Look for associated slack messages based on getsentry commit sha
   const messages = await getSlackMessage(
     SlackMessage.PLEASE_DEPLOY,
