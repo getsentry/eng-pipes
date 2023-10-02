@@ -123,7 +123,10 @@ const engineeringFeed = new DeployFeed({
   replyCallback: async (pipeline) => {
     const hasFailedCanary =
       pipeline.stage.name.includes('canary') &&
-      pipeline.stage.result.toLowerCase() === 'failed';
+      pipeline.stage.result.toLowerCase() === 'failed' &&
+      pipeline.stage.jobs
+        .find((job) => job.name === 'deploy-backend')
+        ?.result.toLowerCase() === 'failed';
     if (!hasFailedCanary) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
     const authors = head ? await getAuthors('getsentry', base, head) : [];
