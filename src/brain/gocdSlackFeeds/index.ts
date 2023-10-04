@@ -150,11 +150,12 @@ const engineeringFeed = new DeployFeed({
         return `<@${user.slackUser}>`;
       })
       .join(' ');
+    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/${pipeline.counter}/deploy-canary/${pipeline.stage.counter}/deploy-backend`;
     const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
       section(
         markdown(
-          'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+          `Please check the errors in the <${gocdLogsLink}|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.`
         )
       ),
     ];

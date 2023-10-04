@@ -99,7 +99,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.section(
           slackblocks.markdown(
-            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+            'Please check the errors in the <https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
           )
         ),
         slackblocks.context(
@@ -460,7 +460,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.section(
           slackblocks.markdown(
-            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+            'Please check the errors in the <https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
           )
         ),
       ],
@@ -662,7 +662,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.section(
           slackblocks.markdown(
-            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+            'Please check the errors in the <https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
           )
         ),
         slackblocks.context(
@@ -917,7 +917,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.section(
           slackblocks.markdown(
-            'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
+            'Please check the errors in the <https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
           )
         ),
         slackblocks.context(
