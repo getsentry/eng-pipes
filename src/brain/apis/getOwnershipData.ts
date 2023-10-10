@@ -1,12 +1,12 @@
-import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '@/config';
+import { GETSENTRY_ORG } from '@/config';
 
-const OWNERSHIP_FILE_PATH =
-  'src/sentry/apidocs/api_ownership_stats_dont_modify.json';
+const OWNERSHIP_FILE_PATH = 'api_ownership_stats_dont_modify.json';
+const SENTRY_API_SCHEMA = 'sentry-api-schema';
 
 export default async function getOwnershipData() {
   const resp = await GETSENTRY_ORG.api.rest.repos.getContent({
     owner: GETSENTRY_ORG.slug,
-    repo: SENTRY_REPO_SLUG,
+    repo: SENTRY_API_SCHEMA,
     path: OWNERSHIP_FILE_PATH,
   });
 
