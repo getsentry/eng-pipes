@@ -259,3 +259,22 @@ export async function ensureOneWaitingForLabel({
 
   tx.finish();
 }
+
+export async function cleanLabelsOnClosedIssues({
+  payload,
+}: EmitterWebhookEvent<'issues.closed'>) {
+  const org = GH_ORGS.getForPayload(payload);
+  const repo = payload.repository.name;
+  const issueNumber = payload.issue.number;
+  const labelName = payload.issue.labels?.find(({ name }) =>
+    name.startsWith(WAITING_FOR_LABEL_PREFIX)
+  )?.name;
+  if (labelName) {
+    await org.api.issues.removeLabel({
+      owner: org.slug,
+      repo: repo,
+      issue_number: issueNumber,
+      name: labelName,
+    });
+  }
+}

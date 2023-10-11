@@ -1,6 +1,7 @@
 import { githubEvents } from '@api/github';
 
 import {
+  cleanLabelsOnClosedIssues,
   clearWaitingForProductOwnerStatus,
   ensureOneWaitingForLabel,
   updateFollowupsOnComment,
@@ -34,4 +35,6 @@ export async function issueLabelHandler() {
     clearWaitingForProductOwnerStatus
   );
   githubEvents.on('issues.unlabeled', clearWaitingForProductOwnerStatus);
+  githubEvents.removeListener('issues.closed', cleanLabelsOnClosedIssues);
+  githubEvents.on('issues.closed', cleanLabelsOnClosedIssues);
 }
