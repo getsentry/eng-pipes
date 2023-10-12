@@ -12,8 +12,9 @@ type teamScoreInfo = {
   numEvents: number;
 };
 
-const TEAM_COLUMN_WIDTH = 35;
+const TEAM_COLUMN_WIDTH = 30;
 const SCORE_COLUMN_WIDTH = 25;
+const TEAM_PREFIX = 'team-';
 
 export const triggerSlackScores = async (
   __org: GitHubOrg,
@@ -30,7 +31,7 @@ export const triggerSlackScores = async (
           ? 1
           : triagedEvents.length / issueTriageEvents.length;
       return {
-        team,
+        team: team.slice(TEAM_PREFIX.length),
         score,
         eventsTriagedOnTime: triagedEvents.length,
         numEvents: issueTriageEvents.length,
@@ -50,7 +51,7 @@ export const triggerSlackScores = async (
     },
   ];
   let scoreBoard =
-    '┌──────────────────────────────────────────────────────────────┐\n| Team                              │ GitHub Responses on Time |\n├──────────────────────────────────────────────────────────────┤\n';
+    '┌──────────────────────────────────────────────────────────┐\n| Team                          │ GitHub Responses on Time |\n├──────────────────────────────────────────────────────────┤\n';
   const addSpaces = (entry: string, column: string) => {
     if (column === 'team') {
       return entry + ' '.repeat(TEAM_COLUMN_WIDTH - entry.length);
@@ -62,12 +63,12 @@ export const triggerSlackScores = async (
     const scoreText = `${teamScoreInfo.eventsTriagedOnTime}/${
       teamScoreInfo.numEvents
     } (${teamScoreInfo.score.toLocaleString('en', { style: 'percent' })})`;
-    scoreBoard += `|${addSpaces(teamText, 'team')}| ${addSpaces(
+    scoreBoard += `| ${addSpaces(teamText, 'team')}| ${addSpaces(
       scoreText,
       'score'
     )}|\n`;
   });
-  scoreBoard += `└──────────────────────────────────────────────────────────────┘`;
+  scoreBoard += `└──────────────────────────────────────────────────────────┘`;
   messageBlocks.push({
     type: 'section',
     // Unsure why, but ts is complaining about missing emoji field, but slack api rejects the field
