@@ -13,7 +13,7 @@ type teamScoreInfo = {
 };
 
 const TEAM_COLUMN_WIDTH = 30;
-const SCORE_COLUMN_WIDTH = 25;
+const SCORE_COLUMN_WIDTH = 15;
 const TEAM_PREFIX = 'team-';
 
 export const triggerSlackScores = async (
@@ -26,10 +26,7 @@ export const triggerSlackScores = async (
       const triagedEvents = issueTriageEvents.filter(
         (issue) => issue.is_triaged
       );
-      const score =
-        issueTriageEvents.length === 0
-          ? 1
-          : triagedEvents.length / issueTriageEvents.length;
+      const score = triagedEvents.length / issueTriageEvents.length;
       return {
         team: team.slice(TEAM_PREFIX.length),
         score,
@@ -45,13 +42,13 @@ export const triggerSlackScores = async (
       type: 'header',
       text: {
         type: 'plain_text',
-        text: '🗓️ Weekly Team GitHub Engagement Scores 🗓️',
+        text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
         emoji: true,
       },
     },
   ];
   let scoreBoard =
-    '┌──────────────────────────────────────────────────────────┐\n| Team                          │ GitHub Responses on Time |\n├──────────────────────────────────────────────────────────┤\n';
+    '┌────────────────────────────────────────────────┐\n| Team                          │ % on Time      |\n├────────────────────────────────────────────────┤\n';
   const addSpaces = (entry: string, column: string) => {
     if (column === 'team') {
       return entry + ' '.repeat(TEAM_COLUMN_WIDTH - entry.length);
@@ -59,16 +56,17 @@ export const triggerSlackScores = async (
     return entry + ' '.repeat(SCORE_COLUMN_WIDTH - entry.length);
   };
   teamScores.forEach((teamScoreInfo: teamScoreInfo) => {
+    const score = Number.isNaN(teamScoreInfo.score)
+      ? 100
+      : (teamScoreInfo.score * 100).toFixed(0);
     const teamText = `${teamScoreInfo.team}`;
-    const scoreText = `${teamScoreInfo.eventsTriagedOnTime}/${
-      teamScoreInfo.numEvents
-    } (${teamScoreInfo.score.toLocaleString('en', { style: 'percent' })})`;
+    const scoreText = `${score} (${teamScoreInfo.eventsTriagedOnTime}/${teamScoreInfo.numEvents})`;
     scoreBoard += `| ${addSpaces(teamText, 'team')}| ${addSpaces(
       scoreText,
       'score'
     )}|\n`;
   });
-  scoreBoard += `└──────────────────────────────────────────────────────────┘`;
+  scoreBoard += `└────────────────────────────────────────────────┘`;
   messageBlocks.push({
     type: 'section',
     // Unsure why, but ts is complaining about missing emoji field, but slack api rejects the field
