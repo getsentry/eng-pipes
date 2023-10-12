@@ -8,7 +8,11 @@ import { GETSENTRY_ORG } from '~/src/config';
 describe('constructor', function () {
   beforeAll(async function () {
     octokitClass.mockClear();
+    console.log(`GITHUB ORG => `, GitHubOrg);
     new GitHubOrg('zerb', {
+      slug: '',
+      project: '',
+      repos: [],
       appAuth: {
         appId: 423,
         privateKey: 'so secret',
