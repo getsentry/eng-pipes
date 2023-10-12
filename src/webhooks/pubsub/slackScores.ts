@@ -26,7 +26,10 @@ export const triggerSlackScores = async (
       const triagedEvents = issueTriageEvents.filter(
         (issue) => issue.is_triaged
       );
-      const score = triagedEvents.length / issueTriageEvents.length;
+      const score =
+        issueTriageEvents.length === 0
+          ? -1
+          : triagedEvents.length / issueTriageEvents.length;
       return {
         team: team.slice(TEAM_PREFIX.length),
         score,
@@ -56,9 +59,10 @@ export const triggerSlackScores = async (
     return entry + ' '.repeat(SCORE_COLUMN_WIDTH - entry.length);
   };
   teamScores.forEach((teamScoreInfo: teamScoreInfo) => {
-    const score: string = Number.isNaN(teamScoreInfo.score)
-      ? '-'
-      : (teamScoreInfo.score * 100).toFixed(0).toString();
+    const score: string =
+      teamScoreInfo.score === -1
+        ? '-'
+        : (teamScoreInfo.score * 100).toFixed(0).toString();
     const teamText = `${teamScoreInfo.team}`;
     const scoreText = `${score.padEnd(3, ' ')} (${
       teamScoreInfo.eventsTriagedOnTime
