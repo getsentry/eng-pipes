@@ -3,6 +3,8 @@ import { App, LogLevel } from '@slack/bolt';
 
 import { SLACK_BOT_USER_ACCESS_TOKEN, SLACK_SIGNING_SECRET } from '~/config';
 
+console.log(SLACK_BOT_USER_ACCESS_TOKEN);
+
 const bolt = new App({
   logLevel: LogLevel.INFO,
   token: SLACK_BOT_USER_ACCESS_TOKEN,

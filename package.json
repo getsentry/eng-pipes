@@ -28,7 +28,7 @@
     "start": "node --async-stack-traces ./lib/index.js",
     "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\"",
     "lint:fix": "yarn lint --fix",
-    "test": "yarn jest --useStderr --runInBand",
+    "test": "yarn jest --useStderr --runInBand --silent=false",
     "test:debug": "yarn run --inspect jest --runInBand",
     "test:ci": "yarn test --forceExit",
     "test:dev": "yarn postgres && yarn test",

@@ -21,7 +21,7 @@ module.exports = {
   // See https://kulshekhar.github.io/ts-jest/user/config/#jest-config-with-helper
   // ⚠️  Keep this in sync with package.json and tsconfig.json. ⚠️
   moduleNameMapper: {
-    '^~/(.*)$': '<rootDir>/src/$1',
+    '^\~/(.*)$': '<rootDir>/src/$1',
     '^@test/(.*)$': '<rootDir>/test/$1',
   },
 

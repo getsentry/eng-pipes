@@ -7,6 +7,8 @@ import { buildServer } from '~/buildServer';
 import { GETSENTRY_ORG } from '~/config';
 import { db } from '~/utils/db';
 
+jest.mock('~/api/slack');
+
 describe('gha-test', function () {
   let fastify;
   const org = GETSENTRY_ORG;

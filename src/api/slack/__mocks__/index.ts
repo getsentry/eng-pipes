@@ -1,5 +1,6 @@
 const originalWebApi = jest.requireActual('@slack/web-api');
 
+console.log('----------------- HELLO WORLD -----------------');
 jest.mock('@slack/web-api', () => ({
   ...originalWebApi,
   WebClient: jest.fn(() => {
@@ -10,6 +11,7 @@ jest.mock('@slack/web-api', () => ({
       },
     };
 
+    console.log('Is this working? <-------------------');
     return {
       auth: {
         test: jest.fn(() =>
@@ -95,7 +97,11 @@ jest.mock('@slack/web-api', () => ({
   }),
 }));
 
+console.log('----------------- MOCKING DONE -----------------');
+
 const bolt = jest.requireActual('~/api/slack').bolt;
+
+console.log('----------------- bolt ?? -----------------', bolt.client.chat.postMessage.mockClear);
 
 /**
  * Need to do this otherwise we can't test expectations against injected client
