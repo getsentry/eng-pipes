@@ -56,11 +56,11 @@ export const triggerSlackScores = async (
     return entry + ' '.repeat(SCORE_COLUMN_WIDTH - entry.length);
   };
   teamScores.forEach((teamScoreInfo: teamScoreInfo) => {
-    const score = Number.isNaN(teamScoreInfo.score)
-      ? 100
-      : (teamScoreInfo.score * 100).toFixed(0);
+    const score: string = Number.isNaN(teamScoreInfo.score)
+      ? '-'
+      : (teamScoreInfo.score * 100).toFixed(0).toString();
     const teamText = `${teamScoreInfo.team}`;
-    const scoreText = `${score.toString().padEnd(3, ' ')} (${
+    const scoreText = `${score.padEnd(3, ' ')} (${
       teamScoreInfo.eventsTriagedOnTime
     }/${teamScoreInfo.numEvents})`;
     scoreBoard += `| ${addSpaces(teamText, 'team')}| ${addSpaces(
