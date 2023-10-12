@@ -17,14 +17,13 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
-import { Fastify } from '@types';
-
 import { getLabelsTable } from '../issueNotifier';
 
 import { githubMetrics as metrics } from '.';
 
 import { buildServer } from '~/src/buildServer';
 import { DRY_RUN, GETSENTRY_ORG } from '~/src/config';
+import { Fastify } from '~/src/types';
 import { db } from '~/src/utils/db';
 import * as dbFunctions from '~/src/utils/metrics';
 import { createGitHubEvent } from '~/test/utils/github';
