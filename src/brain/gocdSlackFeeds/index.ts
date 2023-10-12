@@ -151,11 +151,12 @@ const engineeringFeed = new DeployFeed({
       })
       .join(' ');
     const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/${pipeline.counter}/deploy-canary/${pipeline.stage.counter}/deploy-backend`;
+    const sentryReleaseLink = `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
     const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
       section(
         markdown(
-          `Please check the errors in the <${gocdLogsLink}|canary logs>, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.`
+          `Please check the errors in the *<${gocdLogsLink}|Canary Logs>* and the *<${sentryReleaseLink}|Sentry Release>*, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.`
         )
       ),
     ];
