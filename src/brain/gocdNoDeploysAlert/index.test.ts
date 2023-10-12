@@ -1,22 +1,21 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import { DEPLOYS_FAILING_LIMIT_MS, gocdNoDeploysAlert, handler } from '.';
 
-import * as slackblocks from '@/blocks/slackBlocks';
-import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
-import { buildServer } from '@/buildServer';
+import { bolt } from '~/src/api/slack';
+import * as slackblocks from '~/src/blocks/slackBlocks';
+import { DB_TABLE_STAGES } from '~/src/brain/saveGoCDStageEvents';
+import { buildServer } from '~/src/buildServer';
 import {
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+} from '~/src/config';
+import { Fastify } from '~/src/types';
+import { db } from '~/src/utils/db';
+import payload from '~/test/payloads/gocd/gocd-stage-building.json';
 
-import { DEPLOYS_FAILING_LIMIT_MS, gocdNoDeploysAlert, handler } from '.';
-
-jest.mock('@api/getUser');
+jest.mock('~/src/api/getUser');
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;

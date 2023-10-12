@@ -1,6 +1,6 @@
-import { GETSENTRY_ORG } from '@/config';
-
 import { getAnnotations } from './getAnnotations';
+
+import { GETSENTRY_ORG } from '~/src/config';
 
 describe('getAnnotations', function () {
   const org = GETSENTRY_ORG;

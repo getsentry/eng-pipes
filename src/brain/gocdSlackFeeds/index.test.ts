@@ -1,9 +1,11 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import { gocdSlackFeeds, handler } from '.';
 
-import * as slackblocks from '@/blocks/slackBlocks';
-import { buildServer } from '@/buildServer';
+import { getUser } from '~/src/api/getUser';
+import { bolt } from '~/src/api/slack';
+import * as slackblocks from '~/src/blocks/slackBlocks';
+import { buildServer } from '~/src/buildServer';
 import {
   Color,
   FEED_DEPLOY_CHANNEL_ID,
@@ -11,15 +13,12 @@ import {
   FEED_ENGINEERING_CHANNEL_ID,
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
+} from '~/src/config';
+import { Fastify } from '~/src/types';
+import { db } from '~/src/utils/db';
+import payload from '~/test/payloads/gocd/gocd-stage-building.json';
 
-import { gocdSlackFeeds, handler } from '.';
-
-jest.mock('@api/getUser');
+jest.mock('~/src/api/getUser');
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;

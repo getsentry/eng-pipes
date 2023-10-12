@@ -1,8 +1,7 @@
 import { FastifyRequest } from 'fastify';
 
-import { GoCDResponse } from '@types';
-
-import { gocdevents } from '@api/gocdevents';
+import { gocdevents } from '~/src/api/gocdevents';
+import { GoCDResponse } from '~/src/types';
 
 export async function handler(request: FastifyRequest<{ Body: GoCDResponse }>) {
   const { body }: { body: GoCDResponse } = request;

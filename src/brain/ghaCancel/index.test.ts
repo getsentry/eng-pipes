@@ -1,11 +1,10 @@
-import { createSlackAppMention } from '@test/utils/createSlackAppMention';
-
-import { buildServer } from '@/buildServer';
-import { GETSENTRY_ORG } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-
 import { ghaCancel } from '.';
+
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
+import { GETSENTRY_ORG } from '~/src/config';
+import { db } from '~/src/utils/db';
+import { createSlackAppMention } from '~/test/utils/createSlackAppMention';
 
 describe('gha-test', function () {
   let fastify;

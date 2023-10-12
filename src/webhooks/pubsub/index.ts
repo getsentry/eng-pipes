@@ -4,10 +4,10 @@ import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
-import { GH_ORGS } from '@/config';
-
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerStaleBot } from './stalebot';
+
+import { GH_ORGS } from '~/src/config';
 
 type PubSubPayload = {
   name: string;

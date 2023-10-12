@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-import { GoCDResponse } from '@types';
+import { GoCDResponse } from '~/src/types';
 
 type GoCDEvents = 'stage' | 'agent';
 

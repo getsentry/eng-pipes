@@ -1,25 +1,24 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
-import { createGitHubEvent } from '@test/utils/github';
+import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 
-import { buildServer } from '@/buildServer';
+import { handler, notifyOnGoCDStageEvent } from '.';
+
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
 import {
   GETSENTRY_BOT_ID,
   GETSENTRY_ORG,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocdHelpers';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import * as metrics from '@utils/metrics';
-
-import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
-
-import { handler, notifyOnGoCDStageEvent } from '.';
+} from '~/src/config';
+import { Fastify } from '~/src/types';
+import { db } from '~/src/utils/db';
+import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '~/src/utils/gocdHelpers';
+import * as metrics from '~/src/utils/metrics';
+import payload from '~/test/payloads/gocd/gocd-stage-building.json';
+import { createGitHubEvent } from '~/test/utils/github';
 
 const HEAD_SHA = '982345';
 
@@ -131,7 +130,7 @@ describe('notifyOnGoCDStageEvent', function () {
     }));
 
     org.api.repos.getCommit.mockImplementation(({ repo }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
           data: merge({}, defaultPayload, {

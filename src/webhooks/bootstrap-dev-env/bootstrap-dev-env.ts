@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { insert } from '@utils/metrics';
+import { insert } from '~/src/utils/metrics';
 
 export async function handler(
   request: FastifyRequest<{ Body: { event: string; name: string } }>

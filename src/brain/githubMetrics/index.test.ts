@@ -1,4 +1,4 @@
-import pullRequestPayload from '@test/payloads/github/pull_request';
+import pullRequestPayload from '~/test/payloads/github/pull_request';
 
 const mockInsert = jest.fn(() => Promise.resolve());
 const mockTable = jest.fn(() => ({
@@ -8,7 +8,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `~/src/utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -19,21 +19,20 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import { Fastify } from '@types';
 
-import { createGitHubEvent } from '@test/utils/github';
-
-import { buildServer } from '@/buildServer';
-import { DRY_RUN, GETSENTRY_ORG } from '@/config';
-import { db } from '@utils/db';
-import * as dbFunctions from '@utils/metrics';
-
 import { getLabelsTable } from '../issueNotifier';
 
 import { githubMetrics as metrics } from '.';
 
+import { buildServer } from '~/src/buildServer';
+import { DRY_RUN, GETSENTRY_ORG } from '~/src/config';
+import { db } from '~/src/utils/db';
+import * as dbFunctions from '~/src/utils/metrics';
+import { createGitHubEvent } from '~/test/utils/github';
+
 jest.spyOn(dbFunctions, 'insert');
 jest.spyOn(dbFunctions, 'insertOss');
-jest.mock('@/config', () => {
-  const actualEnvVariables = jest.requireActual('@/config');
+jest.mock('~/src/config', () => {
+  const actualEnvVariables = jest.requireActual('~/src/config');
   return { ...actualEnvVariables, DRY_RUN: false };
 });
 

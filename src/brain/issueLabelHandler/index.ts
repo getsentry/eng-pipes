@@ -1,5 +1,3 @@
-import { githubEvents } from '@api/github';
-
 import {
   clearWaitingForProductOwnerStatus,
   ensureOneWaitingForLabel,
@@ -10,6 +8,8 @@ import {
   markNotWaitingForProductOwner,
   markWaitingForProductOwner,
 } from './triage';
+
+import { githubEvents } from '~/src/api/github';
 
 // Install.
 

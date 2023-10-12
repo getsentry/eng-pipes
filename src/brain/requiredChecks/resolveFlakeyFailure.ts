@@ -3,13 +3,13 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
-import { BuildStatus, Color } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { CheckRun } from '@/types';
-import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
-import { bolt } from '@api/slack';
-
 import { getTextParts } from './getTextParts';
+
+import { bolt } from '~/src/api/slack';
+import { BuildStatus, Color } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { CheckRun } from '~/src/types';
+import { updateRequiredCheck } from '~/src/utils/db/updateRequiredCheck';
 
 interface ResolveFlakeyFailureParams {
   checkRun: CheckRun;

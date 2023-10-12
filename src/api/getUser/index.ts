@@ -1,11 +1,11 @@
 import * as Sentry from '@sentry/node';
 
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { findUser } from '@utils/db/findUser';
-import { isSentrySlackUser } from '@utils/isSentrySlackUser';
-import { normalizeGithubUser } from '@utils/normalizeGithubUser';
+import { bolt } from '~/src/api/slack';
+import { SLACK_PROFILE_ID_GITHUB } from '~/src/config';
+import { db } from '~/src/utils/db';
+import { findUser } from '~/src/utils/db/findUser';
+import { isSentrySlackUser } from '~/src/utils/isSentrySlackUser';
+import { normalizeGithubUser } from '~/src/utils/normalizeGithubUser';
 
 type GetUserParams = Parameters<typeof findUser>[0];
 

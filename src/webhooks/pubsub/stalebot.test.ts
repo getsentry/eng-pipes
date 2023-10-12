@@ -1,13 +1,13 @@
 import moment from 'moment-timezone';
 
-import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
-
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '../../config';
 
 import { triggerStaleBot } from './stalebot';
+
+import { GETSENTRY_ORG, STALE_LABEL } from '~/src/config';
 
 describe('Stalebot Tests', function () {
   const org = GETSENTRY_ORG;

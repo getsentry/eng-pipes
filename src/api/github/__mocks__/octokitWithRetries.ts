@@ -1,7 +1,7 @@
-import MockCompareCommits from '@test/compareCommits.json';
-import { workflow_run_job } from '@test/payloads/github/workflow_run_job';
-
 import { MockOctokitError } from './mockError';
+
+import MockCompareCommits from '~/test/compareCommits.json';
+import { workflow_run_job } from '~/test/payloads/github/workflow_run_job';
 
 // Looks goofy, don't it? This is what I could figure out to mock a class. I
 // tried a lot of stuff following these docs and couldn't figure it out other

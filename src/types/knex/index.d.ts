@@ -1,9 +1,9 @@
 import { MessageAttachment } from '@slack/bolt';
 
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-
 import { CheckRunForRequiredChecksText } from '..';
+
+import { BuildStatus } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
 
 declare module 'knex/types/tables' {
   interface User {

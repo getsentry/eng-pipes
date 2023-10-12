@@ -5,8 +5,8 @@ import {
   SlackEventMiddlewareArgs,
 } from '@slack/bolt';
 
-import { GH_ORGS } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '~/src/api/slack';
+import { GH_ORGS } from '~/src/config';
 
 async function handler({ event, say, client }) {
   // eslint-disable-next-line no-useless-escape

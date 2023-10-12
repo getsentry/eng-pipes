@@ -2,29 +2,32 @@ import '@sentry/tracing';
 
 import * as Sentry from '@sentry/node';
 
-import {
-  CompareCommits,
-  GoCDBuildCause,
-  GoCDPipeline,
-  GoCDResponse,
-  GoCDStageData,
-} from '@types';
-
-import { getChangedStack } from '@/api/github/getChangedStack';
-import { getRelevantCommit } from '@/api/github/getRelevantCommit';
-import { gocdevents } from '@/api/gocdevents';
-import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
+import { getUser } from '~/src/api/getUser';
+import { getChangedStack } from '~/src/api/github/getChangedStack';
+import { getRelevantCommit } from '~/src/api/github/getRelevantCommit';
+import { GitHubOrg } from '~/src/api/github/org';
+import { gocdevents } from '~/src/api/gocdevents';
+import { bolt } from '~/src/api/slack';
+import { getUpdatedGoCDDeployMessage } from '~/src/blocks/getUpdatedDeployMessage';
 import {
   GETSENTRY_ORG,
   GETSENTRY_REPO_SLUG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   SENTRY_REPO_SLUG,
-} from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
-import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
-import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
+} from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import {
+  CompareCommits,
+  GoCDBuildCause,
+  GoCDPipeline,
+  GoCDResponse,
+  GoCDStageData,
+} from '~/src/types';
+import { clearQueuedCommits } from '~/src/utils/db/clearQueuedCommits';
+import { getLastGetSentryGoCDDeploy } from '~/src/utils/db/getLatestDeploy';
+import { getSlackMessage } from '~/src/utils/db/getSlackMessage';
+import { queueCommitsForDeploy } from '~/src/utils/db/queueCommitsForDeploy';
 import {
   ALL_MESSAGE_SUFFIX,
   filterBuildCauses,
@@ -32,11 +35,7 @@ import {
   firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
-} from '@/utils/gocdHelpers';
-import { getUser } from '@api/getUser';
-import { GitHubOrg } from '@api/github/org';
-import { bolt } from '@api/slack';
-import { getSlackMessage } from '@utils/db/getSlackMessage';
+} from '~/src/utils/gocdHelpers';
 
 function getProgressMessage(pipeline: GoCDPipeline, message: any) {
   const progressText = getProgressSuffix(pipeline);

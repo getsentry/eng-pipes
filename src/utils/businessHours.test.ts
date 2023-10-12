@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `~/src/utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -18,22 +18,22 @@ jest.mock('@google-cloud/bigquery', () => ({
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
-import {
-  GETSENTRY_ORG,
-  MAX_ROUTE_DAYS,
-  MAX_TRIAGE_DAYS,
-  WAITING_FOR_PRODUCT_OWNER_LABEL,
-  WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { db } from '@utils/db';
-
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   calculateTimeToRespondBy,
   getNextAvailableBusinessHourWindow,
 } from './businessHours';
+
+import { getLabelsTable } from '~/src/brain/issueNotifier';
+import {
+  GETSENTRY_ORG,
+  MAX_ROUTE_DAYS,
+  MAX_TRIAGE_DAYS,
+  WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WAITING_FOR_SUPPORT_LABEL,
+} from '~/src/config';
+import { db } from '~/src/utils/db';
 
 describe('businessHours tests', function () {
   beforeAll(async function () {

@@ -1,6 +1,6 @@
-import { CompareCommits } from '@types';
-
 import { db } from '.';
+
+import { CompareCommits } from '~/src/types';
 
 /**
  * We want to save the list of commits that are currently queued to be deployed

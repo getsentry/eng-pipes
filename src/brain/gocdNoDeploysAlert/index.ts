@@ -1,21 +1,21 @@
 import { KnownBlock } from '@slack/types';
 
-import { gocdevents } from '@/api/gocdevents';
-import { bolt } from '@/api/slack';
-import * as slackblocks from '@/blocks/slackBlocks';
+import { gocdevents } from '~/src/api/gocdevents';
+import { bolt } from '~/src/api/slack';
+import * as slackblocks from '~/src/blocks/slackBlocks';
 import {
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-} from '@/config';
+} from '~/src/config';
 import {
   DBGoCDDeployment,
   GoCDPipeline,
   GoCDResponse,
   GoCDStageResponse,
-} from '@/types';
-import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
+} from '~/src/types';
+import { getLastGetSentryGoCDDeploy } from '~/src/utils/db/getLatestDeploy';
 
 const PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_PIPELINE_NAME,

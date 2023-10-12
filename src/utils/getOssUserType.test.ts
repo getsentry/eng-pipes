@@ -1,6 +1,6 @@
-import { GH_USER_CLIENT } from '@/config';
-
 import { getOssUserType } from './getOssUserType';
+
+import { GH_USER_CLIENT } from '~/src/config';
 
 describe('getUserOssType', function () {
   let octokit;

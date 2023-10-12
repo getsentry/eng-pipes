@@ -1,13 +1,12 @@
-import { createSlackEvent } from '@test/utils/createSlackEvent';
-
-import { buildServer } from '@/buildServer';
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-
 import { appHome } from '.';
 
-jest.mock('@api/getUser');
+import { getUser } from '~/src/api/getUser';
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
+import { db } from '~/src/utils/db';
+import { createSlackEvent } from '~/test/utils/createSlackEvent';
+
+jest.mock('~/src/api/getUser');
 
 describe('appHome', function () {
   let fastify;

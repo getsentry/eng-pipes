@@ -1,4 +1,4 @@
-import { getOssUserType } from '@utils/getOssUserType';
+import { getOssUserType } from '~/src/utils/getOssUserType';
 
 export async function isFromOutsideCollaborator(payload) {
   const type = await getOssUserType(payload);

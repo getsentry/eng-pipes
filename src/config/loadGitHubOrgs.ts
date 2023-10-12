@@ -7,7 +7,7 @@ import { GitHubOrg } from '../api/github/org';
 import { GitHubOrgConfig } from '../types';
 
 // Orgs are used throughout the codebase via `{ import GH_ORGS } from
-// '@/config'`. They are accessed by org slug, often taken from a GitHub event
+// '~/src/config'`. They are accessed by org slug, often taken from a GitHub event
 // payload.
 
 export class GitHubOrgs {
@@ -55,7 +55,7 @@ export class GitHubOrgs {
   }
 }
 
-// Loader - called in @/config to populate the GH_ORGS global.
+// Loader - called in ~/src/config to populate the GH_ORGS global.
 
 export function loadGitHubOrgs(env) {
   let configs = {};

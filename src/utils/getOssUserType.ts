@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
-import { DAY_IN_MS, GH_USER_CLIENT } from '@/config';
-import { isFromABot } from '@utils/isFromABot';
+import { DAY_IN_MS, GH_USER_CLIENT } from '~/src/config';
+import { isFromABot } from '~/src/utils/isFromABot';
 
 type UserType = 'bot' | 'internal' | 'external' | 'gtm';
 type CachedUser = {

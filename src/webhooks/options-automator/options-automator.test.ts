@@ -1,11 +1,10 @@
-import testemptypayload from '@test/payloads/options-automator/testemptypayload.json';
-import testparitalpayload from '@test/payloads/options-automator/testpartialpayload.json';
-import testpayload from '@test/payloads/options-automator/testpayload.json';
-
-import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
-
 import { messageSlack } from './options-automator';
+
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
+import testemptypayload from '~/test/payloads/options-automator/testemptypayload.json';
+import testparitalpayload from '~/test/payloads/options-automator/testpartialpayload.json';
+import testpayload from '~/test/payloads/options-automator/testpayload.json';
 
 describe('options-automator webhook', function () {
   let fastify;

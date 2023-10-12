@@ -7,7 +7,7 @@ export function getSlackEvent(
   let eventPayload;
 
   try {
-    eventPayload = require(`@test/payloads/slack/${eventName}.json`);
+    eventPayload = require(`~/test/payloads/slack/${eventName}.json`);
   } catch {
     // ignore errors as we can have simple events
   }

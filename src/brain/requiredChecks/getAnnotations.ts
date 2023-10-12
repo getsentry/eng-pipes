@@ -1,7 +1,7 @@
-import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
-import { Annotation } from '@/types';
-
 import { extractRunId } from './extractRunId';
+
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '~/src/config';
+import { Annotation } from '~/src/types';
 
 // Filter any annotations that match these patterns
 const FILTER_SINGLE: RegExp[] = [];

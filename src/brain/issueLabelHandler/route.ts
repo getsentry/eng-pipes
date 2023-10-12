@@ -9,11 +9,11 @@ import {
   PRODUCT_AREA_UNKNOWN,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
-import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
-import { shouldSkip } from '@utils/shouldSkip';
-import { slugizeProductArea } from '@utils/slugizeProductArea';
+} from '~/src/config';
+import { isFromOutsideCollaborator } from '~/src/utils/isFromOutsideCollaborator';
+import { isNotFromAnExternalOrGTMUser } from '~/src/utils/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '~/src/utils/shouldSkip';
+import { slugizeProductArea } from '~/src/utils/slugizeProductArea';
 
 function isAlreadyWaitingForSupport(payload) {
   return payload.issue.labels.some(

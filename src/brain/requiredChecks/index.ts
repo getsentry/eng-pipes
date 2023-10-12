@@ -1,15 +1,15 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { githubEvents } from '@api/github';
-import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
-import { getSlackMessage } from '@utils/db/getSlackMessage';
-
 import { OK_CONCLUSIONS } from './constants';
 import { handleNewFailedBuild } from './handleNewFailedBuild';
 import { resolveFlakeyFailure } from './resolveFlakeyFailure';
 import { resolveOtherFailure } from './resolveOtherFailure';
+
+import { githubEvents } from '~/src/api/github';
+import { isGetsentryRequiredCheck } from '~/src/api/github/isGetsentryRequiredCheck';
+import { BuildStatus } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { getSlackMessage } from '~/src/utils/db/getSlackMessage';
 
 async function handler({
   id,

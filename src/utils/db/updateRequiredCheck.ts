@@ -1,11 +1,11 @@
-import { BuildStatus } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { CheckRun } from '@/types';
-
 import { insertBuildFailure } from '../metrics';
 
 import { saveSlackMessage } from './saveSlackMessage';
 import { db } from '.';
+
+import { BuildStatus } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { CheckRun } from '~/src/types';
 
 type UpdateRequiredCheckParams = {
   status: BuildStatus;

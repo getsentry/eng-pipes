@@ -1,9 +1,9 @@
-import { DISABLE_GITHUB_METRICS } from '@/config';
-import { githubEvents } from '@api/github';
-import { wrapHandler } from '@utils/wrapHandler';
-
 import { ossMetrics } from './ossMetrics';
 import { sentryMetrics } from './sentryMetrics';
+
+import { githubEvents } from '~/src/api/github';
+import { DISABLE_GITHUB_METRICS } from '~/src/config';
+import { wrapHandler } from '~/src/utils/wrapHandler';
 
 // Handlers wrapped with Sentry transaction
 const ossHandler = wrapHandler('metrics.oss', ossMetrics);

@@ -1,7 +1,7 @@
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { isSentrySlackUser } from '@utils/isSentrySlackUser';
+import { bolt } from '~/src/api/slack';
+import { SLACK_PROFILE_ID_GITHUB } from '~/src/config';
+import { db } from '~/src/utils/db';
+import { isSentrySlackUser } from '~/src/utils/isSentrySlackUser';
 
 export function syncSlackUsers() {
   bolt.event('app_mention', async ({ event, say, client }) => {

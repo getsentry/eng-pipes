@@ -1,5 +1,5 @@
-import { SlackMessage } from '@/config/slackMessage';
-import { db } from '@utils/db';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { db } from '~/src/utils/db';
 
 interface SaveSlackMessage {
   refId: string;

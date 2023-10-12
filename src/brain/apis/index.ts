@@ -1,10 +1,10 @@
-import { bolt } from '@api/slack';
-import { wrapHandler } from '@utils/wrapHandler';
-
 import getStatsMessage, {
   INVALID_TEAM_ERROR,
   OWNERSHIP_FILE_LINK,
 } from './getStatsMessage';
+
+import { bolt } from '~/src/api/slack';
+import { wrapHandler } from '~/src/utils/wrapHandler';
 
 export function apis() {
   bolt.event(

@@ -1,7 +1,7 @@
-import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { db } from '@utils/db';
-
 import { getGoCDDeployForQueuedCommit } from './getDeployForQueuedCommit';
+
+import { db } from '~/src/utils/db';
+import { queueCommitsForDeploy } from '~/src/utils/db/queueCommitsForDeploy';
 
 describe('getDeployForQueuedCommit', function () {
   beforeAll(async function () {

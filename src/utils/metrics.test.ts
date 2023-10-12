@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `~/src/utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -17,15 +17,15 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import cloneDeep from 'lodash.clonedeep';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
+import { insertOss } from './metrics';
+
+import { getLabelsTable } from '~/src/brain/issueNotifier';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { db } from '@utils/db';
-
-import { insertOss } from './metrics';
+} from '~/src/config';
+import { db } from '~/src/utils/db';
 
 describe('metrics tests', function () {
   describe('insertOss', function () {

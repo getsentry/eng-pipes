@@ -1,4 +1,4 @@
-import { GOCD_ORIGIN } from '@/config';
+import { GOCD_ORIGIN } from '~/src/config';
 
 export function gocdDeploy(commit: string) {
   return {

@@ -2,11 +2,10 @@ import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 import { FastifyRequest } from 'fastify';
 
-import { OptionsAutomatorResponse } from '@types';
-
-import { bolt } from '@/api/slack';
-import * as slackblocks from '@/blocks/slackBlocks';
-import { FEED_OPTIONS_AUTOMATOR_CHANNEL_ID } from '@/config';
+import { bolt } from '~/src/api/slack';
+import * as slackblocks from '~/src/blocks/slackBlocks';
+import { FEED_OPTIONS_AUTOMATOR_CHANNEL_ID } from '~/src/config';
+import { OptionsAutomatorResponse } from '~/src/types';
 
 export async function handler(
   request: FastifyRequest<{ Body: OptionsAutomatorResponse }>
@@ -118,7 +117,7 @@ export async function messageSlack(message: OptionsAutomatorResponse) {
           slackblocks.sectionBlock(
             message.invalid_type_options.map((option) =>
               slackblocks.markdown(
-                `Option \`${option.option_name}\` got type \`${option.got_type}\`, 
+                `Option \`${option.option_name}\` got type \`${option.got_type}\`,
                     but expected type \`${option.expected_type}\`.`
               )
             )

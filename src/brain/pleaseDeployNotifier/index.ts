@@ -4,12 +4,21 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
-import { githubEvents } from '@/api/github';
-import { getChangedStack } from '@/api/github/getChangedStack';
-import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
-import { gocdDeploy } from '@/blocks/gocdDeploy';
-import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
-import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
+import { actionSlackDeploy } from './actionSlackDeploy';
+import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
+
+import { getBlocksForCommit } from '~/src/api/getBlocksForCommit';
+import { getUser } from '~/src/api/getUser';
+import { githubEvents } from '~/src/api/github';
+import { getChangedStack } from '~/src/api/github/getChangedStack';
+import { getRelevantCommit } from '~/src/api/github/getRelevantCommit';
+import { isGetsentryRequiredCheck } from '~/src/api/github/isGetsentryRequiredCheck';
+import { bolt } from '~/src/api/slack';
+import { slackMessageUser } from '~/src/api/slackMessageUser';
+import { getUpdatedGoCDDeployMessage } from '~/src/blocks/getUpdatedDeployMessage';
+import { gocdDeploy } from '~/src/blocks/gocdDeploy';
+import { muteDeployNotificationsButton } from '~/src/blocks/muteDeployNotificationsButton';
+import { viewUndeployedCommits } from '~/src/blocks/viewUndeployedCommits';
 import {
   Color,
   GETSENTRY_ORG,
@@ -17,21 +26,12 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   SENTRY_REPO_SLUG,
-} from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { getGoCDDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
-import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
-import { getBlocksForCommit } from '@api/getBlocksForCommit';
-import { getUser } from '@api/getUser';
-import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
-import { bolt } from '@api/slack';
-import { slackMessageUser } from '@api/slackMessageUser';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
-import { wrapHandler } from '@utils/wrapHandler';
-
-import { actionSlackDeploy } from './actionSlackDeploy';
-import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
+} from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { getGoCDDeployForQueuedCommit } from '~/src/utils/db/getDeployForQueuedCommit';
+import { saveSlackMessage } from '~/src/utils/db/saveSlackMessage';
+import { INPROGRESS_MSG, READY_TO_DEPLOY } from '~/src/utils/gocdHelpers';
+import { wrapHandler } from '~/src/utils/wrapHandler';
 
 async function getGoCDDeployBlock(deployInfo, user): Promise<KnownBlock[]> {
   return [

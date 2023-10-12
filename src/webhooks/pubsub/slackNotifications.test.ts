@@ -1,16 +1,16 @@
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { GETSENTRY_ORG } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-
 import {
   constructSlackMessage,
   getChannelsForIssue,
   getTriageSLOTimestamp,
   notifyProductOwnersForUntriagedIssues,
 } from './slackNotifications';
+
+import { bolt } from '~/src/api/slack';
+import { GETSENTRY_ORG } from '~/src/config';
+import { db } from '~/src/utils/db';
 
 describe('Triage Notification Tests', function () {
   const org = GETSENTRY_ORG;

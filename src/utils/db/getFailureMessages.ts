@@ -1,7 +1,7 @@
-import { BuildStatus, GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { db } from '@utils/db';
-import { getTimestamp } from '@utils/db/getTimestamp';
+import { BuildStatus, GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { db } from '~/src/utils/db';
+import { getTimestamp } from '~/src/utils/db/getTimestamp';
 
 /**
  * Getsentry is considered to be "failing" if we have a failed status check

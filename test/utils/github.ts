@@ -1,9 +1,8 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import merge from 'lodash.merge';
 
-import { Fastify } from '@types';
-
-import { githubEvents } from '@/api/github';
+import { githubEvents } from '~/src/api/github';
+import { Fastify } from '~/src/types';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -47,7 +46,7 @@ export function hydrateGitHubEventAndPayload<
   const [baseEvent, action] = event.split('.');
 
   try {
-    defaultPayload = require(`@test/payloads/github/${baseEvent}`).default;
+    defaultPayload = require(`~/test/payloads/github/${baseEvent}`).default;
   } catch (err) {
     console.warn(`No payload found for event ${baseEvent}`);
   }

@@ -37,11 +37,7 @@
   },
   "_moduleAliases": {
     "_comment": "⚠️  Keep this in sync with jest.config.ts and tsconfig.json. ⚠️ ",
-    "@": "lib",
-    "@api": "lib/api",
-    "@apps": "lib/apps",
-    "@utils": "lib/utils",
-    "@webhooks": "lib/webhooks"
+    "~": "lib"
   },
   "dependencies": {
     "@google-cloud/bigquery": "^5.3.0",

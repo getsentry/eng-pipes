@@ -1,13 +1,16 @@
 import merge from 'lodash.merge';
 
-import { createSlackRequest } from '@test/utils/createSlackRequest';
-import { createGitHubEvent } from '@test/utils/github';
+import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 
+import * as actions from './actionViewUndeployedCommits';
+import { pleaseDeployNotifier } from '.';
+
+import { bolt } from '~/src/api/slack';
 import {
   DB_TABLE_MATERIALS,
   DB_TABLE_STAGES,
-} from '@/brain/saveGoCDStageEvents';
-import { buildServer } from '@/buildServer';
+} from '~/src/brain/saveGoCDStageEvents';
+import { buildServer } from '~/src/buildServer';
 import {
   GETSENTRY_ORG,
   GOCD_ORIGIN,
@@ -15,17 +18,13 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
-
-import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
-
-import * as actions from './actionViewUndeployedCommits';
-import { pleaseDeployNotifier } from '.';
+} from '~/src/config';
+import { Fastify } from '~/src/types';
+import { db } from '~/src/utils/db';
+import { getLastGetSentryGoCDDeploy } from '~/src/utils/db/getLatestDeploy';
+import { queueCommitsForDeploy } from '~/src/utils/db/queueCommitsForDeploy';
+import { createSlackRequest } from '~/test/utils/createSlackRequest';
+import { createGitHubEvent } from '~/test/utils/github';
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
@@ -37,7 +36,7 @@ describe('pleaseDeployNotifier', function () {
 
     pleaseDeployNotifier();
     org.api.repos.getCommit.mockImplementation(({ repo }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
           data: merge({}, defaultPayload, {
@@ -1092,7 +1091,7 @@ describe('pleaseDeployNotifier', function () {
 
   it('links user to frontend-only deploy from a getsentry commit', async function () {
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           commit: {
@@ -1272,7 +1271,7 @@ Remove "always()" from GHA workflows`,
 
   it('links user to backend-only deploy from a getsentry commit', async function () {
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           commit: {
@@ -1452,7 +1451,7 @@ Remove "always()" from GHA workflows`,
 
   it('does not allow frontend deploy if head commit is a backend change', async function () {
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           commit: {
@@ -1657,7 +1656,7 @@ Remove "always()" from GHA workflows`,
     });
 
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
@@ -1791,7 +1790,7 @@ Remove "always()" from GHA workflows`,
     });
 
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };
@@ -1973,7 +1972,7 @@ Remove "always()" from GHA workflows`,
     });
 
     org.api.repos.getCommit.mockImplementation(({ _repo, _ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload),
       };

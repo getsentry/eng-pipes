@@ -1,5 +1,5 @@
-import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
-import { CheckRunForRequiredChecksText } from '@/types';
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '~/src/config';
+import { CheckRunForRequiredChecksText } from '~/src/types';
 
 /**
  * Given a CheckRun, returns a Slack message string that is split up into a list so that you can opt to replace pieces of the message

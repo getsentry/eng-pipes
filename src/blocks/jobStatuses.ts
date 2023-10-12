@@ -1,4 +1,4 @@
-import { Annotation } from '@/types';
+import { Annotation } from '~/src/types';
 
 /**
  * Transform GitHub Markdown link to Slack link

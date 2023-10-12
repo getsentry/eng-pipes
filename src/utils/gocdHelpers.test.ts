@@ -1,11 +1,11 @@
+import { getLastGetSentryGoCDDeploy } from '~/src/utils/db/getLatestDeploy';
 import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getBaseAndHeadCommit,
-} from '@/utils/gocdHelpers';
-import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
+} from '~/src/utils/gocdHelpers';
 
-jest.mock('@utils/db/getLatestDeploy');
+jest.mock('~/src/utils/db/getLatestDeploy');
 
 describe('firstGitMaterialSHA', () => {
   afterEach(async function () {

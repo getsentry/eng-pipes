@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `~/src/utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -17,24 +17,23 @@ jest.mock('@google-cloud/bigquery', () => ({
 
 import merge from 'lodash.merge';
 
-import { createGitHubEvent } from '@test/utils/github';
+import { requiredChecks } from '.';
 
-import { buildServer } from '@/buildServer';
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
 import {
   BuildStatus,
   GETSENTRY_ORG,
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { db } from '@/utils/db';
-import { bolt } from '@api/slack';
-import * as getFailureMessages from '@utils/db/getFailureMessages';
-import { getTimestamp } from '@utils/db/getTimestamp';
-import * as saveSlackMessage from '@utils/db/saveSlackMessage';
-import { TARGETS } from '@utils/metrics';
-
-import { requiredChecks } from '.';
+} from '~/src/config';
+import { Fastify } from '~/src/types';
+import { db } from '~/src/utils/db';
+import * as getFailureMessages from '~/src/utils/db/getFailureMessages';
+import { getTimestamp } from '~/src/utils/db/getTimestamp';
+import * as saveSlackMessage from '~/src/utils/db/saveSlackMessage';
+import { TARGETS } from '~/src/utils/metrics';
+import { createGitHubEvent } from '~/test/utils/github';
 
 function tick(timeout = 10) {
   return new Promise((resolve) => setTimeout(resolve, timeout));
@@ -67,7 +66,7 @@ describe('requiredChecks', function () {
     await requiredChecks();
 
     org.api.repos.getCommit.mockImplementation(({ repo, ref }) => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       if (repo === 'sentry') {
         return {
           data: merge({}, defaultPayload, {
@@ -383,7 +382,7 @@ describe('requiredChecks', function () {
 
   it('notifies slack channel with failure due to a getsentry commit (not a getsentry bump commit)', async function () {
     org.api.repos.getCommit.mockImplementation(() => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           author: {
@@ -696,7 +695,7 @@ describe('requiredChecks', function () {
 
   it('saves state of a failed check, and updates slack message when it is passing again (ignoring any following failed tests)', async function () {
     org.api.repos.getCommit.mockImplementation(() => {
-      const defaultPayload = require('@test/payloads/github/commit').default;
+      const defaultPayload = require('~/test/payloads/github/commit').default;
       return {
         data: merge({}, defaultPayload, {
           author: {

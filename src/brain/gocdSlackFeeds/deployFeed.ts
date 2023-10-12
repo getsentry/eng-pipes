@@ -8,25 +8,25 @@ import {
   MrkdwnElement,
 } from '@slack/types';
 
-import { getUser } from '@/api/getUser';
-import { bolt } from '@/api/slack';
-import * as slackblocks from '@/blocks/slackBlocks';
+import { getUser } from '~/src/api/getUser';
+import { bolt } from '~/src/api/slack';
+import * as slackblocks from '~/src/blocks/slackBlocks';
 import {
   GETSENTRY_REPO_SLUG,
   GH_ORGS,
   GOCD_ORIGIN,
   SENTRY_REPO_SLUG,
-} from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
-import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
-import { getSlackMessage } from '@/utils/db/getSlackMessage';
-import { saveSlackMessage } from '@/utils/db/saveSlackMessage';
+} from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { GoCDModification, GoCDPipeline, GoCDResponse } from '~/src/types';
+import { getLastGetSentryGoCDDeploy } from '~/src/utils/db/getLatestDeploy';
+import { getSlackMessage } from '~/src/utils/db/getSlackMessage';
+import { saveSlackMessage } from '~/src/utils/db/saveSlackMessage';
 import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getProgressColor,
-} from '@/utils/gocdHelpers';
+} from '~/src/utils/gocdHelpers';
 
 export class DeployFeed {
   private feedName: string;

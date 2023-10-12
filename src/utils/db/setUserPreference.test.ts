@@ -1,6 +1,6 @@
-import { db } from '@utils/db';
-
 import { setUserPreference } from './setUserPreference';
+
+import { db } from '~/src/utils/db';
 
 describe('setUserPreference', function () {
   beforeAll(async function () {

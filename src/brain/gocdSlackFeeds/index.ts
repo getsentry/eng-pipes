@@ -1,13 +1,15 @@
-import { getUser } from '@/api/getUser';
-import { getAuthors } from '@/api/github/getAuthors';
-import { gocdevents } from '@/api/gocdevents';
+import { DeployFeed } from './deployFeed';
+
+import { getUser } from '~/src/api/getUser';
+import { getAuthors } from '~/src/api/github/getAuthors';
+import { gocdevents } from '~/src/api/gocdevents';
 import {
   context,
   header,
   markdown,
   plaintext,
   section,
-} from '@/blocks/slackBlocks';
+} from '~/src/blocks/slackBlocks';
 import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
@@ -16,13 +18,11 @@ import {
   FEED_SNS_ST_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-} from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { GoCDResponse } from '@/types';
-import { filterNulls } from '@/utils/arrays';
-import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
-
-import { DeployFeed } from './deployFeed';
+} from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { GoCDResponse } from '~/src/types';
+import { filterNulls } from '~/src/utils/arrays';
+import { getBaseAndHeadCommit } from '~/src/utils/gocdHelpers';
 
 const ENGINEERING_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',

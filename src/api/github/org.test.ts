@@ -1,9 +1,9 @@
 import { createAppAuth } from '@octokit/auth-app';
 
-import { GETSENTRY_ORG } from '@/config';
-import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
-
 import { GitHubOrg } from './org';
+
+import { OctokitWithRetries as octokitClass } from '~/src/api/github/octokitWithRetries';
+import { GETSENTRY_ORG } from '~/src/config';
 
 describe('constructor', function () {
   beforeAll(async function () {

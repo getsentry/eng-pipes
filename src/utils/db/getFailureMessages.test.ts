@@ -1,9 +1,9 @@
-import { GETSENTRY_ORG } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { db } from '@utils/db';
-import { saveSlackMessage } from '@utils/db/saveSlackMessage';
-
 import { getFailureMessages } from './getFailureMessages';
+
+import { GETSENTRY_ORG } from '~/src/config';
+import { SlackMessage } from '~/src/config/slackMessage';
+import { db } from '~/src/utils/db';
+import { saveSlackMessage } from '~/src/utils/db/saveSlackMessage';
 
 describe('getFailureMessages', function () {
   const org = GETSENTRY_ORG;

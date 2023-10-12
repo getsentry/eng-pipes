@@ -6,7 +6,7 @@ import * as Sentry from '@sentry/node';
 const ROOT = path.join(__dirname, '../brain');
 
 /**
- * Loads all modules in the root of `@/brain`
+ * Loads all modules in the root of `~/src/brain`
  *
  * Currently we only want to load the exported fn whose name matches the module name,
  * this is because we sometimes export functions only for testing.

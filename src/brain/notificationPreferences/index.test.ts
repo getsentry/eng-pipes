@@ -1,16 +1,15 @@
-import { createSlackMessage } from '@test/utils/createSlackMessage';
-
-import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { setUserPreference } from '@utils/db/setUserPreference';
-
 import { notificationPreferences } from '.';
+
+import { bolt } from '~/src/api/slack';
+import { buildServer } from '~/src/buildServer';
+import { db } from '~/src/utils/db';
+import { setUserPreference } from '~/src/utils/db/setUserPreference';
+import { createSlackMessage } from '~/test/utils/createSlackMessage';
 
 // @ts-ignore
 jest.spyOn(db.context, 'raw');
 
-jest.mock('@utils/db/setUserPreference', () => ({
+jest.mock('~/src/utils/db/setUserPreference', () => ({
   setUserPreference: jest.fn(() => true),
 }));
 
