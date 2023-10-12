@@ -41,7 +41,7 @@ export const TARGETS = {
       timeToRouteBy: 'TIMESTAMP',
       timeToTriageBy: 'TIMESTAMP',
       product_area: 'STRING',
-      teams: 'ARRAY<STRING>',
+      teams: 'STRING',
     },
   },
 
