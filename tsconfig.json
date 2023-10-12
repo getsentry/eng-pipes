@@ -20,7 +20,7 @@
     "baseUrl": "./",
     "paths": {
       "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
-      "~/*": ["*"],
+      "~/*": ["src/*"],
       "@test/*": ["test/*"]
     }
   },
