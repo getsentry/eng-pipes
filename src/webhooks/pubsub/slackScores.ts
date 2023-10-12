@@ -60,7 +60,9 @@ export const triggerSlackScores = async (
       ? 100
       : (teamScoreInfo.score * 100).toFixed(0);
     const teamText = `${teamScoreInfo.team}`;
-    const scoreText = `${score} (${teamScoreInfo.eventsTriagedOnTime}/${teamScoreInfo.numEvents})`;
+    const scoreText = `${score.toString().padEnd(3, ' ')} (${
+      teamScoreInfo.eventsTriagedOnTime
+    }/${teamScoreInfo.numEvents})`;
     scoreBoard += `| ${addSpaces(teamText, 'team')}| ${addSpaces(
       scoreText,
       'score'
