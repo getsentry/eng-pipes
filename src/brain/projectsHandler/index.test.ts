@@ -1,12 +1,12 @@
 import { createGitHubEvent } from '@test/utils/github';
 
-import { buildServer } from '@/buildServer';
-import { GETSENTRY_ORG } from '@/config';
-import { Fastify } from '@/types';
-import { defaultErrorHandler, githubEvents } from '@api/github';
-import { db } from '@utils/db';
-
 import { projectsHandler } from '.';
+
+import { defaultErrorHandler, githubEvents } from '~/api/github';
+import { buildServer } from '~/buildServer';
+import { GETSENTRY_ORG } from '~/config';
+import { Fastify } from '~/types';
+import { db } from '~/utils/db';
 
 describe('projectsHandler', function () {
   let fastify: Fastify;

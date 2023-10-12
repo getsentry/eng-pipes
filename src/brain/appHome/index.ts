@@ -1,8 +1,8 @@
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
-import { updateAppHome } from '@api/slack/updateAppHome';
-import { db } from '@utils/db';
-import { normalizeGithubUser } from '@utils/normalizeGithubUser';
+import { getUser } from '~/api/getUser';
+import { bolt } from '~/api/slack';
+import { updateAppHome } from '~/api/slack/updateAppHome';
+import { db } from '~/utils/db';
+import { normalizeGithubUser } from '~/utils/normalizeGithubUser';
 
 export function appHome() {
   // User used App Home to set GitHub login

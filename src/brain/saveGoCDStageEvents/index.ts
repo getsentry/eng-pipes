@@ -1,7 +1,7 @@
-import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types';
-import { gocdevents } from '@api/gocdevents';
-import { db } from '@utils/db';
-import { filterBuildCauses } from '@utils/gocdHelpers';
+import { gocdevents } from '~/api/gocdevents';
+import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '~/types';
+import { db } from '~/utils/db';
+import { filterBuildCauses } from '~/utils/gocdHelpers';
 
 export const DB_TABLE_STAGES = 'gocd-stages';
 export const DB_TABLE_MATERIALS = 'gocd-stage-materials';

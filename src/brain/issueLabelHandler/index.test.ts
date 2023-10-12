@@ -1,20 +1,20 @@
 import { createGitHubEvent } from '@test/utils/github';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
-import { buildServer } from '@/buildServer';
+import { issueLabelHandler } from '.';
+
+import { defaultErrorHandler, githubEvents } from '~/api/github';
+import { MockOctokitError } from '~/api/github/__mocks__/mockError';
+import { getLabelsTable } from '~/brain/issueNotifier';
+import { buildServer } from '~/buildServer';
 import {
   GETSENTRY_ORG,
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { Fastify } from '@/types';
-import { defaultErrorHandler, githubEvents } from '@api/github';
-import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import * as businessHourFunctions from '@utils/businessHours';
-import { db } from '@utils/db';
-
-import { issueLabelHandler } from '.';
+} from '~/config';
+import { Fastify } from '~/types';
+import * as businessHourFunctions from '~/utils/businessHours';
+import { db } from '~/utils/db';
 
 describe('issueLabelHandler', function () {
   let fastify: Fastify;

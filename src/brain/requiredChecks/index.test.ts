@@ -6,7 +6,7 @@ const mockDataset = jest.fn(() => ({
   table: mockTable,
 }));
 
-// Needs to be mocked before `@utils/metrics`
+// Needs to be mocked before `~/utils/metrics`
 jest.mock('@google-cloud/bigquery', () => ({
   BigQuery: function () {
     return {
@@ -19,22 +19,22 @@ import merge from 'lodash.merge';
 
 import { createGitHubEvent } from '@test/utils/github';
 
-import { buildServer } from '@/buildServer';
+import { requiredChecks } from '.';
+
+import { bolt } from '~/api/slack';
+import { buildServer } from '~/buildServer';
 import {
   BuildStatus,
   GETSENTRY_ORG,
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { db } from '@/utils/db';
-import { bolt } from '@api/slack';
-import * as getFailureMessages from '@utils/db/getFailureMessages';
-import { getTimestamp } from '@utils/db/getTimestamp';
-import * as saveSlackMessage from '@utils/db/saveSlackMessage';
-import { TARGETS } from '@utils/metrics';
-
-import { requiredChecks } from '.';
+} from '~/config';
+import { Fastify } from '~/types';
+import { db } from '~/utils/db';
+import * as getFailureMessages from '~/utils/db/getFailureMessages';
+import { getTimestamp } from '~/utils/db/getTimestamp';
+import * as saveSlackMessage from '~/utils/db/saveSlackMessage';
+import { TARGETS } from '~/utils/metrics';
 
 function tick(timeout = 10) {
   return new Promise((resolve) => setTimeout(resolve, timeout));

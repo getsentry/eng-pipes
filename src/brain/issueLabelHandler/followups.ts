@@ -10,14 +10,14 @@ import {
   WAITING_FOR_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
+} from '~/config';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
-} from '@utils/businessHours';
-import { isFromABot } from '@utils/isFromABot';
-import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
-import { shouldSkip } from '@utils/shouldSkip';
+} from '~/utils/businessHours';
+import { isFromABot } from '~/utils/isFromABot';
+import { isNotFromAnExternalOrGTMUser } from '~/utils/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '~/utils/shouldSkip';
 
 function isNotInARepoWeCareAboutForFollowups(payload, org) {
   return !org.repos.all.includes(payload.repository.name);

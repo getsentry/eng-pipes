@@ -95,7 +95,7 @@ jest.mock('@slack/web-api', () => ({
   }),
 }));
 
-const bolt = jest.requireActual('@api/slack').bolt;
+const bolt = jest.requireActual('~/api/slack').bolt;
 
 /**
  * Need to do this otherwise we can't test expectations against injected client

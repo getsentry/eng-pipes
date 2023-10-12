@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { GETSENTRY_ORG } from '@/config';
+import { GETSENTRY_ORG } from '~/config';
 
 const FRONTEND_CHANGE_CHECK_NAME = 'only frontend changes';
 const BACKEND_CHANGE_CHECK_NAME = 'only backend changes';

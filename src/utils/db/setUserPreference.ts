@@ -1,9 +1,9 @@
 import * as Sentry from '@sentry/node';
 
-import { getUser } from '@api/getUser';
-
 import { findUser } from './findUser';
 import { db } from '.';
+
+import { getUser } from '~/api/getUser';
 
 type GetUserParams = Parameters<typeof findUser>[0];
 

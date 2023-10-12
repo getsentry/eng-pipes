@@ -1,17 +1,16 @@
-import {
-  DBGoCDDeployment,
-  GoCDBuildCause,
-  GoCDBuildType,
-  GoCDPipeline,
-} from '@types';
+import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
 
 import {
   Color,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
-} from '@/config';
-
-import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
+} from '~/config';
+import {
+  DBGoCDDeployment,
+  GoCDBuildCause,
+  GoCDBuildType,
+  GoCDPipeline,
+} from '~/types';
 
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';

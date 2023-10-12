@@ -1,6 +1,6 @@
-import { githubEvents } from '@api/github';
-
 import { syncLabelsWithProjectField } from './project';
+
+import { githubEvents } from '~/api/github';
 
 export async function projectsHandler() {
   githubEvents.removeListener(

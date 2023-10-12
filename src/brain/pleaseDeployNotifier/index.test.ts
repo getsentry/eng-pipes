@@ -3,11 +3,17 @@ import merge from 'lodash.merge';
 import { createSlackRequest } from '@test/utils/createSlackRequest';
 import { createGitHubEvent } from '@test/utils/github';
 
+import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
+
+import * as actions from './actionViewUndeployedCommits';
+import { pleaseDeployNotifier } from '.';
+
+import { bolt } from '~/api/slack';
 import {
   DB_TABLE_MATERIALS,
   DB_TABLE_STAGES,
-} from '@/brain/saveGoCDStageEvents';
-import { buildServer } from '@/buildServer';
+} from '~/brain/saveGoCDStageEvents';
+import { buildServer } from '~/buildServer';
 import {
   GETSENTRY_ORG,
   GOCD_ORIGIN,
@@ -15,17 +21,11 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
-
-import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
-
-import * as actions from './actionViewUndeployedCommits';
-import { pleaseDeployNotifier } from '.';
+} from '~/config';
+import { Fastify } from '~/types';
+import { db } from '~/utils/db';
+import { getLastGetSentryGoCDDeploy } from '~/utils/db/getLatestDeploy';
+import { queueCommitsForDeploy } from '~/utils/db/queueCommitsForDeploy';
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;

@@ -1,7 +1,7 @@
-import { SlackMessage } from '@/config/slackMessage';
-
 import { saveSlackMessage } from './saveSlackMessage';
 import { db } from '.';
+
+import { SlackMessage } from '~/config/slackMessage';
 
 describe('saveSlackMessage', function () {
   beforeAll(async function () {

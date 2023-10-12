@@ -1,15 +1,15 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 
+import { githubEvents } from '~/api/github';
+import { bolt } from '~/api/slack';
 import {
   PRODUCT_AREA_LABEL_PREFIX,
   SUPPORT_CHANNEL_ID,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { githubEvents } from '@api/github';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { wrapHandler } from '@utils/wrapHandler';
+} from '~/config';
+import { db } from '~/utils/db';
+import { wrapHandler } from '~/utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
 

@@ -1,13 +1,13 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
-import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
-
 import getStatsMessage, { OWNERSHIP_FILE_LINK } from './getStatsMessage';
 import { apis } from '.';
 
+import { bolt } from '~/api/slack';
+import { buildServer } from '~/buildServer';
+
 const STATS_TEXT = 'Some random team stats';
-jest.mock('@api/slack');
+jest.mock('~/api/slack');
 
 jest.mock('./getStatsMessage', () =>
   jest.fn(() => ({

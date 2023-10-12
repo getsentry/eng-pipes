@@ -1,8 +1,8 @@
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { insertAssetSize } from '@utils/metrics';
-
 import { verifyWebhook } from './verifyWebhook';
+
+import { insertAssetSize } from '~/utils/metrics';
 
 export async function handler(
   request: FastifyRequest<{

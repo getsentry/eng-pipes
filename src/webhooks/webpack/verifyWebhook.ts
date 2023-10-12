@@ -1,6 +1,6 @@
 import { FastifyRequest } from 'fastify';
 
-import { verifySignature } from '@utils/verifySignature';
+import { verifySignature } from '~/utils/verifySignature';
 
 export function verifyWebhook(request: FastifyRequest) {
   // XXX: `fastify` does not offer a "raw body" and instead provides us with the decoded payload

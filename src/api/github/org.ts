@@ -2,18 +2,18 @@ import { createAppAuth } from '@octokit/auth-app';
 import { Octokit } from '@octokit/rest';
 import * as Sentry from '@sentry/node';
 
-import {
-  AppAuthStrategyOptions,
-  GitHubIssuesSomeoneElseCaresAbout,
-  GitHubOrgConfig,
-  GitHubOrgRepos,
-} from '@/types';
-
 // We can't use @ to import config here or we get an error from jest due to
 // circular import or something. Try it out if you want. :)
 import { FORCE_USER_TOKEN_GITHUB_CLIENT, GH_USER_CLIENT } from '../../config';
 
 import { OctokitWithRetries } from './octokitWithRetries';
+
+import {
+  AppAuthStrategyOptions,
+  GitHubIssuesSomeoneElseCaresAbout,
+  GitHubOrgConfig,
+  GitHubOrgRepos,
+} from '~/types';
 
 export class GitHubOrg {
   slug: string;

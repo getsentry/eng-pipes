@@ -3,6 +3,8 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import moment from 'moment-timezone';
 
+import { getTeams } from './getTeams';
+
 import {
   MAX_ROUTE_DAYS,
   MAX_TRIAGE_DAYS,
@@ -11,9 +13,7 @@ import {
   PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-
-import { getTeams } from './getTeams';
+} from '~/config';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;

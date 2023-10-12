@@ -1,4 +1,4 @@
-import { GETSENTRY_ORG } from '@/config';
+import { GETSENTRY_ORG } from '~/config';
 
 export async function getAuthors(
   repo: string,

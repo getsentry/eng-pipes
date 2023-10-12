@@ -1,17 +1,17 @@
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
+import { GitHubOrg } from '~/api/github/org';
+import { bolt } from '~/api/slack';
 import {
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
-} from '@/config';
-import { Issue } from '@/types';
-import { isTimeInBusinessHours } from '@/utils/businessHours';
-import { GitHubOrg } from '@api/github/org';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import { getTeams } from '@utils/getTeams';
+} from '~/config';
+import { Issue } from '~/types';
+import { isTimeInBusinessHours } from '~/utils/businessHours';
+import { db } from '~/utils/db';
+import { getTeams } from '~/utils/getTeams';
 
 const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA = 'Other';

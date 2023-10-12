@@ -3,23 +3,23 @@ import merge from 'lodash.merge';
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
 import { createGitHubEvent } from '@test/utils/github';
 
-import { buildServer } from '@/buildServer';
+import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
+
+import { handler, notifyOnGoCDStageEvent } from '.';
+
+import { bolt } from '~/api/slack';
+import { buildServer } from '~/buildServer';
 import {
   GETSENTRY_BOT_ID,
   GETSENTRY_ORG,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
-} from '@/config';
-import { Fastify } from '@/types';
-import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocdHelpers';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-import * as metrics from '@utils/metrics';
-
-import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
-
-import { handler, notifyOnGoCDStageEvent } from '.';
+} from '~/config';
+import { Fastify } from '~/types';
+import { db } from '~/utils/db';
+import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '~/utils/gocdHelpers';
+import * as metrics from '~/utils/metrics';
 
 const HEAD_SHA = '982345';
 

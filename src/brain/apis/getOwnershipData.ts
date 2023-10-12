@@ -1,4 +1,4 @@
-import { GETSENTRY_ORG } from '@/config';
+import { GETSENTRY_ORG } from '~/config';
 
 const OWNERSHIP_FILE_PATH = 'api_ownership_stats_dont_modify.json';
 const SENTRY_API_SCHEMA = 'sentry-api-schema';

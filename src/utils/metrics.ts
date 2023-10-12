@@ -1,14 +1,14 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
-import { DRY_RUN, PRODUCT_AREA_LABEL_PREFIX, PROJECT } from '@/config';
-
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
 } from './businessHours';
 import { getOssUserType } from './getOssUserType';
 import { getTeams } from './getTeams';
+
+import { DRY_RUN, PRODUCT_AREA_LABEL_PREFIX, PROJECT } from '~/config';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 

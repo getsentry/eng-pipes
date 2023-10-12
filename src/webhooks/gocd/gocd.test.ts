@@ -1,7 +1,7 @@
 import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
 import gocdstagepayload from '@test/payloads/gocd/gocd-stage-building.json';
 
-import { buildServer } from '@/buildServer';
+import { buildServer } from '~/buildServer';
 
 describe('gocd webhook', function () {
   let fastify;

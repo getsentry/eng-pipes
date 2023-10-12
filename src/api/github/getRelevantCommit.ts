@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG, SENTRY_REPO_SLUG } from '@/config';
+import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG, SENTRY_REPO_SLUG } from '~/config';
 
 /**
  * Attempts to find the relevant commit for a SHA

@@ -4,7 +4,7 @@ import {
   GETSENTRY_ORG,
   GETSENTRY_REPO_SLUG,
   REQUIRED_CHECK_NAME,
-} from '@/config';
+} from '~/config';
 
 /**
  * Checks payload to see if:

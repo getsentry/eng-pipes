@@ -1,5 +1,5 @@
-import { bolt } from '@api/slack';
-import { setUserPreference } from '@utils/db/setUserPreference';
+import { bolt } from '~/api/slack';
+import { setUserPreference } from '~/utils/db/setUserPreference';
 
 /**
  * Handles chat commands to control notification preferences

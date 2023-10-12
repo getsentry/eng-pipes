@@ -1,13 +1,13 @@
 import { hydrateGitHubEventAndPayload } from '@test/utils/github';
 
+import { getLabelsTable, githubLabelHandler } from '.';
+
+import { bolt } from '~/api/slack';
 import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
-} from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-
-import { getLabelsTable, githubLabelHandler } from '.';
+} from '~/config';
+import { db } from '~/utils/db';
 
 const NUM_CHANNELS = 2;
 

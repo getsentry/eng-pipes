@@ -1,9 +1,9 @@
-import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
-import { DBGoCDDeployment } from '@/types';
-
 import { FINAL_STAGE_NAMES } from '../gocdHelpers';
 
 import { db } from '.';
+
+import { DB_TABLE_STAGES } from '~/brain/saveGoCDStageEvents';
+import { DBGoCDDeployment } from '~/types';
 
 export async function getLatestDeploy(app_name: string) {
   return await db

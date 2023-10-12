@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { GH_ORGS, PRODUCT_OWNERS_INFO } from '@/config';
+import { GH_ORGS, PRODUCT_OWNERS_INFO } from '~/config';
 
 export function getTeams(
   repo: string,

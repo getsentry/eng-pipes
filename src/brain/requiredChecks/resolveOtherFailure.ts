@@ -2,13 +2,13 @@ import '@sentry/tracing';
 
 import * as Sentry from '@sentry/node';
 
-import { BuildStatus, Color } from '@/config';
-import { CheckRun } from '@/types';
-import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
-import { bolt } from '@api/slack';
-import { getFailureMessages } from '@utils/db/getFailureMessages';
-
 import { getTextParts } from './getTextParts';
+
+import { bolt } from '~/api/slack';
+import { BuildStatus, Color } from '~/config';
+import { CheckRun } from '~/types';
+import { getFailureMessages } from '~/utils/db/getFailureMessages';
+import { updateRequiredCheck } from '~/utils/db/updateRequiredCheck';
 
 interface ResolveOtherFailureParams {
   checkRun: CheckRun;

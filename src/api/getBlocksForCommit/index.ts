@@ -1,8 +1,8 @@
 import { KnownBlock } from '@slack/types';
 
-import { ReposGetCommit } from '@types';
-
 import { getUser } from '../getUser';
+
+import { ReposGetCommit } from '~/types';
 
 type Options = {
   shouldSlackMention?: boolean;

@@ -1,11 +1,11 @@
 import { createSlackEvent } from '@test/utils/createSlackEvent';
 
-import { buildServer } from '@/buildServer';
-import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
-import { db } from '@utils/db';
-
 import { syncUserProfileChange } from '.';
+
+import { bolt } from '~/api/slack';
+import { buildServer } from '~/buildServer';
+import { SLACK_PROFILE_ID_GITHUB } from '~/config';
+import { db } from '~/utils/db';
 
 describe('syncUserProfileChange', function () {
   let fastify;

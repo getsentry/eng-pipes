@@ -20,13 +20,8 @@
     "baseUrl": "./",
     "paths": {
       "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
-      "@/*": ["src/*"],
-      "@api/*": ["src/api/*"],
-      "@test/*": ["test/*"],
-      "@types": ["src/types"],
-      "@utils/*": ["src/utils/*"],
-      "@webhooks": ["src/webhooks"],
-      "@webhooks/*": ["src/webhooks/*"]
+      "~/*": ["*"],
+      "@test/*": ["test/*"]
     }
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],

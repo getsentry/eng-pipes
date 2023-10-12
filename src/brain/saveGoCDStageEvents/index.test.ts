@@ -3,10 +3,10 @@ import merge from 'lodash.merge';
 import buildingPayload from '@test/payloads/gocd/gocd-stage-building.json';
 import failedPayload from '@test/payloads/gocd/gocd-stage-failed.json';
 
-import { gocdevents } from '@api/gocdevents';
-import * as utils from '@utils/db';
-
 import * as saveGoCDStageEvents from '.';
+
+import { gocdevents } from '~/api/gocdevents';
+import * as utils from '~/utils/db';
 
 describe('saveGoCDStageEvents.handler', function () {
   let dbMock: jest.SpyInstance;

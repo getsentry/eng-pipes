@@ -1,9 +1,9 @@
 import { KnownBlock } from '@slack/bolt';
 
-import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
-import { unmuteDeployNotificationsButton } from '@/blocks/unmuteDeployNotificationsButton';
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
+import { getUser } from '~/api/getUser';
+import { bolt } from '~/api/slack';
+import { muteDeployNotificationsButton } from '~/blocks/muteDeployNotificationsButton';
+import { unmuteDeployNotificationsButton } from '~/blocks/unmuteDeployNotificationsButton';
 
 function getGitHubUsernameInput(currentUsername?: string): KnownBlock {
   return {

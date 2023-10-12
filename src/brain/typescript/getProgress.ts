@@ -1,4 +1,4 @@
-import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '@/config';
+import { GETSENTRY_ORG, SENTRY_REPO_SLUG } from '~/config';
 
 /**
  * Paths that we do not intend to convert to ts

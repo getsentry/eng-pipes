@@ -1,5 +1,6 @@
 import { Fastify } from '@/types';
-import { createSignature } from '@utils/createSignature';
+
+import { createSignature } from '~/utils/createSignature';
 
 function createSlackSignature(payload, timestamp) {
   return createSignature(

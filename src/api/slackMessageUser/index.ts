@@ -1,8 +1,8 @@
 import * as Sentry from '@sentry/node';
 import { ChatPostMessageArguments } from '@slack/web-api';
 
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
+import { getUser } from '~/api/getUser';
+import { bolt } from '~/api/slack';
 
 /**
  * Attempts to message a user on Slack. This checks the user's notification preferences first
