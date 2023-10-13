@@ -27,6 +27,8 @@ export const triggerSlackScores = async (
       const triagedOnTimeEvents = issueTriageEvents.filter(
         (issue) => issue.triaged_dt.value <= issue.triage_by_dt.value
       );
+      // For teams with 0 events, set the score to 0 instead of NaN to ensure those teams
+      // end up on the bottom of the scoreboard automatically.
       const score =
         issueTriageEvents.length === 0
           ? 0
