@@ -1,11 +1,31 @@
-import { BigQuery } from '@google-cloud/bigquery';
+const mockQuery = jest.fn(async () => {
+  return [
+    {
+      issue_id: '1',
+      repository: 'routing-repo',
+      product_area: 'Issues',
+      triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+      triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+    },
+  ];
+});
 
-import { PROJECT } from '@/config';
+jest.mock('@google-cloud/bigquery', () => ({
+  BigQuery: function () {
+    return {
+      query: mockQuery,
+    };
+  },
+}));
+import { getIssueEventsForTeam } from './scores';
 
-const bigqueryClient = new BigQuery({ projectId: PROJECT });
-
-export async function getIssueEventsForTeam(team) {
-  const query = `WITH labelings AS (
+describe('score tests', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+  it('should send the right sql we expect', () => {
+    getIssueEventsForTeam('team-ospo');
+    const query = `WITH labelings AS (
     SELECT
       issues.object_id AS issue_id,
       issues.repository as repository,
@@ -74,10 +94,8 @@ export async function getIssueEventsForTeam(team) {
       triage_by_dt,
     FROM
       issues_to_count
-      WHERE '${team}' in UNNEST(teams)
+      WHERE 'team-ospo' in UNNEST(teams)
       ;`;
-
-  const [issues] = await bigqueryClient.query(query);
-
-  return issues;
-}
+    expect(mockQuery).toHaveBeenCalledWith(query);
+  });
+});

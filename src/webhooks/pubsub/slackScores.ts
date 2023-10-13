@@ -24,17 +24,17 @@ export const triggerSlackScores = async (
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
       const issueTriageEvents = await getIssueEventsForTeam(team);
-      const triagedEvents = issueTriageEvents.filter(
-        (issue) => issue.is_triaged
+      const triagedOnTimeEvents = issueTriageEvents.filter(
+        (issue) => issue.triaged_dt.value <= issue.triage_by_dt.value
       );
       const score =
         issueTriageEvents.length === 0
           ? 0
-          : triagedEvents.length / issueTriageEvents.length;
+          : triagedOnTimeEvents.length / issueTriageEvents.length;
       return {
         team: team.slice(TEAM_PREFIX.length),
         score,
-        eventsTriagedOnTime: triagedEvents.length,
+        eventsTriagedOnTime: triagedOnTimeEvents.length,
         numEvents: issueTriageEvents.length,
       };
     })

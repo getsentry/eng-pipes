@@ -55,7 +55,8 @@ describe('slackScores Tests', function () {
           issue_id: 1,
           repository: 'routing-repo',
           product_area: 'One-Team',
-          is_triaged: true,
+          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
         },
       ])
       .mockReturnValueOnce([
@@ -63,7 +64,8 @@ describe('slackScores Tests', function () {
           issue_id: 2,
           repository: 'routing-repo',
           product_area: 'Multi-Team',
-          is_triaged: false,
+          triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
         },
       ])
       .mockReturnValueOnce([
@@ -71,13 +73,15 @@ describe('slackScores Tests', function () {
           issue_id: 3,
           repository: 'routing-repo',
           product_area: 'Test',
-          is_triaged: true,
+          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
         },
         {
           issue_id: 4,
           repository: 'routing-repo',
           product_area: 'Test',
-          is_triaged: false,
+          triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
         },
       ])
       .mockReturnValue([]);
