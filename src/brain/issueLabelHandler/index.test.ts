@@ -804,5 +804,26 @@ describe('issueLabelHandler', function () {
         expect(clearProjectIssueFieldSpy).not.toHaveBeenCalled();
       }
     );
+
+    it.only.each([
+      WAITING_FOR_PRODUCT_OWNER_LABEL,
+      WAITING_FOR_SUPPORT_LABEL,
+      WAITING_FOR_COMMUNITY_LABEL,
+    ])("should remove '%s' label when issue is closed", async function (label) {
+      await setupIssue();
+      await addLabel(label, 'routing-repo');
+      await createGitHubEvent(
+        fastify,
+        'issues.closed',
+        makePayload({
+          repo: 'routing-repo',
+          label,
+          sender: 'getsentry-bot',
+          state: undefined,
+          author_association: undefined,
+        })
+      );
+      expect(org.api.issues._labels).not.toContain(label);
+    });
   });
 });
