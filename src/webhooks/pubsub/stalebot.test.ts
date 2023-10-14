@@ -37,6 +37,7 @@ describe('Stalebot Tests', function () {
 
   it('should mark issue as stale if it has been over 3 weeks', async function () {
     org.api.issues.listForRepo = () => [issueInfo];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
     expect(org.api.issues._labels).toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([
@@ -52,20 +53,23 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 
   it('should not mark issue as stale if it has been under 3 weeks', async function () {
     org.api.issues.listForRepo = () => [issueInfo];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
 
   it('should not mark PR as stale if it has been under 3 weeks', async function () {
-    org.api.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = () => [{ ...issueInfo, pull_request: {} }];
     await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
 
   it('should mark PR as stale if it has been over 3 weeks', async function () {
-    org.api.issues.listForRepo = () => [{ ...issueInfo, pull_request: {} }];
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = () => [{ ...issueInfo, pull_request: {} }];
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
     expect(org.api.issues._labels).toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([
@@ -79,11 +83,33 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     ]);
   });
 
+  it('should not close stale PR that has no activity for less than a week and has `Stale` label', async function () {
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = () => [{ ...issueInfo, labels: [STALE_LABEL] }];
+    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    expect(issueUpdateSpy).toHaveBeenCalledTimes(0);
+  });
+
+  it('should close PR if there is no activity after a week and issue has label `Stale`', async function () {
+    const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = () => [{ ...issueInfo, labels: [STALE_LABEL] }];
+    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
+    expect(issueUpdateSpy).toHaveBeenCalledWith({
+      issue_number: undefined,
+      owner: 'getsentry',
+      repo: 'test-sentry-repo',
+      state: 'closed',
+    });
+  });
+
   it('should not close stale issue that has been inactive for more than a week and does not have label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
@@ -93,6 +119,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL] },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
     expect(issueUpdateSpy).toHaveBeenCalledWith({
       issue_number: undefined,
@@ -107,6 +134,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     org.api.issues.listForRepo = () => [
       { ...issueInfo, labels: [STALE_LABEL] },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
@@ -119,6 +147,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
         labels: [STALE_LABEL],
       },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
@@ -131,6 +160,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
         labels: [STALE_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
       },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
@@ -143,6 +173,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
         labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL],
       },
     ];
+    org.api.pulls.list = () => [];
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
     expect(org.api.issues._labels).toContain(STALE_LABEL);
   });
