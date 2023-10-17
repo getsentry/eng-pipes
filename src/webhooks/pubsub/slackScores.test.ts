@@ -117,4 +117,49 @@ describe('slackScores Tests', function () {
       text: 'Weekly GitHub Team Scores',
     });
   });
+
+  it('should ignore issue if it is not due yet', async () => {
+    getIssueEventsForTeamSpy
+      .mockReturnValueOnce([
+        {
+          issue_id: 1,
+          repository: 'routing-repo',
+          product_area: 'One-Team',
+          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+          triage_by_dt: { value: '9999-10-12T21:52:14.223Z' },
+        },
+      ])
+      .mockReturnValue([]);
+    await triggerSlackScores(null, null);
+    expect(postMessageSpy).toHaveBeenCalledWith({
+      blocks: [
+        {
+          text: {
+            emoji: true,
+            text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
+            type: 'plain_text',
+          },
+          type: 'header',
+        },
+        {
+          text: {
+            text: `\`\`\`
+┌────────────────────────────────────────────────┐
+| Team                          │ % on Time      |
+├────────────────────────────────────────────────┤
+| enterprise                    | -   (0/0)      |
+| ingest                        | -   (0/0)      |
+| issues                        | -   (0/0)      |
+| null                          | -   (0/0)      |
+| ospo                          | -   (0/0)      |
+└────────────────────────────────────────────────┘\`\`\``,
+            type: 'mrkdwn',
+          },
+          type: 'section',
+        },
+      ],
+      channel: 'G01F3FQ0T41',
+      text: 'Weekly GitHub Team Scores',
+    });
+  });
 });
