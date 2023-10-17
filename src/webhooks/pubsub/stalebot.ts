@@ -53,6 +53,11 @@ const closeStaleIssues = async (
 ) => {
   await Promise.all(
     staleIssues.map((issue) => {
+      const isPullRequest = issue.pull_request ? true : false;
+      // Only handle issues
+      if (isPullRequest) {
+        return Promise.resolve();
+      }
       const issueHasWaitingForCommunityLabel = issue.labels.some(
         (label) =>
           label === WAITING_FOR_COMMUNITY_LABEL ||
@@ -83,6 +88,27 @@ const closeStaleIssues = async (
   );
 };
 
+const closeStalePullRequests = async (
+  org: GitHubOrg,
+  repo: string,
+  stalePullRequests,
+  now: moment.Moment
+) => {
+  await Promise.all(
+    stalePullRequests.map((pullRequest) => {
+      if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
+        return org.api.issues.update({
+          owner: org.slug,
+          repo: repo,
+          issue_number: pullRequest.number,
+          state: 'closed',
+        });
+      }
+      return Promise.resolve();
+    })
+  );
+};
+
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
   await Promise.all(
@@ -104,8 +130,26 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
         labels: STALE_LABEL,
         per_page: GH_API_PER_PAGE,
       });
+      const pullRequests = await org.api.paginate(org.api.pulls.list, {
+        owner: org.slug,
+        repo,
+        state: 'open',
+        per_page: GH_API_PER_PAGE,
+      });
+      // Unfortunately, octokit doesn't allow us to filter by labels when
+      // sending a GET request for pull requests, so we need to do this manually.
+      const stalePullRequests = pullRequests.filter((pullRequest) =>
+        pullRequest.labels.some(
+          (label) => label === STALE_LABEL || label.name === STALE_LABEL
+        )
+      );
+      const activePullRequests = pullRequests.filter(
+        (pullRequest) => !stalePullRequests.includes(pullRequest)
+      );
       await staleStatusUpdater(org, repo, issuesWaitingForCommunity, now);
+      await staleStatusUpdater(org, repo, activePullRequests, now);
       await closeStaleIssues(org, repo, staleIssues, now);
+      await closeStalePullRequests(org, repo, stalePullRequests, now);
     })
   );
 };
