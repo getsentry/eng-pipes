@@ -23,7 +23,10 @@ export const triggerSlackScores = async (
 ) => {
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
-      const issueTriageEvents = await getIssueEventsForTeam(team);
+      // Filter out issues that are not yet due
+      const issueTriageEvents = (await getIssueEventsForTeam(team)).filter(
+        (issue) => moment(issue.triage_by_dt.value) <= moment()
+      );
       const triagedOnTimeEvents = issueTriageEvents.filter(
         (issue) => issue.triaged_dt.value <= issue.triage_by_dt.value
       );
