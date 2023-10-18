@@ -107,6 +107,9 @@ export const triggerSlackScores = async (
       text: '```' + scoreBoard + '```',
     },
   });
+  // TODO(getsentry/eng-pipes#664): Remove this console logging
+  /* eslint-disable no-console */
+  console.log('Sending out slack scores');
   await bolt.client.chat.postMessage({
     channel: TEAM_OSPO_CHANNEL_ID,
     text: 'Weekly GitHub Team Scores',
