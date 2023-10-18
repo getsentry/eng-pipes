@@ -112,44 +112,48 @@ const closeStalePullRequests = async (
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
   // Get all open issues and pull requests that are Waiting for Community
   await Promise.all(
-    org.repos.all.map(async (repo: string) => {
-      const issuesWaitingForCommunity = await org.api.paginate(
-        org.api.issues.listForRepo,
-        {
+    org.repos.all.map(
+      async (repo: string) => {
+        const issuesWaitingForCommunity = await org.api.paginate(
+          org.api.issues.listForRepo,
+          {
+            owner: org.slug,
+            repo,
+            state: 'open',
+            labels: WAITING_FOR_COMMUNITY_LABEL,
+            per_page: GH_API_PER_PAGE,
+          }
+        );
+        const staleIssues = await org.api.paginate(org.api.issues.listForRepo, {
           owner: org.slug,
           repo,
           state: 'open',
-          labels: WAITING_FOR_COMMUNITY_LABEL,
+          labels: STALE_LABEL,
           per_page: GH_API_PER_PAGE,
-        }
-      );
-      const staleIssues = await org.api.paginate(org.api.issues.listForRepo, {
-        owner: org.slug,
-        repo,
-        state: 'open',
-        labels: STALE_LABEL,
-        per_page: GH_API_PER_PAGE,
-      });
-      const pullRequests = await org.api.paginate(org.api.pulls.list, {
-        owner: org.slug,
-        repo,
-        state: 'open',
-        per_page: GH_API_PER_PAGE,
-      });
-      // Unfortunately, octokit doesn't allow us to filter by labels when
-      // sending a GET request for pull requests, so we need to do this manually.
-      const stalePullRequests = pullRequests.filter((pullRequest) =>
-        pullRequest.labels.some(
-          (label) => label === STALE_LABEL || label.name === STALE_LABEL
-        )
-      );
-      const activePullRequests = pullRequests.filter(
-        (pullRequest) => !stalePullRequests.includes(pullRequest)
-      );
-      await staleStatusUpdater(org, repo, issuesWaitingForCommunity, now);
-      await staleStatusUpdater(org, repo, activePullRequests, now);
-      await closeStaleIssues(org, repo, staleIssues, now);
-      await closeStalePullRequests(org, repo, stalePullRequests, now);
-    })
+        });
+        await staleStatusUpdater(org, repo, issuesWaitingForCommunity, now);
+        await closeStaleIssues(org, repo, staleIssues, now);
+      },
+      org.repos.withRouting.map(async (repo: string) => {
+        const pullRequests = await org.api.paginate(org.api.pulls.list, {
+          owner: org.slug,
+          repo,
+          state: 'open',
+          per_page: GH_API_PER_PAGE,
+        });
+        // Unfortunately, octokit doesn't allow us to filter by labels when
+        // sending a GET request for pull requests, so we need to do this manually.
+        const stalePullRequests = pullRequests.filter((pullRequest) =>
+          pullRequest.labels.some(
+            (label) => label === STALE_LABEL || label.name === STALE_LABEL
+          )
+        );
+        const activePullRequests = pullRequests.filter(
+          (pullRequest) => !stalePullRequests.includes(pullRequest)
+        );
+        await staleStatusUpdater(org, repo, activePullRequests, now);
+        await closeStalePullRequests(org, repo, stalePullRequests, now);
+      })
+    )
   );
 };
