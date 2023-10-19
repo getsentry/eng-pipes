@@ -18,9 +18,13 @@ const NUM_ROW_SPACES = 3;
 const TEAM_PREFIX = 'team-';
 
 export const triggerSlackScores = async (
-  __org: GitHubOrg,
+  org: GitHubOrg,
   __now: moment.Moment
 ) => {
+  if (org.slug !== 'getsentry') {
+    return;
+  }
+
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
       // Filter out issues that are not yet due
@@ -107,9 +111,6 @@ export const triggerSlackScores = async (
       text: '```' + scoreBoard + '```',
     },
   });
-  // TODO(getsentry/eng-pipes#664): Remove this console logging
-  /* eslint-disable no-console */
-  console.log('Sending out slack scores');
   await bolt.client.chat.postMessage({
     channel: TEAM_OSPO_CHANNEL_ID,
     text: 'Weekly GitHub Team Scores',

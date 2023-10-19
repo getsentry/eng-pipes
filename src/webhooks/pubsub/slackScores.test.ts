@@ -1,3 +1,4 @@
+import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import { bolt } from '@api/slack';
 import * as scoresUtils from '@utils/scores';
 
@@ -13,9 +14,15 @@ describe('slackScores Tests', function () {
     jest.clearAllMocks();
   });
 
+  it('should not post message when org is codecov', async () => {
+    getIssueEventsForTeamSpy.mockReturnValue([]);
+    await triggerSlackScores(GH_ORGS.get('codecov'), null);
+    expect(postMessageSpy).toHaveBeenCalledTimes(0);
+  });
+
   it('should handle case when no issues are returned', async () => {
     getIssueEventsForTeamSpy.mockReturnValue([]);
-    await triggerSlackScores(null, null);
+    await triggerSlackScores(GETSENTRY_ORG, null);
     expect(postMessageSpy).toHaveBeenCalledWith({
       blocks: [
         {
@@ -85,7 +92,7 @@ describe('slackScores Tests', function () {
         },
       ])
       .mockReturnValue([]);
-    await triggerSlackScores(null, null);
+    await triggerSlackScores(GETSENTRY_ORG, null);
     expect(postMessageSpy).toHaveBeenCalledWith({
       blocks: [
         {
@@ -130,7 +137,7 @@ describe('slackScores Tests', function () {
         },
       ])
       .mockReturnValue([]);
-    await triggerSlackScores(null, null);
+    await triggerSlackScores(GETSENTRY_ORG, null);
     expect(postMessageSpy).toHaveBeenCalledWith({
       blocks: [
         {
