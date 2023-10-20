@@ -112,7 +112,7 @@ describe('github webhook', function () {
         timeToTriageBy: null,
         timeToRouteBy: null,
         product_area: null,
-        teams: ['team-ospo'],
+        teams: null,
       },
       { schema: SCHEMA }
     );

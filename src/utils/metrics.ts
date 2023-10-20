@@ -302,6 +302,11 @@ export async function insertOss(
         }
       }
     }
+    data.teams = getTeams(
+      payload.repository.name,
+      payload.organization.login,
+      data.product_area
+    );
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
 
@@ -317,6 +322,11 @@ export async function insertOss(
     data.product_area =
       data.product_area &&
       data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
+    data.teams = getTeams(
+      payload.repository.name,
+      payload.organization.login,
+      data.product_area
+    );
   } else if (eventType === 'pull_request') {
     const { action, pull_request, requested_reviewer, requested_team, label } =
       payload;
@@ -359,15 +369,26 @@ export async function insertOss(
     data.target_id = pull_request.number;
     data.target_name = review.state;
     data.target_type = 'pull_request';
+  } else if (eventType === 'discussion') {
+    const { discussion } = payload;
+    data.object_id = discussion.number;
+    data.created_at = discussion.created_at;
+    data.updated_at = discussion.updated_at;
+    data.target_id = discussion.number;
+    data.target_name = discussion.title;
+    data.target_type = 'discussion';
+  } else if (eventType === 'discussion_comment') {
+    const { discussion, comment } = payload;
+    data.object_id = discussion.number;
+    data.created_at = comment.created_at;
+    data.updated_at = comment.updated_at;
+    data.target_id = comment.id;
+    data.target_name = discussion.title;
+    data.target_type = 'discussion';
   } else {
     // Unknown payload event, ignoring...
     return {};
   }
-  data.teams = getTeams(
-    payload.repository.name,
-    payload.organization.login,
-    data.product_area
-  );
   return await _insert(data, TARGETS.oss);
 }
 
