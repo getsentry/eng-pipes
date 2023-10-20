@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 
-import { PRODUCT_OWNERS_INFO, TEAM_OSPO_CHANNEL_ID } from '@/config';
+import { EPD_LEADERSHIP_CHANNEL_ID, PRODUCT_OWNERS_INFO } from '@/config';
 import { getIssueEventsForTeam } from '@/utils/scores';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
@@ -112,7 +112,7 @@ export const triggerSlackScores = async (
     },
   });
   await bolt.client.chat.postMessage({
-    channel: TEAM_OSPO_CHANNEL_ID,
+    channel: EPD_LEADERSHIP_CHANNEL_ID,
     text: 'Weekly GitHub Team Scores',
     blocks: messageBlocks,
   });

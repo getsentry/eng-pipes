@@ -42,6 +42,8 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
+export const EPD_LEADERSHIP_CHANNEL_ID =
+  process.env.EPD_LEADERSHIP_CHANNEL_ID || 'G6MCDB51U';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';
