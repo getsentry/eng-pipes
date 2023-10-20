@@ -50,7 +50,7 @@ describe('slackScores Tests', function () {
           type: 'section',
         },
       ],
-      channel: 'G01F3FQ0T41',
+      channel: 'G6MCDB51U',
       text: 'Weekly GitHub Team Scores',
     });
   });
@@ -120,7 +120,7 @@ describe('slackScores Tests', function () {
           type: 'section',
         },
       ],
-      channel: 'G01F3FQ0T41',
+      channel: 'G6MCDB51U',
       text: 'Weekly GitHub Team Scores',
     });
   });
@@ -165,7 +165,7 @@ describe('slackScores Tests', function () {
           type: 'section',
         },
       ],
-      channel: 'G01F3FQ0T41',
+      channel: 'G6MCDB51U',
       text: 'Weekly GitHub Team Scores',
     });
   });
