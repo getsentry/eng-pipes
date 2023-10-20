@@ -18,9 +18,13 @@ const NUM_ROW_SPACES = 3;
 const TEAM_PREFIX = 'team-';
 
 export const triggerSlackScores = async (
-  __org: GitHubOrg,
+  org: GitHubOrg,
   __now: moment.Moment
 ) => {
+  if (org.slug !== 'getsentry') {
+    return;
+  }
+
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
       // Filter out issues that are not yet due
