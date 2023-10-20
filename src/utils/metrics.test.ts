@@ -16,6 +16,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 }));
 
 import cloneDeep from 'lodash.clonedeep';
+import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
 import {
@@ -29,7 +30,7 @@ import { insertOss } from './metrics';
 
 describe('metrics tests', function () {
   describe('insertOss', function () {
-    describe('lableling events', function () {
+    describe('labeling events', function () {
       const defaultPayload: Record<string, any> = {
         action: 'labeled',
         sender: {
@@ -62,7 +63,7 @@ describe('metrics tests', function () {
       beforeAll(async () => {
         dateNowSpy = jest
           .spyOn(Date, 'now')
-          .mockImplementation(() => 1487076708000);
+          .mockReturnValue(moment('2017-02-14T12:51:48.000Z').valueOf());
         await db.migrate.latest();
         await getLabelsTable().insert({
           label_name: 'Product Area: Test',
