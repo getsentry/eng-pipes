@@ -258,7 +258,7 @@ export async function insertOss(
     timeToRouteBy: null,
     timeToTriageBy: null,
     product_area: null,
-    teams: null,
+    teams: [],
   };
 
   if (eventType === 'issues') {

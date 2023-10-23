@@ -112,7 +112,7 @@ describe('github webhook', function () {
         timeToTriageBy: null,
         timeToRouteBy: null,
         product_area: null,
-        teams: null,
+        teams: [],
       },
       { schema: SCHEMA }
     );
