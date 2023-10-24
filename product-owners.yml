@@ -33,8 +33,12 @@ product_areas:
   - team-ospo
   Performance:
   - team-performance
+  Performance - Interactions:
+  - team-performance
   Performance - Queries:
-  - team-starfish
+  - team-performance
+  Performance - Web Vitals:
+  - team-performance
   Profiling:
   - team-profiling
   Projects - Project Creation:
@@ -84,12 +88,6 @@ product_areas:
   - team-enterprise
   Sign In:
   - team-enterprise
-  Starfish:
-  - team-starfish
-  Starfish - Interactions:
-  - team-starfish
-  Starfish - Page Loads:
-  - team-starfish
   Stats:
   - team-enterprise
   Unknown:
@@ -205,9 +203,6 @@ teams:
     offices:
     - sfo
     slack_channel: C05M9TU0RRR
-  team-starfish:
-    offices: null
-    slack_channel: null
   team-support:
     offices:
     - sfo
