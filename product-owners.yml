@@ -133,7 +133,7 @@ teams:
   team-crons:
     offices:
     - sfo
-    slack_channel: C049DHYN3LZ
+    slack_channel: C062HDG1MT7
   team-cross-platform-java:
     offices:
     - vie
