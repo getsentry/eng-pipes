@@ -50,7 +50,9 @@ export const DISABLE_GITHUB_METRICS =
 export const DRY_RUN =
   process.env.DRY_RUN === 'true' || process.env.DRY_RUN === '1';
 export const PROJECT =
-  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
+  process.env.ENV === 'production'
+    ? 'super-big-data'
+    : process.env.DEV_GCP_PROJECT;
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';

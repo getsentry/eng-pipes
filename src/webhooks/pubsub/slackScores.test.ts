@@ -2,40 +2,62 @@ import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import { bolt } from '@api/slack';
 import * as scoresUtils from '@utils/scores';
 
-import { triggerSlackScores } from './slackScores';
+import {
+  sendDiscussionMetrics,
+  sendGitHubEngagementMetrics,
+  triggerSlackScores,
+} from './slackScores';
 
-describe('slackScores Tests', function () {
-  let getIssueEventsForTeamSpy, postMessageSpy;
+describe('slackScores tests', function () {
+  let getIssueEventsForTeamSpy, getDiscussionEventsSpy, postMessageSpy;
   beforeAll(() => {
     getIssueEventsForTeamSpy = jest.spyOn(scoresUtils, 'getIssueEventsForTeam');
+    getDiscussionEventsSpy = jest.spyOn(scoresUtils, 'getDiscussionEvents');
     postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
   });
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should not post message when org is codecov', async () => {
-    getIssueEventsForTeamSpy.mockReturnValue([]);
-    await triggerSlackScores(GH_ORGS.get('codecov'), null);
-    expect(postMessageSpy).toHaveBeenCalledTimes(0);
+  describe('triggerSlackScores tests', () => {
+    it('should not post message when org is codecov', async () => {
+      getIssueEventsForTeamSpy.mockReturnValue([]);
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions: [],
+        discussionCommenters: [],
+      });
+      await triggerSlackScores(GH_ORGS.get('codecov'), null);
+      expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('should post message when org is getsentry', async () => {
+      getIssueEventsForTeamSpy.mockReturnValue([]);
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions: [],
+        discussionCommenters: [],
+      });
+      await triggerSlackScores(GETSENTRY_ORG, null);
+      expect(postMessageSpy).toHaveBeenCalled();
+    });
   });
 
-  it('should handle case when no issues are returned', async () => {
-    getIssueEventsForTeamSpy.mockReturnValue([]);
-    await triggerSlackScores(GETSENTRY_ORG, null);
-    expect(postMessageSpy).toHaveBeenCalledWith({
-      blocks: [
-        {
-          text: {
-            emoji: true,
-            text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
-            type: 'plain_text',
+  describe('sendGitHubEngagementMetrics tests', () => {
+    it('should handle case when no issues are returned', async () => {
+      getIssueEventsForTeamSpy.mockReturnValue([]);
+      await sendGitHubEngagementMetrics();
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
           },
-          type: 'header',
-        },
-        {
-          text: {
-            text: `\`\`\`
+          {
+            text: {
+              text: `\`\`\`
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
 ├────────────────────────────────────────────────┤
@@ -45,67 +67,67 @@ describe('slackScores Tests', function () {
 | null                          |   - (0/0)      |
 | ospo                          |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
-            type: 'mrkdwn',
+              type: 'mrkdwn',
+            },
+            type: 'section',
           },
-          type: 'section',
-        },
-      ],
-      channel: 'G6MCDB51U',
-      text: 'Weekly GitHub Team Scores',
+        ],
+        channel: 'G6MCDB51U',
+        text: 'Weekly GitHub Team Scores',
+      });
     });
-  });
 
-  it('should handle case when issues are returned and sorted by best response times', async () => {
-    getIssueEventsForTeamSpy
-      .mockReturnValueOnce([
-        {
-          issue_id: 1,
-          repository: 'routing-repo',
-          product_area: 'One-Team',
-          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
-          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-        },
-      ])
-      .mockReturnValueOnce([
-        {
-          issue_id: 2,
-          repository: 'routing-repo',
-          product_area: 'Multi-Team',
-          triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
-          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-        },
-      ])
-      .mockReturnValueOnce([
-        {
-          issue_id: 3,
-          repository: 'routing-repo',
-          product_area: 'Test',
-          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
-          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-        },
-        {
-          issue_id: 4,
-          repository: 'routing-repo',
-          product_area: 'Test',
-          triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
-          triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-        },
-      ])
-      .mockReturnValue([]);
-    await triggerSlackScores(GETSENTRY_ORG, null);
-    expect(postMessageSpy).toHaveBeenCalledWith({
-      blocks: [
-        {
-          text: {
-            emoji: true,
-            text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
-            type: 'plain_text',
+    it('should handle case when issues are returned and sorted by best response times', async () => {
+      getIssueEventsForTeamSpy
+        .mockReturnValueOnce([
+          {
+            issue_id: 1,
+            repository: 'routing-repo',
+            product_area: 'One-Team',
+            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
           },
-          type: 'header',
-        },
-        {
-          text: {
-            text: `\`\`\`
+        ])
+        .mockReturnValueOnce([
+          {
+            issue_id: 2,
+            repository: 'routing-repo',
+            product_area: 'Multi-Team',
+            triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+          },
+        ])
+        .mockReturnValueOnce([
+          {
+            issue_id: 3,
+            repository: 'routing-repo',
+            product_area: 'Test',
+            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+          },
+          {
+            issue_id: 4,
+            repository: 'routing-repo',
+            product_area: 'Test',
+            triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+          },
+        ])
+        .mockReturnValue([]);
+      await sendGitHubEngagementMetrics();
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
 ├────────────────────────────────────────────────┤
@@ -115,42 +137,42 @@ describe('slackScores Tests', function () {
 | ingest                        |   - (0/0)      |
 | null                          |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
-            type: 'mrkdwn',
+              type: 'mrkdwn',
+            },
+            type: 'section',
           },
-          type: 'section',
-        },
-      ],
-      channel: 'G6MCDB51U',
-      text: 'Weekly GitHub Team Scores',
+        ],
+        channel: 'G6MCDB51U',
+        text: 'Weekly GitHub Team Scores',
+      });
     });
-  });
 
-  it('should ignore issue if it is not due yet', async () => {
-    getIssueEventsForTeamSpy
-      .mockReturnValueOnce([
-        {
-          issue_id: 1,
-          repository: 'routing-repo',
-          product_area: 'One-Team',
-          triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
-          triage_by_dt: { value: '9999-10-12T21:52:14.223Z' },
-        },
-      ])
-      .mockReturnValue([]);
-    await triggerSlackScores(GETSENTRY_ORG, null);
-    expect(postMessageSpy).toHaveBeenCalledWith({
-      blocks: [
-        {
-          text: {
-            emoji: true,
-            text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
-            type: 'plain_text',
+    it('should ignore issue if it is not due yet', async () => {
+      getIssueEventsForTeamSpy
+        .mockReturnValueOnce([
+          {
+            issue_id: 1,
+            repository: 'routing-repo',
+            product_area: 'One-Team',
+            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+            triage_by_dt: { value: '9999-10-12T21:52:14.223Z' },
           },
-          type: 'header',
-        },
-        {
-          text: {
-            text: `\`\`\`
+        ])
+        .mockReturnValue([]);
+      await sendGitHubEngagementMetrics();
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
 ├────────────────────────────────────────────────┤
@@ -160,13 +182,209 @@ describe('slackScores Tests', function () {
 | null                          |   - (0/0)      |
 | ospo                          |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
-            type: 'mrkdwn',
+              type: 'mrkdwn',
+            },
+            type: 'section',
           },
-          type: 'section',
+        ],
+        channel: 'G6MCDB51U',
+        text: 'Weekly GitHub Team Scores',
+      });
+    });
+  });
+
+  describe('sendDiscussionMetrics tests', () => {
+    it('should not send message if there was no activity from discussions in the last week', async () => {
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions: [],
+        discussionCommenters: [],
+      });
+      expect(postMessageSpy).not.toHaveBeenCalled();
+    });
+
+    it('should send discussion metrics properly for under 5 discussions/users commented', async () => {
+      const discussions = [
+        {
+          title: 'Discussion 1',
+          repository: 'routing-repo',
+          discussion_number: '001',
+          num_comments: 3,
         },
-      ],
-      channel: 'G6MCDB51U',
-      text: 'Weekly GitHub Team Scores',
+        {
+          title: 'Discussion 2',
+          repository: 'routing-repo',
+          discussion_number: '002',
+          num_comments: 2,
+        },
+        {
+          title:
+            'Overflowing Discussion Title blahblahblahblahblahblahblahblahblahblahblahblahblahblahblahblah',
+          repository: 'test-ttt-simple',
+          discussion_number: '003',
+          num_comments: 1,
+        },
+      ];
+      const discussionCommenters = [
+        {
+          username: 'luke_skywalker',
+          num_comments: 2,
+        },
+        {
+          username: 'han_solo',
+          num_comments: 1,
+        },
+      ];
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions,
+        discussionCommenters,
+      });
+      await sendDiscussionMetrics();
+      // Columns with links in them may seem a bit off, because the links won't actually appear in slack
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly Discussion Metrics 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Discussions this Week                 │ # comments     |
+├────────────────────────────────────────────────────────────────────┤
+| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      | 3              |
+| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      | 2              |
+| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahbl...>| 1              |
+└────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Sentaurs this Week                    │ # comments     |
+├────────────────────────────────────────────────────────────────────┤
+| luke_skywalker                                    | 2              |
+| han_solo                                          | 1              |
+└────────────────────────────────────────────────────────────────────┘\`\`\``,
+              type: 'mrkdwn',
+            },
+            type: 'section',
+          },
+        ],
+        channel: 'G01F3FQ0T41',
+        text: 'Weekly Discussion Metrics',
+      });
+    });
+    it('should send discussion metrics properly for over 5 discussions/users commented', async () => {
+      const discussions = [
+        {
+          title: 'Discussion 1',
+          repository: 'routing-repo',
+          discussion_number: '001',
+          num_comments: 6,
+        },
+        {
+          title: 'Discussion 2',
+          repository: 'routing-repo',
+          discussion_number: '002',
+          num_comments: 5,
+        },
+        {
+          title: 'Discussion 3',
+          repository: 'test-ttt-simple',
+          discussion_number: '003',
+          num_comments: 4,
+        },
+        {
+          title: 'Discussion 4',
+          repository: 'test-ttt-simple',
+          discussion_number: '004',
+          num_comments: 3,
+        },
+        {
+          title: 'Discussion 5',
+          repository: 'test-ttt-simple',
+          discussion_number: '005',
+          num_comments: 2,
+        },
+        {
+          title: 'Discussion 6',
+          repository: 'test-ttt-simple',
+          discussion_number: '006',
+          num_comments: 1,
+        },
+      ];
+      const discussionCommenters = [
+        {
+          username: 'luke_skywalker',
+          num_comments: 10,
+        },
+        {
+          username: 'han_solo',
+          num_comments: 5,
+        },
+        {
+          username: 'boba_fett',
+          num_comments: 4,
+        },
+        {
+          username: 'darth_vader',
+          num_comments: 3,
+        },
+        {
+          username: 'yoda',
+          num_comments: 2,
+        },
+        {
+          username: 'anakin_skywalker',
+          num_comments: 1,
+        },
+      ];
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions,
+        discussionCommenters,
+      });
+      await sendDiscussionMetrics();
+      // Columns with links in them may seem a bit off, because the links won't actually appear in slack
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly Discussion Metrics 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Discussions this Week                 │ # comments     |
+├────────────────────────────────────────────────────────────────────┤
+| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      | 6              |
+| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      | 5              |
+| <https://github.com/test-ttt-simple/discussions/003|Discussion 3>                                      | 4              |
+| <https://github.com/test-ttt-simple/discussions/004|Discussion 4>                                      | 3              |
+| <https://github.com/test-ttt-simple/discussions/005|Discussion 5>                                      | 2              |
+└────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Sentaurs this Week                    │ # comments     |
+├────────────────────────────────────────────────────────────────────┤
+| luke_skywalker                                    | 10             |
+| han_solo                                          | 5              |
+| boba_fett                                         | 4              |
+| darth_vader                                       | 3              |
+| yoda                                              | 2              |
+└────────────────────────────────────────────────────────────────────┘\`\`\``,
+              type: 'mrkdwn',
+            },
+            type: 'section',
+          },
+        ],
+        channel: 'G01F3FQ0T41',
+        text: 'Weekly Discussion Metrics',
+      });
     });
   });
 });
