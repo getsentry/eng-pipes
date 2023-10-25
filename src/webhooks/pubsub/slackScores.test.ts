@@ -217,7 +217,8 @@ describe('slackScores tests', function () {
           num_comments: 2,
         },
         {
-          title: 'Discussion 3',
+          title:
+            'Overflowing Discussion Title blahblahblahblahblahblahblahblahblahblahblahblahblahblahblahblah',
           repository: 'test-ttt-simple',
           discussion_number: '003',
           num_comments: 1,
@@ -257,7 +258,7 @@ describe('slackScores tests', function () {
 ├────────────────────────────────────────────────────────────────────┤
 | <https://github.com/routing-repo/discussions/001|Discussion 1>                                      | 3              |
 | <https://github.com/routing-repo/discussions/002|Discussion 2>                                      | 2              |
-| <https://github.com/test-ttt-simple/discussions/003|Discussion 3>                                      | 1              |
+| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahbl...>| 1              |
 └────────────────────────────────────────────────────────────────────┘
 ┌────────────────────────────────────────────────────────────────────┐
 | Most Active Sentaurs this Week                    │ # comments     |
