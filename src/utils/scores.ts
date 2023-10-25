@@ -81,3 +81,54 @@ export async function getIssueEventsForTeam(team) {
 
   return issues;
 }
+
+export async function getDiscussionEvents() {
+  const discussionsQuery = `
+    SELECT
+      discussions.target_name as title,
+      discussions.repository as repository,
+      discussions.object_id as discussion_number,
+      COUNT(discussions.target_name) as num_comments,
+    FROM
+      \`open_source.github_events\` AS discussions
+    WHERE
+      discussions.type = 'discussion_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        discussions.created_at,
+        day
+      ) <= 7
+    GROUP BY discussions.target_name, discussions.repository, discussions.object_id
+    ORDER BY num_comments DESC
+    ;`;
+
+  const [discussions] = await bigqueryClient.query(discussionsQuery);
+
+  const discussionCommentersQuery = `
+    SELECT
+      discussions.username as username,
+      COUNT(discussions.username) as num_comments,
+    FROM
+      \`open_source.github_events\` AS discussions
+    WHERE
+      discussions.type = 'discussion_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        discussions.created_at,
+        day
+      ) <= 7
+      AND discussions.user_type != 'external'
+      AND discussions.user_type != 'bot'
+    GROUP BY discussions.username
+    ORDER BY num_comments DESC
+    ;`;
+
+  const [discussionCommenters] = await bigqueryClient.query(
+    discussionCommentersQuery
+  );
+
+  return {
+    discussions,
+    discussionCommenters,
+  };
+}

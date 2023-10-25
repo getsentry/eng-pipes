@@ -17,13 +17,13 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
-import { getIssueEventsForTeam } from './scores';
+import { getDiscussionEvents, getIssueEventsForTeam } from './scores';
 
 describe('score tests', () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
-  it('should send the right sql we expect', () => {
+  it('should send the right sql we expect for getIssueEventsForTeam', () => {
     getIssueEventsForTeam('team-ospo');
     const query = `WITH labelings AS (
     SELECT
@@ -97,5 +97,48 @@ describe('score tests', () => {
       WHERE 'team-ospo' in UNNEST(teams)
       ;`;
     expect(mockQuery).toHaveBeenCalledWith(query);
+  });
+
+  it('should send the right sql we expect for getDiscussionEvents', async () => {
+    await getDiscussionEvents();
+    const discussionsQuery = `
+    SELECT
+      discussions.target_name as title,
+      discussions.repository as repository,
+      discussions.object_id as discussion_number,
+      COUNT(discussions.target_name) as num_comments,
+    FROM
+      \`open_source.github_events\` AS discussions
+    WHERE
+      discussions.type = 'discussion_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        discussions.created_at,
+        day
+      ) <= 7
+    GROUP BY discussions.target_name, discussions.repository, discussions.object_id
+    ORDER BY num_comments DESC
+    ;`;
+
+    const discussionCommentersQuery = `
+    SELECT
+      discussions.username as username,
+      COUNT(discussions.username) as num_comments,
+    FROM
+      \`open_source.github_events\` AS discussions
+    WHERE
+      discussions.type = 'discussion_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        discussions.created_at,
+        day
+      ) <= 7
+      AND discussions.user_type != 'external'
+      AND discussions.user_type != 'bot'
+    GROUP BY discussions.username
+    ORDER BY num_comments DESC
+    ;`;
+    expect(mockQuery).toHaveBeenCalledWith(discussionsQuery);
+    expect(mockQuery).toHaveBeenCalledWith(discussionCommentersQuery);
   });
 });
