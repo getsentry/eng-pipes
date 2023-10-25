@@ -23,6 +23,7 @@ on:
       - 'yarn.lock'
       - 'bin/deploy.sh'
       - 'holidays.yml'
+      - 'product-owners.yml'
   pull_request:
     branches:
       - main
