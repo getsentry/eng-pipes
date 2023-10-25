@@ -36,8 +36,11 @@ export class ConsecutiveUnsuccessfulDeploysAlert {
       return;
     }
 
-    // If everything is passing, we don't need to check or do anything
-    if (pipeline.stage.result.toLowerCase() === 'passed') {
+    // If everything is passing or building, we don't need to check or do anything
+    if (
+      pipeline.stage.result.toLowerCase() === 'passed' ||
+      pipeline.stage.result.toLowerCase() === 'unknown'
+    ) {
       return;
     }
 

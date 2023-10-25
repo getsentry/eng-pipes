@@ -159,6 +159,65 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
   });
 
+  it('do nothing if the number of consecutive unsuccessful deploys is within the limit and there is one building', async function () {
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'pipeline-id-123',
+
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 17,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+
+      stage_name: 'deploy-primary',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'deploy-canary',
+            status: 'Building',
+            result: 'Unknown',
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+  });
+
   it('post to feed-dev-infra if the number of consecutive unsuccessful deploys is over the limit', async function () {
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'pipeline-id-123',
