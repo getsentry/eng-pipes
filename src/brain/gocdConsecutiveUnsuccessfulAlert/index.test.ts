@@ -136,7 +136,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
       stage_state: 'Passed',
       stage_result: 'unknown',
       stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_last_transition_time: new Date(),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
       stage_jobs: '{}',
     });
 
