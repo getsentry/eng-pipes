@@ -67,7 +67,7 @@ product_areas:
   Settings - General:
   - team-issues
   Settings - Integrations:
-  - team-enterprise
+  - team-integrations
   Settings - Members:
   - team-enterprise
   Settings - Projects:
@@ -159,6 +159,10 @@ teams:
     offices:
     - vie
     slack_channel: C019637C760
+  team-integrations:
+    offices:
+    - sfo
+    slack_channel: CD4NYFD34
   team-issues:
     offices:
     - sfo
