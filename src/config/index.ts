@@ -111,6 +111,7 @@ export enum BuildStatus {
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
 export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
 export const STALE_LABEL = 'Stale';
+export const WORK_IN_PROGRESS_LABEL = 'WIP';
 export const WAITING_FOR_LABEL_PREFIX = 'Waiting for: ';
 export const WAITING_FOR_SUPPORT_LABEL = 'Waiting for: Support';
 export const WAITING_FOR_COMMUNITY_LABEL = 'Waiting for: Community';

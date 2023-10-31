@@ -1,6 +1,10 @@
 import moment from 'moment-timezone';
 
-import { STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL } from '@/config';
+import {
+  STALE_LABEL,
+  WAITING_FOR_COMMUNITY_LABEL,
+  WORK_IN_PROGRESS_LABEL,
+} from '@/config';
 import { GitHubOrg } from '@api/github/org';
 
 const GH_API_PER_PAGE = 100;
@@ -141,14 +145,22 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
           state: 'open',
           per_page: GH_API_PER_PAGE,
         });
+        const pullRequestsToCheck = pullRequests.filter(
+          (pullRequest) =>
+            !pullRequest.labels.some(
+              (label) =>
+                label === WORK_IN_PROGRESS_LABEL ||
+                label.name === WORK_IN_PROGRESS_LABEL
+            )
+        );
         // Unfortunately, octokit doesn't allow us to filter by labels when
         // sending a GET request for pull requests, so we need to do this manually.
-        const stalePullRequests = pullRequests.filter((pullRequest) =>
+        const stalePullRequests = pullRequestsToCheck.filter((pullRequest) =>
           pullRequest.labels.some(
             (label) => label === STALE_LABEL || label.name === STALE_LABEL
           )
         );
-        const activePullRequests = pullRequests.filter(
+        const activePullRequests = pullRequestsToCheck.filter(
           (pullRequest) => !stalePullRequests.includes(pullRequest)
         );
         await staleStatusUpdater(org, repo, activePullRequests, now);

@@ -5,6 +5,7 @@ import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
+  WORK_IN_PROGRESS_LABEL,
 } from '../../config';
 
 import { triggerStaleBot } from './stalebot';
@@ -85,6 +86,24 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 
 "A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
     ]);
+  });
+
+  it('should not mark PR as stale in routing-repo if it has been over 3 weeks but has WIP label', async function () {
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = ({ repo }) => {
+      return org.repos.withRouting.includes(repo)
+        ? [
+            {
+              ...issueInfo,
+              labels: [WAITING_FOR_COMMUNITY_LABEL, WORK_IN_PROGRESS_LABEL],
+              pull_request: {},
+            },
+          ]
+        : [];
+    };
+    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([]);
   });
 
   it('should not mark PR as stale in repos without routing if it has been over 3 weeks', async function () {
