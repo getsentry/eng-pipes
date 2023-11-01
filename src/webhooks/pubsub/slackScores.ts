@@ -127,7 +127,6 @@ export const sendGitHubEngagementMetrics = async () => {
   });
   const channelsToPost = [
     EPD_LEADERSHIP_CHANNEL_ID,
-    TEAM_OSPO_CHANNEL_ID,
     TEAM_PRODUCT_OWNERS_CHANNEL_ID,
   ];
   const slackNotifications = channelsToPost.map((channelId: string) => {
