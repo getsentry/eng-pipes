@@ -4,6 +4,7 @@ import {
   EPD_LEADERSHIP_CHANNEL_ID,
   PRODUCT_OWNERS_INFO,
   TEAM_OSPO_CHANNEL_ID,
+  TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
 import { getDiscussionEvents, getIssueEventsForTeam } from '@/utils/scores';
 import { GitHubOrg } from '@api/github/org';
@@ -124,11 +125,18 @@ export const sendGitHubEngagementMetrics = async () => {
       text: '```' + scoreBoard + '```',
     },
   });
-  await bolt.client.chat.postMessage({
-    channel: EPD_LEADERSHIP_CHANNEL_ID,
-    text: 'Weekly GitHub Team Scores',
-    blocks: messageBlocks,
+  const channelsToPost = [
+    EPD_LEADERSHIP_CHANNEL_ID,
+    TEAM_PRODUCT_OWNERS_CHANNEL_ID,
+  ];
+  const slackNotifications = channelsToPost.map((channelId: string) => {
+    return bolt.client.chat.postMessage({
+      channel: channelId,
+      text: 'Weekly GitHub Team Scores',
+      blocks: messageBlocks,
+    });
   });
+  await Promise.all(slackNotifications);
 };
 
 export const sendDiscussionMetrics = async () => {
