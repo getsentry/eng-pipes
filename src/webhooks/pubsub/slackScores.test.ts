@@ -274,17 +274,17 @@ describe('slackScores tests', function () {
             text: {
               text: `\`\`\`
 ┌────────────────────────────────────────────────────────────────────┐
-| Most Active Discussions this Week                 │ # comments     |
+| Most Active Discussions this Week                 │     # comments |
 ├────────────────────────────────────────────────────────────────────┤
-| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      | 3              |
-| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      | 2              |
-| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahbl...>| 1              |
+| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      |              3 |
+| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      |              2 |
+| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahb...> |              1 |
 └────────────────────────────────────────────────────────────────────┘
 ┌────────────────────────────────────────────────────────────────────┐
-| Most Active Sentaurs this Week                    │ # comments     |
+| Most Active Sentaurs this Week                    │     # comments |
 ├────────────────────────────────────────────────────────────────────┤
-| luke_skywalker                                    | 2              |
-| han_solo                                          | 1              |
+| luke_skywalker                                    |              2 |
+| han_solo                                          |              1 |
 └────────────────────────────────────────────────────────────────────┘\`\`\``,
               type: 'mrkdwn',
             },
@@ -295,6 +295,66 @@ describe('slackScores tests', function () {
         text: 'Weekly Discussion Metrics',
       });
     });
+
+    it('should properly ignore ` character in discussion title', async () => {
+      const discussions = [
+        {
+          title: 'Discussion with `markdown`',
+          repository: 'routing-repo',
+          discussion_number: '001',
+          num_comments: 3,
+        },
+      ];
+      const discussionCommenters = [
+        {
+          username: 'luke_skywalker',
+          num_comments: 2,
+        },
+        {
+          username: 'han_solo',
+          num_comments: 1,
+        },
+      ];
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions,
+        discussionCommenters,
+      });
+      await sendDiscussionMetrics();
+      // Columns with links in them may seem a bit off, because the links won't actually appear in slack
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly Discussion Metrics 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Discussions this Week                 │     # comments |
+├────────────────────────────────────────────────────────────────────┤
+| <https://github.com/routing-repo/discussions/001|Discussion with markdown>                          |              3 |
+└────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+| Most Active Sentaurs this Week                    │     # comments |
+├────────────────────────────────────────────────────────────────────┤
+| luke_skywalker                                    |              2 |
+| han_solo                                          |              1 |
+└────────────────────────────────────────────────────────────────────┘\`\`\``,
+              type: 'mrkdwn',
+            },
+            type: 'section',
+          },
+        ],
+        channel: 'G01F3FQ0T41',
+        text: 'Weekly Discussion Metrics',
+      });
+    });
+
     it('should send discussion metrics properly for over 5 discussions/users commented', async () => {
       const discussions = [
         {
@@ -380,22 +440,22 @@ describe('slackScores tests', function () {
             text: {
               text: `\`\`\`
 ┌────────────────────────────────────────────────────────────────────┐
-| Most Active Discussions this Week                 │ # comments     |
+| Most Active Discussions this Week                 │     # comments |
 ├────────────────────────────────────────────────────────────────────┤
-| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      | 6              |
-| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      | 5              |
-| <https://github.com/test-ttt-simple/discussions/003|Discussion 3>                                      | 4              |
-| <https://github.com/test-ttt-simple/discussions/004|Discussion 4>                                      | 3              |
-| <https://github.com/test-ttt-simple/discussions/005|Discussion 5>                                      | 2              |
+| <https://github.com/routing-repo/discussions/001|Discussion 1>                                      |              6 |
+| <https://github.com/routing-repo/discussions/002|Discussion 2>                                      |              5 |
+| <https://github.com/test-ttt-simple/discussions/003|Discussion 3>                                      |              4 |
+| <https://github.com/test-ttt-simple/discussions/004|Discussion 4>                                      |              3 |
+| <https://github.com/test-ttt-simple/discussions/005|Discussion 5>                                      |              2 |
 └────────────────────────────────────────────────────────────────────┘
 ┌────────────────────────────────────────────────────────────────────┐
-| Most Active Sentaurs this Week                    │ # comments     |
+| Most Active Sentaurs this Week                    │     # comments |
 ├────────────────────────────────────────────────────────────────────┤
-| luke_skywalker                                    | 10             |
-| han_solo                                          | 5              |
-| boba_fett                                         | 4              |
-| darth_vader                                       | 3              |
-| yoda                                              | 2              |
+| luke_skywalker                                    |             10 |
+| han_solo                                          |              5 |
+| boba_fett                                         |              4 |
+| darth_vader                                       |              3 |
+| yoda                                              |              2 |
 └────────────────────────────────────────────────────────────────────┘\`\`\``,
               type: 'mrkdwn',
             },

@@ -35,6 +35,7 @@ const DISCUSSION_COLUMN_WIDTH = 50;
 const NUM_COMMENTS_COLUMN_WIDTH = 15;
 const NUM_ROW_SPACES = 3;
 const LESS_THAN_SIGN_LENGTH = 1;
+const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
 
@@ -165,7 +166,11 @@ export const sendDiscussionMetrics = async () => {
     } else if (column === 'firstColumnItem') {
       return entry + ' '.repeat(DISCUSSION_COLUMN_WIDTH - entry.length);
     }
-    return entry + ' '.repeat(NUM_COMMENTS_COLUMN_WIDTH - entry.length);
+    return (
+      ' '.repeat(NUM_COMMENTS_COLUMN_WIDTH - entry.length - SPACE_LENGTH) +
+      entry +
+      ' '
+    );
   };
   let firstColumnName = 'Most Active Discussions this Week';
   const secondColumnName = '# comments';
@@ -184,9 +189,13 @@ export const sendDiscussionMetrics = async () => {
       const truncatedDiscussionTitle =
         discussionInfo.title.length <= DISCUSSION_COLUMN_WIDTH
           ? discussionInfo.title + '>'
-          : `${discussionInfo.title.slice(0, DISCUSSION_COLUMN_WIDTH - 3)}...>`;
+          : `${discussionInfo.title.slice(
+              0,
+              DISCUSSION_COLUMN_WIDTH - 4
+            )}...> `;
       const truncatedDiscussionTitleWithSpaces = addSpaces(
-        truncatedDiscussionTitle,
+        // Remove all instances of ` char from string
+        truncatedDiscussionTitle.replace(/`/g, ''),
         'discussion'
       );
       const discussionText = `<https://github.com/${discussionInfo.repository}/discussions/${discussionInfo.discussion_number}|${truncatedDiscussionTitleWithSpaces}`;
