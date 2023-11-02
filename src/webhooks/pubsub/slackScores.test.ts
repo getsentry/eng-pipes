@@ -4,6 +4,7 @@ import * as scoresUtils from '@utils/scores';
 
 import {
   EPD_LEADERSHIP_CHANNEL_ID,
+  TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '../../config';
 
@@ -58,6 +59,16 @@ describe('slackScores tests', function () {
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
+        })
+      );
+    });
+
+    it('should send slack notifications to correct channels if test is passed in', async () => {
+      getIssueEventsForTeamSpy.mockReturnValue([]);
+      await sendGitHubEngagementMetrics(true);
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          channel: TEAM_OSPO_CHANNEL_ID,
         })
       );
     });

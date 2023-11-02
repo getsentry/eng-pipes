@@ -39,7 +39,7 @@ const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
 
-export const sendGitHubEngagementMetrics = async () => {
+export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
       // Filter out issues that are not yet due
@@ -126,10 +126,9 @@ export const sendGitHubEngagementMetrics = async () => {
       text: '```' + scoreBoard + '```',
     },
   });
-  const channelsToPost = [
-    EPD_LEADERSHIP_CHANNEL_ID,
-    TEAM_PRODUCT_OWNERS_CHANNEL_ID,
-  ];
+  const channelsToPost = test
+    ? [TEAM_OSPO_CHANNEL_ID]
+    : [EPD_LEADERSHIP_CHANNEL_ID, TEAM_PRODUCT_OWNERS_CHANNEL_ID];
   const slackNotifications = channelsToPost.map((channelId: string) => {
     return bolt.client.chat.postMessage({
       channel: channelId,
@@ -140,7 +139,7 @@ export const sendGitHubEngagementMetrics = async () => {
   await Promise.all(slackNotifications);
 };
 
-export const sendDiscussionMetrics = async () => {
+export const sendDiscussionMetrics = async (__test: boolean = false) => {
   const { discussions, discussionCommenters } = await getDiscussionEvents();
   if (discussions.length === 0 && discussionCommenters.length === 0) {
     return;
