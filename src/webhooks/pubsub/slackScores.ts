@@ -91,15 +91,15 @@ export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
   ];
   let scoreBoard = `\n┌${'─'.repeat(
     TEAM_COLUMN_WIDTH + SCORE_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┐\n| Team                          │ % on Time      |\n├${'─'.repeat(
-    TEAM_COLUMN_WIDTH + SCORE_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┤\n`;
+  )}┐\n| Team                          │ % on Time      |\n`;
   const addSpaces = (entry: string, column: string) => {
     if (column === 'team') {
       return entry + ' '.repeat(TEAM_COLUMN_WIDTH - entry.length);
     }
     return entry + ' '.repeat(SCORE_COLUMN_WIDTH - entry.length);
   };
+  let noVolumeRows, lowVolumeRows, highVolumeRows;
+  noVolumeRows = lowVolumeRows = highVolumeRows = '';
   teamScores.forEach((teamScoreInfo: teamScoreInfo) => {
     const score: string =
       teamScoreInfo.score === 0 && teamScoreInfo.numEvents === 0
@@ -109,11 +109,41 @@ export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
     const scoreText = `${score.padStart(3, ' ')} (${
       teamScoreInfo.eventsTriagedOnTime
     }/${teamScoreInfo.numEvents})`;
-    scoreBoard += `| ${addSpaces(teamText, 'team')}| ${addSpaces(
+    const formattedRow = `| ${addSpaces(teamText, 'team')}| ${addSpaces(
       scoreText,
       'score'
     )}|\n`;
+    if (teamScoreInfo.numEvents === 0) {
+      noVolumeRows += formattedRow;
+    } else if (teamScoreInfo.numEvents < 10) {
+      lowVolumeRows += formattedRow;
+    } else {
+      highVolumeRows += formattedRow;
+    }
   });
+  const volumeHeader = (volumeText: string) =>
+    `├${'─'.repeat(
+      TEAM_COLUMN_WIDTH + SCORE_COLUMN_WIDTH + NUM_ROW_SPACES
+    )}┤\n| ${
+      volumeText +
+      ' '.repeat(
+        TEAM_COLUMN_WIDTH +
+          SCORE_COLUMN_WIDTH +
+          NUM_ROW_SPACES -
+          volumeText.length -
+          SPACE_LENGTH
+      )
+    }|\n├${'─'.repeat(
+      TEAM_COLUMN_WIDTH + SCORE_COLUMN_WIDTH + NUM_ROW_SPACES
+    )}┤\n`;
+  scoreBoard +=
+    highVolumeRows.length > 0
+      ? volumeHeader('High Volume') + highVolumeRows
+      : '';
+  scoreBoard +=
+    lowVolumeRows.length > 0 ? volumeHeader('Low Volume') + lowVolumeRows : '';
+  scoreBoard +=
+    noVolumeRows.length > 0 ? volumeHeader('No Volume') + noVolumeRows : '';
   scoreBoard += `└${'─'.repeat(
     TEAM_COLUMN_WIDTH + SCORE_COLUMN_WIDTH + NUM_ROW_SPACES
   )}┘`;
