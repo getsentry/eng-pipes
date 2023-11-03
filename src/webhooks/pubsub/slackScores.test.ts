@@ -92,6 +92,8 @@ describe('slackScores tests', function () {
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
 ├────────────────────────────────────────────────┤
+| No Volume                                      |
+├────────────────────────────────────────────────┤
 | enterprise                    |   - (0/0)      |
 | ingest                        |   - (0/0)      |
 | issues                        |   - (0/0)      |
@@ -109,6 +111,24 @@ describe('slackScores tests', function () {
     });
 
     it('should handle case when issues are returned and sorted by best response times', async () => {
+      const highVolumeIssueEvents = new Array(30)
+        .fill([
+          {
+            issue_id: 3,
+            repository: 'routing-repo',
+            product_area: 'Test',
+            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+          },
+          {
+            issue_id: 4,
+            repository: 'routing-repo',
+            product_area: 'Test',
+            triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
+          },
+        ])
+        .flat();
       getIssueEventsForTeamSpy
         .mockReturnValueOnce([
           {
@@ -128,22 +148,7 @@ describe('slackScores tests', function () {
             triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
           },
         ])
-        .mockReturnValueOnce([
-          {
-            issue_id: 3,
-            repository: 'routing-repo',
-            product_area: 'Test',
-            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
-            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-          },
-          {
-            issue_id: 4,
-            repository: 'routing-repo',
-            product_area: 'Test',
-            triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
-            triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
-          },
-        ])
+        .mockReturnValueOnce(highVolumeIssueEvents)
         .mockReturnValue([]);
       await sendGitHubEngagementMetrics();
       expect(postMessageSpy).toHaveBeenCalledWith({
@@ -162,9 +167,17 @@ describe('slackScores tests', function () {
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
 ├────────────────────────────────────────────────┤
+| High Volume                                    |
+├────────────────────────────────────────────────┤
+| issues                        |  50 (30/60)    |
+├────────────────────────────────────────────────┤
+| Low Volume                                     |
+├────────────────────────────────────────────────┤
 | ospo                          | 100 (1/1)      |
-| issues                        |  50 (1/2)      |
 | enterprise                    |   0 (0/1)      |
+├────────────────────────────────────────────────┤
+| No Volume                                      |
+├────────────────────────────────────────────────┤
 | ingest                        |   - (0/0)      |
 | null                          |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
@@ -206,6 +219,8 @@ describe('slackScores tests', function () {
               text: `\`\`\`
 ┌────────────────────────────────────────────────┐
 | Team                          │ % on Time      |
+├────────────────────────────────────────────────┤
+| No Volume                                      |
 ├────────────────────────────────────────────────┤
 | enterprise                    |   - (0/0)      |
 | ingest                        |   - (0/0)      |
