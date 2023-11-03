@@ -40,7 +40,9 @@ const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
 
-export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
+export const sendGitHubEngagementMetrics = async (
+  ospo_internal: boolean = false
+) => {
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
       // Filter out issues that are not yet due
@@ -157,7 +159,7 @@ export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
       text: '```' + scoreBoard + '```',
     },
   });
-  const channelsToPost = test
+  const channelsToPost = ospo_internal
     ? [TEAM_OSPO_CHANNEL_ID]
     : [EPD_LEADERSHIP_CHANNEL_ID, TEAM_PRODUCT_OWNERS_CHANNEL_ID];
   const slackNotifications = channelsToPost.map((channelId: string) => {
@@ -170,7 +172,7 @@ export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
   await Promise.all(slackNotifications);
 };
 
-export const sendDiscussionMetrics = async (test: boolean = false) => {
+export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
   const { discussions, discussionCommenters } = await getDiscussionEvents();
   if (discussions.length === 0 && discussionCommenters.length === 0) {
     return;
@@ -272,7 +274,7 @@ export const sendDiscussionMetrics = async (test: boolean = false) => {
       text: '```' + scoreBoard + '```',
     },
   });
-  const channelToPost = test
+  const channelToPost = ospo_internal
     ? TEAM_OSPO_CHANNEL_ID
     : DISCUSS_PRODUCT_CHANNEL_ID;
   await bolt.client.chat.postMessage({
