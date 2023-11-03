@@ -313,6 +313,7 @@ export async function insertOss(
     data.object_id = comment.id;
     data.created_at = comment.created_at;
     data.updated_at = comment.updated_at;
+    data.target_name = issue.title;
     data.target_id = issue.number;
     data.target_type = 'issue';
     data.product_area =

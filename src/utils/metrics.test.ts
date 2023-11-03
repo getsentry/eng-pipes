@@ -52,6 +52,7 @@ describe('metrics tests', function () {
           created_at: null,
           updated_at: null,
           labels: [{ name: 'Product Area: Test' }],
+          title: 'Test Issue',
         },
         label: {
           id: 1234,
@@ -215,6 +216,7 @@ describe('metrics tests', function () {
         expect(result).toMatchObject({
           teams: ['team-issues'],
           product_area: null,
+          target_name: 'Test Issue',
         });
       });
 
@@ -227,6 +229,7 @@ describe('metrics tests', function () {
         expect(result).toMatchObject({
           teams: ['team-ospo'],
           product_area: 'One-Team',
+          target_name: 'Test Issue',
         });
       });
     });
