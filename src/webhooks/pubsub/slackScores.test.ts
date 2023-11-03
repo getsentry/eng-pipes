@@ -3,6 +3,7 @@ import { bolt } from '@api/slack';
 import * as scoresUtils from '@utils/scores';
 
 import {
+  DISCUSS_PRODUCT_CHANNEL_ID,
   EPD_LEADERSHIP_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
@@ -248,6 +249,33 @@ describe('slackScores tests', function () {
       expect(postMessageSpy).not.toHaveBeenCalled();
     });
 
+    it('should send discussion metrics properly to ospo team channel for testing', async () => {
+      const discussions = [
+        {
+          title: 'Discussion 1',
+          repository: 'routing-repo',
+          discussion_number: '001',
+          num_comments: 3,
+        },
+      ];
+      const discussionCommenters = [
+        {
+          username: 'luke_skywalker',
+          num_comments: 2,
+        },
+      ];
+      getDiscussionEventsSpy.mockReturnValue({
+        discussions,
+        discussionCommenters,
+      });
+      await sendDiscussionMetrics(true);
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          channel: TEAM_OSPO_CHANNEL_ID,
+        })
+      );
+    });
+
     it('should send discussion metrics properly for under 5 discussions/users commented', async () => {
       const discussions = [
         {
@@ -317,7 +345,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G01F3FQ0T41',
+        channel: DISCUSS_PRODUCT_CHANNEL_ID,
         text: 'Weekly Discussion Metrics',
       });
     });
@@ -376,7 +404,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G01F3FQ0T41',
+        channel: DISCUSS_PRODUCT_CHANNEL_ID,
         text: 'Weekly Discussion Metrics',
       });
     });
@@ -488,7 +516,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G01F3FQ0T41',
+        channel: DISCUSS_PRODUCT_CHANNEL_ID,
         text: 'Weekly Discussion Metrics',
       });
     });
