@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 import {
+  DISCUSS_PRODUCT_CHANNEL_ID,
   EPD_LEADERSHIP_CHANNEL_ID,
   PRODUCT_OWNERS_INFO,
   TEAM_OSPO_CHANNEL_ID,
@@ -169,7 +170,7 @@ export const sendGitHubEngagementMetrics = async (test: boolean = false) => {
   await Promise.all(slackNotifications);
 };
 
-export const sendDiscussionMetrics = async (__test: boolean = false) => {
+export const sendDiscussionMetrics = async (test: boolean = false) => {
   const { discussions, discussionCommenters } = await getDiscussionEvents();
   if (discussions.length === 0 && discussionCommenters.length === 0) {
     return;
@@ -271,8 +272,11 @@ export const sendDiscussionMetrics = async (__test: boolean = false) => {
       text: '```' + scoreBoard + '```',
     },
   });
+  const channelToPost = test
+    ? TEAM_OSPO_CHANNEL_ID
+    : DISCUSS_PRODUCT_CHANNEL_ID;
   await bolt.client.chat.postMessage({
-    channel: TEAM_OSPO_CHANNEL_ID,
+    channel: channelToPost,
     text: 'Weekly Discussion Metrics',
     blocks: messageBlocks,
   });

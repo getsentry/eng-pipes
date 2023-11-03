@@ -46,6 +46,8 @@ export const EPD_LEADERSHIP_CHANNEL_ID =
   process.env.EPD_LEADERSHIP_CHANNEL_ID || 'G6MCDB51U';
 export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
   process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
+export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
+  process.env.DISCUSS_PRODUCT_CHANNEL_ID || 'CDXAKMGTU';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';
