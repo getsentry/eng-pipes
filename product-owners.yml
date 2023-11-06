@@ -26,7 +26,7 @@ product_areas:
   - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
-  - team-telemetry-experience
+  - team-machine-learning
   Org Relocation:
   - team-ospo
   Other:
@@ -167,6 +167,10 @@ teams:
     offices:
     - sfo
     slack_channel: C0549083GJJ
+  team-machine-learning:
+    offices:
+    - sfo
+    slack_channel: C064V6WCFPT
   team-mobile-sdks:
     offices:
     - vie
