@@ -106,6 +106,7 @@ const closeStalePullRequests = async (
           owner: org.slug,
           repo: repo,
           issue_number: pullRequest.number,
+          state_reason: 'not_planned',
           state: 'closed',
         });
       }
