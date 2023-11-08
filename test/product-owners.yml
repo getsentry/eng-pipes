@@ -18,6 +18,8 @@ product_areas:
     - team-enterprise
   Unknown:
     - team-ospo
+  Rerouted:
+    - team-ospo
 repos:
   test-ttt-simple: team-issues
   vie-repo: team-ingest
