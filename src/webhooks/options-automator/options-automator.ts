@@ -29,7 +29,9 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   const params: v1.EventCreateRequest = {
     title: 'Options Automator Update',
     text: JSON.stringify(message),
+    alertType: 'info',
     dateHappened: moment.now(),
+    tags: [message.region],
   };
   await DATADOG_API_INSTANCE.createEvent({ body: params });
 }
