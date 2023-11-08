@@ -1,19 +1,37 @@
+import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 import { FastifyRequest } from 'fastify';
+import moment from 'moment-timezone';
 
 import { OptionsAutomatorResponse } from '@types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { FEED_OPTIONS_AUTOMATOR_CHANNEL_ID } from '@/config';
+import {
+  DATADOG_API_INSTANCE,
+  FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+} from '@/config';
 
 export async function handler(
   request: FastifyRequest<{ Body: OptionsAutomatorResponse }>
 ) {
   const { body }: { body: OptionsAutomatorResponse } = request;
   await messageSlack(body);
+  await sendOptionAutomatorUpdatesToDataDog(body);
   return {};
+}
+
+export async function sendOptionAutomatorUpdatesToDataDog(
+  message: OptionsAutomatorResponse
+) {
+  // Not sure how detailed we want the text message to be, but this should be fine initially
+  const params: v1.EventCreateRequest = {
+    title: 'Options Automator Update',
+    text: JSON.stringify(message),
+    dateHappened: moment.now(),
+  };
+  await DATADOG_API_INSTANCE.createEvent({ body: params });
 }
 
 export async function messageSlack(message: OptionsAutomatorResponse) {
