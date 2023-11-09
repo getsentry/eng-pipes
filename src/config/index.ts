@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
+import { loadDatadogApiInstance } from './loadDatadogApiInstance';
 import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
@@ -57,6 +58,7 @@ export const PROJECT =
   process.env.ENV === 'production'
     ? 'super-big-data'
     : process.env.DEV_GCP_PROJECT;
+export const DATADOG_API_INSTANCE = loadDatadogApiInstance(process.env);
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
