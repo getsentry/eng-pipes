@@ -31,7 +31,7 @@ export async function sendOptionAutomatorUpdatesToDataDog(
     text: JSON.stringify(message),
     alertType: 'info',
     dateHappened: moment.now(),
-    tags: [message.region],
+    tags: [`sentry_region:${message.region}`],
   };
   await DATADOG_API_INSTANCE.createEvent({ body: params });
 }

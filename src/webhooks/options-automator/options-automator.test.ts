@@ -289,7 +289,7 @@ describe('options-automator webhook', function () {
           text: '{"region":"test_region","drifted_options":[{"option_name":"drifted_option_1","option_value":"value_1"},{"option_name":"drifted_option_2","option_value":"value_2"}],"updated_options":[{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}],"set_options":[{"option_name":"set_option_1","option_value":"set_value_1"},{"option_name":"set_option_2","option_value":"set_value_2"}],"unset_options":["unset_option_1","unset_option_2"],"not_writable_options":[{"option_name":"error_option_1","error_msg":"Error occurred for option 1"},{"option_name":"error_option_2","error_msg":"Error occurred for option 2"}],"unregistered_options":["unregisterd_option_1","unregisterd_option_2"],"invalid_type_options":[{"option_name":"invalid_type_option_1","got_type":"string","expected_type":"float"},{"option_name":"invalid_type_option_2","got_type":"float","expected_type":"int"}]}',
           title: 'Options Automator Update',
           alertType: 'info',
-          tags: ['test_region'],
+          tags: ['sentry_region:test_region'],
         },
       });
     });
