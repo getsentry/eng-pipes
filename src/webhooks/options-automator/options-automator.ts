@@ -18,19 +18,20 @@ export async function handler(
 ) {
   const { body }: { body: OptionsAutomatorResponse } = request;
   await messageSlack(body);
-  await sendOptionAutomatorUpdatesToDataDog(body);
+  await sendOptionAutomatorUpdatesToDataDog(body, moment().unix());
   return {};
 }
 
 export async function sendOptionAutomatorUpdatesToDataDog(
-  message: OptionsAutomatorResponse
+  message: OptionsAutomatorResponse,
+  timestamp: number
 ) {
   // Not sure how detailed we want the text message to be, but this should be fine initially
   const params: v1.EventCreateRequest = {
     title: 'Options Automator Update',
     text: JSON.stringify(message),
     alertType: 'info',
-    dateHappened: moment.now(),
+    dateHappened: timestamp,
     tags: [`sentry_region:${message.region}`],
   };
   await DATADOG_API_INSTANCE.createEvent({ body: params });
