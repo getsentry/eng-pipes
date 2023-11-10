@@ -76,6 +76,7 @@ const closeStaleIssues = async (
           owner: org.slug,
           repo: repo,
           issue_number: issue.number,
+          state_reason: 'not_planned',
           state: 'closed',
         });
       } else if (!issueHasWaitingForCommunityLabel) {
@@ -105,6 +106,7 @@ const closeStalePullRequests = async (
           owner: org.slug,
           repo: repo,
           issue_number: pullRequest.number,
+          state_reason: 'not_planned',
           state: 'closed',
         });
       }

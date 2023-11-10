@@ -144,6 +144,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
       issue_number: undefined,
       owner: 'getsentry',
       repo: 'routing-repo',
+      state_reason: 'not_planned',
       state: 'closed',
     });
   });
@@ -169,6 +170,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
       issue_number: undefined,
       owner: 'getsentry',
       repo: 'test-sentry-repo',
+      state_reason: 'not_planned',
       state: 'closed',
     });
   });
