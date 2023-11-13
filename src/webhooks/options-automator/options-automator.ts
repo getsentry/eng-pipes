@@ -26,7 +26,6 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   message: OptionsAutomatorResponse,
   timestamp: number
 ) {
-  
   const formatRegionTag = (region: string): string => {
     if (region === 'us' || region === 'de') {
       return `sentry_region:${region}`;
@@ -35,23 +34,38 @@ export async function sendOptionAutomatorUpdatesToDataDog(
     }
   };
 
+  const formatAlertType = (optionType: string): v1.EventAlertType => {
+    return optionType === 'updated_options' ||
+      optionType === 'set_options' ||
+      optionType === 'unset_options'
+      ? 'success'
+      : 'error';
+  };
+
   for (const optionType in message) {
     for (const option of message[optionType]) {
-        const text = {
-          change : optionType,
-          option : option
-        }
-        
-        const region = formatRegionTag(message.region);
+      const text = {
+        change: optionType,
+        option: option,
+      };
 
-        const params: v1.EventCreateRequest = {
-          title: 'Options Automator Update',
-          text: JSON.stringify(text),
-          alertType: 'info',
-          dateHappened: timestamp,
-          tags: [region, `source_tool:"options-automator"`, `source:"options-automator"`, `source_category:"infra-tools"`],
-        };
-        await DATADOG_API_INSTANCE.createEvent({ body: params });
+      const region = formatRegionTag(message.region);
+
+      const alertType = formatAlertType(optionType);
+
+      const params: v1.EventCreateRequest = {
+        title: 'Options Automator Update',
+        text: JSON.stringify(text),
+        alertType: alertType,
+        dateHappened: timestamp,
+        tags: [
+          region,
+          `source_tool:"options-automator"`,
+          `source:"options-automator"`,
+          `source_category:"infra-tools"`,
+        ],
+      };
+      await DATADOG_API_INSTANCE.createEvent({ body: params });
     }
   }
 }
