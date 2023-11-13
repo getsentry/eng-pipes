@@ -2,7 +2,6 @@ import moment from 'moment-timezone';
 
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
-  EPD_LEADERSHIP_CHANNEL_ID,
   PRODUCT_OWNERS_INFO,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
@@ -161,7 +160,7 @@ export const sendGitHubEngagementMetrics = async (
   });
   const channelsToPost = ospo_internal
     ? [TEAM_OSPO_CHANNEL_ID]
-    : [EPD_LEADERSHIP_CHANNEL_ID, TEAM_PRODUCT_OWNERS_CHANNEL_ID];
+    : [TEAM_PRODUCT_OWNERS_CHANNEL_ID];
   const slackNotifications = channelsToPost.map((channelId: string) => {
     return bolt.client.chat.postMessage({
       channel: channelId,
