@@ -43,8 +43,6 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
-export const EPD_LEADERSHIP_CHANNEL_ID =
-  process.env.EPD_LEADERSHIP_CHANNEL_ID || 'G6MCDB51U';
 export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
   process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
 export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
