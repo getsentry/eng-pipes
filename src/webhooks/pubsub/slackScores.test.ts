@@ -4,7 +4,6 @@ import * as scoresUtils from '@utils/scores';
 
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
-  EPD_LEADERSHIP_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '../../config';
@@ -54,11 +53,6 @@ describe('slackScores tests', function () {
       await sendGitHubEngagementMetrics();
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          channel: EPD_LEADERSHIP_CHANNEL_ID,
-        })
-      );
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
           channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
         })
       );
@@ -106,7 +100,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G6MCDB51U',
+        channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
         text: 'Weekly GitHub Team Scores',
       });
     });
@@ -187,7 +181,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G6MCDB51U',
+        channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
         text: 'Weekly GitHub Team Scores',
       });
     });
@@ -234,7 +228,7 @@ describe('slackScores tests', function () {
             type: 'section',
           },
         ],
-        channel: 'G6MCDB51U',
+        channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
         text: 'Weekly GitHub Team Scores',
       });
     });
