@@ -280,7 +280,7 @@ describe('options-automator webhook', function () {
   describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
       sendOptionAutomatorUpdatesToDataDog(testpayload, 1699563828);
-      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
       expect(datadogApiInstanceSpy).toHaveBeenCalledWith({
         body: {
           dateHappened: 1699563828,
