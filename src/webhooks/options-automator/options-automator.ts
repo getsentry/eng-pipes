@@ -26,15 +26,34 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   message: OptionsAutomatorResponse,
   timestamp: number
 ) {
-  // Not sure how detailed we want the text message to be, but this should be fine initially
-  const params: v1.EventCreateRequest = {
-    title: 'Options Automator Update',
-    text: JSON.stringify(message),
-    alertType: 'info',
-    dateHappened: timestamp,
-    tags: [`sentry_region:${message.region}`],
+  
+  const formatRegionTag = (region: string): string => {
+    if (region === 'us' || region === 'de') {
+      return `sentry_region:${region}`;
+    } else {
+      return `sentry_region:st-${region}`;
+    }
   };
-  await DATADOG_API_INSTANCE.createEvent({ body: params });
+
+  for (const optionType in message) {
+    for (const option of message[optionType]) {
+        const text = {
+          change : optionType,
+          option : option
+        }
+        
+        const region = formatRegionTag(message.region);
+
+        const params: v1.EventCreateRequest = {
+          title: 'Options Automator Update',
+          text: JSON.stringify(text),
+          alertType: 'info',
+          dateHappened: timestamp,
+          tags: [region, `source_tool:"options-automator"`, `source:"options-automator"`, `source_category:"infra-tools"`],
+        };
+        await DATADOG_API_INSTANCE.createEvent({ body: params });
+    }
+  }
 }
 
 export async function messageSlack(message: OptionsAutomatorResponse) {
