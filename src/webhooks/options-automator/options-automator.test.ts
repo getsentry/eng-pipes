@@ -313,4 +313,8 @@ describe('options-automator webhook', function () {
       });
     });
   });
+  it('should send multiple messages', async function () {
+    await sendOptionAutomatorUpdatesToDataDog(testpayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(13);
+  });
 });
