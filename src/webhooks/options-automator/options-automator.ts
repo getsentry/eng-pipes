@@ -76,6 +76,10 @@ export async function sendOptionAutomatorUpdatesToDataDog(
 }
 
 export async function messageSlack(message: OptionsAutomatorResponse) {
+  if (message.source !== 'options-automator') {
+    return;
+  }
+
   const successBlock: KnownBlock[] = [
     slackblocks.header(
       slackblocks.plaintext(
