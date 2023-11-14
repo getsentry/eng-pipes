@@ -58,7 +58,7 @@ export async function sendOptionAutomatorUpdatesToDataDog(
 
       const params: v1.EventCreateRequest = {
         title: 'Options Automator Update',
-        // TODO(getsentry/eng-pipes#144): Refactor Text Message
+        // TODO(getsentry/eng-pipes#706): Refactor Text Message
         text: JSON.stringify(text),
         alertType: alertType,
         dateHappened: timestamp,
