@@ -279,19 +279,35 @@ describe('options-automator webhook', function () {
 
   describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
-      sendOptionAutomatorUpdatesToDataDog(testpayload, 1699563828);
-      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
-      expect(datadogApiInstanceSpy).toHaveBeenCalledWith({
+      await sendOptionAutomatorUpdatesToDataDog(testparitalpayload, 1699563828);
+      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
+      const message = datadogApiInstanceSpy.mock.calls[0][0];
+      expect(message).toEqual({
         body: {
           dateHappened: 1699563828,
-          text: '"{"change":"region","option":"t"}"',
+          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"}}',
           title: 'Options Automator Update',
-          alertType: 'info',
+          alertType: 'error',
           tags: [
             'sentry_region:st-test_region',
-            'source_tool:options-automator',
-            'source:options-automator',
-            'source_category:infra-tools',
+            'source_tool:"options-automator"',
+            'source:"options-automator"',
+            'source_category:"infra-tools"',
+          ],
+        },
+      });
+      const secondMessage = datadogApiInstanceSpy.mock.calls[1][0];
+      expect(secondMessage).toEqual({
+        body: {
+          dateHappened: 1699563828,
+          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_2","option_value":"value_2"}}',
+          title: 'Options Automator Update',
+          alertType: 'error',
+          tags: [
+            'sentry_region:st-test_region',
+            'source_tool:"options-automator"',
+            'source:"options-automator"',
+            'source_category:"infra-tools"',
           ],
         },
       });
