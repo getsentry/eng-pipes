@@ -1,5 +1,5 @@
 import testEmptyPayload from '@test/payloads/options-automator/testEmptyPayload';
-import testParitalPayload from '@test/payloads/options-automator/testPartialPayload.json';
+import testPartialPayload from '@test/payloads/options-automator/testPartialPayload.json';
 import testPayload from '@test/payloads/options-automator/testPayload.json';
 import testSaasPayload from '@test/payloads/options-automator/testSaasPayload.json';
 
@@ -235,7 +235,7 @@ describe('options-automator webhook', function () {
     });
     it('writes drift only', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testParitalPayload);
+      await messageSlack(testPartialPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       const message = postMessageSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -280,7 +280,7 @@ describe('options-automator webhook', function () {
 
   describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
-      await sendOptionAutomatorUpdatesToDataDog(testParitalPayload, 1699563828);
+      await sendOptionAutomatorUpdatesToDataDog(testPartialPayload, 1699563828);
       expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
