@@ -27,7 +27,9 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   timestamp: number
 ) {
   const formatRegionTag = (region: string): string => {
-    if (region === 'us' || region === 'de') {
+    const SAAS_REGIONS = ['us', 'de'];
+
+    if (SAAS_REGIONS.includes(region)) {
       return `sentry_region:${region}`;
     } else {
       return `sentry_region:st-${region}`;
@@ -64,6 +66,7 @@ export async function sendOptionAutomatorUpdatesToDataDog(
           `source_tool:options-automator`,
           `source:options-automator`,
           `source_category:infra-tools`,
+          `option_name:${option.option_name}`,
         ],
       };
       await DATADOG_API_INSTANCE.createEvent({ body: params });

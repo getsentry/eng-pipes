@@ -1,6 +1,7 @@
-import testemptypayload from '@test/payloads/options-automator/testemptypayload.json';
-import testparitalpayload from '@test/payloads/options-automator/testpartialpayload.json';
-import testpayload from '@test/payloads/options-automator/testpayload.json';
+import testEmptyPayload from '@test/payloads/options-automator/testEmptyPayload';
+import testParitalPayload from '@test/payloads/options-automator/testPartialPayload.json';
+import testPayload from '@test/payloads/options-automator/testPayload.json';
+import testSaasPayload from '@test/payloads/options-automator/testSaasPayload.json';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE } from '@/config';
@@ -29,7 +30,7 @@ describe('options-automator webhook', function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/options-automator/webhook',
-      payload: testemptypayload,
+      payload: testEmptyPayload,
     });
 
     expect(response.statusCode).toBe(200);
@@ -42,7 +43,7 @@ describe('options-automator webhook', function () {
 
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testpayload);
+      await messageSlack(testPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
       const firstMessage = postMessageSpy.mock.calls[0][0];
       const secondMessage = postMessageSpy.mock.calls[1][0];
@@ -234,7 +235,7 @@ describe('options-automator webhook', function () {
     });
     it('writes drift only', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testparitalpayload);
+      await messageSlack(testParitalPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       const message = postMessageSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -279,7 +280,7 @@ describe('options-automator webhook', function () {
 
   describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
-      await sendOptionAutomatorUpdatesToDataDog(testparitalpayload, 1699563828);
+      await sendOptionAutomatorUpdatesToDataDog(testParitalPayload, 1699563828);
       expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -293,6 +294,7 @@ describe('options-automator webhook', function () {
             'source_tool:options-automator',
             'source:options-automator',
             'source_category:infra-tools',
+            'option_name:drifted_option_1',
           ],
         },
       });
@@ -308,13 +310,36 @@ describe('options-automator webhook', function () {
             'source_tool:options-automator',
             'source:options-automator',
             'source_category:infra-tools',
+            'option_name:drifted_option_2',
           ],
         },
       });
     });
   });
   it('should send multiple messages', async function () {
-    await sendOptionAutomatorUpdatesToDataDog(testpayload, 1699563828);
+    await sendOptionAutomatorUpdatesToDataDog(testPayload, 1699563828);
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(13);
+  });
+
+  it('should handle different regions', async function () {
+    await sendOptionAutomatorUpdatesToDataDog(testSaasPayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
+
+    const message = datadogApiInstanceSpy.mock.calls[0][0];
+    expect(message).toEqual({
+      body: {
+        dateHappened: 1699563828,
+        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}}',
+        title: 'Options Automator Update',
+        alertType: 'success',
+        tags: [
+          'sentry_region:us',
+          'source_tool:options-automator',
+          'source:options-automator',
+          'source_category:infra-tools',
+          'option_name:updated_option_1',
+        ],
+      },
+    });
   });
 });
