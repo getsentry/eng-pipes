@@ -290,9 +290,9 @@ describe('options-automator webhook', function () {
           alertType: 'error',
           tags: [
             'sentry_region:st-test_region',
-            'source_tool:"options-automator"',
-            'source:"options-automator"',
-            'source_category:"infra-tools"',
+            'source_tool:options-automator',
+            'source:options-automator',
+            'source_category:infra-tools',
           ],
         },
       });
@@ -305,9 +305,9 @@ describe('options-automator webhook', function () {
           alertType: 'error',
           tags: [
             'sentry_region:st-test_region',
-            'source_tool:"options-automator"',
-            'source:"options-automator"',
-            'source_category:"infra-tools"',
+            'source_tool:options-automator',
+            'source:options-automator',
+            'source_category:infra-tools',
           ],
         },
       });

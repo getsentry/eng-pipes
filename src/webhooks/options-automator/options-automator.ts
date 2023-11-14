@@ -61,9 +61,9 @@ export async function sendOptionAutomatorUpdatesToDataDog(
         dateHappened: timestamp,
         tags: [
           region,
-          `source_tool:"options-automator"`,
-          `source:"options-automator"`,
-          `source_category:"infra-tools"`,
+          `source_tool:options-automator`,
+          `source:options-automator`,
+          `source_category:infra-tools`,
         ],
       };
       await DATADOG_API_INSTANCE.createEvent({ body: params });
