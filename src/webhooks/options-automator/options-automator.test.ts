@@ -1,6 +1,7 @@
-import testemptypayload from '@test/payloads/options-automator/testemptypayload.json';
-import testparitalpayload from '@test/payloads/options-automator/testpartialpayload.json';
-import testpayload from '@test/payloads/options-automator/testpayload.json';
+import testEmptyPayload from '@test/payloads/options-automator/testEmptyPayload';
+import testPartialPayload from '@test/payloads/options-automator/testPartialPayload.json';
+import testPayload from '@test/payloads/options-automator/testPayload.json';
+import testSaasPayload from '@test/payloads/options-automator/testSaasPayload.json';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE } from '@/config';
@@ -29,7 +30,7 @@ describe('options-automator webhook', function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/options-automator/webhook',
-      payload: testemptypayload,
+      payload: testEmptyPayload,
     });
 
     expect(response.statusCode).toBe(200);
@@ -42,7 +43,7 @@ describe('options-automator webhook', function () {
 
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testpayload);
+      await messageSlack(testPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
       const firstMessage = postMessageSpy.mock.calls[0][0];
       const secondMessage = postMessageSpy.mock.calls[1][0];
@@ -234,7 +235,7 @@ describe('options-automator webhook', function () {
     });
     it('writes drift only', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testparitalpayload);
+      await messageSlack(testPartialPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       const message = postMessageSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -279,16 +280,66 @@ describe('options-automator webhook', function () {
 
   describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
-      sendOptionAutomatorUpdatesToDataDog(testpayload, 1699563828);
-      expect(datadogApiInstanceSpy).toHaveBeenCalledWith({
+      await sendOptionAutomatorUpdatesToDataDog(testPartialPayload, 1699563828);
+      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
+      const message = datadogApiInstanceSpy.mock.calls[0][0];
+      expect(message).toEqual({
         body: {
           dateHappened: 1699563828,
-          text: '{"region":"test_region","drifted_options":[{"option_name":"drifted_option_1","option_value":"value_1"},{"option_name":"drifted_option_2","option_value":"value_2"}],"updated_options":[{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}],"set_options":[{"option_name":"set_option_1","option_value":"set_value_1"},{"option_name":"set_option_2","option_value":"set_value_2"}],"unset_options":["unset_option_1","unset_option_2"],"not_writable_options":[{"option_name":"error_option_1","error_msg":"Error occurred for option 1"},{"option_name":"error_option_2","error_msg":"Error occurred for option 2"}],"unregistered_options":["unregisterd_option_1","unregisterd_option_2"],"invalid_type_options":[{"option_name":"invalid_type_option_1","got_type":"string","expected_type":"float"},{"option_name":"invalid_type_option_2","got_type":"float","expected_type":"int"}]}',
+          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"}}',
           title: 'Options Automator Update',
-          alertType: 'info',
-          tags: ['sentry_region:test_region'],
+          alertType: 'error',
+          tags: [
+            'sentry_region:st-test_region',
+            'source_tool:options-automator',
+            'source:options-automator',
+            'source_category:infra-tools',
+            'option_name:drifted_option_1',
+          ],
         },
       });
+      const secondMessage = datadogApiInstanceSpy.mock.calls[1][0];
+      expect(secondMessage).toEqual({
+        body: {
+          dateHappened: 1699563828,
+          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_2","option_value":"value_2"}}',
+          title: 'Options Automator Update',
+          alertType: 'error',
+          tags: [
+            'sentry_region:st-test_region',
+            'source_tool:options-automator',
+            'source:options-automator',
+            'source_category:infra-tools',
+            'option_name:drifted_option_2',
+          ],
+        },
+      });
+    });
+  });
+  it('should send multiple messages', async function () {
+    await sendOptionAutomatorUpdatesToDataDog(testPayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(13);
+  });
+
+  it('should handle different regions', async function () {
+    await sendOptionAutomatorUpdatesToDataDog(testSaasPayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
+
+    const message = datadogApiInstanceSpy.mock.calls[0][0];
+    expect(message).toEqual({
+      body: {
+        dateHappened: 1699563828,
+        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}}',
+        title: 'Options Automator Update',
+        alertType: 'success',
+        tags: [
+          'sentry_region:us',
+          'source_tool:options-automator',
+          'source:options-automator',
+          'source_category:infra-tools',
+          'option_name:updated_option_1',
+        ],
+      },
     });
   });
 });

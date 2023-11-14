@@ -26,15 +26,53 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   message: OptionsAutomatorResponse,
   timestamp: number
 ) {
-  // Not sure how detailed we want the text message to be, but this should be fine initially
-  const params: v1.EventCreateRequest = {
-    title: 'Options Automator Update',
-    text: JSON.stringify(message),
-    alertType: 'info',
-    dateHappened: timestamp,
-    tags: [`sentry_region:${message.region}`],
+  const formatRegionTag = (region: string): string => {
+    const SAAS_REGIONS = ['us', 'de'];
+
+    if (SAAS_REGIONS.includes(region)) {
+      return `sentry_region:${region}`;
+    } else {
+      return `sentry_region:st-${region}`;
+    }
   };
-  await DATADOG_API_INSTANCE.createEvent({ body: params });
+
+  const formatAlertType = (optionType: string): v1.EventAlertType => {
+    return optionType === 'updated_options' ||
+      optionType === 'set_options' ||
+      optionType === 'unset_options'
+      ? 'success'
+      : 'error';
+  };
+
+  for (const optionType in message) {
+    if (optionType === 'region') continue;
+    for (const option of message[optionType]) {
+      const text = {
+        change: optionType,
+        option: option,
+      };
+
+      const region = formatRegionTag(message.region);
+
+      const alertType = formatAlertType(optionType);
+
+      const params: v1.EventCreateRequest = {
+        title: 'Options Automator Update',
+        // TODO(getsentry/eng-pipes#706): Refactor Text Message
+        text: JSON.stringify(text),
+        alertType: alertType,
+        dateHappened: timestamp,
+        tags: [
+          region,
+          `source_tool:options-automator`,
+          `source:options-automator`,
+          `source_category:infra-tools`,
+          `option_name:${option.option_name}`,
+        ],
+      };
+      await DATADOG_API_INSTANCE.createEvent({ body: params });
+    }
+  }
 }
 
 export async function messageSlack(message: OptionsAutomatorResponse) {

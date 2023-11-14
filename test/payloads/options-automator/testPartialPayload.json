@@ -1,0 +1,13 @@
+{
+    "region": "test_region",
+    "drifted_options": [
+        {"option_name": "drifted_option_1", "option_value": "value_1"},
+        {"option_name": "drifted_option_2", "option_value": "value_2"}
+    ],
+    "updated_options": [],
+    "set_options": [],
+    "unset_options": [],
+    "not_writable_options": [],
+    "unregistered_options": [],
+    "invalid_type_options": []
+}
