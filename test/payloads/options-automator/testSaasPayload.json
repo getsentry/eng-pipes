@@ -1,5 +1,6 @@
 {
     "region": "us",
+    "source": "options-automator",
     "drifted_options": [],
     "updated_options": [
         {

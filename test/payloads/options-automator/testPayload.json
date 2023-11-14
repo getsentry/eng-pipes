@@ -1,5 +1,6 @@
 {
     "region": "test_region",
+    "source": "options-automator",
     "drifted_options": [
         {"option_name": "drifted_option_1", "option_value": "value_1"},
         {"option_name": "drifted_option_2", "option_value": "value_2"}

@@ -64,8 +64,8 @@ export async function sendOptionAutomatorUpdatesToDataDog(
         dateHappened: timestamp,
         tags: [
           region,
-          `source_tool:options-automator`,
-          `source:options-automator`,
+          `source_tool:${message.source}`,
+          `source:${message.source}`,
           `source_category:infra-tools`,
           `option_name:${option.option_name}`,
         ],
