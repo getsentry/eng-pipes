@@ -45,7 +45,7 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   };
 
   for (const optionType in message) {
-    if (optionType === 'region') continue;
+    if (optionType === 'region' || optionType === 'source') continue;
     for (const option of message[optionType]) {
       const text = {
         change: optionType,

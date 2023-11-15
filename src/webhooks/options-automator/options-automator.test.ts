@@ -1,3 +1,4 @@
+import testAdminPayload from '@test/payloads/options-automator/testAdminPayload.json';
 import testEmptyPayload from '@test/payloads/options-automator/testEmptyPayload';
 import testPartialPayload from '@test/payloads/options-automator/testPartialPayload.json';
 import testPayload from '@test/payloads/options-automator/testPayload.json';
@@ -275,6 +276,12 @@ describe('options-automator webhook', function () {
         text: '',
         unfurl_links: false,
       });
+    });
+
+    it('only writes options-automator changes', async function () {
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await messageSlack(testAdminPayload);
+      expect(postMessageSpy).toHaveBeenCalledTimes(0);
     });
   });
 
