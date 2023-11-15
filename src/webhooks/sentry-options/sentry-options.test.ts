@@ -1,5 +1,5 @@
 import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
-import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload';
+import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
 import testPayload from '@test/payloads/sentry-options/testPayload.json';
 import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
