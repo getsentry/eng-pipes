@@ -1,8 +1,8 @@
-import testAdminPayload from '@test/payloads/options-automator/testAdminPayload.json';
-import testEmptyPayload from '@test/payloads/options-automator/testEmptyPayload';
-import testPartialPayload from '@test/payloads/options-automator/testPartialPayload.json';
-import testPayload from '@test/payloads/options-automator/testPayload.json';
-import testSaasPayload from '@test/payloads/options-automator/testSaasPayload.json';
+import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
+import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload';
+import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
+import testPayload from '@test/payloads/sentry-options/testPayload.json';
+import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE } from '@/config';
@@ -10,10 +10,10 @@ import { bolt } from '@api/slack';
 
 import {
   messageSlack,
-  sendOptionAutomatorUpdatesToDataDog,
-} from './options-automator';
+  sendSentryOptionsUpdatesToDatadog,
+} from './sentry-options';
 
-describe('options-automator webhook', function () {
+describe('sentry-options webhook', function () {
   let fastify, datadogApiInstanceSpy;
   beforeEach(async function () {
     fastify = await buildServer(false);
@@ -27,10 +27,10 @@ describe('options-automator webhook', function () {
     jest.clearAllMocks();
   });
 
-  it('correctly inserts options-automator webhook when stage starts', async function () {
+  it('correctly inserts sentry-options webhook when stage starts', async function () {
     const response = await fastify.inject({
       method: 'POST',
-      url: '/metrics/options-automator/webhook',
+      url: '/metrics/sentry-options/webhook',
       payload: testEmptyPayload,
     });
 
@@ -278,23 +278,23 @@ describe('options-automator webhook', function () {
       });
     });
 
-    it('only writes options-automator changes', async function () {
+    it('only writes sentry-options changes', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testAdminPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
     });
   });
 
-  describe('sendOptionAutomatorUpdatesToDataDog tests', function () {
+  describe('sendSentryOptionsUpdatesToDataDog tests', function () {
     it('should send the right payload', async function () {
-      await sendOptionAutomatorUpdatesToDataDog(testPartialPayload, 1699563828);
+      await sendSentryOptionsUpdatesToDatadog(testPartialPayload, 1699563828);
       expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
         body: {
           dateHappened: 1699563828,
           text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"}}',
-          title: 'Options Automator Update',
+          title: 'Sentry Options Update',
           alertType: 'error',
           tags: [
             'sentry_region:st-test_region',
@@ -310,7 +310,7 @@ describe('options-automator webhook', function () {
         body: {
           dateHappened: 1699563828,
           text: '{"change":"drifted_options","option":{"option_name":"drifted_option_2","option_value":"value_2"}}',
-          title: 'Options Automator Update',
+          title: 'Sentry Options Update',
           alertType: 'error',
           tags: [
             'sentry_region:st-test_region',
@@ -324,12 +324,12 @@ describe('options-automator webhook', function () {
     });
   });
   it('should send multiple messages', async function () {
-    await sendOptionAutomatorUpdatesToDataDog(testPayload, 1699563828);
+    await sendSentryOptionsUpdatesToDatadog(testPayload, 1699563828);
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(13);
   });
 
   it('should handle different regions', async function () {
-    await sendOptionAutomatorUpdatesToDataDog(testSaasPayload, 1699563828);
+    await sendSentryOptionsUpdatesToDatadog(testSaasPayload, 1699563828);
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
 
     const message = datadogApiInstanceSpy.mock.calls[0][0];
@@ -337,7 +337,7 @@ describe('options-automator webhook', function () {
       body: {
         dateHappened: 1699563828,
         text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}}',
-        title: 'Options Automator Update',
+        title: 'Sentry Options Update',
         alertType: 'success',
         tags: [
           'sentry_region:us',

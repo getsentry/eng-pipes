@@ -4,7 +4,7 @@ import { KnownBlock } from '@slack/types';
 import { FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
-import { OptionsAutomatorResponse } from '@types';
+import { SentryOptionsResponse } from '@types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
@@ -14,16 +14,16 @@ import {
 } from '@/config';
 
 export async function handler(
-  request: FastifyRequest<{ Body: OptionsAutomatorResponse }>
+  request: FastifyRequest<{ Body: SentryOptionsResponse }>
 ) {
-  const { body }: { body: OptionsAutomatorResponse } = request;
+  const { body }: { body: SentryOptionsResponse } = request;
   await messageSlack(body);
-  await sendOptionAutomatorUpdatesToDataDog(body, moment().unix());
+  await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
   return {};
 }
 
-export async function sendOptionAutomatorUpdatesToDataDog(
-  message: OptionsAutomatorResponse,
+export async function sendSentryOptionsUpdatesToDatadog(
+  message: SentryOptionsResponse,
   timestamp: number
 ) {
   const formatRegionTag = (region: string): string => {
@@ -57,7 +57,7 @@ export async function sendOptionAutomatorUpdatesToDataDog(
       const alertType = formatAlertType(optionType);
 
       const params: v1.EventCreateRequest = {
-        title: 'Options Automator Update',
+        title: 'Sentry Options Update',
         // TODO(getsentry/eng-pipes#706): Refactor Text Message
         text: JSON.stringify(text),
         alertType: alertType,
@@ -75,11 +75,10 @@ export async function sendOptionAutomatorUpdatesToDataDog(
   }
 }
 
-export async function messageSlack(message: OptionsAutomatorResponse) {
+export async function messageSlack(message: SentryOptionsResponse) {
   if (message.source !== 'options-automator') {
     return;
   }
-
   const successBlock: KnownBlock[] = [
     slackblocks.header(
       slackblocks.plaintext(
