@@ -47,7 +47,7 @@ export async function getIssueEventsForTeam(team) {
       labelings.repository as repository,
       IF(
         unlabelings.dt IS NULL,
-        CURRENT_TIMESTAMP(),
+        NULL,
         unlabelings.dt
       ) AS triaged_dt,
       labelings.dt AS routed_dt,
@@ -62,7 +62,7 @@ export async function getIssueEventsForTeam(team) {
       OR unlabelings.dt IS NULL)
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
-        labelings.dt,
+        labelings.dt_triage_by,
         day
       ) <= 7
   )
