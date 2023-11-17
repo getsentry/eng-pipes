@@ -119,7 +119,7 @@ describe('slackScores tests', function () {
             issue_id: 4,
             repository: 'routing-repo',
             product_area: 'Test',
-            triaged_dt: { value: '2023-10-13T16:53:15.000Z' },
+            triaged_dt: null,
             triage_by_dt: { value: '2023-10-12T21:52:14.223Z' },
           },
         ])
@@ -186,14 +186,14 @@ describe('slackScores tests', function () {
       });
     });
 
-    it('should ignore issue if it is not due yet', async () => {
+    it('should ignore issue if it is not due yet and not triaged', async () => {
       getIssueEventsForTeamSpy
         .mockReturnValueOnce([
           {
             issue_id: 1,
             repository: 'routing-repo',
             product_area: 'One-Team',
-            triaged_dt: { value: '2023-10-11T16:53:15.000Z' },
+            triaged_dt: null,
             triage_by_dt: { value: '9999-10-12T21:52:14.223Z' },
           },
         ])
@@ -222,6 +222,56 @@ describe('slackScores tests', function () {
 | issues                        |   - (0/0)      |
 | null                          |   - (0/0)      |
 | ospo                          |   - (0/0)      |
+└────────────────────────────────────────────────┘\`\`\``,
+              type: 'mrkdwn',
+            },
+            type: 'section',
+          },
+        ],
+        channel: TEAM_PRODUCT_OWNERS_CHANNEL_ID,
+        text: 'Weekly GitHub Team Scores',
+      });
+    });
+
+    it('should count issue if it is not due yet and already triaged', async () => {
+      getIssueEventsForTeamSpy
+        .mockReturnValueOnce([
+          {
+            issue_id: 1,
+            repository: 'routing-repo',
+            product_area: 'One-Team',
+            triaged_dt: { value: '2023-10-12T21:52:14.223Z' },
+            triage_by_dt: { value: '9999-10-12T21:52:14.223Z' },
+          },
+        ])
+        .mockReturnValue([]);
+      await sendGitHubEngagementMetrics();
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              emoji: true,
+              text: '🗓️ Weekly GitHub Response Times by Team 🗓️',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            text: {
+              text: `\`\`\`
+┌────────────────────────────────────────────────┐
+| Team                          │ % on Time      |
+├────────────────────────────────────────────────┤
+| Low Volume                                     |
+├────────────────────────────────────────────────┤
+| ospo                          | 100 (1/1)      |
+├────────────────────────────────────────────────┤
+| No Volume                                      |
+├────────────────────────────────────────────────┤
+| enterprise                    |   - (0/0)      |
+| ingest                        |   - (0/0)      |
+| issues                        |   - (0/0)      |
+| null                          |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
               type: 'mrkdwn',
             },

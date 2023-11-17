@@ -44,12 +44,16 @@ export const sendGitHubEngagementMetrics = async (
 ) => {
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
-      // Filter out issues that are not yet due
+      // Filter for issues that have been due in the past week unless they have been triaged
       const issueTriageEvents = (await getIssueEventsForTeam(team)).filter(
-        (issue) => moment(issue.triage_by_dt.value) <= moment()
+        (issue) =>
+          moment(issue.triage_by_dt.value) <= moment() ||
+          issue.triaged_dt !== null
       );
       const triagedOnTimeEvents = issueTriageEvents.filter(
-        (issue) => issue.triaged_dt.value <= issue.triage_by_dt.value
+        (issue) =>
+          issue.triaged_dt !== null &&
+          issue.triaged_dt.value <= issue.triage_by_dt.value
       );
       // For teams with 0 events, set the score to 0 instead of NaN to ensure those teams
       // end up on the bottom of the scoreboard automatically.
