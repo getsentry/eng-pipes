@@ -68,6 +68,7 @@ export async function sendSentryOptionsUpdatesToDatadog(
           `source:${message.source}`,
           `source_category:infra-tools`,
           `option_name:${option.option_name}`,
+          `sentry_user:${message.source}`,
         ],
       };
       await DATADOG_API_INSTANCE.createEvent({ body: params });

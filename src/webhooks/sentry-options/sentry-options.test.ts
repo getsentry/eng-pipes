@@ -302,6 +302,7 @@ describe('sentry-options webhook', function () {
             'source:options-automator',
             'source_category:infra-tools',
             'option_name:drifted_option_1',
+            `sentry_user:options-automator`,
           ],
         },
       });
@@ -318,6 +319,7 @@ describe('sentry-options webhook', function () {
             'source:options-automator',
             'source_category:infra-tools',
             'option_name:drifted_option_2',
+            `sentry_user:options-automator`,
           ],
         },
       });
@@ -345,6 +347,7 @@ describe('sentry-options webhook', function () {
           'source:options-automator',
           'source_category:infra-tools',
           'option_name:updated_option_1',
+          `sentry_user:options-automator`,
         ],
       },
     });
