@@ -20,6 +20,7 @@ import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 const PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
+  'deploy-getsentry-backend-s4s',
 ];
 const DEPLOYS_FAILING_HOURS = 2;
 export const DEPLOYS_FAILING_LIMIT_MS = DEPLOYS_FAILING_HOURS * 60 * 60 * 1000;
