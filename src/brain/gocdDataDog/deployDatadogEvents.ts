@@ -1,54 +1,31 @@
 import '@sentry/tracing';
-import { v1 } from '@datadog/datadog-api-client';
 
+import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
-import {
-  Block,
-  KnownBlock,
-  MrkdwnElement,
-} from '@slack/types';
+import moment from 'moment-timezone';
 
 import { getUser } from '@/api/getUser';
 import {
+  DATADOG_API_INSTANCE,
   GETSENTRY_REPO_SLUG,
   GH_ORGS,
   GOCD_ORIGIN,
   SENTRY_REPO_SLUG,
-  DATADOG_API_INSTANCE,
 } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
-import {
-  filterBuildCauses,
-  firstGitMaterialSHA,
-} from '@/utils/gocdHelpers';
-import moment from 'moment-timezone';
+import { filterBuildCauses, firstGitMaterialSHA } from '@/utils/gocdHelpers';
 
-
-
-
-export class DeployFeed {
+export class DeployDatadogEvents {
   private feedName: string;
-  private slackChannelID: string;
-  private msgType: SlackMessage;
   private pipelineFilter: PipelineFilterCallback | undefined;
-  private replyCallback:
-    | ((pipeline: GoCDPipeline) => Promise<Block[]>)
-    | undefined;
 
   constructor({
     feedName,
-    channelID,
-    msgType,
-    pipelineFilter,
-    replyCallback,
-  }: DeployFeedArgs) {
+    eventFilter: pipelineFilter,
+  }: DeployDatadogEventsArgs) {
     this.feedName = feedName;
-    this.slackChannelID = channelID;
-    this.msgType = msgType;
     this.pipelineFilter = pipelineFilter;
-    this.replyCallback = replyCallback;
   }
 
   async handle(resBody: GoCDResponse) {
@@ -61,7 +38,7 @@ export class DeployFeed {
     Sentry.configureScope((scope) => scope.setSpan(tx));
 
     try {
-      await this.postUpdateToSlack(pipeline);
+      await this.newDataDogEvent(pipeline);
     } catch (err) {
       Sentry.captureException(err);
       console.error(err);
@@ -82,7 +59,7 @@ export class DeployFeed {
     return null;
   }
 
-  basicCommitsInDeployBlock(compareURL): MrkdwnElement {
+  basicCommitsInDeploy(compareURL): string {
     return `<${compareURL}|Commits being deployed>`;
   }
 
@@ -129,7 +106,7 @@ export class DeployFeed {
   getShaLink(pipeline: GoCDPipeline) {
     const buildCauses = filterBuildCauses(pipeline, 'git');
     if (buildCauses.length === 0) {
-      return "";
+      return '';
     }
 
     const bc = buildCauses[0];
@@ -141,9 +118,9 @@ export class DeployFeed {
     if (!match) {
       // Lo-fi version of just the commit SHA, no linking to GitHub since we
       // don't know the URL.
-      return `${gitConfig.url} @ ${sha}`
+      return `${gitConfig.url} @ ${sha}`;
     } else {
-      return `<https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision}|${match.repoSlug}@${sha}>`
+      return `<https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision}|${match.repoSlug}@${sha}>`;
     }
   }
 
@@ -162,17 +139,16 @@ export class DeployFeed {
     if (!match) {
       // Lo-fi version of just the commit SHA, no linking to GitHub since we
       // don't know the URL.
-      return `${gitConfig.url}@${sha}`
+      return `${gitConfig.url}@${sha}`;
     } else {
-      return `${match.repoSlug}@${sha}`
+      return `${match.repoSlug}@${sha}`;
     }
-    return "";
   }
 
   async getCommitsDiff(pipeline: GoCDPipeline) {
     const buildCauses = filterBuildCauses(pipeline, 'git');
     if (buildCauses.length === 0) {
-      return;
+      return 'no build cause';
     }
 
     const bc = buildCauses[0];
@@ -180,19 +156,18 @@ export class DeployFeed {
     const gitConfig = bc.material['git-configuration'];
     const match = this.parseGitHubURL(gitConfig.url);
 
-
     if (match) {
       const latestDeploy = await getLastGetSentryGoCDDeploy(
         pipeline.group,
         pipeline.name
       );
       if (!latestDeploy) {
-        return "";
+        return 'no deploy';
       }
 
       const latestSHA = firstGitMaterialSHA(latestDeploy);
       if (!latestSHA) {
-        return "";
+        return 'no sha';
       }
 
       const compareURL = this.compareURL(
@@ -202,7 +177,7 @@ export class DeployFeed {
         modification.revision
       );
       if (match.repoSlug !== GETSENTRY_REPO_SLUG) {
-        return this.basicCommitsInDeployBlock(compareURL);
+        return this.basicCommitsInDeploy(compareURL);
       }
 
       try {
@@ -223,14 +198,14 @@ export class DeployFeed {
             shas[1]
           );
           return `Commits being deployed: <${compareURL}|getsentry> | <${sentryCompareURL}|sentry>`;
-
         }
       } catch (err) {
         Sentry.captureException(err);
       }
-      return this.basicCommitsInDeployBlock(compareURL);
-
+      return this.basicCommitsInDeploy(compareURL);
     }
+
+    return 'no match in getcommit diff';
   }
 
   stageMessage(pipeline: GoCDPipeline): string {
@@ -243,10 +218,9 @@ export class DeployFeed {
     }
   }
 
-  stageLink(pipeline: GoCDPipeline): KnownBlock {
+  stageLink(pipeline: GoCDPipeline): string {
     const stageOverviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
     return `<${stageOverviewURL}|${this.stageMessage(pipeline)}>`;
-
   }
 
   async getBodyText(pipeline: GoCDPipeline) {
@@ -268,11 +242,11 @@ export class DeployFeed {
   }
 
   getFormattedRegion(pipeline: GoCDPipeline) {
-    const pipeline_name = pipeline.name
+    const pipeline_name = pipeline.name;
     const sentry_region_mappings = {
-      's4s': 's4s',
-      'us': 'us',
-      'de': 'de',
+      s4s: 's4s',
+      us: 'us',
+      de: 'de',
       'customer-1': 'st-goldmansachs',
       'customer-2': 'st-geico',
       'customer-3': 'st-zendesk-eu',
@@ -280,7 +254,7 @@ export class DeployFeed {
       'customer-5': 'st-securitytest',
       'customer-6': 'st-test-region',
     };
-    let region = "all"
+    let region = 'all';
 
     for (const [key, value] of Object.entries(sentry_region_mappings)) {
       if (pipeline_name.includes(key)) {
@@ -288,49 +262,48 @@ export class DeployFeed {
       }
     }
 
-    return region
+    return region;
   }
 
-  async newDataDogEvent(refId: string, pipeline: GoCDPipeline) {
+  async newDataDogEvent(pipeline: GoCDPipeline) {
     if (this.pipelineFilter && !this.pipelineFilter(pipeline)) {
       return;
     }
+
+    // let refId = this.getPipelineId(pipeline);
     // GoCD deployment started in <> by auto/ user
     const bodytext = await this.getBodyText(pipeline);
 
     // sentry-st-region
-    let region = this.getFormattedRegion(pipeline);
+    const region = this.getFormattedRegion(pipeline);
 
     // getsentry-frontend
-    let service = pipeline.group;
+    const service = pipeline.group;
 
     // getsentry@h92mfyw
-    let repoSha = this.getRepoSha(pipeline);
+    // let repoSha = this.getRepoSha(pipeline);
 
     // Deploying getsentry@cb2961b1528f (link to git commit)
-    let commitShaLink = this.getShaLink(pipeline);
+    const commitShaLink = this.getShaLink(pipeline);
 
     // Commits being deployed: getsentry (link to diff) | sentry (link to diff)
-    let commitDiffLink = this.getCommitsDiff(pipeline);
+    const commitDiffLink = this.getCommitsDiff(pipeline);
 
     // deploy-primary
-    let stageName = pipeline.stage.name;
+    // let stageName = pipeline.stage.name;
 
     // In progress (link to gocd dashboard)
-    let stageLink = this.stageLink(pipeline);
+    const stageLink = this.stageLink(pipeline);
 
     // Failed
-    let pipelineResult = pipeline.stage.result.toLowerCase();
-
-
-
+    const pipelineResult = pipeline.stage.result.toLowerCase();
 
     // Title: GoCD: deploy sha (started/failed/completed)  in <insert>-region
-    let title = `GoCD: deploying ${service} ${pipelineResult} in ${region}`;
-    // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237      
-    let text = `%%% \n ${bodytext} from: ${commitShaLink}, ${commitDiffLink},  GoCD:${stageLink} \n %%%`;
+    const title = `GoCD: deploying ${service} ${pipelineResult} in ${region}`;
+    // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237
+    const text = `%%% \n ${bodytext} from: ${commitShaLink}, ${commitDiffLink},  GoCD:${stageLink} \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
-    let tags = [
+    const tags = [
       `region:${region}`,
       `source_tool:gocd`,
       `source:"gocd"`,
@@ -338,13 +311,8 @@ export class DeployFeed {
       `sentry_service:${service}`,
     ];
 
-
-
-
-    return await this.sendEventToDatadog(title, text, moment().unix(), tags)
+    return await this.sendEventToDatadog(title, text, moment().unix(), tags);
   }
-
-
 
   getPipelineId(pipeline: GoCDPipeline) {
     let refId = `${pipeline.group}-${pipeline.name}/${pipeline.counter}`;
@@ -357,7 +325,12 @@ export class DeployFeed {
     return refId;
   }
 
-  async sendEventToDatadog(title: string, text: string, timestamp: string, tags: string[]) {
+  async sendEventToDatadog(
+    title: string,
+    text: string,
+    timestamp: number,
+    tags: string[]
+  ) {
     const params: v1.EventCreateRequest = {
       title: title,
       text: text,
@@ -366,16 +339,10 @@ export class DeployFeed {
     };
     await DATADOG_API_INSTANCE.createEvent({ body: params });
   }
-
-
 }
 
-
-interface DeployFeedArgs {
+interface DeployDatadogEventsArgs {
   feedName: string;
-  channelID: string;
-  msgType: SlackMessage;
-  pipelineFilter?: PipelineFilterCallback;
-  replyCallback?: (pipeline: GoCDPipeline) => Promise<Block[]>;
+  eventFilter?: PipelineFilterCallback;
 }
 type PipelineFilterCallback = (pipeline: GoCDPipeline) => boolean;
