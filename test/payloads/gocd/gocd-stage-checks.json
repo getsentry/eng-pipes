@@ -1,0 +1,69 @@
+{
+  "data": {
+      "pipeline": {
+          "name": "deploy-getsentry-backend-s4s",
+          "counter": "2373",
+          "group": "getsentry-backend",
+          "build-cause": [
+              {
+                  "material": {
+                      "git-configuration": {
+                          "shallow-clone": false,
+                          "branch": "master",
+                          "url": "git@github.com:getsentry/getsentry.git"
+                      },
+                      "type": "git"
+                  },
+                  "changed": true,
+                  "modifications": [
+                      {
+                          "revision": "84c64ded24267c3797e7f8e6bfbb825488b44f9f",
+                          "modified-time": "Nov 28, 2023, 11:05:46 PM",
+                          "data": {}
+                      },
+                      {
+                          "revision": "7dee4da1fe23915ca6952d5ce35dc3dae24238e7",
+                          "modified-time": "Nov 28, 2023, 11:05:12 PM",
+                          "data": {}
+                      },
+                      {
+                          "revision": "bc82e7fd516b81de44137d8c47235673eb25273c",
+                          "modified-time": "Nov 28, 2023, 10:53:44 PM",
+                          "data": {}
+                      }
+                  ]
+              }
+          ],
+          "stage": {
+              "name": "checks",
+              "counter": "1",
+              "approval-type": "success",
+              "approved-by": "changes",
+              "state": "Building",
+              "result": "Unknown",
+              "create-time": "Nov 28, 2023, 11:25:59 PM",
+              "jobs": [
+                  {
+                      "name": "ci-getsentry",
+                      "schedule-time": "Nov 28, 2023, 11:25:59 PM",
+                      "state": "Scheduled",
+                      "result": "Unknown"
+                  },
+                  {
+                      "name": "ci-sentry",
+                      "schedule-time": "Nov 28, 2023, 11:25:59 PM",
+                      "state": "Scheduled",
+                      "result": "Unknown"
+                  },
+                  {
+                      "name": "cloudbuild",
+                      "schedule-time": "Nov 28, 2023, 11:25:59 PM",
+                      "state": "Scheduled",
+                      "result": "Unknown"
+                  }
+              ]
+          }
+      }
+  },
+  "type": "stage"
+}

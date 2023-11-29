@@ -2,7 +2,6 @@ import '@sentry/tracing';
 
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
-import moment from 'moment-timezone';
 
 import { getUser } from '@/api/getUser';
 import {
@@ -37,12 +36,14 @@ export class DeployDatadogEvents {
     });
     Sentry.configureScope((scope) => scope.setSpan(tx));
 
-    try {
-      await this.newDataDogEvent(pipeline);
-    } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
-    }
+    // try {
+    //   await this.newDataDogEvent(pipeline);
+    // } catch (err) {
+    //   Sentry.captureException(err);
+    //   console.error(err);
+    // }
+
+    await this.newDataDogEvent(pipeline);
 
     tx.finish();
   }
@@ -60,7 +61,7 @@ export class DeployDatadogEvents {
   }
 
   basicCommitsInDeploy(compareURL): string {
-    return `<${compareURL}|Commits being deployed>`;
+    return `[Commits being deployed](${compareURL})`;
   }
 
   async getSentryRevisions(
@@ -120,7 +121,7 @@ export class DeployDatadogEvents {
       // don't know the URL.
       return `${gitConfig.url} @ ${sha}`;
     } else {
-      return `<https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision}|${match.repoSlug}@${sha}>`;
+      return `[${match.repoSlug}@${sha}](https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision})`;
     }
   }
 
@@ -162,12 +163,12 @@ export class DeployDatadogEvents {
         pipeline.name
       );
       if (!latestDeploy) {
-        return 'no deploy';
+        return '';
       }
 
       const latestSHA = firstGitMaterialSHA(latestDeploy);
       if (!latestSHA) {
-        return 'no sha';
+        return '';
       }
 
       const compareURL = this.compareURL(
@@ -197,7 +198,7 @@ export class DeployDatadogEvents {
             shas[0],
             shas[1]
           );
-          return `Commits being deployed: <${compareURL}|getsentry> | <${sentryCompareURL}|sentry>`;
+          return `Commits being deployed: [getsentry](${compareURL}) | [sentry](${sentryCompareURL})`;
         }
       } catch (err) {
         Sentry.captureException(err);
@@ -205,7 +206,7 @@ export class DeployDatadogEvents {
       return this.basicCommitsInDeploy(compareURL);
     }
 
-    return 'no match in getcommit diff';
+    return '';
   }
 
   stageMessage(pipeline: GoCDPipeline): string {
@@ -220,7 +221,7 @@ export class DeployDatadogEvents {
 
   stageLink(pipeline: GoCDPipeline): string {
     const stageOverviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
-    return `<${stageOverviewURL}|${this.stageMessage(pipeline)}>`;
+    return `[${this.stageMessage(pipeline)}](${stageOverviewURL})`;
   }
 
   async getBodyText(pipeline: GoCDPipeline) {
@@ -272,7 +273,7 @@ export class DeployDatadogEvents {
 
     // let refId = this.getPipelineId(pipeline);
     // GoCD deployment started in <> by auto/ user
-    const bodytext = await this.getBodyText(pipeline);
+    const deploymentReason = await this.getBodyText(pipeline);
 
     // sentry-st-region
     const region = this.getFormattedRegion(pipeline);
@@ -287,21 +288,21 @@ export class DeployDatadogEvents {
     const commitShaLink = this.getShaLink(pipeline);
 
     // Commits being deployed: getsentry (link to diff) | sentry (link to diff)
-    const commitDiffLink = this.getCommitsDiff(pipeline);
+    const commitDiffLink = await this.getCommitsDiff(pipeline);
 
     // deploy-primary
-    // let stageName = pipeline.stage.name;
+    const stageName = pipeline.stage.name;
 
     // In progress (link to gocd dashboard)
     const stageLink = this.stageLink(pipeline);
 
     // Failed
-    const pipelineResult = pipeline.stage.result.toLowerCase();
+    const pipelineResult = this.stageMessage(pipeline);
 
     // Title: GoCD: deploy sha (started/failed/completed)  in <insert>-region
-    const title = `GoCD: deploying ${service} ${pipelineResult} in ${region}`;
+    const title = `(BETA) GoCD: deploying <${service}> <${stageName}> <${pipelineResult}> in ${region}`;
     // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237
-    const text = `%%% \n ${bodytext} from: ${commitShaLink}, ${commitDiffLink},  GoCD:${stageLink} \n %%%`;
+    const text = `%%% \n **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n ${deploymentReason} from: ${commitShaLink}, ${commitDiffLink}  GoCD:${stageLink}\n *this message was produced by a eng-pipes gocd brain module* \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
     const tags = [
       `region:${region}`,
@@ -309,9 +310,10 @@ export class DeployDatadogEvents {
       `source:"gocd"`,
       `source_category:infra-tools`,
       `sentry_service:${service}`,
+      `sentry_user:eng-pipes`,
     ];
 
-    return await this.sendEventToDatadog(title, text, moment().unix(), tags);
+    return await this.sendEventToDatadog(title, text, tags);
   }
 
   getPipelineId(pipeline: GoCDPipeline) {
@@ -325,16 +327,10 @@ export class DeployDatadogEvents {
     return refId;
   }
 
-  async sendEventToDatadog(
-    title: string,
-    text: string,
-    timestamp: number,
-    tags: string[]
-  ) {
+  async sendEventToDatadog(title: string, text: string, tags: string[]) {
     const params: v1.EventCreateRequest = {
       title: title,
       text: text,
-      dateHappened: timestamp,
       tags: tags,
     };
     await DATADOG_API_INSTANCE.createEvent({ body: params });

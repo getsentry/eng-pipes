@@ -69,6 +69,6 @@ export async function handler(body: GoCDResponse) {
   await Promise.all([deployEventsDataDog.handle(body)]);
 }
 
-export async function gocdSlackFeeds() {
+export async function gocdDataDog() {
   gocdevents.on('stage', handler);
 }

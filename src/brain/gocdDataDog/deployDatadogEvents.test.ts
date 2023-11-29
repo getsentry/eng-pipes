@@ -1,23 +1,23 @@
-import merge from 'lodash.merge';
+import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
+import gocdSnubaMigratePayload from '@test/payloads/gocd/gocd-snuba-build-passed.json';
+import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
+import gocdFrontendBuilding from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
+import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
-
-import * as slackblocks from '@/blocks/slackBlocks';
-import { Color, GETSENTRY_ORG } from '@/config';
-import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline } from '@/types';
-import { bolt } from '@api/slack';
+import { buildServer } from '@/buildServer';
+import { DATADOG_API_INSTANCE } from '@/config';
 import { db } from '@utils/db';
 
-import { DeployFeed } from './deployFeed';
+import { gocdDataDog, handler } from '.';
 
 jest.mock('@api/getUser');
 
-describe('DeployFeed', () => {
-  const org = GETSENTRY_ORG;
+describe('GocdDatadogEvents', () => {
+  let fastify, datadogApiInstanceSpy;
 
   beforeAll(async function () {
     await db.migrate.latest();
+    await gocdDataDog();
   });
 
   afterAll(async function () {
@@ -28,727 +28,117 @@ describe('DeployFeed', () => {
     await db('slack_messages').delete();
     await db('gocd-stages').delete();
     await db('gocd-stage-materials').delete();
+
+    fastify = await buildServer(false);
+    datadogApiInstanceSpy = jest
+      .spyOn(DATADOG_API_INSTANCE, 'createEvent')
+      .mockImplementation(jest.fn());
   });
 
   afterEach(async function () {
+    fastify.close();
     jest.clearAllMocks();
     await db('slack_messages').delete();
     await db('gocd-stages').delete();
     await db('gocd-stage-materials').delete();
   });
 
-  it('post message to feed without filter', async () => {
-    const gocdPayload = merge({}, payload);
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
+  it('webhook working empty payload', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      payload: testEmptyPayload,
     });
-    await feed.handle(gocdPayload);
+    expect(response.statusCode).toBe(200);
+    await new Promise((resolve) => setTimeout(resolve, 500));
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.OFF_WHITE_TOO,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('⏳ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|In progress>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-    expect(slackMessages[0]).toMatchObject({
-      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
-      ts: '1234123.123',
-      context: {
-        text: 'GoCD deployment started',
-      },
-    });
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(0);
   });
 
-  it('post message to feed with filter', async () => {
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          name: 'ONLY_THIS_PIPELINE',
-        },
-      },
+  it('webhook ignore agent payload', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      payload: gocdagentpayload,
     });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-      pipelineFilter: (pipeline: GoCDPipeline) => {
-        return pipeline.name === 'ONLY_THIS_PIPELINE';
-      },
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    let slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-
-    const filterOutPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          name: 'FILTER_OUT_THIS_PIPELINE',
-        },
-      },
-    });
-    await feed.handle(filterOutPayload);
-    slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(response.statusCode).toBe(200);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(0);
   });
 
-  it('post auto-deploy message to feed without filter', async () => {
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          stage: {
-            'approved-by': 'changes',
-            result: 'Passed',
-          },
-        },
-      },
+  it('webhook ignore checks stage payload', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      payload: gocdStateChecksPayload,
     });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD auto-deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.SUCCESS,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('✅ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|Passed>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
+    expect(response.statusCode).toBe(200);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(0);
   });
 
-  it('post message and update to user', async () => {
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          stage: {
-            'approved-by': 'test@sentry.io',
-            result: 'Cancelled',
-          },
-        },
-      },
+  it('webhook snuba payload', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      payload: gocdSnubaMigratePayload,
     });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.DANGER,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('🛑 *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|Cancelled>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    let slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-    expect(slackMessages[0]).toMatchObject({
-      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
-      ts: '1234123.123',
-      context: {
-        text: 'GoCD deployment started by <@U018H4DA8N5>',
-      },
-    });
-
-    const failedPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          stage: {
-            'approved-by': 'test@sentry.io',
-            result: 'Failed',
-          },
-        },
-      },
-    });
-    await feed.handle(failedPayload);
-
-    expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.DANGER,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('❌ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|Failed>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-    slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-    expect(slackMessages[0]).toMatchObject({
-      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
-      ts: '1234123.123',
-      context: {
-        text: 'GoCD deployment started by <@U018H4DA8N5>',
-      },
-    });
+    expect(response.statusCode).toBe(200);
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('handle no build cause and no approved by', async () => {
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          stage: {
-            'approved-by': '',
-            result: 'Unexpected Result',
-          },
-        },
-      },
-    });
-    gocdPayload.data.pipeline['build-cause'] = [];
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.DANGER,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('❓ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|Unexpected Result>'
-                ),
-              ],
-            },
+  describe('sendSentryOptionsUpdatesToDataDog tests', function () {
+    it('should send the right payload', async function () {
+      await handler(gocdFrontendBuilding);
+      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
+      const message = datadogApiInstanceSpy.mock.calls[0][0];
+      expect(message).toEqual({
+        body: {
+          title:
+            '(BETA) GoCD: deploying <getsentry-control-frontend> <deploy> <In progress> in de',
+          text:
+            '%%% \n' +
+            ' **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n' +
+            ' GoCD auto-deployment started from: [getsentry@d2501d598f97](https://github.com/getsentry/getsentry/commits/d2501d598f97829b43627ba5d5721013f1d217dc),   GoCD:[In progress](https://deploy.getsentry.net/go/pipelines/deploy-getsentry-control-frontend-test/2523/deploy/1)\n' +
+            ' *this message was produced by a eng-pipes gocd brain module* \n' +
+            ' %%%',
+          tags: [
+            'region:de',
+            'source_tool:gocd',
+            'source:"gocd"',
+            'source_category:infra-tools',
+            'sentry_service:getsentry-control-frontend',
+            `sentry_user:eng-pipes`,
           ],
         },
-      ],
+      });
     });
 
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-  });
-
-  it('handle URL that is not a GitHub url', async () => {
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          'build-cause': [
-            {
-              material: {
-                type: 'git',
-                'git-configuration': {
-                  url: 'git://www.gitlab.com/getsentry/sentry.git',
-                },
-              },
-            },
+    it('should handle different ', async function () {
+      await handler(gocdSnubaMigratePayload);
+      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
+      const message = datadogApiInstanceSpy.mock.calls[0][0];
+      expect(message).toEqual({
+        body: {
+          title:
+            '(BETA) GoCD: deploying <snuba> <st_migrate> <Passed> in st-zendesk-eu',
+          text:
+            '%%% \n' +
+            ' **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n' +
+            ' GoCD auto-deployment started from: [snuba@4d71a785da42](https://github.com/getsentry/snuba/commits/4d71a785da42db5606c2c82bb5a91adfb5006fc7),   GoCD:[Passed](https://deploy.getsentry.net/go/pipelines/deploy-snuba-customer-3/168/st_migrate/1)\n' +
+            ' *this message was produced by a eng-pipes gocd brain module* \n' +
+            ' %%%',
+          tags: [
+            'region:st-zendesk-eu',
+            'source_tool:gocd',
+            'source:"gocd"',
+            'source_category:infra-tools',
+            'sentry_service:snuba',
+            `sentry_user:eng-pipes`,
           ],
         },
-      },
+      });
     });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.OFF_WHITE_TOO,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  'git://www.gitlab.com/getsentry/sentry.git @ 2b0034becc4a'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('⏳ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|In progress>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-  });
-
-  it('post message with commits in deploy link for non-getsentry', async () => {
-    await db('gocd-stages').insert({
-      pipeline_id: 'pipeline-id-123',
-
-      pipeline_name: payload.data.pipeline.name,
-      pipeline_counter: 2,
-      pipeline_group: payload.data.pipeline.group,
-      pipeline_build_cause: JSON.stringify([
-        {
-          material: {
-            'git-configuration': {
-              'shallow-clone': false,
-              branch: 'master',
-              url: 'git@github.com:getsentry/example.git',
-            },
-            type: 'git',
-          },
-          changed: false,
-          modifications: [
-            {
-              revision: '111111',
-              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
-              data: {},
-            },
-          ],
-        },
-      ]),
-
-      stage_name: 'deploy',
-      stage_counter: 1,
-      stage_approval_type: '',
-      stage_approved_by: '',
-      stage_state: 'Passed',
-      stage_result: 'unknown',
-      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_jobs: '{}',
-    });
-
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          'build-cause': [
-            {
-              material: {
-                type: 'git',
-                'git-configuration': {
-                  url: 'git://github.com/getsentry/example.git',
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.OFF_WHITE_TOO,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/example/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|example@2b0034becc4a>'
-                ),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/example/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('⏳ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|In progress>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-  });
-
-  it('post message with commits in deploy link for getsentry', async () => {
-    org.api.repos.getContent.mockImplementation((args) => {
-      if (args.owner !== 'getsentry') {
-        throw new Error(`Unexpected getContent() owner: ${args.owner}`);
-      }
-      if (args.repo !== 'getsentry') {
-        throw new Error(`Unexpected getContent() owner: ${args.owner}`);
-      }
-      if (args.path !== 'sentry-version') {
-        throw new Error(`Unexpected getContent() owner: ${args.owner}`);
-      }
-      const mapping = {
-        '111111': '222222',
-        '2b0034becc4ab26b985f4c1a08ab068f153c274c': '333333',
-      };
-      return {
-        status: 200,
-        data: {
-          content: Buffer.from(`${mapping[args.ref]}\n`, 'ascii').toString(
-            'base64'
-          ),
-          encoding: 'base64',
-        },
-      };
-    });
-
-    await db('gocd-stages').insert({
-      pipeline_id: 'pipeline-id-123',
-
-      pipeline_name: payload.data.pipeline.name,
-      pipeline_counter: 2,
-      pipeline_group: payload.data.pipeline.group,
-      pipeline_build_cause: JSON.stringify([
-        {
-          material: {
-            'git-configuration': {
-              'shallow-clone': false,
-              branch: 'master',
-              url: 'git@github.com:getsentry/getsentry.git',
-            },
-            type: 'git',
-          },
-          changed: false,
-          modifications: [
-            {
-              revision: '111111',
-              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
-              data: {},
-            },
-          ],
-        },
-      ]),
-
-      stage_name: 'deploy',
-      stage_counter: 1,
-      stage_approval_type: '',
-      stage_approved_by: '',
-      stage_state: 'Passed',
-      stage_result: 'unknown',
-      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_jobs: '{}',
-    });
-
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          'build-cause': [
-            {
-              material: {
-                type: 'git',
-                'git-configuration': {
-                  url: 'git://github.com/getsentry/getsentry.git',
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.OFF_WHITE_TOO,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-                slackblocks.markdown(
-                  'Commits being deployed: <https://github.com/getsentry/getsentry/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry> | <https://github.com/getsentry/sentry/compare/222222...333333|sentry>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('⏳ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|In progress>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
-
-    expect(org.api.repos.getContent).toBeCalledTimes(2);
-  });
-
-  it('handle error if get content fails', async () => {
-    org.api.repos.getContent.mockImplementation((_args) => {
-      throw new Error('Injected error');
-    });
-
-    await db('gocd-stages').insert({
-      pipeline_id: 'pipeline-id-123',
-
-      pipeline_name: payload.data.pipeline.name,
-      pipeline_counter: 2,
-      pipeline_group: payload.data.pipeline.group,
-      pipeline_build_cause: JSON.stringify([
-        {
-          material: {
-            'git-configuration': {
-              'shallow-clone': false,
-              branch: 'master',
-              url: 'git@github.com:getsentry/getsentry.git',
-            },
-            type: 'git',
-          },
-          changed: false,
-          modifications: [
-            {
-              revision: '111111',
-              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
-              data: {},
-            },
-          ],
-        },
-      ]),
-
-      stage_name: 'deploy',
-      stage_counter: 1,
-      stage_approval_type: '',
-      stage_approved_by: '',
-      stage_state: 'Passed',
-      stage_result: 'unknown',
-      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
-      stage_jobs: '{}',
-    });
-
-    const gocdPayload = merge({}, payload, {
-      data: {
-        pipeline: {
-          'build-cause': [
-            {
-              material: {
-                type: 'git',
-                'git-configuration': {
-                  url: 'git://github.com/getsentry/getsentry.git',
-                },
-              },
-            },
-          ],
-        },
-      },
-    });
-
-    const feed = new DeployFeed({
-      feedName: 'example-feed',
-      channelID: 'example-channel-id',
-      msgType: SlackMessage.FEED_ENG_DEPLOY,
-    });
-    await feed.handle(gocdPayload);
-
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
-    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: 'GoCD deployment started',
-      channel: 'example-channel-id',
-      attachments: [
-        {
-          color: Color.OFF_WHITE_TOO,
-          blocks: [
-            slackblocks.section(
-              slackblocks.markdown('*sentryio/getsentry_frontend*')
-            ),
-            {
-              elements: [
-                slackblocks.markdown('Deploying'),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
-                ),
-                slackblocks.markdown(
-                  '<https://github.com/getsentry/getsentry/compare/111111...2b0034becc4ab26b985f4c1a08ab068f153c274c|Commits being deployed>'
-                ),
-              ],
-            },
-            slackblocks.divider(),
-            {
-              elements: [
-                slackblocks.markdown('⏳ *preliminary-checks*'),
-                slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/getsentry_frontend/20/preliminary-checks/1|In progress>'
-                ),
-              ],
-            },
-          ],
-        },
-      ],
-    });
-
-    const slackMessages = await db('slack_messages').select('*');
-    expect(slackMessages).toHaveLength(1);
   });
 });

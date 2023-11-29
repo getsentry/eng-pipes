@@ -1,0 +1,47 @@
+{
+    "data": {
+        "pipeline": {
+            "name": "deploy-getsentry-control-frontend-test",
+            "counter": "2523",
+            "group": "getsentry-control-frontend",
+            "build-cause": [
+                {
+                    "material": {
+                        "git-configuration": {
+                            "shallow-clone": false,
+                            "branch": "master",
+                            "url": "git@github.com:getsentry/getsentry.git"
+                        },
+                        "type": "git"
+                    },
+                    "changed": true,
+                    "modifications": [
+                        {
+                            "revision": "d2501d598f97829b43627ba5d5721013f1d217dc",
+                            "modified-time": "Nov 29, 2023, 6:47:35 PM",
+                            "data": {}
+                        }
+                    ]
+                }
+            ],
+            "stage": {
+                "name": "deploy",
+                "counter": "1",
+                "approval-type": "success",
+                "approved-by": "changes",
+                "state": "Building",
+                "result": "Unknown",
+                "create-time": "Nov 29, 2023, 7:07:15 PM",
+                "jobs": [
+                    {
+                        "name": "deploy",
+                        "schedule-time": "Nov 29, 2023, 7:07:15 PM",
+                        "state": "Scheduled",
+                        "result": "Unknown"
+                    }
+                ]
+            }
+        }
+    },
+    "type": "stage"
+}
