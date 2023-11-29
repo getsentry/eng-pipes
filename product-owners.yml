@@ -143,7 +143,7 @@ teams:
   team-discover-and-dashboards:
     offices:
     - yyz
-    slack_channel: C05F7G32M4Z
+    slack_channel: C026Y0SK34H
   team-docs:
     offices:
     - sea
@@ -180,7 +180,7 @@ teams:
   team-performance:
     offices:
     - yyz
-    slack_channel: C04Q3BDL8MA
+    slack_channel: C026Y0SK34H
   team-processing:
     offices:
     - vie
