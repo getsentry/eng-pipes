@@ -300,9 +300,9 @@ export class DeployDatadogEvents {
     const pipelineResult = this.stageMessage(pipeline);
 
     // Title: GoCD: deploy sha (started/failed/completed)  in <insert>-region
-    const title = `(BETA) GoCD: deploying <${service}> <${stageName}> <${pipelineResult}> in ${region}`;
+    const title = `GoCD: deploying <${service}> <${stageName}> <${pipelineResult}> in ${region}`;
     // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237
-    const text = `%%% \n **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n ${deploymentReason} from: ${commitShaLink}, ${commitDiffLink}  GoCD:${stageLink}\n *this message was produced by a eng-pipes gocd brain module* \n %%%`;
+    const text = `%%% \n${deploymentReason} from: ${commitShaLink}, ${commitDiffLink}  GoCD:${stageLink}\n *this message was produced by a eng-pipes gocd brain module* \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
     const tags = [
       `region:${region}`,

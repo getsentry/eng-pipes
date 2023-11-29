@@ -96,11 +96,10 @@ describe('GocdDatadogEvents', () => {
       expect(message).toEqual({
         body: {
           title:
-            '(BETA) GoCD: deploying <getsentry-control-frontend> <deploy> <In progress> in de',
+            'GoCD: deploying <getsentry-control-frontend> <deploy> <In progress> in de',
           text:
             '%%% \n' +
-            ' **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n' +
-            ' GoCD auto-deployment started from: [getsentry@d2501d598f97](https://github.com/getsentry/getsentry/commits/d2501d598f97829b43627ba5d5721013f1d217dc),   GoCD:[In progress](https://deploy.getsentry.net/go/pipelines/deploy-getsentry-control-frontend-test/2523/deploy/1)\n' +
+            'GoCD auto-deployment started from: [getsentry@d2501d598f97](https://github.com/getsentry/getsentry/commits/d2501d598f97829b43627ba5d5721013f1d217dc),   GoCD:[In progress](https://deploy.getsentry.net/go/pipelines/deploy-getsentry-control-frontend-test/2523/deploy/1)\n' +
             ' *this message was produced by a eng-pipes gocd brain module* \n' +
             ' %%%',
           tags: [
@@ -109,7 +108,7 @@ describe('GocdDatadogEvents', () => {
             'source:"gocd"',
             'source_category:infra-tools',
             'sentry_service:getsentry-control-frontend',
-            `sentry_user:eng-pipes`,
+            'sentry_user:eng-pipes',
           ],
         },
       });
@@ -122,11 +121,10 @@ describe('GocdDatadogEvents', () => {
       expect(message).toEqual({
         body: {
           title:
-            '(BETA) GoCD: deploying <snuba> <st_migrate> <Passed> in st-zendesk-eu',
+            'GoCD: deploying <snuba> <st_migrate> <Passed> in st-zendesk-eu',
           text:
             '%%% \n' +
-            ' **THIS IS STILL IN BETA DO NOT TRUST THESE MESSAGES** \n' +
-            ' GoCD auto-deployment started from: [snuba@4d71a785da42](https://github.com/getsentry/snuba/commits/4d71a785da42db5606c2c82bb5a91adfb5006fc7),   GoCD:[Passed](https://deploy.getsentry.net/go/pipelines/deploy-snuba-customer-3/168/st_migrate/1)\n' +
+            'GoCD auto-deployment started from: [snuba@4d71a785da42](https://github.com/getsentry/snuba/commits/4d71a785da42db5606c2c82bb5a91adfb5006fc7),   GoCD:[Passed](https://deploy.getsentry.net/go/pipelines/deploy-snuba-customer-3/168/st_migrate/1)\n' +
             ' *this message was produced by a eng-pipes gocd brain module* \n' +
             ' %%%',
           tags: [
@@ -135,7 +133,7 @@ describe('GocdDatadogEvents', () => {
             'source:"gocd"',
             'source_category:infra-tools',
             'sentry_service:snuba',
-            `sentry_user:eng-pipes`,
+            'sentry_user:eng-pipes',
           ],
         },
       });
