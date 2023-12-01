@@ -1,0 +1,72 @@
+{
+    "data": {
+        "pipeline": {
+            "name": "deploy-snuba-customer-3",
+            "counter": "168",
+            "group": "snuba",
+            "build-cause": [
+                {
+                    "material": {
+                        "pipeline-configuration": {
+                            "pipeline-name": "deploy-snuba-customer-2",
+                            "stage-name": "pipeline-complete"
+                        },
+                        "type": "pipeline"
+                    },
+                    "changed": true,
+                    "modifications": [
+                        {
+                            "revision": "deploy-snuba-customer-2/177/pipeline-complete/1",
+                            "modified-time": "Nov 29, 2023, 7:06:27 PM",
+                            "data": {}
+                        }
+                    ]
+                },
+                {
+                    "material": {
+                        "git-configuration": {
+                            "shallow-clone": false,
+                            "branch": "master",
+                            "url": "git@github.com:getsentry/snuba.git"
+                        },
+                        "type": "git"
+                    },
+                    "changed": true,
+                    "modifications": [
+                        {
+                            "revision": "4d71a785da42db5606c2c82bb5a91adfb5006fc7",
+                            "modified-time": "Nov 29, 2023, 5:39:21 PM",
+                            "data": {}
+                        },
+                        {
+                            "revision": "d9277f0daf1b8ecb770815d068f900cceeb93572",
+                            "modified-time": "Nov 28, 2023, 7:58:04 PM",
+                            "data": {}
+                        }
+                    ]
+                }
+            ],
+            "stage": {
+                "name": "st_migrate",
+                "counter": "1",
+                "approval-type": "success",
+                "approved-by": "changes",
+                "state": "Passed",
+                "result": "Passed",
+                "create-time": "Nov 29, 2023, 7:07:05 PM",
+                "last-transition-time": "Nov 29, 2023, 7:09:00 PM",
+                "jobs": [
+                    {
+                        "name": "migrate",
+                        "schedule-time": "Nov 29, 2023, 7:07:05 PM",
+                        "complete-time": "Nov 29, 2023, 7:09:00 PM",
+                        "state": "Completed",
+                        "result": "Passed",
+                        "agent-uuid": "37e2dab1-670a-49e9-9657-f11a0a9623c6"
+                    }
+                ]
+            }
+        }
+    },
+    "type": "stage"
+}
