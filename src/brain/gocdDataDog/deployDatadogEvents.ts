@@ -36,15 +36,12 @@ export class DeployDatadogEvents {
     });
     Sentry.configureScope((scope) => scope.setSpan(tx));
 
-    // try {
-    //   await this.newDataDogEvent(pipeline);
-    // } catch (err) {
-    //   Sentry.captureException(err);
-    //   console.error(err);
-    // }
-
-    await this.newDataDogEvent(pipeline);
-
+    try {
+      await this.newDataDogEvent(pipeline);
+    } catch (err) {
+      Sentry.captureException(err);
+      console.error(err);
+    }
     tx.finish();
   }
 
@@ -122,27 +119,6 @@ export class DeployDatadogEvents {
       return `${gitConfig.url} @ ${sha}`;
     } else {
       return `[${match.repoSlug}@${sha}](https://github.com/${match.orgSlug}/${match.repoSlug}/commits/${modification.revision})`;
-    }
-  }
-
-  getRepoSha(pipeline: GoCDPipeline) {
-    const buildCauses = filterBuildCauses(pipeline, 'git');
-    if (buildCauses.length === 0) {
-      return;
-    }
-
-    const bc = buildCauses[0];
-    const modification = bc.modifications[0];
-    const sha = modification.revision.slice(0, 12);
-    const gitConfig = bc.material['git-configuration'];
-    const match = this.parseGitHubURL(gitConfig.url);
-
-    if (!match) {
-      // Lo-fi version of just the commit SHA, no linking to GitHub since we
-      // don't know the URL.
-      return `${gitConfig.url}@${sha}`;
-    } else {
-      return `${match.repoSlug}@${sha}`;
     }
   }
 
@@ -305,26 +281,15 @@ export class DeployDatadogEvents {
     const text = `%%% \n${deploymentReason} from: ${commitShaLink}, ${commitDiffLink}  GoCD:${stageLink}\n *this message was produced by a eng-pipes gocd brain module* \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
     const tags = [
-      `region:${region}`,
+      `sentry_region:${region}`,
       `source_tool:gocd`,
-      `source:"gocd"`,
+      `source:gocd`,
       `source_category:infra-tools`,
       `sentry_service:${service}`,
       `sentry_user:eng-pipes`,
     ];
 
     return await this.sendEventToDatadog(title, text, tags);
-  }
-
-  getPipelineId(pipeline: GoCDPipeline) {
-    let refId = `${pipeline.group}-${pipeline.name}/${pipeline.counter}`;
-    const buildCauses = filterBuildCauses(pipeline, 'git');
-    if (buildCauses.length > 0) {
-      const bc = buildCauses[0];
-      const m = bc.modifications[0];
-      refId += `@${m.revision}`;
-    }
-    return refId;
   }
 
   async sendEventToDatadog(title: string, text: string, tags: string[]) {
