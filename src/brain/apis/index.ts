@@ -7,12 +7,12 @@ import getStatsMessage, {
 } from './getStatsMessage';
 
 type SlackBlock = {
-  type: string,
+  type: string;
   text: {
-    type: string,
-    text: string,
-  }
-}
+    type: string;
+    text: string;
+  };
+};
 export function apis() {
   bolt.event(
     'app_mention',
@@ -58,32 +58,32 @@ export function apis() {
           return;
         }
 
-    
         const blocks: Array<SlackBlock> = [];
         response.messages.forEach((message) => {
-          blocks.push(
-          {
+          blocks.push({
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text:
-                team === ''
-                  ? '```' + message + '```'
-                  : message,
+              text: team === '' ? '```' + message + '```' : message,
             },
           });
         });
 
-        blocks.push(
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: (response.goal == 0 ? ":bufo-party:" : response.goal > 50 ?  ":bufo-cry:" : ":bufo-silly-goose-dance:") +
-                  " " + response.goal.toString() + "% far from the goal of having no unknown APIs.",
-              },
-            }
-        );
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text:
+              (response.goal === 0
+                ? ':bufo-party:'
+                : response.goal > 50
+                ? ':bufo-cry:'
+                : ':bufo-silly-goose-dance:') +
+              ' ' +
+              response.goal.toString() +
+              '% far from the goal of having no unknown APIs.',
+          },
+        });
         if (response.should_show_docs === true) {
           blocks.push({
             type: 'section',
