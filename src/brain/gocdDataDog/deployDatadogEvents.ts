@@ -4,6 +4,7 @@ import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 
 import { getUser } from '@/api/getUser';
+import { getAuthors } from '@/api/github/getAuthors';
 import {
   DATADOG_API_INSTANCE,
   GETSENTRY_REPO_SLUG,
@@ -13,7 +14,11 @@ import {
 } from '@/config';
 import { GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
-import { filterBuildCauses, firstGitMaterialSHA } from '@/utils/gocdHelpers';
+import {
+  filterBuildCauses,
+  firstGitMaterialSHA,
+  getBaseAndHeadCommit,
+} from '@/utils/gocdHelpers';
 
 export class DeployDatadogEvents {
   private feedName: string;
@@ -234,12 +239,32 @@ export class DeployDatadogEvents {
     let region = 'all';
 
     for (const [key, value] of Object.entries(sentry_region_mappings)) {
-      if (pipeline_name.includes(key)) {
+      if (pipeline_name.endsWith(key)) {
         region = value;
       }
     }
 
     return region;
+  }
+
+  async getSentryUsers(pipeline: GoCDPipeline) {
+    const buildCauses = filterBuildCauses(pipeline, 'git');
+    if (buildCauses.length === 0) {
+      return [];
+    }
+
+    const bc = buildCauses[0];
+    const gitConfig = bc.material['git-configuration'];
+    const match = this.parseGitHubURL(gitConfig.url);
+
+    if (match) {
+      const [base, head] = await getBaseAndHeadCommit(pipeline);
+      const authors = head ? await getAuthors(match?.repoSlug, base, head) : [];
+
+      return authors;
+    }
+
+    return [];
   }
 
   async newDataDogEvent(pipeline: GoCDPipeline) {
@@ -275,10 +300,14 @@ export class DeployDatadogEvents {
     // Failed
     const pipelineResult = this.stageMessage(pipeline);
 
+    const authors = await this.getSentryUsers(pipeline);
+
+    const sentry_user_tags = authors.map((user) => `sentry_user:${user.login}`);
+
     // Title: GoCD: deploy sha (started/failed/completed)  in <insert>-region
     const title = `GoCD: deploying <${service}> <${stageName}> <${pipelineResult}> in ${region}`;
     // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237
-    const text = `%%% \n${deploymentReason} from: ${commitShaLink}, ${commitDiffLink}  GoCD:${stageLink}\n *this message was produced by a eng-pipes gocd brain module* \n %%%`;
+    const text = `%%% \n${deploymentReason} from: ${commitShaLink},\n \n ${commitDiffLink} \n GoCD:${stageLink} \n\n   *this message was produced by a eng-pipes gocd brain module* \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
     const tags = [
       `sentry_region:${region}`,
@@ -286,7 +315,10 @@ export class DeployDatadogEvents {
       `source:gocd`,
       `source_category:infra-tools`,
       `sentry_service:${service}`,
+      `gocd_status:${pipelineResult}`,
+      `gocd_stage:${stageName}`,
       `sentry_user:eng-pipes`,
+      ...sentry_user_tags,
     ];
 
     return await this.sendEventToDatadog(title, text, tags);
