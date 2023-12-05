@@ -1,7 +1,7 @@
 {
     "data": {
         "pipeline": {
-            "name": "deploy-snuba-customer-3",
+            "name": "deploy-snuba-us",
             "counter": "168",
             "group": "snuba",
             "build-cause": [
