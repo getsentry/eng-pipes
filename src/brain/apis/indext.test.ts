@@ -11,8 +11,9 @@ jest.mock('@api/slack');
 
 jest.mock('./getStatsMessage', () =>
   jest.fn(() => ({
-    message: STATS_TEXT,
+    messages: [STATS_TEXT],
     should_show_docs: false,
+    goal: 50,
     review_link: OWNERSHIP_FILE_LINK,
   }))
 );
