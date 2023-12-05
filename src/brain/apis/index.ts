@@ -6,6 +6,13 @@ import getStatsMessage, {
   OWNERSHIP_FILE_LINK,
 } from './getStatsMessage';
 
+type SlackBlock = {
+  type: string;
+  text: {
+    type: string;
+    text: string;
+  };
+};
 export function apis() {
   bolt.event(
     'app_mention',
@@ -33,7 +40,7 @@ export function apis() {
 
       try {
         const response = await getStatsMessage(team);
-        if (response.message === INVALID_TEAM_ERROR) {
+        if (response.messages[0] === INVALID_TEAM_ERROR) {
           await client.chat.update({
             channel: String(message.channel),
             ts: String(message.ts),
@@ -51,19 +58,32 @@ export function apis() {
           return;
         }
 
-        const blocks = [
-          {
+        const blocks: Array<SlackBlock> = [];
+        response.messages.forEach((message) => {
+          blocks.push({
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text:
-                team === ''
-                  ? '```' + response.message + '```'
-                  : response.message,
+              text: team === '' ? '```' + message + '```' : message,
             },
-          },
-        ];
+          });
+        });
 
+        blocks.push({
+          type: 'section',
+          text: {
+            type: 'mrkdwn',
+            text:
+              (response.goal === 0
+                ? ':bufo-party:'
+                : response.goal > 50
+                ? ':bufo-cry:'
+                : ':bufo-silly-goose-dance:') +
+              ' ' +
+              response.goal.toString() +
+              '% far from the goal of having no unknown APIs.',
+          },
+        });
         if (response.should_show_docs === true) {
           blocks.push({
             type: 'section',
