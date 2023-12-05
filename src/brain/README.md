@@ -15,4 +15,4 @@ The brain contains modules that listen to webhook events from GitHub, Slack, and
 * goto `admin` then `plugins`
 * find the `WebHook Notifier`
 * expand the text box by dragging the bottom right
-* Add your URL
+* add your URL
