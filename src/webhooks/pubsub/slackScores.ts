@@ -319,7 +319,7 @@ export const triggerSlackScores = async (
   if (org !== GETSENTRY_ORG) {
     return;
   }
-  // await sendGitHubEngagementMetrics();
-  // await sendDiscussionMetrics();
+  await sendGitHubEngagementMetrics();
+  await sendDiscussionMetrics();
   await sendApisPublishStatus();
 };
