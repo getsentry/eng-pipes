@@ -1,7 +1,8 @@
 import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
-import getStatsMessage, {
+import {
+  getStatsMessage,
   INVALID_TEAM_ERROR,
   OWNERSHIP_FILE_LINK,
 } from './getStatsMessage';

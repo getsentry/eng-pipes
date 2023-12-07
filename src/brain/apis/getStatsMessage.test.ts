@@ -1,4 +1,4 @@
-import getStatsMessage from './getStatsMessage';
+import { getStatsMessage } from './getStatsMessage';
 
 jest.mock('./getOwnershipData', () =>
   jest.fn(() => ({
