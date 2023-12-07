@@ -8,12 +8,12 @@ import {
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '../../config';
 
+import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
 import {
   sendDiscussionMetrics,
   sendGitHubEngagementMetrics,
   triggerSlackScores,
 } from './slackScores';
-import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
 
 jest.mock('../../brain/apis/getStatsMessage', () =>
   jest.fn(() => ({
