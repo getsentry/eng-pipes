@@ -2,13 +2,13 @@ import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import { bolt } from '@api/slack';
 import * as scoresUtils from '@utils/scores';
 
+import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '../../config';
 
-import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
 import {
   sendDiscussionMetrics,
   sendGitHubEngagementMetrics,
