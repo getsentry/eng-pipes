@@ -162,7 +162,6 @@ export const GETSENTRY_ORG = GH_ORGS.get(
   process.env.GETSENTRY_ORG_SLUG || 'getsentry'
 );
 
-
 // TODO(eng-pipes/issues#610): Clean up this hacky workaround
 export const PRODUCT_OWNERS_YML = process.cwd().endsWith('/src')
   ? `../${process.env.PRODUCT_OWNERS_YML || 'product-owners.yml'}`

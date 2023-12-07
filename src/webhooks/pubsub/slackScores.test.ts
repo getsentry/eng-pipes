@@ -13,11 +13,11 @@ import {
   sendGitHubEngagementMetrics,
   triggerSlackScores,
 } from './slackScores';
-import { OWNERSHIP_FILE_LINK} from '../../brain/apis/getStatsMessage';
+import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
 
 jest.mock('../../brain/apis/getStatsMessage', () =>
   jest.fn(() => ({
-    messages: ["Some random message"],
+    messages: ['Some random message'],
     should_show_docs: false,
     goal: 50,
     review_link: OWNERSHIP_FILE_LINK,

@@ -43,9 +43,7 @@ const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
 
-export const sendApisPublishStatus = async (
-  ospo_internal: boolean = false
-) => {
+export const sendApisPublishStatus = async (ospo_internal: boolean = false) => {
   const message = await getStatsMessage();
   let messageBlocks = [
     {
@@ -55,14 +53,14 @@ export const sendApisPublishStatus = async (
         text: 'API Publish Stats By Team',
       },
     },
-  ]
-  messageBlocks = messageBlocks.concat(getMessageBlocks(message))
+  ];
+  messageBlocks = messageBlocks.concat(getMessageBlocks(message));
   await bolt.client.chat.postMessage({
     channel: TEAM_ENGINEERING_CHANNEL_ID,
     text: 'API Publish Stats By Team',
     blocks: messageBlocks,
   });
-}
+};
 
 export const sendGitHubEngagementMetrics = async (
   ospo_internal: boolean = false

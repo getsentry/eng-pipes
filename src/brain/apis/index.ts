@@ -16,41 +16,41 @@ type SlackBlock = {
 
 export function getMessageBlocks(response, team = ''): Array<SlackBlock> {
   const blocks: Array<SlackBlock> = [];
-    response.messages.forEach((message) => {
-      blocks.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: team === '' ? '```' + message + '```' : message,
-        },
-      });
-    });
-
+  response.messages.forEach((message) => {
     blocks.push({
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text:
-          (response.goal === 0
-            ? ':bufo-party:'
-            : response.goal > 50
-            ? ':bufo-cry:'
-            : ':bufo-silly-goose-dance:') +
-          ' ' +
-          response.goal.toString() +
-          '% far from the goal of having no unknown APIs.',
+        text: team === '' ? '```' + message + '```' : message,
       },
     });
-    if (response.should_show_docs === true) {
-      blocks.push({
-        type: 'section',
-        text: {
-          type: 'mrkdwn',
-          text: `Please <${response.review_link}|review> unknown and experimental APIs and <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
-        },
-      });
-    }
-    return blocks;
+  });
+
+  blocks.push({
+    type: 'section',
+    text: {
+      type: 'mrkdwn',
+      text:
+        (response.goal === 0
+          ? ':bufo-party:'
+          : response.goal > 50
+          ? ':bufo-cry:'
+          : ':bufo-silly-goose-dance:') +
+        ' ' +
+        response.goal.toString() +
+        '% far from the goal of having no unknown APIs.',
+    },
+  });
+  if (response.should_show_docs === true) {
+    blocks.push({
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: `Please <${response.review_link}|review> unknown and experimental APIs and <https://develop.sentry.dev/api/public/#1-declaring-owner-for-the-endpoint|update the endpoints> as either public or private.`,
+      },
+    });
+  }
+  return blocks;
 }
 export function apis() {
   bolt.event(
