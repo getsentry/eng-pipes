@@ -1,12 +1,12 @@
 import moment from 'moment-timezone';
 
 import { getMessageBlocks } from '@/brain/apis';
-import getStatsMessage from '@/brain/apis/getStatsMessage';
+import { getStatsMessage } from '@/brain/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
+  FEED_ENGINEERING_CHANNEL_ID,
   GETSENTRY_ORG,
   PRODUCT_OWNERS_INFO,
-  TEAM_ENGINEERING_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
@@ -43,11 +43,8 @@ const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
 
-export const sendApisPublishStatus = async (ospo_internal: boolean = false) => {
+export const sendApisPublishStatus = async () => {
   const message = await getStatsMessage();
-  const channelToPost = ospo_internal
-    ? TEAM_OSPO_CHANNEL_ID
-    : TEAM_ENGINEERING_CHANNEL_ID;
   let messageBlocks = [
     {
       type: 'section',
@@ -59,7 +56,7 @@ export const sendApisPublishStatus = async (ospo_internal: boolean = false) => {
   ];
   messageBlocks = messageBlocks.concat(getMessageBlocks(message));
   await bolt.client.chat.postMessage({
-    channel: channelToPost,
+    channel: FEED_ENGINEERING_CHANNEL_ID,
     text: 'API Publish Stats By Team',
     blocks: messageBlocks,
   });

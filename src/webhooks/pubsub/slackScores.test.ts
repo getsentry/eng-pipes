@@ -2,7 +2,7 @@ import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import { bolt } from '@api/slack';
 import * as scoresUtils from '@utils/scores';
 
-import { OWNERSHIP_FILE_LINK } from '../../brain/apis/getStatsMessage';
+import * as getAPIsStatsMessage from '../../brain/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
@@ -15,20 +15,23 @@ import {
   triggerSlackScores,
 } from './slackScores';
 
-jest.mock('../../brain/apis/getStatsMessage', () =>
-  jest.fn(() => ({
-    messages: ['Some random message'],
-    should_show_docs: false,
-    goal: 50,
-    review_link: OWNERSHIP_FILE_LINK,
-  }))
-);
-
 describe('slackScores tests', function () {
-  let getIssueEventsForTeamSpy, getDiscussionEventsSpy, postMessageSpy;
+  let getIssueEventsForTeamSpy,
+    getDiscussionEventsSpy,
+    postMessageSpy,
+    getStatsMessageSpy;
   beforeAll(() => {
     getIssueEventsForTeamSpy = jest.spyOn(scoresUtils, 'getIssueEventsForTeam');
     getDiscussionEventsSpy = jest.spyOn(scoresUtils, 'getDiscussionEvents');
+    getStatsMessageSpy = jest.spyOn(getAPIsStatsMessage, 'getStatsMessage');
+    getStatsMessageSpy.mockImplementation(() => {
+      return {
+        messages: ['Some random message'],
+        should_show_docs: false,
+        goal: 50,
+        review_link: getAPIsStatsMessage.OWNERSHIP_FILE_LINK,
+      };
+    });
     postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
   });
   afterEach(() => {
@@ -53,7 +56,17 @@ describe('slackScores tests', function () {
         discussionCommenters: [],
       });
       await triggerSlackScores(GETSENTRY_ORG, null);
-      expect(postMessageSpy).toHaveBeenCalled();
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'API Publish Stats By Team',
+        })
+      );
+      expect(postMessageSpy).toHaveBeenCalledWith(
+        expect.objectContaining({
+          text: 'Weekly GitHub Team Scores',
+        })
+      );
     });
   });
 
