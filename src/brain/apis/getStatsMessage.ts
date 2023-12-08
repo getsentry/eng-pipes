@@ -149,7 +149,7 @@ function getOverallStats(ownership_data) {
   return { messages, goal };
 }
 
-export default async function getStatsMessage(team: string) {
+export async function getStatsMessage(team: string = '') {
   const ownership_data = await getOwnershipData();
   // If team is not mentioned return stats for all
   if (team === '') {

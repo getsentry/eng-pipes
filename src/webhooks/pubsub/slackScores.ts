@@ -1,7 +1,11 @@
 import moment from 'moment-timezone';
 
+import { getMessageBlocks } from '@/brain/apis';
+import { getStatsMessage } from '@/brain/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
+  FEED_ENGINEERING_CHANNEL_ID,
+  GETSENTRY_ORG,
   PRODUCT_OWNERS_INFO,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
@@ -38,6 +42,25 @@ const LESS_THAN_SIGN_LENGTH = 1;
 const SPACE_LENGTH = 1;
 const NUM_DISCUSSION_SCOREBOARD_ELEMENTS = 5;
 const TEAM_PREFIX = 'team-';
+
+export const sendApisPublishStatus = async () => {
+  const message = await getStatsMessage();
+  let messageBlocks = [
+    {
+      type: 'section',
+      text: {
+        type: 'mrkdwn',
+        text: 'API Publish Stats By Team',
+      },
+    },
+  ];
+  messageBlocks = messageBlocks.concat(getMessageBlocks(message));
+  await bolt.client.chat.postMessage({
+    channel: FEED_ENGINEERING_CHANNEL_ID,
+    text: 'API Publish Stats By Team',
+    blocks: messageBlocks,
+  });
+};
 
 export const sendGitHubEngagementMetrics = async (
   ospo_internal: boolean = false
@@ -291,9 +314,10 @@ export const triggerSlackScores = async (
   org: GitHubOrg,
   __now: moment.Moment
 ) => {
-  if (org.slug !== 'getsentry') {
+  if (org !== GETSENTRY_ORG) {
     return;
   }
   await sendGitHubEngagementMetrics();
   await sendDiscussionMetrics();
+  await sendApisPublishStatus();
 };
