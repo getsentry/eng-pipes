@@ -233,7 +233,6 @@ export class DeployDatadogEvents {
       'customer-2': 'st-geico',
       'customer-3': 'st-zendesk-eu',
       'customer-4': 'st-disney',
-      'customer-5': 'st-securitytest',
       'customer-6': 'st-test-region',
     };
     let region = 'all';
