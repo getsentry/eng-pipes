@@ -28,6 +28,13 @@ type discussionInfo = {
   num_comments: number;
 };
 
+type issueInfo = {
+  title: string;
+  repository: string;
+  issue_number: string;
+  num_comments: number;
+};
+
 type discussionCommenterInfo = {
   username: string;
   num_comments: number;
@@ -199,8 +206,12 @@ export const sendGitHubEngagementMetrics = async (
 };
 
 export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
-  const { discussions, discussionCommenters } = await getDiscussionEvents();
-  if (discussions.length === 0 && discussionCommenters.length === 0) {
+  const { discussions, githubCommenters, issues } = await getDiscussionEvents();
+  if (
+    discussions.length === 0 &&
+    githubCommenters.length === 0 &&
+    issues.length === 0
+  ) {
     return;
   }
   const messageBlocks = [
@@ -208,7 +219,7 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
       type: 'header',
       text: {
         type: 'plain_text',
-        text: '🗓️ Weekly Discussion Metrics 🗓️',
+        text: '🗓️ Weekly GitHub Activity 🗓️',
         emoji: true,
       },
     },
@@ -266,6 +277,38 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
   scoreBoard += `└${'─'.repeat(
     DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
   )}┘`;
+  firstColumnName = 'Most Active Issues this Week';
+  scoreBoard += `\n┌${'─'.repeat(
+    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+  )}┐\n| ${addSpaces(firstColumnName, 'firstColumnItem')}│ ${addSpaces(
+    secondColumnName,
+    'numComments'
+  )}|\n├${'─'.repeat(
+    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+  )}┤\n`;
+  issues
+    .slice(0, NUM_DISCUSSION_SCOREBOARD_ELEMENTS)
+    .forEach((issueInfo: issueInfo) => {
+      // Append less than sign here, because trailing spaces are ignored for text within the <> blocks for a hyperlink
+      const truncatedDiscussionTitle =
+        issueInfo.title.length <= DISCUSSION_COLUMN_WIDTH
+          ? issueInfo.title + '>'
+          : `${issueInfo.title.slice(0, DISCUSSION_COLUMN_WIDTH - 4)}...> `;
+      const truncatedDiscussionTitleWithSpaces = addSpaces(
+        // Remove all instances of ` char from string
+        truncatedDiscussionTitle.replace(/`/g, ''),
+        'discussion'
+      );
+      const discussionText = `<https://github.com/${issueInfo.repository}/issues/${issueInfo.issue_number}|${truncatedDiscussionTitleWithSpaces}`;
+      const numCommentsText = addSpaces(
+        issueInfo.num_comments.toString(),
+        'numComments'
+      );
+      scoreBoard += `| ${discussionText}| ${numCommentsText}|\n`;
+    });
+  scoreBoard += `└${'─'.repeat(
+    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+  )}┘`;
   firstColumnName = 'Most Active Sentaurs this Week';
   scoreBoard += `\n┌${'─'.repeat(
     DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
@@ -275,7 +318,7 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
   )}|\n├${'─'.repeat(
     DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
   )}┤\n`;
-  discussionCommenters
+  githubCommenters
     .slice(0, NUM_DISCUSSION_SCOREBOARD_ELEMENTS)
     .forEach((discussionCommenterInfo: discussionCommenterInfo) => {
       const usernameText = addSpaces(

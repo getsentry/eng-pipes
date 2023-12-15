@@ -104,31 +104,51 @@ export async function getDiscussionEvents() {
 
   const [discussions] = await bigqueryClient.query(discussionsQuery);
 
-  const discussionCommentersQuery = `
+  const issuesQuery = `
     SELECT
-      discussions.username as username,
-      COUNT(discussions.username) as num_comments,
+      issues.target_name as title,
+      issues.repository as repository,
+      issues.target_id as issue_number,
+      COUNT(issues.target_name) as num_comments,
     FROM
-      \`open_source.github_events\` AS discussions
+      \`open_source.github_events\` AS issues
     WHERE
-      discussions.type = 'discussion_comment'
+    issues.type = 'issue_comment'
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
-        discussions.created_at,
+        issues.created_at,
         day
       ) <= 7
-      AND discussions.user_type != 'external'
-      AND discussions.user_type != 'bot'
-    GROUP BY discussions.username
+    GROUP BY issues.target_name, issues.repository, issues.target_id
     ORDER BY num_comments DESC
     ;`;
 
-  const [discussionCommenters] = await bigqueryClient.query(
-    discussionCommentersQuery
-  );
+  const [issues] = await bigqueryClient.query(issuesQuery);
+
+  const githubCommentersQuery = `
+    SELECT
+      issues.username as username,
+      COUNT(issues.username) as num_comments,
+    FROM
+      \`open_source.github_events\` AS issues
+    WHERE
+      (issues.type = 'discussion_comment' OR issues.type = 'issue_comment')
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        issues.created_at,
+        day
+      ) <= 7
+      AND issues.user_type != 'external'
+      AND issues.user_type != 'bot'
+    GROUP BY issues.username
+    ORDER BY num_comments DESC
+    ;`;
+
+  const [githubCommenters] = await bigqueryClient.query(githubCommentersQuery);
 
   return {
     discussions,
-    discussionCommenters,
+    issues,
+    githubCommenters,
   };
 }
