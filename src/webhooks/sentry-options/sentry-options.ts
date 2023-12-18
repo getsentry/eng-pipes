@@ -43,6 +43,7 @@ export async function sendSentryOptionsUpdatesToDatadog(
       ? 'success'
       : 'error';
   };
+  const region = formatRegionTag(message.region);
 
   for (const optionType in message) {
     if (optionType === 'region' || optionType === 'source') continue;
@@ -51,8 +52,6 @@ export async function sendSentryOptionsUpdatesToDatadog(
         change: optionType,
         option: option,
       };
-
-      const region = formatRegionTag(message.region);
 
       const alertType = formatAlertType(optionType);
 
@@ -208,6 +207,9 @@ export async function messageSlack(message: SentryOptionsResponse) {
       });
     }
   } catch (err) {
+    Sentry.setContext('message_data', {
+      payload: message,
+    });
     Sentry.captureException(err);
   }
 }
