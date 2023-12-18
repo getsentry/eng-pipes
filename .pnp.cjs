@@ -34,7 +34,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/plugin-retry", "npm:3.0.9"],\
             ["@octokit/rest", "npm:18.12.0"],\
             ["@octokit/types", "npm:6.34.0"],\
-            ["@octokit/webhooks", "npm:11.0.0"],\
+            ["@octokit/webhooks", "npm:11.1.2"],\
             ["@sentry/cli", "npm:2.20.1"],\
             ["@sentry/integrations", "npm:7.72.0"],\
             ["@sentry/node", "npm:7.72.0"],\
@@ -1891,13 +1891,13 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/webhooks", [\
-        ["npm:11.0.0", {\
-          "packageLocation": "./.yarn/cache/@octokit-webhooks-npm-11.0.0-f012393647-4b29728232.zip/node_modules/@octokit/webhooks/",\
+        ["npm:11.1.2", {\
+          "packageLocation": "./.yarn/cache/@octokit-webhooks-npm-11.1.2-c5c728e3e8-5236164061.zip/node_modules/@octokit/webhooks/",\
           "packageDependencies": [\
-            ["@octokit/webhooks", "npm:11.0.0"],\
+            ["@octokit/webhooks", "npm:11.1.2"],\
             ["@octokit/request-error", "npm:3.0.3"],\
             ["@octokit/webhooks-methods", "npm:3.0.2"],\
-            ["@octokit/webhooks-types", "npm:6.11.0"],\
+            ["@octokit/webhooks-types", "npm:7.0.3"],\
             ["aggregate-error", "npm:3.1.0"]\
           ],\
           "linkType": "HARD"\
@@ -1913,10 +1913,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@octokit/webhooks-types", [\
-        ["npm:6.11.0", {\
-          "packageLocation": "./.yarn/cache/@octokit-webhooks-types-npm-6.11.0-9ff8a7bb7c-af35ac7a3d.zip/node_modules/@octokit/webhooks-types/",\
+        ["npm:7.0.3", {\
+          "packageLocation": "./.yarn/cache/@octokit-webhooks-types-npm-7.0.3-c390bbe358-2edcfc275e.zip/node_modules/@octokit/webhooks-types/",\
           "packageDependencies": [\
-            ["@octokit/webhooks-types", "npm:6.11.0"]\
+            ["@octokit/webhooks-types", "npm:7.0.3"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -10053,7 +10053,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/plugin-retry", "npm:3.0.9"],\
             ["@octokit/rest", "npm:18.12.0"],\
             ["@octokit/types", "npm:6.34.0"],\
-            ["@octokit/webhooks", "npm:11.0.0"],\
+            ["@octokit/webhooks", "npm:11.1.2"],\
             ["@sentry/cli", "npm:2.20.1"],\
             ["@sentry/integrations", "npm:7.72.0"],\
             ["@sentry/node", "npm:7.72.0"],\
