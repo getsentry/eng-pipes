@@ -42,6 +42,17 @@ describe('sentry-options webhook', function () {
       jest.clearAllMocks();
     });
 
+    it('handles errors and reports to Sentry', async function () {
+      jest
+        .spyOn(bolt.client.chat, 'postMessage')
+        .mockRejectedValue(new Error('Test Error'));
+      const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
+      await messageSlack(testPayload);
+      expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
+        new Error('Test Error')
+      );
+    });
+
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testPayload);

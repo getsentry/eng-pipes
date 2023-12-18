@@ -207,9 +207,7 @@ export async function messageSlack(message: SentryOptionsResponse) {
       });
     }
   } catch (err) {
-    Sentry.setContext('message_data', {
-      payload: message,
-    });
+    Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
   }
 }
