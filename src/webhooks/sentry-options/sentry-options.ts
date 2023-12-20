@@ -183,8 +183,7 @@ export async function messageSlack(message: SentryOptionsResponse) {
             slackblocks.sectionBlock(
               message.invalid_type_options.map((option) =>
                 slackblocks.markdown(
-                  `Option \`${option.option_name}\` got type \`${option.got_type}\`, 
-                      but expected type \`${option.expected_type}\`.`
+                  `Option \`${option.option_name}\` got type \`${option.got_type}\`, but expected type \`${option.expected_type}\`.`
                 )
               )
             ),
