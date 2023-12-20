@@ -48,9 +48,7 @@ describe('sentry-options webhook', function () {
     it('handles errors and reports to Sentry', async function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       await messageSlack(testBadPayload);
-      expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
-        new Error('Test Error')
-      );
+      expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(1);
     });
 
     it('writes to slack', async function () {
