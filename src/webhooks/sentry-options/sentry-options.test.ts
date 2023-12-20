@@ -52,6 +52,15 @@ describe('sentry-options webhook', function () {
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(1);
       expect(sentrySetContextSpy).toHaveBeenCalledTimes(1);
       expect(sentrySetContextSpy.mock.calls[0][0]).toEqual(`message_data`);
+      expect(sentrySetContextSpy.mock.calls[0][1]).toEqual({
+        message: {
+          drifted_options: [
+            { bad_key_vaue: 'value_1', option_name: 'drifted_option_1' },
+          ],
+          region: 'bad',
+          source: 'options-automator',
+        },
+      });
     });
 
     it('writes to slack', async function () {
