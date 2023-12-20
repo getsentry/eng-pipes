@@ -1,6 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
+import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
 import testPayload from '@test/payloads/sentry-options/testPayload.json';
@@ -45,10 +46,8 @@ describe('sentry-options webhook', function () {
     });
 
     it('handles errors and reports to Sentry', async function () {
-      const sentryCaptureExceptionSpy = jest
-        .spyOn(Sentry, 'postMessage')
-        .mockRejectedValue(new Error('Test Error'));
-      await messageSlack(testPayload);
+      const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'postMessage');
+      await messageSlack(testBadPayload);
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error('Test Error')
       );
