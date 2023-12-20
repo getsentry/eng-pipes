@@ -10,7 +10,7 @@ import { triggerPubSub } from '.';
 jest.mock('@api/slack');
 
 describe('slack app', function () {
-  let fastify, sendGitHubEngagementMetricsSpy, sendDiscussionMetricsSpy;
+  let fastify, sendGitHubEngagementMetricsSpy, sendGitHubActivityMetricsSpy;
 
   beforeEach(async function () {
     fastify = await buildServer(false);
@@ -18,9 +18,9 @@ describe('slack app', function () {
       slackScoresFunctions,
       'sendGitHubEngagementMetrics'
     );
-    sendDiscussionMetricsSpy = jest.spyOn(
+    sendGitHubActivityMetricsSpy = jest.spyOn(
       slackScoresFunctions,
-      'sendDiscussionMetrics'
+      'sendGitHubActivityMetrics'
     );
     triggerPubSub();
   });
@@ -38,7 +38,7 @@ describe('slack app', function () {
     );
     expect(response.statusCode).toBe(200);
     expect(sendGitHubEngagementMetricsSpy).not.toHaveBeenCalled();
-    expect(sendDiscussionMetricsSpy).not.toHaveBeenCalled();
+    expect(sendGitHubActivityMetricsSpy).not.toHaveBeenCalled();
   });
 
   it('fetches github ttr', async function () {
@@ -49,7 +49,7 @@ describe('slack app', function () {
     );
     expect(response.statusCode).toBe(200);
     expect(sendGitHubEngagementMetricsSpy).toHaveBeenCalledWith(true);
-    expect(sendDiscussionMetricsSpy).not.toHaveBeenCalled();
+    expect(sendGitHubActivityMetricsSpy).not.toHaveBeenCalled();
   });
 
   it('fetches github activity', async function () {
@@ -60,6 +60,6 @@ describe('slack app', function () {
     );
     expect(response.statusCode).toBe(200);
     expect(sendGitHubEngagementMetricsSpy).not.toHaveBeenCalled();
-    expect(sendDiscussionMetricsSpy).toHaveBeenCalledWith(true);
+    expect(sendGitHubActivityMetricsSpy).toHaveBeenCalledWith(true);
   });
 });
