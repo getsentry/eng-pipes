@@ -231,11 +231,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'Option `invalid_type_option_1` got type `string`, \n                    but expected type `float`.',
+                text: 'Option `invalid_type_option_1` got type `string`, \n                  but expected type `float`.',
               },
               {
                 type: 'mrkdwn',
-                text: 'Option `invalid_type_option_2` got type `float`, \n                    but expected type `int`.',
+                text: 'Option `invalid_type_option_2` got type `float`, \n                  but expected type `int`.',
               },
             ],
           },
