@@ -10,7 +10,10 @@ import {
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
-import { getDiscussionEvents, getIssueEventsForTeam } from '@/utils/scores';
+import {
+  getGitHubActivityMetrics,
+  getIssueEventsForTeam,
+} from '@/utils/scores';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 
@@ -205,8 +208,11 @@ export const sendGitHubEngagementMetrics = async (
   await Promise.all(slackNotifications);
 };
 
-export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
-  const { discussions, githubCommenters, issues } = await getDiscussionEvents();
+export const sendGitHubActivityMetrics = async (
+  ospo_internal: boolean = false
+) => {
+  const { discussions, githubCommenters, issues } =
+    await getGitHubActivityMetrics();
   if (
     discussions.length === 0 &&
     githubCommenters.length === 0 &&
@@ -348,7 +354,7 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
     : DISCUSS_PRODUCT_CHANNEL_ID;
   await bolt.client.chat.postMessage({
     channel: channelToPost,
-    text: 'Weekly Discussion Metrics',
+    text: 'Weekly GitHub Activity',
     blocks: messageBlocks,
   });
 };
@@ -361,6 +367,6 @@ export const triggerSlackScores = async (
     return;
   }
   await sendGitHubEngagementMetrics();
-  await sendDiscussionMetrics();
+  await sendGitHubActivityMetrics();
   await sendApisPublishStatus();
 };

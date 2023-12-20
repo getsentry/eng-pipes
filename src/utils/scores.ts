@@ -82,7 +82,7 @@ export async function getIssueEventsForTeam(team) {
   return issues;
 }
 
-export async function getDiscussionEvents() {
+export async function getGitHubActivityMetrics() {
   const discussionsQuery = `
     SELECT
       discussions.target_name as title,

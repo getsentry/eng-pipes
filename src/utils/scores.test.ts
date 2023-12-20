@@ -17,7 +17,7 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
-import { getDiscussionEvents, getIssueEventsForTeam } from './scores';
+import { getGitHubActivityMetrics, getIssueEventsForTeam } from './scores';
 
 describe('score tests', () => {
   afterEach(() => {
@@ -100,7 +100,7 @@ describe('score tests', () => {
   });
 
   it('should send the right sql we expect for getDiscussionEvents', async () => {
-    await getDiscussionEvents();
+    await getGitHubActivityMetrics();
     const discussionsQuery = `
     SELECT
       discussions.target_name as title,
@@ -120,25 +120,45 @@ describe('score tests', () => {
     ORDER BY num_comments DESC
     ;`;
 
-    const discussionCommentersQuery = `
+    const githubCommentersQuery = `
     SELECT
-      discussions.username as username,
-      COUNT(discussions.username) as num_comments,
+      issues.username as username,
+      COUNT(issues.username) as num_comments,
     FROM
-      \`open_source.github_events\` AS discussions
+      \`open_source.github_events\` AS issues
     WHERE
-      discussions.type = 'discussion_comment'
+      (issues.type = 'discussion_comment' OR issues.type = 'issue_comment')
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
-        discussions.created_at,
+        issues.created_at,
         day
       ) <= 7
-      AND discussions.user_type != 'external'
-      AND discussions.user_type != 'bot'
-    GROUP BY discussions.username
+      AND issues.user_type != 'external'
+      AND issues.user_type != 'bot'
+    GROUP BY issues.username
+    ORDER BY num_comments DESC
+    ;`;
+
+    const issuesQuery = `
+    SELECT
+      issues.target_name as title,
+      issues.repository as repository,
+      issues.target_id as issue_number,
+      COUNT(issues.target_name) as num_comments,
+    FROM
+      \`open_source.github_events\` AS issues
+    WHERE
+    issues.type = 'issue_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        issues.created_at,
+        day
+      ) <= 7
+    GROUP BY issues.target_name, issues.repository, issues.target_id
     ORDER BY num_comments DESC
     ;`;
     expect(mockQuery).toHaveBeenCalledWith(discussionsQuery);
-    expect(mockQuery).toHaveBeenCalledWith(discussionCommentersQuery);
+    expect(mockQuery).toHaveBeenCalledWith(githubCommentersQuery);
+    expect(mockQuery).toHaveBeenCalledWith(issuesQuery);
   });
 });
