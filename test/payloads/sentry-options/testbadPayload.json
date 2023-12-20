@@ -1,3 +1,7 @@
 {
-    "region": "bad"   
+    "region": "bad",
+    "source": "options-automator",
+    "drifted_options": [
+        {"option_name": "drifted_option_1", "bad_key_vaue": "value_1"}
+    ]
 }
