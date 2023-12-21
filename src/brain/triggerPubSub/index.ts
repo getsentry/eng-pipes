@@ -1,6 +1,6 @@
 import { TEAM_OSPO_CHANNEL_ID } from '@/config';
 import {
-  sendDiscussionMetrics,
+  sendGitHubActivityMetrics,
   sendGitHubEngagementMetrics,
 } from '@/webhooks/pubsub/slackScores';
 import { bolt } from '@api/slack';
@@ -14,7 +14,7 @@ export const slackHandler = async ({ event }) => {
   if (text.includes('ttr')) {
     await sendGitHubEngagementMetrics(true);
   } else if (text.includes('activity')) {
-    await sendDiscussionMetrics(true);
+    await sendGitHubActivityMetrics(true);
   }
 };
 

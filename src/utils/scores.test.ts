@@ -17,7 +17,7 @@ jest.mock('@google-cloud/bigquery', () => ({
     };
   },
 }));
-import { getDiscussionEvents, getIssueEventsForTeam } from './scores';
+import { getGitHubActivityMetrics, getIssueEventsForTeam } from './scores';
 
 describe('score tests', () => {
   afterEach(() => {
@@ -100,8 +100,8 @@ describe('score tests', () => {
   });
 
   it('should send the right sql we expect for getDiscussionEvents', async () => {
-    await getDiscussionEvents();
-    const discussionsQuery = `
+    await getGitHubActivityMetrics();
+    const discussionCommentsQuery = `
     SELECT
       discussions.target_name as title,
       discussions.repository as repository,
@@ -120,25 +120,45 @@ describe('score tests', () => {
     ORDER BY num_comments DESC
     ;`;
 
-    const discussionCommentersQuery = `
+    const gitHubCommentersQuery = `
     SELECT
-      discussions.username as username,
-      COUNT(discussions.username) as num_comments,
+      comments.username as username,
+      COUNT(comments.username) as num_comments,
     FROM
-      \`open_source.github_events\` AS discussions
+      \`open_source.github_events\` AS comments
     WHERE
-      discussions.type = 'discussion_comment'
+      (comments.type = 'discussion_comment' OR comments.type = 'issue_comment')
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
-        discussions.created_at,
+        comments.created_at,
         day
       ) <= 7
-      AND discussions.user_type != 'external'
-      AND discussions.user_type != 'bot'
-    GROUP BY discussions.username
+      AND comments.user_type != 'external'
+      AND comments.user_type != 'bot'
+    GROUP BY comments.username
     ORDER BY num_comments DESC
     ;`;
-    expect(mockQuery).toHaveBeenCalledWith(discussionsQuery);
-    expect(mockQuery).toHaveBeenCalledWith(discussionCommentersQuery);
+
+    const issueCommentsQuery = `
+    SELECT
+      issues.target_name as title,
+      issues.repository as repository,
+      issues.target_id as issue_number,
+      COUNT(issues.target_name) as num_comments,
+    FROM
+      \`open_source.github_events\` AS issues
+    WHERE
+    issues.type = 'issue_comment'
+      AND timestamp_diff(
+        CURRENT_TIMESTAMP(),
+        issues.created_at,
+        day
+      ) <= 7
+    GROUP BY issues.target_name, issues.repository, issues.target_id
+    ORDER BY num_comments DESC
+    ;`;
+    expect(mockQuery).toHaveBeenCalledWith(discussionCommentsQuery);
+    expect(mockQuery).toHaveBeenCalledWith(gitHubCommentersQuery);
+    expect(mockQuery).toHaveBeenCalledWith(issueCommentsQuery);
   });
 });
