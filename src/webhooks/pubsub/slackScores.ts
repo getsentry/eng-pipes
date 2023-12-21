@@ -247,13 +247,12 @@ export const sendGitHubActivityMetrics = async (
   const createTable = (
     items: discussionInfo[] | commenterInfo[] | issueInfo[],
     firstColumnName,
-    secondColumnName,
     type
   ) => {
     let scoreBoard = `\n┌${'─'.repeat(
       DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
     )}┐\n| ${addSpaces(firstColumnName, 'firstColumnItem')}│ ${addSpaces(
-      secondColumnName,
+      '# comments',
       'numComments'
     )}|\n├${'─'.repeat(
       DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
@@ -298,19 +297,12 @@ export const sendGitHubActivityMetrics = async (
     createTable(
       discussions,
       'Most Active Discussions this Week',
-      '# comments',
       'discussions'
     ) +
-    createTable(
-      issues,
-      'Most Active Issues this Week',
-      '# comments',
-      'issues'
-    ) +
+    createTable(issues, 'Most Active Issues this Week', 'issues') +
     createTable(
       gitHubCommenters,
       'Most Active Sentaurs this Week',
-      '# comments',
       'commenters'
     );
   messageBlocks.push({
