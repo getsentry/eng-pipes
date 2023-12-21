@@ -125,30 +125,30 @@ export async function getGitHubActivityMetrics() {
 
   const [issues] = await bigqueryClient.query(issuesQuery);
 
-  const githubCommentersQuery = `
+  const gitHubCommentersQuery = `
     SELECT
-      issues.username as username,
-      COUNT(issues.username) as num_comments,
+      comments.username as username,
+      COUNT(comments.username) as num_comments,
     FROM
-      \`open_source.github_events\` AS issues
+      \`open_source.github_events\` AS comments
     WHERE
-      (issues.type = 'discussion_comment' OR issues.type = 'issue_comment')
+      (comments.type = 'discussion_comment' OR comments.type = 'issue_comment')
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
-        issues.created_at,
+        comments.created_at,
         day
       ) <= 7
-      AND issues.user_type != 'external'
-      AND issues.user_type != 'bot'
-    GROUP BY issues.username
+      AND comments.user_type != 'external'
+      AND comments.user_type != 'bot'
+    GROUP BY comments.username
     ORDER BY num_comments DESC
     ;`;
 
-  const [githubCommenters] = await bigqueryClient.query(githubCommentersQuery);
+  const [gitHubCommenters] = await bigqueryClient.query(gitHubCommentersQuery);
 
   return {
     discussions,
     issues,
-    githubCommenters,
+    gitHubCommenters,
   };
 }

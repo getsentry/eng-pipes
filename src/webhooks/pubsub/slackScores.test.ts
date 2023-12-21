@@ -47,7 +47,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions: [],
         issues: [],
-        githubCommenters: [],
+        gitHubCommenters: [],
       });
       await triggerSlackScores(GH_ORGS.get('codecov'), null);
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
@@ -58,7 +58,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions: [],
         issues: [],
-        githubCommenters: [],
+        gitHubCommenters: [],
       });
       await triggerSlackScores(GETSENTRY_ORG, null);
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
@@ -317,7 +317,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions: [],
         issues: [],
-        githubCommenters: [],
+        gitHubCommenters: [],
       });
       expect(postMessageSpy).not.toHaveBeenCalled();
     });
@@ -331,7 +331,7 @@ describe('slackScores tests', function () {
           num_comments: 3,
         },
       ];
-      const githubCommenters = [
+      const gitHubCommenters = [
         {
           username: 'luke_skywalker',
           num_comments: 2,
@@ -348,7 +348,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions,
         issues,
-        githubCommenters,
+        gitHubCommenters,
       });
       await sendGitHubActivityMetrics(true);
       expect(postMessageSpy).toHaveBeenCalledWith(
@@ -394,7 +394,7 @@ describe('slackScores tests', function () {
           num_comments: 2,
         },
       ];
-      const githubCommenters = [
+      const gitHubCommenters = [
         {
           username: 'luke_skywalker',
           num_comments: 2,
@@ -407,7 +407,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions,
         issues,
-        githubCommenters,
+        gitHubCommenters,
       });
       await sendGitHubActivityMetrics();
       // Columns with links in them may seem a bit off, because the links won't actually appear in slack
@@ -462,7 +462,7 @@ describe('slackScores tests', function () {
           num_comments: 3,
         },
       ];
-      const githubCommenters = [
+      const gitHubCommenters = [
         {
           username: 'luke_skywalker',
           num_comments: 2,
@@ -483,7 +483,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions,
         issues,
-        githubCommenters,
+        gitHubCommenters,
       });
       await sendGitHubActivityMetrics();
       // Columns with links in them may seem a bit off, because the links won't actually appear in slack
@@ -565,7 +565,7 @@ describe('slackScores tests', function () {
           num_comments: 1,
         },
       ];
-      const githubCommenters = [
+      const gitHubCommenters = [
         {
           username: 'luke_skywalker',
           num_comments: 10,
@@ -632,7 +632,7 @@ describe('slackScores tests', function () {
       getGithubActivityMetricsSpy.mockReturnValue({
         discussions,
         issues,
-        githubCommenters,
+        gitHubCommenters,
       });
       await sendGitHubActivityMetrics();
       // Columns with links in them may seem a bit off, because the links won't actually appear in slack
