@@ -39,6 +39,7 @@ export async function buildServer(
       new RewriteFrames({ root: process.cwd() }),
     ],
     tracesSampleRate: 1.0,
+    normalizeDepth: 6,
   });
 
   // For Sentry Release Health
