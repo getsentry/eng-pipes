@@ -116,6 +116,8 @@ describe('score tests', () => {
         discussions.created_at,
         day
       ) <= 7
+      AND discussions.user_type != 'bot'
+      AND discussions.action = 'created'
     GROUP BY discussions.target_name, discussions.repository, discussions.object_id
     ORDER BY num_comments DESC
     ;`;
@@ -128,6 +130,7 @@ describe('score tests', () => {
       \`open_source.github_events\` AS comments
     WHERE
       (comments.type = 'discussion_comment' OR comments.type = 'issue_comment')
+      AND comments.action = 'created'
       AND timestamp_diff(
         CURRENT_TIMESTAMP(),
         comments.created_at,
@@ -154,6 +157,8 @@ describe('score tests', () => {
         issues.created_at,
         day
       ) <= 7
+      AND issues.user_type != 'bot'
+      AND issues.action = 'created'
     GROUP BY issues.target_name, issues.repository, issues.target_id
     ORDER BY num_comments DESC
     ;`;
