@@ -45,6 +45,7 @@ getsentry:
       - 'sentry-symfony'
       - 'sentry-ruby'
       - 'sentry-cli'
+      - 'sentry-electron'
 
       # Mobile team T1
       # www.notion.so/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
@@ -53,6 +54,9 @@ getsentry:
       - 'sentry-react-native'
       - 'sentry-unity'
       - 'sentry-dart'
+      - 'sentry-go'
+      - 'sentry-unreal'
+      - 'sentry-elixir'
       - 'sentry-android-gradle-plugin'
       - 'sentry-dotnet'
       - 'sentry-dart-plugin'
