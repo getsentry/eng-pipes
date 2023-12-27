@@ -493,66 +493,61 @@ describe('businessHours tests', function () {
     it('should correctly calculate business hours left overnight', function () {
       const triageBy = '2023-12-22T18:00:00.000Z';
       const now = moment('2023-12-22T01:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(
-          triageBy,
-          now,
-          'test-ttt-simple',
-          'getsentry',
-          'Other'
-        )
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
       ).toEqual(1);
     });
     it('should correctly calculate business hours over multiple days', function () {
       const triageBy = '2023-12-22T18:00:00.000Z';
       const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(
-          triageBy,
-          now,
-          'test-ttt-simple',
-          'getsentry',
-          'Other'
-        )
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
       ).toEqual(9);
+    });
+    it('should correctly calculate business hours over holiday', function () {
+      const triageBy = '2024-01-02T17:00:00.000Z';
+      const now = moment('2023-12-23T00:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(1);
     });
     it('should correctly account for weekends when calculating business hours', function () {
       const triageBy = '2023-01-17T18:00:00.000Z';
       const now = moment('2023-01-14T00:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(
-          triageBy,
-          now,
-          'test-ttt-simple',
-          'getsentry',
-          'Other'
-        )
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
       ).toEqual(2);
     });
     it('should correctly calculate business hours for issues with non overlapping timezones', function () {
       const triageBy = '2023-12-22T18:00:00.000Z';
       const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'routing-repo';
+      const org = 'getsentry';
+      const productArea = 'Non-Overlapping Timezone';
       expect(
-        getBusinessHoursLeft(
-          triageBy,
-          now,
-          'routing-repo',
-          'getsentry',
-          'Non-Overlapping Timezone'
-        )
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
       ).toEqual(25);
     });
     it('should correctly calculate business hours for issues with overlapping timezones', function () {
       const triageBy = '2023-12-22T18:00:00.000Z';
       const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'routing-repo';
+      const org = 'getsentry';
+      const productArea = 'Overlapping Timezone';
       expect(
-        getBusinessHoursLeft(
-          triageBy,
-          now,
-          'routing-repo',
-          'getsentry',
-          'Overlapping Timezone'
-        )
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
       ).toEqual(15);
     });
   });
