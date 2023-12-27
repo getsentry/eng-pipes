@@ -25,18 +25,18 @@ interface BusinessHourWindow {
   end: moment.Moment;
 }
 
-export async function calculateTimeToRespondBy(
+export function calculateTimeToRespondBy(
   numDays: number,
   productArea: string,
   repo: string,
   org: string,
   testTimestamp?: string
-) {
+): string {
   let cursor =
     testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
   while (msRemaining > 0) {
-    const nextBusinessHours = await getNextAvailableBusinessHourWindow(
+    const nextBusinessHours = getNextAvailableBusinessHourWindow(
       productArea,
       cursor,
       repo,
@@ -52,12 +52,12 @@ export async function calculateTimeToRespondBy(
   return cursor.toISOString();
 }
 
-export async function calculateSLOViolationTriage(
+export function calculateSLOViolationTriage(
   target_name: string,
   labels: any,
   repo: string,
   org: string
-) {
+): string | null {
   // calculate time to triage for issues that come in with untriaged label
   if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     const productArea = labels
@@ -80,11 +80,11 @@ export async function calculateSLOViolationTriage(
   return null;
 }
 
-export async function calculateSLOViolationRoute(
+export function calculateSLOViolationRoute(
   target_name: string,
   repo: string,
   org: string
-) {
+): string | null {
   if (target_name === WAITING_FOR_SUPPORT_LABEL) {
     return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Unknown', repo, org);
   }
@@ -109,12 +109,16 @@ export const isTimeInBusinessHours = (time: moment.Moment, office: string) => {
   return false;
 };
 
-export async function getNextAvailableBusinessHourWindow(
+/*
+  This function returns the current business hour window, if the time given is within business
+  hours. Otherwise, returns the next business hour window an issue should be triaged at.
+*/
+export function getNextAvailableBusinessHourWindow(
   productArea: string,
   momentTime: moment.Moment,
   repo: string,
   org: string
-): Promise<BusinessHourWindow> {
+): BusinessHourWindow {
   let offices: Set<string> = new Set<string>();
   const teams = getTeams(repo, org, productArea);
   // TODO(getsentry/team-ospo#200): Add codecov support
@@ -176,4 +180,38 @@ export async function getNextAvailableBusinessHourWindow(
     a.start.diff(b.start)
   );
   return businessHourWindows[0];
+}
+
+export function getBusinessHoursLeft(
+  triageBy: string,
+  now: moment.Moment,
+  repo: string,
+  org: string,
+  productArea: string
+): number {
+  let businessHoursLeft = 0;
+  let momentIterator = moment(now.format());
+  const triageByMoment = moment(triageBy);
+  while (momentIterator.diff(triageBy, 'hours') < 0) {
+    const businessHourWindow = getNextAvailableBusinessHourWindow(
+      productArea,
+      momentIterator,
+      repo,
+      org
+    );
+    // Two cases to handle.
+    // 1. If moment iterator is currently in business hours, we take the minimum of hours left in a day or the hours left until triage by date given.
+    // 2. If moment iterator is out of business hours, we set the iterator to the next time issue should be accounted in business hours.
+    if (momentIterator >= businessHourWindow.start) {
+      businessHoursLeft +=
+        momentIterator.diff(
+          moment.min(triageByMoment, businessHourWindow.end),
+          'hours'
+        ) * -1;
+      momentIterator = businessHourWindow.end;
+    } else {
+      momentIterator = businessHourWindow.start;
+    }
+  }
+  return businessHoursLeft;
 }

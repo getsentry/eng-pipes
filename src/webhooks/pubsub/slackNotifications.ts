@@ -7,7 +7,10 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
-import { isTimeInBusinessHours } from '@/utils/businessHours';
+import {
+  getBusinessHoursLeft,
+  isTimeInBusinessHours,
+} from '@/utils/businessHours';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
@@ -48,6 +51,9 @@ type IssueSLOInfo = {
   triageBy: string;
   createdAt: string;
   channels: ChannelItem[];
+  productArea: string;
+  repo: string;
+  org: string;
 };
 
 type SlackMessageBlocks = {
@@ -152,12 +158,28 @@ export const constructSlackMessage = (
     const triageQueueIssues: SlackMessageUnorderedIssueItem[] = [];
     // Group issues into buckets based on time left until SLA
     let hasEnoughTimePassedSinceIssueCreation = false;
-    const addIssueToQueue = ({ url, number, title, triageBy, createdAt }) => {
+    const addIssueToQueue = ({
+      url,
+      number,
+      title,
+      triageBy,
+      createdAt,
+      repo,
+      org,
+      productArea,
+    }) => {
       // Escape issue title for < and > characters
       const escapedIssueTitle = title
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
       const hoursLeft = now.diff(triageBy, 'hours') * -1;
+      const businessHoursLeft = getBusinessHoursLeft(
+        triageBy,
+        now,
+        repo,
+        org,
+        productArea
+      );
       const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
       const daysLeft = now.diff(triageBy, 'days') * -1;
       hasEnoughTimePassedSinceIssueCreation =
@@ -217,7 +239,7 @@ export const constructSlackMessage = (
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
           timeLeft: `${minutesText} left`,
         });
-      } else if (hoursLeft <= 4) {
+      } else if (businessHoursLeft <= 4) {
         const minutesText =
           minutesLeft === 1
             ? `${minutesLeft} minute`
@@ -438,6 +460,9 @@ export const notifyProductOwnersForUntriagedIssues = async (
         getIssueProductAreaLabel(issue),
         now
       ),
+      productArea: getIssueProductAreaLabel(issue),
+      repo,
+      org: org.slug,
     }));
     return Promise.all(issuesWithSLOInfo);
   };
