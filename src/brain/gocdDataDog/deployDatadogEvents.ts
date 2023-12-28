@@ -226,7 +226,7 @@ export class DeployDatadogEvents {
   getFormattedRegion(pipeline: GoCDPipeline) {
     const pipeline_name = pipeline.name;
     const sentry_region_mappings = {
-      s4s: 's4s',
+      s4s: 'st-sentry4sentry',
       us: 'us',
       de: 'de',
       'customer-1': 'st-goldmansachs',

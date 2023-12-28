@@ -288,12 +288,12 @@ export async function insertOss(
           data.product_area &&
           data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
         if (data.action === 'labeled') {
-          data.timeToRouteBy = await calculateSLOViolationRoute(
+          data.timeToRouteBy = calculateSLOViolationRoute(
             data.target_name,
             payload.repository.name,
             payload.organization.login
           );
-          data.timeToTriageBy = await calculateSLOViolationTriage(
+          data.timeToTriageBy = calculateSLOViolationTriage(
             data.target_name,
             issue.labels,
             payload.repository.name,

@@ -1,4 +1,7 @@
+import * as Sentry from '@sentry/node';
+
 import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
+import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
 import testPayload from '@test/payloads/sentry-options/testPayload.json';
@@ -40,6 +43,24 @@ describe('sentry-options webhook', function () {
   describe('messageSlack tests', function () {
     afterEach(function () {
       jest.clearAllMocks();
+    });
+
+    it('handles errors and reports to Sentry', async function () {
+      const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
+      const sentrySetContextSpy = jest.spyOn(Sentry, 'setContext');
+      await messageSlack(testBadPayload);
+      expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(1);
+      expect(sentrySetContextSpy).toHaveBeenCalledTimes(1);
+      expect(sentrySetContextSpy.mock.calls[0][0]).toEqual(`message_data`);
+      expect(sentrySetContextSpy.mock.calls[0][1]).toEqual({
+        message: {
+          drifted_options: [
+            { bad_key_vaue: 'value_1', option_name: 'drifted_option_1' },
+          ],
+          region: 'bad',
+          source: 'options-automator',
+        },
+      });
     });
 
     it('writes to slack', async function () {
@@ -220,11 +241,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'Option `invalid_type_option_1` got type `string`, \n                    but expected type `float`.',
+                text: 'Option `invalid_type_option_1` got type `string`, but expected type `float`.',
               },
               {
                 type: 'mrkdwn',
-                text: 'Option `invalid_type_option_2` got type `float`, \n                    but expected type `int`.',
+                text: 'Option `invalid_type_option_2` got type `float`, but expected type `int`.',
               },
             ],
           },

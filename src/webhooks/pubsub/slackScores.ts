@@ -10,7 +10,10 @@ import {
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
-import { getDiscussionEvents, getIssueEventsForTeam } from '@/utils/scores';
+import {
+  getGitHubActivityMetrics,
+  getIssueEventsForTeam,
+} from '@/utils/scores';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 
@@ -28,7 +31,14 @@ type discussionInfo = {
   num_comments: number;
 };
 
-type discussionCommenterInfo = {
+type issueInfo = {
+  title: string;
+  repository: string;
+  issue_number: string;
+  num_comments: number;
+};
+
+type commenterInfo = {
   username: string;
   num_comments: number;
 };
@@ -198,9 +208,12 @@ export const sendGitHubEngagementMetrics = async (
   await Promise.all(slackNotifications);
 };
 
-export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
-  const { discussions, discussionCommenters } = await getDiscussionEvents();
-  if (discussions.length === 0 && discussionCommenters.length === 0) {
+export const sendGitHubActivityMetrics = async (
+  ospo_internal: boolean = false
+) => {
+  const { discussions, gitHubCommenters, issues } =
+    await getGitHubActivityMetrics();
+  if (!discussions.length && !gitHubCommenters.length && !issues.length) {
     return;
   }
   const messageBlocks = [
@@ -208,7 +221,7 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
       type: 'header',
       text: {
         type: 'plain_text',
-        text: '🗓️ Weekly Discussion Metrics 🗓️',
+        text: '🗓️ Weekly GitHub Activity 🗓️',
         emoji: true,
       },
     },
@@ -230,67 +243,68 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
       ' '
     );
   };
-  let firstColumnName = 'Most Active Discussions this Week';
-  const secondColumnName = '# comments';
-  let scoreBoard = `\n┌${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┐\n| ${addSpaces(firstColumnName, 'firstColumnItem')}│ ${addSpaces(
-    secondColumnName,
-    'numComments'
-  )}|\n├${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┤\n`;
-  discussions
-    .slice(0, NUM_DISCUSSION_SCOREBOARD_ELEMENTS)
-    .forEach((discussionInfo: discussionInfo) => {
-      // Append less than sign here, because trailing spaces are ignored for text within the <> blocks for a hyperlink
-      const truncatedDiscussionTitle =
-        discussionInfo.title.length <= DISCUSSION_COLUMN_WIDTH
-          ? discussionInfo.title + '>'
-          : `${discussionInfo.title.slice(
-              0,
-              DISCUSSION_COLUMN_WIDTH - 4
-            )}...> `;
-      const truncatedDiscussionTitleWithSpaces = addSpaces(
-        // Remove all instances of ` char from string
-        truncatedDiscussionTitle.replace(/`/g, ''),
-        'discussion'
-      );
-      const discussionText = `<https://github.com/${discussionInfo.repository}/discussions/${discussionInfo.discussion_number}|${truncatedDiscussionTitleWithSpaces}`;
-      const numCommentsText = addSpaces(
-        discussionInfo.num_comments.toString(),
-        'numComments'
-      );
-      scoreBoard += `| ${discussionText}| ${numCommentsText}|\n`;
+
+  const createTable = (
+    items: discussionInfo[] | commenterInfo[] | issueInfo[],
+    firstColumnName,
+    type
+  ) => {
+    let scoreBoard = `\n┌${'─'.repeat(
+      DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+    )}┐\n| ${addSpaces(firstColumnName, 'firstColumnItem')}│ ${addSpaces(
+      '# comments',
+      'numComments'
+    )}|\n├${'─'.repeat(
+      DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+    )}┤\n`;
+    items.slice(0, NUM_DISCUSSION_SCOREBOARD_ELEMENTS).forEach((itemInfo) => {
+      if (type === 'commenters') {
+        const usernameText = addSpaces(itemInfo.username, 'firstColumnItem');
+        const numCommentsText = addSpaces(
+          itemInfo.num_comments.toString(),
+          'numComments'
+        );
+        scoreBoard += `| ${usernameText}| ${numCommentsText}|\n`;
+      } else {
+        // Append less than sign here, because trailing spaces are ignored for text within the <> blocks for a hyperlink
+        const truncatedDiscussionTitle =
+          itemInfo.title.length <= DISCUSSION_COLUMN_WIDTH
+            ? itemInfo.title + '>'
+            : `${itemInfo.title.slice(0, DISCUSSION_COLUMN_WIDTH - 4)}...> `;
+        const truncatedDiscussionTitleWithSpaces = addSpaces(
+          // Remove all instances of ` char from string
+          truncatedDiscussionTitle.replace(/`/g, ''),
+          'discussion'
+        );
+        const link =
+          type === 'discussions'
+            ? `https://github.com/${itemInfo.repository}/discussions/${itemInfo.discussion_number}`
+            : `https://github.com/${itemInfo.repository}/issues/${itemInfo.issue_number}`;
+        const discussionText = `<${link}|${truncatedDiscussionTitleWithSpaces}`;
+        const numCommentsText = addSpaces(
+          itemInfo.num_comments.toString(),
+          'numComments'
+        );
+        scoreBoard += `| ${discussionText}| ${numCommentsText}|\n`;
+      }
     });
-  scoreBoard += `└${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┘`;
-  firstColumnName = 'Most Active Sentaurs this Week';
-  scoreBoard += `\n┌${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┐\n| ${addSpaces(firstColumnName, 'firstColumnItem')}│ ${addSpaces(
-    secondColumnName,
-    'numComments'
-  )}|\n├${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┤\n`;
-  discussionCommenters
-    .slice(0, NUM_DISCUSSION_SCOREBOARD_ELEMENTS)
-    .forEach((discussionCommenterInfo: discussionCommenterInfo) => {
-      const usernameText = addSpaces(
-        discussionCommenterInfo.username,
-        'firstColumnItem'
-      );
-      const numCommentsText = addSpaces(
-        discussionCommenterInfo.num_comments.toString(),
-        'numComments'
-      );
-      scoreBoard += `| ${usernameText}| ${numCommentsText}|\n`;
-    });
-  scoreBoard += `└${'─'.repeat(
-    DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
-  )}┘`;
+    scoreBoard += `└${'─'.repeat(
+      DISCUSSION_COLUMN_WIDTH + NUM_COMMENTS_COLUMN_WIDTH + NUM_ROW_SPACES
+    )}┘`;
+    return scoreBoard;
+  };
+  const scoreBoard =
+    createTable(
+      discussions,
+      'Most Active Discussions this Week',
+      'discussions'
+    ) +
+    createTable(issues, 'Most Active Issues this Week', 'issues') +
+    createTable(
+      gitHubCommenters,
+      'Most Active Sentaurs this Week',
+      'commenters'
+    );
   messageBlocks.push({
     type: 'section',
     // Unsure why, but ts is complaining about missing emoji field, but slack api rejects the field
@@ -305,7 +319,7 @@ export const sendDiscussionMetrics = async (ospo_internal: boolean = false) => {
     : DISCUSS_PRODUCT_CHANNEL_ID;
   await bolt.client.chat.postMessage({
     channel: channelToPost,
-    text: 'Weekly Discussion Metrics',
+    text: 'Weekly GitHub Activity',
     blocks: messageBlocks,
   });
 };
@@ -317,7 +331,9 @@ export const triggerSlackScores = async (
   if (org !== GETSENTRY_ORG) {
     return;
   }
-  await sendGitHubEngagementMetrics();
-  await sendDiscussionMetrics();
-  await sendApisPublishStatus();
+  await Promise.all([
+    sendApisPublishStatus(),
+    sendGitHubActivityMetrics(),
+    sendGitHubEngagementMetrics(),
+  ]);
 };
