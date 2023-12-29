@@ -204,7 +204,7 @@ export async function messageSlack(message: SentryOptionsResponse) {
   }
 }
 
-function sendMessage(blocks) {
+async function sendMessage(blocks) {
   for (const splitBlock of blocks) {
     try {
       await bolt.client.chat.postMessage({
