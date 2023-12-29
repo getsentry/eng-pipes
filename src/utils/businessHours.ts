@@ -25,13 +25,21 @@ interface BusinessHourWindow {
   end: moment.Moment;
 }
 
-export function calculateTimeToRespondBy(
-  numDays: number,
-  productArea: string,
-  repo: string,
-  org: string,
-  testTimestamp?: string
-): string {
+interface CalculateTimetoRespondByParams {
+  numDays: number;
+  productArea: string;
+  repo: string;
+  org: string;
+  testTimestamp?: string;
+}
+
+export function calculateTimeToRespondBy({
+  numDays,
+  productArea,
+  repo,
+  org,
+  testTimestamp,
+}: CalculateTimetoRespondByParams): string {
   let cursor =
     testTimestamp !== undefined ? moment(testTimestamp).utc() : moment().utc();
   let msRemaining = numDays * BUSINESS_DAY_IN_MS;
@@ -53,29 +61,34 @@ export function calculateTimeToRespondBy(
 }
 
 export function calculateSLOViolationTriage(
-  target_name: string,
+  targetName: string,
   labels: any,
   repo: string,
   org: string
 ): string | null {
   // calculate time to triage for issues that come in with untriaged label
-  if (target_name === WAITING_FOR_PRODUCT_OWNER_LABEL) {
+  if (targetName === WAITING_FOR_PRODUCT_OWNER_LABEL) {
     const productArea = labels
       ?.find((label) => label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX))
       ?.name.slice(PRODUCT_AREA_LABEL_PREFIX.length);
-    return calculateTimeToRespondBy(MAX_TRIAGE_DAYS, productArea, repo, org);
+    return calculateTimeToRespondBy({
+      numDays: MAX_TRIAGE_DAYS,
+      productArea,
+      repo,
+      org,
+    });
   }
   // calculate time to triage for issues that are rerouted
   else if (
-    target_name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
+    targetName.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
     labels?.some((label) => label.name === WAITING_FOR_PRODUCT_OWNER_LABEL)
   ) {
-    return calculateTimeToRespondBy(
-      MAX_TRIAGE_DAYS,
-      target_name.slice(PRODUCT_AREA_LABEL_PREFIX.length),
+    return calculateTimeToRespondBy({
+      numDays: MAX_TRIAGE_DAYS,
+      productArea: targetName.slice(PRODUCT_AREA_LABEL_PREFIX.length),
       repo,
-      org
-    );
+      org,
+    });
   }
   return null;
 }
@@ -86,7 +99,12 @@ export function calculateSLOViolationRoute(
   org: string
 ): string | null {
   if (target_name === WAITING_FOR_SUPPORT_LABEL) {
-    return calculateTimeToRespondBy(MAX_ROUTE_DAYS, 'Unknown', repo, org);
+    return calculateTimeToRespondBy({
+      numDays: MAX_ROUTE_DAYS,
+      productArea: 'Unknown',
+      repo,
+      org,
+    });
   }
   return null;
 }
@@ -182,13 +200,21 @@ export function getNextAvailableBusinessHourWindow(
   return businessHourWindows[0];
 }
 
-export function getBusinessHoursLeft(
-  triageBy: string,
-  now: moment.Moment,
-  repo: string,
-  org: string,
-  productArea: string
-): number {
+interface GetBusinessHoursLeftParams {
+  triageBy: string;
+  now: moment.Moment;
+  repo: string;
+  org: string;
+  productArea: string;
+}
+
+export function getBusinessHoursLeft({
+  triageBy,
+  now,
+  repo,
+  org,
+  productArea,
+}: GetBusinessHoursLeftParams): number {
   let businessHoursLeft = 0;
   let momentIterator = moment(now.format());
   const triageByMoment = moment(triageBy);

@@ -97,149 +97,149 @@ describe('businessHours tests', function () {
 
     for (let i = 0; i < 7; i++) {
       it(`should calculate TTT SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_TRIAGE_DAYS,
-          'Test',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          testTimestamps[i].timestamp
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_TRIAGE_DAYS,
+          productArea: 'Test',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: testTimestamps[i].timestamp,
+        });
         expect(result).toEqual(triageResults[i]);
       });
 
       it(`should calculate TTR SLO violation for ${testTimestamps[i].day}`, async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_ROUTE_DAYS,
-          'Test',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          testTimestamps[i].timestamp
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_ROUTE_DAYS,
+          productArea: 'Test',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: testTimestamps[i].timestamp,
+        });
         expect(result).toEqual(routingResults[i]);
       });
     }
 
     it('should handle case when offices is undefined', async function () {
-      const result = await calculateTimeToRespondBy(
-        MAX_TRIAGE_DAYS,
-        'Undefined',
-        'routing-repo',
-        GETSENTRY_ORG.slug,
-        '2023-12-18T00:00:00.000Z'
-      );
+      const result = await calculateTimeToRespondBy({
+        numDays: MAX_TRIAGE_DAYS,
+        productArea: 'Undefined',
+        repo: 'routing-repo',
+        org: GETSENTRY_ORG.slug,
+        testTimestamp: '2023-12-18T00:00:00.000Z',
+      });
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
     });
 
     it('should handle case when offices is null', async function () {
-      const result = await calculateTimeToRespondBy(
-        MAX_TRIAGE_DAYS,
-        'Null',
-        'routing-repo',
-        GETSENTRY_ORG.slug,
-        '2023-12-18T00:00:00.000Z'
-      );
+      const result = await calculateTimeToRespondBy({
+        numDays: MAX_TRIAGE_DAYS,
+        productArea: 'Null',
+        repo: 'routing-repo',
+        org: GETSENTRY_ORG.slug,
+        testTimestamp: '2023-12-18T00:00:00.000Z',
+      });
       expect(result).toEqual('2023-12-20T01:00:00.000Z');
     });
 
     it('should handle the last day of the month for TTR', async function () {
-      const result = await calculateTimeToRespondBy(
-        MAX_ROUTE_DAYS,
-        'Test',
-        'routing-repo',
-        GETSENTRY_ORG.slug,
-        '2023-01-31T00:00:00.000Z'
-      );
+      const result = await calculateTimeToRespondBy({
+        numDays: MAX_ROUTE_DAYS,
+        productArea: 'Test',
+        repo: 'routing-repo',
+        org: GETSENTRY_ORG.slug,
+        testTimestamp: '2023-01-31T00:00:00.000Z',
+      });
       expect(result).toEqual('2023-02-01T00:00:00.000Z');
     });
 
     it('should handle the last day of the year for TTR', async function () {
-      const result = await calculateTimeToRespondBy(
-        MAX_ROUTE_DAYS,
-        'Test',
-        'routing-repo',
-        GETSENTRY_ORG.slug,
-        '2022-12-31T00:00:00.000Z'
-      );
+      const result = await calculateTimeToRespondBy({
+        numDays: MAX_ROUTE_DAYS,
+        productArea: 'Test',
+        repo: 'routing-repo',
+        org: GETSENTRY_ORG.slug,
+        testTimestamp: '2022-12-31T00:00:00.000Z',
+      });
       expect(result).toEqual('2023-01-04T01:00:00.000Z');
     });
 
     describe('holiday tests', function () {
       it('should calculate TTT SLO violation for Christmas', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_TRIAGE_DAYS,
-          'Test',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2023-12-24T00:00:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_TRIAGE_DAYS,
+          productArea: 'Test',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2023-12-24T00:00:00.000Z',
+        });
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
         expect(result).toEqual('2024-01-04T01:00:00.000Z');
       });
 
       it('should calculate TTR SLO violation for Christmas', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_ROUTE_DAYS,
-          'Test',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2023-12-24T00:00:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_ROUTE_DAYS,
+          productArea: 'Test',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2023-12-24T00:00:00.000Z',
+        });
         // 2023-12-24 is Sunday, 2023-12-25/2022-12-26 are holidays
         expect(result).toEqual('2024-01-03T01:00:00.000Z');
       });
 
       it('should not include holiday in TTR if at least one office is still open', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_ROUTE_DAYS,
-          'Test',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2023-10-02T00:00:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_ROUTE_DAYS,
+          productArea: 'Test',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2023-10-02T00:00:00.000Z',
+        });
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
       });
 
       it('should triage on the same day if two office timezones do not overlap', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_TRIAGE_DAYS,
-          'Non-Overlapping Timezone',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2023-10-02T00:00:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_TRIAGE_DAYS,
+          productArea: 'Non-Overlapping Timezone',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2023-10-02T00:00:00.000Z',
+        });
         expect(result).toEqual('2023-10-03T00:00:00.000Z');
       });
 
       it('should calculate weekends properly for friday in sfo, weekend in vie', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_TRIAGE_DAYS,
-          'Non-Overlapping Timezone',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2022-12-17T00:00:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_TRIAGE_DAYS,
+          productArea: 'Non-Overlapping Timezone',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2022-12-17T00:00:00.000Z',
+        });
         expect(result).toEqual('2022-12-20T00:00:00.000Z');
       });
 
       it('should route properly when product area is subscribed to sfo, vie, and yyz', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_ROUTE_DAYS,
-          'All-Timezones',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2022-12-20T15:30:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_ROUTE_DAYS,
+          productArea: 'All-Timezones',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2022-12-20T15:30:00.000Z',
+        });
         expect(result).toEqual('2022-12-20T23:30:00.000Z');
       });
 
       it('should triage properly when product area is subscribed to sfo, vie, and yyz', async function () {
-        const result = await calculateTimeToRespondBy(
-          MAX_TRIAGE_DAYS,
-          'All-Timezones',
-          'routing-repo',
-          GETSENTRY_ORG.slug,
-          '2022-12-20T15:30:00.000Z'
-        );
+        const result = await calculateTimeToRespondBy({
+          numDays: MAX_TRIAGE_DAYS,
+          productArea: 'All-Timezones',
+          repo: 'routing-repo',
+          org: GETSENTRY_ORG.slug,
+          testTimestamp: '2022-12-20T15:30:00.000Z',
+        });
         expect(result).toEqual('2022-12-21T14:30:00.000Z');
       });
     });
@@ -497,7 +497,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(1);
     });
     it('should correctly calculate business hours over multiple days', function () {
@@ -507,7 +507,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(9);
     });
     it('should correctly calculate business hours over holiday', function () {
@@ -517,7 +517,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(1);
     });
     it('should correctly account for weekends when calculating business hours', function () {
@@ -527,7 +527,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Other';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(2);
     });
     it('should correctly calculate business hours for issues with non overlapping timezones', function () {
@@ -537,7 +537,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Non-Overlapping Timezone';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(25);
     });
     it('should correctly calculate business hours for issues with overlapping timezones', function () {
@@ -547,7 +547,7 @@ describe('businessHours tests', function () {
       const org = 'getsentry';
       const productArea = 'Overlapping Timezone';
       expect(
-        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+        getBusinessHoursLeft({ triageBy, now, repo, org, productArea })
       ).toEqual(15);
     });
   });
