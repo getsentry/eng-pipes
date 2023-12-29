@@ -66,9 +66,10 @@ describe('sentry-options webhook', function () {
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testPayload);
-      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      expect(postMessageSpy).toHaveBeenCalledTimes(3);
       const firstMessage = postMessageSpy.mock.calls[0][0];
       const secondMessage = postMessageSpy.mock.calls[1][0];
+      const thirdMessage = postMessageSpy.mock.calls[2][0];
       expect(firstMessage).toEqual({
         blocks: [
           {
@@ -226,6 +227,13 @@ describe('sentry-options webhook', function () {
               },
             ],
           },
+        ],
+        channel: 'C05QM3AUDKJ',
+        text: '',
+        unfurl_links: false,
+      });
+      expect(thirdMessage).toEqual({
+        blocks: [
           {
             type: 'divider',
           },
