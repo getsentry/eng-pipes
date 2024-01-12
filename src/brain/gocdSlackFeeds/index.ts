@@ -51,11 +51,11 @@ const DEV_INFRA_PIPELINE_FILTER = [
   ...ENGINEERING_PIPELINE_FILTER,
 ];
 
-const IS_ROLLBACK_NECESSARY_LINK =
+export const IS_ROLLBACK_NECESSARY_LINK =
   'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#2e88c4be0354433282267bf09e945973';
-const ROLLBACK_PLAYBOOK_LINK =
+export const ROLLBACK_PLAYBOOK_LINK =
   'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
-const GOCD_USER_GUIDE_LINK =
+export const GOCD_USER_GUIDE_LINK =
   'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
 
 // Post all pipelines to #feed-deploys
