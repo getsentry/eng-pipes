@@ -51,6 +51,13 @@ const DEV_INFRA_PIPELINE_FILTER = [
   ...ENGINEERING_PIPELINE_FILTER,
 ];
 
+const IS_ROLLBACK_NECESSARY_LINK =
+  'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#2e88c4be0354433282267bf09e945973';
+const ROLLBACK_PLAYBOOK_LINK =
+  'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
+const GOCD_USER_GUIDE_LINK =
+  'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
+
 // Post all pipelines to #feed-deploys
 const deployFeed = new DeployFeed({
   feedName: 'gocdSlackFeed',
@@ -152,12 +159,6 @@ const engineeringFeed = new DeployFeed({
       .join(' ');
     const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/${pipeline.counter}/deploy-canary/${pipeline.stage.counter}/deploy-backend`;
     const sentryReleaseLink = `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
-    const isRollbackNecessaryLink =
-      'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#2e88c4be0354433282267bf09e945973';
-    const rollbackPlaybookLink =
-      'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
-    const gocdUserGuideLink =
-      'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
 
     const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
@@ -167,8 +168,8 @@ const engineeringFeed = new DeployFeed({
           Here are the steps you should follow to address the situation:\n\n
           :mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|Canary Logs>*.\n
           :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
-          :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${isRollbackNecessaryLink}|Guidelines>*.\n
-          :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${rollbackPlaybookLink}|GoCD Playbook>* or *<${gocdUserGuideLink}|GoCD User Guide>* to guide you.`
+          :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+          :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.`
         )
       ),
     ];
