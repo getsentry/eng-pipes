@@ -30,8 +30,10 @@ const discussFrontendAlert = new ConsecutiveUnsuccessfulDeploysAlert({
 });
 
 export async function handler(body: GoCDResponse) {
-  await devinfraAlert.handle(body);
-  await discussFrontendAlert.handle(body);
+  await Promise.all([
+    devinfraAlert.handle(body),
+    discussFrontendAlert.handle(body),
+  ]);
 }
 
 export async function gocdConsecutiveUnsuccessfulAlert() {
