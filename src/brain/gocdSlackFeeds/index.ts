@@ -163,15 +163,12 @@ const engineeringFeed = new DeployFeed({
     const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
       section(
-        markdown(
-          `The deployment pipeline has been paused due to detected issues in canary.
-          Here are the steps you should follow to address the situation:\n\n
-          :mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|Canary Logs>*.\n
-          :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
-          :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
-          :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-          :arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`
-        )
+        markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|Canary Logs>*.\n
+:sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
+:thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+:arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
       ),
     ];
     if (ccUsers.length > 0) {
