@@ -19,6 +19,8 @@ export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 export const SENTRY_REPO_SLUG = process.env.SENTRY_REPO || 'sentry';
 export const GETSENTRY_REPO_SLUG = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
+export const GOCD_SENTRYIO_FE_PIPELINE_GROUP =
+  process.env.GOCD_SENTRYIO_FE_PIPELINE_GROUP || 'getsentry-frontend';
 export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry-frontend';
 export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =
@@ -47,6 +49,8 @@ export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
   process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
 export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
   process.env.DISCUSS_PRODUCT_CHANNEL_ID || 'CDXAKMGTU';
+export const DISCUSS_FRONTEND_CHANNEL_ID = // #discuss-frontend
+  process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'C8V02RHC7';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';

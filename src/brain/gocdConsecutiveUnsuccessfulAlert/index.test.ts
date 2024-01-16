@@ -6,9 +6,12 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
+  DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_FE_PIPELINE_GROUP,
+  GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
 import { bolt } from '@api/slack';
@@ -286,6 +289,95 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
         slackblocks.section(
           slackblocks.markdown(
             `<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/getsentry-backend/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/getsentry-backend|Deploy Tools>`
+          )
+        ),
+      ],
+    });
+  });
+
+  it('post to discuss-frontend and feed-dev-infra if the number of consecutive unsuccessful frontend deploys is over the limit', async function () {
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'pipeline-id-123',
+      pipeline_name: GOCD_SENTRYIO_FE_PIPELINE_NAME,
+      pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT,
+      pipeline_group: GOCD_SENTRYIO_FE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+
+      stage_name: 'deploy-primary',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_FE_PIPELINE_NAME,
+          group: GOCD_SENTRYIO_FE_PIPELINE_GROUP,
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
+      text: `❗️ *getsentry-frontend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+      blocks: [
+        slackblocks.section(
+          slackblocks.markdown(
+            `❗️ *getsentry-frontend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(
+            `<https://deploy.getsentry.net/go/pipelines/getsentry-frontend/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/getsentry-frontend/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/getsentry-frontend|Deploy Tools>`
+          )
+        ),
+      ],
+    });
+    expect(bolt.client.chat.postMessage.mock.calls[1][0]).toMatchObject({
+      text: `❗️ *getsentry-frontend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
+      channel: DISCUSS_FRONTEND_CHANNEL_ID,
+      blocks: [
+        slackblocks.section(
+          slackblocks.markdown(
+            `❗️ *getsentry-frontend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(
+            `<https://deploy.getsentry.net/go/pipelines/getsentry-frontend/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/getsentry-frontend/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/getsentry-frontend|Deploy Tools>`
           )
         ),
       ],
