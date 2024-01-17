@@ -27,8 +27,6 @@ for secret_name in $secret_names; do
   secrets="${secrets}${secret_name}=eng-pipes-${secret_name},"
 done
 
-# secrets="DD_API_KEY=eng-pipes-DD_API_KEY:latest,"
-
 gcloud builds submit --tag $IMAGE --project=$PROJECT --gcs-log-dir=gs://${PROJECT}_cloudbuild/logs && \
 gcloud run deploy product-eng-webhooks \
   --image $IMAGE \
@@ -37,6 +35,7 @@ gcloud run deploy product-eng-webhooks \
   --project=$PROJECT \
   --platform managed \
   --allow-unauthenticated \
+  --service-account ${GCP_SERVICE_ACCOUNT} \
   --add-cloudsql-instances ${DB_INSTANCE_CONNECTION_NAME} \
   --region=us-west1
 
