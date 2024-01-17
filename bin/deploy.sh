@@ -24,7 +24,7 @@ GH_USER_TOKEN
 
 secrets=""
 for secret_name in $secret_names; do
-  secrets="${secrets}${secret_name}=eng-pipes-${secret_name},"
+  secrets="${secrets}${secret_name}=eng-pipes-${secret_name}:latest,"
 done
 
 gcloud builds submit --tag $IMAGE --project=$PROJECT --gcs-log-dir=gs://${PROJECT}_cloudbuild/logs && \
