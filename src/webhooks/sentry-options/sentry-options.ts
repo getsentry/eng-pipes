@@ -191,23 +191,37 @@ export async function messageSlack(message: SentryOptionsResponse) {
         : []),
     ];
     if (successBlock.length > 1) {
-      await bolt.client.chat.postMessage({
-        channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-        blocks: successBlock,
-        text: '',
-        unfurl_links: false,
-      });
+      const chunkedSuccessBlocks = splitMessage(successBlock);
+      await sendMessage(chunkedSuccessBlocks);
     }
     if (failedBlock.length > 1) {
-      await bolt.client.chat.postMessage({
-        channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-        blocks: failedBlock,
-        text: '',
-        unfurl_links: false,
-      });
+      const chunkedFailedBlocks = splitMessage(failedBlock);
+      await sendMessage(chunkedFailedBlocks);
     }
   } catch (err) {
     Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
   }
+}
+
+async function sendMessage(blocks) {
+  for (const splitBlock of blocks) {
+    try {
+      await bolt.client.chat.postMessage({
+        channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+        blocks: splitBlock,
+        text: '',
+        unfurl_links: false,
+      });
+    } catch (err) {
+      Sentry.captureException(err);
+    }
+  }
+}
+function splitMessage(block: KnownBlock[]): KnownBlock[][] {
+  const splitBlock: KnownBlock[][] = [];
+  for (let i = 0; i < block.length; i += 10) {
+    splitBlock.push(block.slice(i, i + 10));
+  }
+  return splitBlock;
 }
