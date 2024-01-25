@@ -203,7 +203,7 @@ async function filterCommits(pipeline, commits) {
       relevantCommitShas.push(sha);
     }
   };
-  await Promise.all(commitShas.map((sha) => getRelevantCommitShas(sha)));
+  await Promise.allSettled(commitShas.map((sha) => getRelevantCommitShas(sha)));
   return relevantCommitShas;
 }
 
