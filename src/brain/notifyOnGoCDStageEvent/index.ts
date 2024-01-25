@@ -176,7 +176,7 @@ async function updateCommitQueue(
 async function filterCommits(pipeline, commits) {
   const relevantCommitShas: string[] = [];
   const commitShas = commits.map(({ sha }) => sha);
-  for (const sha of commitShas) {
+  const getRelevantCommitShas = async (sha) => {
     const relevantCommit = await getRelevantCommit(sha);
     // Commit should exist, but if not log and move on
     if (!relevantCommit) {
@@ -184,7 +184,7 @@ async function filterCommits(pipeline, commits) {
         commit_sha: sha,
       });
       Sentry.captureException(new Error('Unable to find commit'));
-      continue;
+      return;
     }
 
     const relevantRepo =
@@ -202,7 +202,8 @@ async function filterCommits(pipeline, commits) {
     ) {
       relevantCommitShas.push(sha);
     }
-  }
+  };
+  await Promise.all(commitShas.map((sha) => getRelevantCommitShas(sha)));
   return relevantCommitShas;
 }
 
