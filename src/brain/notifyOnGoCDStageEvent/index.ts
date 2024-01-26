@@ -1,6 +1,7 @@
 import '@sentry/tracing';
 
 import * as Sentry from '@sentry/node';
+import { SlackMessageRow } from 'knex/types/tables';
 
 import {
   CompareCommits,
@@ -119,14 +120,9 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
 
 async function updateSlack(
   pipeline: GoCDPipeline,
-  relevantCommitShas: Array<string>
+  relevantCommitShas: Array<string>,
+  messages: SlackMessageRow<SlackMessage>[]
 ): Promise<Array<Promise<void>>> {
-  // Look for associated slack messages based on getsentry commit sha
-  const messages = await getSlackMessage(
-    SlackMessage.PLEASE_DEPLOY,
-    relevantCommitShas
-  );
-
   Sentry.withScope((scope) => {
     scope.setContext('gocd', {
       ...pipeline,
@@ -286,10 +282,14 @@ export async function handler(resBody: GoCDResponse) {
       firstGitMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(pipeline, commits);
-
+    // Look for associated slack messages based on getsentry commit sha
+    const messages = await getSlackMessage(
+      SlackMessage.PLEASE_DEPLOY,
+      relevantCommitShas
+    );
     await Promise.all([
       updateCommitQueue(pipeline, sha, commits),
-      ...(await updateSlack(pipeline, relevantCommitShas)),
+      ...(await updateSlack(pipeline, relevantCommitShas, messages)),
     ]);
   } catch (err) {
     Sentry.captureException(err);
