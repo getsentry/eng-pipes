@@ -245,7 +245,9 @@ export const constructSlackMessage = (
             ? `${minutesLeft} minute`
             : `${minutesLeft} minutes`;
         const hoursText =
-          hoursLeft === 1 ? `${hoursLeft} hour` : `${hoursLeft} hours`;
+          businessHoursLeft === 1
+            ? `${businessHoursLeft} business hour`
+            : `${businessHoursLeft} business hours`;
         actFastIssues.push({
           triageBy,
           issueLink: `<${url}|#${number} ${escapedIssueTitle}>`,
