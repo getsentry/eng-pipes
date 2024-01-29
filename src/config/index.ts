@@ -4,6 +4,7 @@ import yaml from 'js-yaml';
 
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
+import { loadDatadogApiInstance } from './loadDatadogApiInstance';
 import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
@@ -18,6 +19,8 @@ export const DAY_IN_MS = 1000 * 60 * 60 * 24;
 export const SENTRY_REPO_SLUG = process.env.SENTRY_REPO || 'sentry';
 export const GETSENTRY_REPO_SLUG = process.env.GETSENTRY_REPO || 'getsentry';
 export const GETSENTRY_BOT_ID = 10587625;
+export const GOCD_SENTRYIO_FE_PIPELINE_GROUP =
+  process.env.GOCD_SENTRYIO_FE_PIPELINE_GROUP || 'getsentry-frontend';
 export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
   process.env.GOCD_SENTRYIO_FE_PIPELINE_NAME || 'getsentry-frontend';
 export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =
@@ -42,13 +45,22 @@ export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
   process.env.TEAM_OSPO_CHANNEL_ID || 'G01F3FQ0T41';
+export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
+  process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
+export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
+  process.env.DISCUSS_PRODUCT_CHANNEL_ID || 'CDXAKMGTU';
+export const DISCUSS_FRONTEND_CHANNEL_ID = // #discuss-frontend
+  process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'C8V02RHC7';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';
 export const DRY_RUN =
   process.env.DRY_RUN === 'true' || process.env.DRY_RUN === '1';
 export const PROJECT =
-  process.env.ENV === 'production' ? 'super-big-data' : 'sentry-dev-tooling';
+  process.env.ENV === 'production'
+    ? 'super-big-data'
+    : process.env.DEV_GCP_PROJECT;
+export const DATADOG_API_INSTANCE = loadDatadogApiInstance(process.env);
 
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
@@ -107,6 +119,7 @@ export enum BuildStatus {
 export const PRODUCT_AREA_LABEL_PREFIX = 'Product Area: ';
 export const PRODUCT_AREA_UNKNOWN = 'Product Area: Unknown';
 export const STALE_LABEL = 'Stale';
+export const WORK_IN_PROGRESS_LABEL = 'WIP';
 export const WAITING_FOR_LABEL_PREFIX = 'Waiting for: ';
 export const WAITING_FOR_SUPPORT_LABEL = 'Waiting for: Support';
 export const WAITING_FOR_COMMUNITY_LABEL = 'Waiting for: Community';

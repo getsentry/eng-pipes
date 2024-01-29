@@ -1,8 +1,7 @@
 import { BigQuery } from '@google-cloud/bigquery';
 import * as Sentry from '@sentry/node';
 
-import { DRY_RUN, PROJECT } from '@/config';
-import { PRODUCT_AREA_LABEL_PREFIX } from '@/config';
+import { DRY_RUN, PRODUCT_AREA_LABEL_PREFIX, PROJECT } from '@/config';
 
 import {
   calculateSLOViolationRoute,
@@ -41,7 +40,7 @@ export const TARGETS = {
       timeToRouteBy: 'TIMESTAMP',
       timeToTriageBy: 'TIMESTAMP',
       product_area: 'STRING',
-      teams: 'ARRAY<STRING>',
+      teams: 'STRING',
     },
   },
 
@@ -259,7 +258,7 @@ export async function insertOss(
     timeToRouteBy: null,
     timeToTriageBy: null,
     product_area: null,
-    teams: null,
+    teams: [],
   };
 
   if (eventType === 'issues') {
@@ -289,12 +288,12 @@ export async function insertOss(
           data.product_area &&
           data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
         if (data.action === 'labeled') {
-          data.timeToRouteBy = await calculateSLOViolationRoute(
+          data.timeToRouteBy = calculateSLOViolationRoute(
             data.target_name,
             payload.repository.name,
             payload.organization.login
           );
-          data.timeToTriageBy = await calculateSLOViolationTriage(
+          data.timeToTriageBy = calculateSLOViolationTriage(
             data.target_name,
             issue.labels,
             payload.repository.name,
@@ -303,12 +302,18 @@ export async function insertOss(
         }
       }
     }
+    data.teams = getTeams(
+      payload.repository.name,
+      payload.organization.login,
+      data.product_area
+    );
   } else if (eventType === 'issue_comment') {
     const { comment, issue } = payload;
 
     data.object_id = comment.id;
     data.created_at = comment.created_at;
     data.updated_at = comment.updated_at;
+    data.target_name = issue.title;
     data.target_id = issue.number;
     data.target_type = 'issue';
     data.product_area =
@@ -318,6 +323,11 @@ export async function insertOss(
     data.product_area =
       data.product_area &&
       data.product_area.slice(PRODUCT_AREA_LABEL_PREFIX.length);
+    data.teams = getTeams(
+      payload.repository.name,
+      payload.organization.login,
+      data.product_area
+    );
   } else if (eventType === 'pull_request') {
     const { action, pull_request, requested_reviewer, requested_team, label } =
       payload;
@@ -360,15 +370,26 @@ export async function insertOss(
     data.target_id = pull_request.number;
     data.target_name = review.state;
     data.target_type = 'pull_request';
+  } else if (eventType === 'discussion') {
+    const { discussion } = payload;
+    data.object_id = discussion.number;
+    data.created_at = discussion.created_at;
+    data.updated_at = discussion.updated_at;
+    data.target_id = discussion.number;
+    data.target_name = discussion.title;
+    data.target_type = 'discussion';
+  } else if (eventType === 'discussion_comment') {
+    const { discussion, comment } = payload;
+    data.object_id = discussion.number;
+    data.created_at = comment.created_at;
+    data.updated_at = comment.updated_at;
+    data.target_id = comment.id;
+    data.target_name = discussion.title;
+    data.target_type = 'discussion';
   } else {
     // Unknown payload event, ignoring...
     return {};
   }
-  data.teams = getTeams(
-    payload.repository.name,
-    payload.organization.login,
-    data.product_area
-  );
   return await _insert(data, TARGETS.oss);
 }
 

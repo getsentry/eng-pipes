@@ -649,6 +649,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@datadog/datadog-api-client@npm:^1.18.0":
+  version: 1.18.0
+  resolution: "@datadog/datadog-api-client@npm:1.18.0"
+  dependencies:
+    "@types/buffer-from": ^1.1.0
+    "@types/node": "*"
+    "@types/pako": ^1.0.3
+    buffer-from: ^1.1.2
+    cross-fetch: ^3.1.5
+    es6-promise: ^4.2.8
+    form-data: ^4.0.0
+    loglevel: ^1.8.1
+    pako: ^2.0.4
+    url-parse: ^1.4.3
+  checksum: 3c5ed69b355d2a775d0ff09a58274c10c3594e2353488d0d24959a6529b24e9f9015ab5249b4be6fa693d6804b6912501a49b719017dbc06576fef2212bd2cf4
+  languageName: node
+  linkType: hard
+
 "@eslint/eslintrc@npm:^1.0.4":
   version: 1.0.4
   resolution: "@eslint/eslintrc@npm:1.0.4"
@@ -1343,22 +1361,22 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@octokit/webhooks-types@npm:6.11.0":
-  version: 6.11.0
-  resolution: "@octokit/webhooks-types@npm:6.11.0"
-  checksum: af35ac7a3d8d95bf9906fb3a8f6075cf9cb10707c79444fa82df2d64596125f515a35a4995b4548b84ee042c7c1b1cc120e05ece4a197af541a52f154bf4bcce
+"@octokit/webhooks-types@npm:7.0.3":
+  version: 7.0.3
+  resolution: "@octokit/webhooks-types@npm:7.0.3"
+  checksum: 2edcfc275e413ff488742aa44ccc9fa688673b5c81ceaea3aad9eb39b6508628fdc721e863cab1d4d509f7ec4d2d4e3a02aa59281345df3d54cba139507e7c18
   languageName: node
   linkType: hard
 
-"@octokit/webhooks@npm:^11.0.0":
-  version: 11.0.0
-  resolution: "@octokit/webhooks@npm:11.0.0"
+"@octokit/webhooks@npm:^11.1.2":
+  version: 11.1.2
+  resolution: "@octokit/webhooks@npm:11.1.2"
   dependencies:
     "@octokit/request-error": ^3.0.0
     "@octokit/webhooks-methods": ^3.0.0
-    "@octokit/webhooks-types": 6.11.0
+    "@octokit/webhooks-types": 7.0.3
     aggregate-error: ^3.1.0
-  checksum: 4b29728232fbb8f5404cb416eec34c05faa3362065b2c4c345a45a487b67001cfa41ea0aabcda4ef7ac12da92988e71b1add1afa5f06c7fcdff2d9710070d796
+  checksum: 523616406123c3690960b0bf5cd3b4ae5a7a5f7054220f750f984c04ea9c6cab5f93a6a20a375bfd53407a6acb01d5e192d02ea954b2c6663a16f2f2cb95b528
   languageName: node
   linkType: hard
 
@@ -1731,6 +1749,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/buffer-from@npm:^1.1.0":
+  version: 1.1.2
+  resolution: "@types/buffer-from@npm:1.1.2"
+  dependencies:
+    "@types/node": "*"
+  checksum: 6b31af693732f87452104229d25e746bae8c63018ccc8a1e693c98aeb5c72b787b19101cc2c9164e3417cd8327c03f870407b95d151b3541b3bf778c1db75543
+  languageName: node
+  linkType: hard
+
 "@types/color-name@npm:^1.1.1":
   version: 1.1.1
   resolution: "@types/color-name@npm:1.1.1"
@@ -1896,6 +1923,13 @@ __metadata:
   version: 2.3.2
   resolution: "@types/p-queue@npm:2.3.2"
   checksum: a0e1a47569caedf85fe070bf9bebb70f396d99c2f1d5b148a101ac019e69329dbe23a48d763bdc04dafdd40e4ee86613c3e53df336b382e68485ca85ecf950f1
+  languageName: node
+  linkType: hard
+
+"@types/pako@npm:^1.0.3":
+  version: 1.0.7
+  resolution: "@types/pako@npm:1.0.7"
+  checksum: 8920d0fa6f2f78d6f6e30f7e00d5ac91031a6ef6761ae2904dd503d395e954f856265db500b4a45918db407f07525c4fb686d45685a31667c7ecef9a3fedc447
   languageName: node
   linkType: hard
 
@@ -2745,6 +2779,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"buffer-from@npm:^1.1.2":
+  version: 1.1.2
+  resolution: "buffer-from@npm:1.1.2"
+  checksum: 0448524a562b37d4d7ed9efd91685a5b77a50672c556ea254ac9a6d30e3403a517d8981f10e565db24e8339413b43c97ca2951f10e399c6125a0d8911f5679bb
+  languageName: node
+  linkType: hard
+
 "buffer-writer@npm:2.0.0":
   version: 2.0.0
   resolution: "buffer-writer@npm:2.0.0"
@@ -3174,6 +3215,15 @@ __metadata:
   version: 1.1.1
   resolution: "create-require@npm:1.1.1"
   checksum: a9a1503d4390d8b59ad86f4607de7870b39cad43d929813599a23714831e81c520bddf61bcdd1f8e30f05fd3a2b71ae8538e946eb2786dc65c2bbc520f692eff
+  languageName: node
+  linkType: hard
+
+"cross-fetch@npm:^3.1.5":
+  version: 3.1.8
+  resolution: "cross-fetch@npm:3.1.8"
+  dependencies:
+    node-fetch: ^2.6.12
+  checksum: 78f993fa099eaaa041122ab037fe9503ecbbcb9daef234d1d2e0b9230a983f64d645d088c464e21a247b825a08dc444a6e7064adfa93536d3a9454b4745b3632
   languageName: node
   linkType: hard
 
@@ -3670,6 +3720,13 @@ __metadata:
     is-date-object: ^1.0.1
     is-symbol: ^1.0.2
   checksum: 4ead6671a2c1402619bdd77f3503991232ca15e17e46222b0a41a5d81aebc8740a77822f5b3c965008e631153e9ef0580540007744521e72de8e33599fca2eed
+  languageName: node
+  linkType: hard
+
+"es6-promise@npm:^4.2.8":
+  version: 4.2.8
+  resolution: "es6-promise@npm:4.2.8"
+  checksum: 95614a88873611cb9165a85d36afa7268af5c03a378b35ca7bda9508e1d4f1f6f19a788d4bc755b3fd37c8ebba40782018e02034564ff24c9d6fa37e959ad57d
   languageName: node
   linkType: hard
 
@@ -4400,6 +4457,17 @@ __metadata:
     combined-stream: ^1.0.8
     mime-types: ^2.1.12
   checksum: b019e8d35c8afc14a2bd8a7a92fa4f525a4726b6d5a9740e8d2623c30e308fbb58dc8469f90415a856698933c8479b01646a9dff33c87cc4e76d72aedbbf860d
+  languageName: node
+  linkType: hard
+
+"form-data@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "form-data@npm:4.0.0"
+  dependencies:
+    asynckit: ^0.4.0
+    combined-stream: ^1.0.8
+    mime-types: ^2.1.12
+  checksum: 01135bf8675f9d5c61ff18e2e2932f719ca4de964e3be90ef4c36aacfc7b9cb2fceb5eca0b7e0190e3383fe51c5b37f4cb80b62ca06a99aaabfcfd6ac7c9328c
   languageName: node
   linkType: hard
 
@@ -6512,6 +6580,13 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
+"loglevel@npm:^1.8.1":
+  version: 1.8.1
+  resolution: "loglevel@npm:1.8.1"
+  checksum: a1a62db40291aaeaef2f612334c49e531bff71cc1d01a2acab689ab80d59e092f852ab164a5aedc1a752fdc46b7b162cb097d8a9eb2cf0b299511106c29af61d
+  languageName: node
+  linkType: hard
+
 "lowercase-keys@npm:^1.0.0, lowercase-keys@npm:^1.0.1":
   version: 1.0.1
   resolution: "lowercase-keys@npm:1.0.1"
@@ -7014,6 +7089,20 @@ fsevents@~2.1.2:
   languageName: node
   linkType: hard
 
+"node-fetch@npm:^2.6.12":
+  version: 2.7.0
+  resolution: "node-fetch@npm:2.7.0"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: d76d2f5edb451a3f05b15115ec89fc6be39de37c6089f1b6368df03b91e1633fd379a7e01b7ab05089a25034b2023d959b47e59759cb38d88341b2459e89d6e5
+  languageName: node
+  linkType: hard
+
 "node-fetch@npm:^2.6.7":
   version: 2.6.12
   resolution: "node-fetch@npm:2.6.12"
@@ -7388,6 +7477,13 @@ fsevents@~2.1.2:
   version: 1.0.0
   resolution: "packet-reader@npm:1.0.0"
   checksum: 0b7516f0cbf3e322aad591bed29ba544220088c53943145c0d9121a6f59182ad811f7fd6785a8979a34356aca69d97653689029964c5998dc02645633d88ffd7
+  languageName: node
+  linkType: hard
+
+"pako@npm:^2.0.4":
+  version: 2.1.0
+  resolution: "pako@npm:2.1.0"
+  checksum: 71666548644c9a4d056bcaba849ca6fd7242c6cf1af0646d3346f3079a1c7f4a66ffec6f7369ee0dc88f61926c10d6ab05da3e1fca44b83551839e89edd75a3e
   languageName: node
   linkType: hard
 
@@ -8290,12 +8386,13 @@ resolve@^1.3.2:
   version: 0.0.0-use.local
   resolution: "sentry-development-metrics@workspace:."
   dependencies:
+    "@datadog/datadog-api-client": ^1.18.0
     "@google-cloud/bigquery": ^5.3.0
     "@octokit/auth-app": ^3.6.1
     "@octokit/plugin-retry": ^3.0.9
     "@octokit/rest": ^18.12.0
     "@octokit/types": ^6.34.0
-    "@octokit/webhooks": ^11.0.0
+    "@octokit/webhooks": ^11.1.2
     "@sentry/cli": ^2.20.1
     "@sentry/integrations": ^7.72.0
     "@sentry/node": ^7.72.0
@@ -9369,7 +9466,7 @@ resolve@^1.3.2:
   languageName: node
   linkType: hard
 
-"url-parse@npm:^1.5.3":
+"url-parse@npm:^1.4.3, url-parse@npm:^1.5.3":
   version: 1.5.10
   resolution: "url-parse@npm:1.5.10"
   dependencies:

@@ -7,6 +7,7 @@ import moment from 'moment-timezone';
 import { GH_ORGS } from '@/config';
 
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
+import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
 
 type PubSubPayload = {
@@ -49,6 +50,7 @@ export const pubSubHandler = async (
   const operation = new Map([
     ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
     ['stale-bot', triggerStaleBot],
+    ['slack-scores', triggerSlackScores],
   ]).get(payload.name);
 
   if (operation) {

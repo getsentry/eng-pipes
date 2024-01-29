@@ -51,6 +51,13 @@ const DEV_INFRA_PIPELINE_FILTER = [
   ...ENGINEERING_PIPELINE_FILTER,
 ];
 
+export const IS_ROLLBACK_NECESSARY_LINK =
+  'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#2e88c4be0354433282267bf09e945973';
+export const ROLLBACK_PLAYBOOK_LINK =
+  'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
+export const GOCD_USER_GUIDE_LINK =
+  'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
+
 // Post all pipelines to #feed-deploys
 const deployFeed = new DeployFeed({
   feedName: 'gocdSlackFeed',
@@ -123,7 +130,10 @@ const engineeringFeed = new DeployFeed({
   replyCallback: async (pipeline) => {
     const hasFailedCanary =
       pipeline.stage.name.includes('canary') &&
-      pipeline.stage.result.toLowerCase() === 'failed';
+      pipeline.stage.result.toLowerCase() === 'failed' &&
+      pipeline.stage.jobs
+        .find((job) => job.name === 'deploy-backend')
+        ?.result.toLowerCase() === 'failed';
     if (!hasFailedCanary) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
     const authors = head ? await getAuthors('getsentry', base, head) : [];
@@ -147,12 +157,18 @@ const engineeringFeed = new DeployFeed({
         return `<@${user.slackUser}>`;
       })
       .join(' ');
+    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/${pipeline.counter}/deploy-canary/${pipeline.stage.counter}/deploy-backend`;
+    const sentryReleaseLink = `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
+
     const blocks = [
       header(plaintext(':double_vertical_bar: Canary has been paused')),
       section(
-        markdown(
-          'Please check the errors in the canary logs, take appropriate rollback actions if needed and unpause the pipeline once it is safe to do so.'
-        )
+        markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|Canary Logs>*.\n
+:sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
+:thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+:arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
       ),
     ];
     if (ccUsers.length > 0) {

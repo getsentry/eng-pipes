@@ -15,6 +15,7 @@ jest.mock('@google-cloud/bigquery', () => ({
   },
 }));
 
+import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { getLabelsTable } from '@/brain/issueNotifier';
@@ -31,6 +32,7 @@ import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
   calculateTimeToRespondBy,
+  getBusinessHoursLeft,
   getNextAvailableBusinessHourWindow,
 } from './businessHours';
 
@@ -272,18 +274,20 @@ describe('businessHours tests', function () {
     });
 
     it('should calculate SLO violation if label is unrouted', async function () {
+      const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
       const result = await calculateSLOViolationRoute(
         WAITING_FOR_SUPPORT_LABEL,
         'routing-repo',
         GETSENTRY_ORG.slug
       );
       expect(result).not.toEqual(null);
+      expect(captureMessageSpy).not.toHaveBeenCalled();
     });
   });
 
   describe('calculateSLOViolationTriage', function () {
-    it('should calculate SLO violation when product area is not defined', async function () {
-      const result = await calculateSLOViolationTriage(
+    it('should calculate SLO violation when product area is not defined', function () {
+      const result = calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         [{ name: 'Test' }],
         'routing-repo',
@@ -292,8 +296,8 @@ describe('businessHours tests', function () {
       expect(result).not.toEqual(null);
     });
 
-    it('should not calculate SLO violation if label is not untriaged', async function () {
-      const result = await calculateSLOViolationTriage(
+    it('should not calculate SLO violation if label is not untriaged', function () {
+      const result = calculateSLOViolationTriage(
         'Status: Test',
         [{ name: 'Product Area: Test' }],
         'routing-repo',
@@ -302,8 +306,8 @@ describe('businessHours tests', function () {
       expect(result).toEqual(null);
     });
 
-    it('should not calculate SLO violation if label is unrouted', async function () {
-      const result = await calculateSLOViolationTriage(
+    it('should not calculate SLO violation if label is unrouted', function () {
+      const result = calculateSLOViolationTriage(
         WAITING_FOR_SUPPORT_LABEL,
         [{ name: 'Product Area: Test' }],
         'routing-repo',
@@ -312,8 +316,8 @@ describe('businessHours tests', function () {
       expect(result).toEqual(null);
     });
 
-    it('should calculate SLO violation if label is untriaged', async function () {
-      const result = await calculateSLOViolationTriage(
+    it('should calculate SLO violation if label is untriaged', function () {
+      const result = calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         [{ name: 'Product Area: Test' }],
         'routing-repo',
@@ -322,8 +326,8 @@ describe('businessHours tests', function () {
       expect(result).not.toEqual(null);
     });
 
-    it('should calculate SLO violation if label is waiting for product owner', async function () {
-      const result = await calculateSLOViolationTriage(
+    it('should calculate SLO violation if label is waiting for product owner', function () {
+      const result = calculateSLOViolationTriage(
         WAITING_FOR_PRODUCT_OWNER_LABEL,
         [{ name: 'Product Area: Test' }],
         'routing-repo',
@@ -334,8 +338,8 @@ describe('businessHours tests', function () {
   });
 
   describe('getNextAvailableBusinessHourWindow', function () {
-    it('should get open source product area timezones if product area does not have offices', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get open source product area timezones if product area does not have offices', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'Does not exist',
         moment('2022-12-08T12:00:00.000Z').utc(),
         'routing-repo',
@@ -349,8 +353,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get sfo timezones for repo with no offices defined', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get sfo timezones for repo with no offices defined', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         '',
         moment('2022-12-08T12:00:00.000Z').utc(),
         'test-null',
@@ -364,8 +368,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get sfo timezones for Test', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get sfo timezones for Test', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'Test',
         moment('2022-12-08T12:00:00.000Z').utc(),
         'routing-repo',
@@ -379,8 +383,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get vie timezone for Test if it has the closest business hours available', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get vie timezone for Test if it has the closest business hours available', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'Non-Overlapping Timezone',
         moment('2022-12-08T12:00:00.000Z').utc(),
         'routing-repo',
@@ -394,8 +398,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get sfo timezone for Test if it has the closest business hours available', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get sfo timezone for Test if it has the closest business hours available', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'Non-Overlapping Timezone',
         moment('2022-12-08T16:30:00.000Z').utc(),
         'routing-repo',
@@ -409,8 +413,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should get yyz timezone for Test if it has the closest business hours available', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should get yyz timezone for Test if it has the closest business hours available', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'All-Timezones',
         moment('2022-12-08T16:30:00.000Z').utc(),
         'routing-repo',
@@ -424,8 +428,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Christmas for product area subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should return vie hours for Christmas for product area subscribed to vie, yyz, sfo', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'All-Timezones',
         moment('2023-12-23T12:00:00.000Z').utc(),
         'routing-repo',
@@ -439,8 +443,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Saturday for product area subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should return vie hours for Saturday for product area subscribed to vie, yyz, sfo', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'All-Timezones',
         moment('2022-12-17T12:00:00.000Z').utc(),
         'routing-repo',
@@ -454,8 +458,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return vie hours for Sunday for product area subscribed to vie, yyz, sfo', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should return vie hours for Sunday for product area subscribed to vie, yyz, sfo', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'All-Timezones',
         moment('2022-12-18T12:00:00.000Z').utc(),
         'routing-repo',
@@ -469,8 +473,8 @@ describe('businessHours tests', function () {
       );
     });
 
-    it('should return yyz hours for Saturday for product area subscribed to yyz, sfo', async function () {
-      const { start, end } = await getNextAvailableBusinessHourWindow(
+    it('should return yyz hours for Saturday for product area subscribed to yyz, sfo', function () {
+      const { start, end } = getNextAvailableBusinessHourWindow(
         'Overlapping Timezone',
         moment('2022-12-17T12:00:00.000Z').utc(),
         'routing-repo',
@@ -482,6 +486,69 @@ describe('businessHours tests', function () {
       expect(end.valueOf()).toEqual(
         moment('2022-12-19T22:00:00.000Z').valueOf()
       );
+    });
+  });
+
+  describe('getBusinessHoursLeft', function () {
+    it('should correctly calculate business hours left overnight', function () {
+      const triageBy = '2023-12-22T18:00:00.000Z';
+      const now = moment('2023-12-22T01:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(1);
+    });
+    it('should correctly calculate business hours over multiple days', function () {
+      const triageBy = '2023-12-22T18:00:00.000Z';
+      const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(9);
+    });
+    it('should correctly calculate business hours over holiday', function () {
+      const triageBy = '2024-01-02T17:00:00.000Z';
+      const now = moment('2023-12-23T00:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(1);
+    });
+    it('should correctly account for weekends when calculating business hours', function () {
+      const triageBy = '2023-01-17T18:00:00.000Z';
+      const now = moment('2023-01-14T00:00:00.000Z');
+      const repo = 'test-ttt-simple';
+      const org = 'getsentry';
+      const productArea = 'Other';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(2);
+    });
+    it('should correctly calculate business hours for issues with non overlapping timezones', function () {
+      const triageBy = '2023-12-22T18:00:00.000Z';
+      const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'routing-repo';
+      const org = 'getsentry';
+      const productArea = 'Non-Overlapping Timezone';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(25);
+    });
+    it('should correctly calculate business hours for issues with overlapping timezones', function () {
+      const triageBy = '2023-12-22T18:00:00.000Z';
+      const now = moment('2023-12-21T01:00:00.000Z');
+      const repo = 'routing-repo';
+      const org = 'getsentry';
+      const productArea = 'Overlapping Timezone';
+      expect(
+        getBusinessHoursLeft(triageBy, now, repo, org, productArea)
+      ).toEqual(15);
     });
   });
 });

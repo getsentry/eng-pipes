@@ -1,0 +1,17 @@
+{
+    "region": "us",
+    "source": "options-automator",
+    "drifted_options": [],
+    "updated_options": [
+        {
+            "option_name": "updated_option_1",
+            "db_value": "db_value_1",
+            "value": "new_value_1"
+        }
+    ],
+    "set_options": [],
+    "unset_options": [],
+    "not_writable_options": [],
+    "unregistered_options": [],
+    "invalid_type_options": []
+}

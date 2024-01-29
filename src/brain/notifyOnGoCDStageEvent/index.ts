@@ -1,14 +1,15 @@
 import '@sentry/tracing';
 
 import * as Sentry from '@sentry/node';
+import { SlackMessageRow } from 'knex/types/tables';
 
 import {
   CompareCommits,
   GoCDBuildCause,
   GoCDPipeline,
   GoCDResponse,
+  GoCDStageData,
 } from '@types';
-import { GoCDStageData } from '@types';
 
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';
@@ -119,14 +120,9 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
 
 async function updateSlack(
   pipeline: GoCDPipeline,
-  relevantCommitShas: Array<string>
-): Promise<Array<Promise<any>>> {
-  // Look for associated slack messages based on getsentry commit sha
-  const messages = await getSlackMessage(
-    SlackMessage.PLEASE_DEPLOY,
-    relevantCommitShas
-  );
-
+  relevantCommitShas: Array<string>,
+  messages: SlackMessageRow<SlackMessage>[]
+): Promise<Array<Promise<void>>> {
   Sentry.withScope((scope) => {
     scope.setContext('gocd', {
       ...pipeline,
@@ -176,7 +172,7 @@ async function updateCommitQueue(
 async function filterCommits(pipeline, commits) {
   const relevantCommitShas: string[] = [];
   const commitShas = commits.map(({ sha }) => sha);
-  for (const sha of commitShas) {
+  const getRelevantCommitShas = async (sha) => {
     const relevantCommit = await getRelevantCommit(sha);
     // Commit should exist, but if not log and move on
     if (!relevantCommit) {
@@ -184,7 +180,7 @@ async function filterCommits(pipeline, commits) {
         commit_sha: sha,
       });
       Sentry.captureException(new Error('Unable to find commit'));
-      continue;
+      return;
     }
 
     const relevantRepo =
@@ -202,7 +198,8 @@ async function filterCommits(pipeline, commits) {
     ) {
       relevantCommitShas.push(sha);
     }
-  }
+  };
+  await Promise.allSettled(commitShas.map((sha) => getRelevantCommitShas(sha)));
   return relevantCommitShas;
 }
 
@@ -285,10 +282,14 @@ export async function handler(resBody: GoCDResponse) {
       firstGitMaterialSHA(latestDeploy)
     );
     const relevantCommitShas: string[] = await filterCommits(pipeline, commits);
-
+    // Look for associated slack messages based on getsentry commit sha
+    const messages = await getSlackMessage(
+      SlackMessage.PLEASE_DEPLOY,
+      relevantCommitShas
+    );
     await Promise.all([
       updateCommitQueue(pipeline, sha, commits),
-      ...(await updateSlack(pipeline, relevantCommitShas)),
+      ...(await updateSlack(pipeline, relevantCommitShas, messages)),
     ]);
   } catch (err) {
     Sentry.captureException(err);

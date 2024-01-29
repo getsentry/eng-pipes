@@ -3,8 +3,6 @@ product_areas:
   - team-enterprise
   Alerts:
   - team-issues
-  Bug Report:
-  - team-issues
   Crons:
   - team-crons
   DDM:
@@ -26,15 +24,19 @@ product_areas:
   - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
-  - team-telemetry-experience
+  - team-machine-learning
   Org Relocation:
   - team-ospo
   Other:
   - team-ospo
   Performance:
   - team-performance
+  Performance - Interactions:
+  - team-performance
   Performance - Queries:
-  - team-starfish
+  - team-performance
+  Performance - Web Vitals:
+  - team-performance
   Profiling:
   - team-profiling
   Projects - Project Creation:
@@ -63,7 +65,7 @@ product_areas:
   Settings - General:
   - team-issues
   Settings - Integrations:
-  - team-enterprise
+  - team-integrations
   Settings - Members:
   - team-enterprise
   Settings - Projects:
@@ -84,18 +86,12 @@ product_areas:
   - team-enterprise
   Sign In:
   - team-enterprise
-  Starfish:
-  - team-starfish
-  Starfish - Interactions:
-  - team-starfish
-  Starfish - Page Loads:
-  - team-starfish
   Stats:
   - team-enterprise
   Unknown:
   - team-ospo
   User Feedback:
-  - team-issues
+  - team-replays
   What's New:
   - team-product
 repos:
@@ -106,6 +102,7 @@ repos:
   responses: team-ospo
   self-hosted: team-ospo
   sentry-android-gradle-plugin: team-mobile-sdks
+  sentry-cli: team-web-backend-sdks
   sentry-cocoa: team-mobile-sdks
   sentry-dart: team-mobile-sdks
   sentry-dart-plugin: team-mobile-sdks
@@ -135,11 +132,11 @@ teams:
   team-crons:
     offices:
     - sfo
-    slack_channel: C049DHYN3LZ
+    slack_channel: C062HDG1MT7
   team-cross-platform-java:
     offices:
     - vie
-    slack_channel: CL09TLWAF
+    slack_channel: C0190510ABF
   team-cross-platform-native:
     offices:
     - vie
@@ -147,7 +144,7 @@ teams:
   team-discover-and-dashboards:
     offices:
     - yyz
-    slack_channel: C05F7G32M4Z
+    slack_channel: C026Y0SK34H
   team-docs:
     offices:
     - sea
@@ -161,10 +158,18 @@ teams:
     offices:
     - vie
     slack_channel: C019637C760
+  team-integrations:
+    offices:
+    - sfo
+    slack_channel: C058EAWNF1P
   team-issues:
     offices:
     - sfo
     slack_channel: C0549083GJJ
+  team-machine-learning:
+    offices:
+    - sfo
+    slack_channel: C064URR6RPT
   team-mobile-sdks:
     offices:
     - vie
@@ -176,7 +181,7 @@ teams:
   team-performance:
     offices:
     - yyz
-    slack_channel: C04Q3BDL8MA
+    slack_channel: C026Y0SK34H
   team-processing:
     offices:
     - vie
@@ -205,9 +210,6 @@ teams:
     offices:
     - sfo
     slack_channel: C05M9TU0RRR
-  team-starfish:
-    offices: null
-    slack_channel: null
   team-support:
     offices:
     - sfo

@@ -4,11 +4,17 @@ getsentry:
     privateKey: 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'
     installationId: 9303463
   project:
-    nodeId: 'PVT_kwDOABVQ184AOGW8'
+    nodeId: 'PVT_kwDOABVQ184AZ4Df'
     fieldIds:
-      productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno'
-      status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0'
-      responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg'
+      productArea: 'PVTSSF_lADOABVQ184AZ4DfzgQkiSc'
+      status: 'PVTSSF_lADOABVQ184AZ4DfzgQkiPA'
+      responseDue: 'PVTF_lADOABVQ184AZ4DfzgQkiSs'
+    # Old GH project: https://github.com/orgs/getsentry/projects/76
+    # nodeId: 'PVT_kwDOABVQ184AOGW8'
+    # fieldIds:
+    #   productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno'
+    #   status: 'PVTSSF_lADOABVQ184AOGW8zgI_7g0'
+    #   responseDue: 'PVTF_lADOABVQ184AOGW8zgLLxGg'
   repos:
     withRouting:
       - 'sentry'
@@ -38,6 +44,8 @@ getsentry:
       - 'sentry-laravel'
       - 'sentry-symfony'
       - 'sentry-ruby'
+      - 'sentry-cli'
+      - 'sentry-electron'
 
       # Mobile team T1
       # www.notion.so/346452f21e7947b4bf515d5f3a4d497d?v=cad7f04cf9064e7483ab426a26d3923a
@@ -46,6 +54,9 @@ getsentry:
       - 'sentry-react-native'
       - 'sentry-unity'
       - 'sentry-dart'
+      - 'sentry-go'
+      - 'sentry-unreal'
+      - 'sentry-elixir'
       - 'sentry-android-gradle-plugin'
       - 'sentry-dotnet'
       - 'sentry-dart-plugin'

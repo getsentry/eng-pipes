@@ -23,6 +23,7 @@ on:
       - 'yarn.lock'
       - 'bin/deploy.sh'
       - 'holidays.yml'
+      - 'product-owners.yml'
   pull_request:
     branches:
       - main
@@ -134,6 +135,8 @@ jobs:
           SLACK_BOT_USER_ACCESS_TOKEN: ${{ secrets.SLACK_BOT_USER_ACCESS_TOKEN }}
           SLACK_SIGNING_SECRET: ${{ secrets.SLACK_SIGNING_SECRET }}
           SLACK_BOT_APP_ID: ${{ secrets.SLACK_BOT_APP_ID }}
+          DD_API_KEY: ${{ secrets.DD_API_KEY }}
+          DD_APP_KEY: ${{ secrets.DD_APP_KEY }}
           GH_APP_PRIVATE_KEY_FOR_GETSENTRY: ${{ secrets.GH_APP_PRIVATE_KEY_FOR_GETSENTRY}}
           GH_APP_PRIVATE_KEY_FOR_CODECOV: ${{ secrets.GH_APP_PRIVATE_KEY_FOR_CODECOV}}
           GH_APP_IDENTIFIER: ${{ secrets.GH_APP_IDENTIFIER }}
@@ -144,6 +147,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
           GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
+          GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
         run: |
           echo "deploy-start=$(date +%s)" >> "$GITHUB_OUTPUT"
           bin/deploy.sh

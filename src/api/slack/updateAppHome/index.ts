@@ -5,6 +5,30 @@ import { unmuteDeployNotificationsButton } from '@/blocks/unmuteDeployNotificati
 import { getUser } from '@api/getUser';
 import { bolt } from '@api/slack';
 
+function getGitHubUsernameInput(currentUsername?: string): KnownBlock {
+  return {
+    type: 'input',
+    block_id: 'github-login-input',
+    dispatch_action: true,
+    label: {
+      type: 'plain_text',
+      text: currentUsername ? 'Update GitHub username' : 'GitHub username',
+    },
+    element: {
+      type: 'plain_text_input',
+      action_id: 'set-github-login',
+      placeholder: {
+        type: 'plain_text',
+        text: 'Enter your GitHub username and press Enter to save',
+      },
+      initial_value: currentUsername ?? '',
+      dispatch_action_config: {
+        trigger_actions_on: ['on_enter_pressed'],
+      },
+    },
+  };
+}
+
 export async function updateAppHome(slackUser: string) {
   // Listen for users opening your App Home
   const user = await getUser({
@@ -19,7 +43,7 @@ export async function updateAppHome(slackUser: string) {
       type: 'section',
       text: {
         type: 'mrkdwn',
-        text: `*Welcome home, <@${slackUser}> :house:* - this is under :construction:`,
+        text: `*Welcome home, <@${slackUser}> :house:*`,
       },
     },
     {
@@ -33,16 +57,26 @@ export async function updateAppHome(slackUser: string) {
 
   // If user has a known github login, then show deploy notification prefs
   if (user?.githubUser) {
-    blocks.push({
-      type: 'header',
-      text: {
-        type: 'plain_text',
-        text: `Deploy Notifications (currently: ${
-          disableSlackNotifications ? 'off' : 'on'
-        })`,
-        emoji: true,
+    blocks.push(
+      {
+        type: 'header',
+        text: {
+          type: 'plain_text',
+          text: `Deploy Notifications (currently: ${
+            disableSlackNotifications ? 'off' : 'on'
+          })`,
+          emoji: true,
+        },
       },
-    });
+      {
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text: `Your GitHub username is currently set to *${user.githubUser}*`,
+        },
+      },
+      getGitHubUsernameInput(user.githubUser)
+    );
     blocks.push({
       type: 'actions',
       elements: [
@@ -60,26 +94,7 @@ export async function updateAppHome(slackUser: string) {
           text: 'Enter your GitHub username below to get notifications when your changes are ready to deploy.',
         },
       },
-      {
-        type: 'input',
-        block_id: 'github-login-input',
-        dispatch_action: true,
-        label: {
-          type: 'plain_text',
-          text: 'GitHub username',
-        },
-        element: {
-          type: 'plain_text_input',
-          action_id: 'set-github-login',
-          placeholder: {
-            type: 'plain_text',
-            text: 'Enter your GitHub username and press Enter to save',
-          },
-          dispatch_action_config: {
-            trigger_actions_on: ['on_enter_pressed'],
-          },
-        },
-      }
+      getGitHubUsernameInput()
     );
   }
 

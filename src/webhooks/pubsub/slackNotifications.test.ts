@@ -147,6 +147,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -159,6 +162,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -169,6 +175,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -274,6 +283,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/1',
@@ -284,6 +296,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -353,6 +368,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/1',
@@ -363,6 +381,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -373,6 +394,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/4',
@@ -383,6 +407,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -451,7 +478,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/2|#2 Open Source Issue Almost Due>',
                 type: 'mrkdwn',
               },
-              { text: '1 hour 2 minutes left', type: 'mrkdwn' },
+              { text: '1 business hour 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -461,7 +488,7 @@ describe('Triage Notification Tests', function () {
                 text: '2. <https://test.com/issues/1|#1 Test Issue Almost Due>',
                 type: 'mrkdwn',
               },
-              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
+              { text: '2 business hours 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -482,6 +509,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -492,6 +522,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/3',
@@ -502,6 +535,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -557,7 +593,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/2|#2 &lt;Test Issue 2&gt;>',
                 type: 'mrkdwn',
               },
-              { text: '1 hour 0 minutes left', type: 'mrkdwn' },
+              { text: '1 business hour 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -578,6 +614,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -590,6 +629,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -600,6 +642,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -624,6 +669,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -636,6 +684,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -646,6 +697,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -684,7 +738,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
-              { text: '4 hours 0 minutes left', type: 'mrkdwn' },
+              { text: '4 business hours 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -723,7 +777,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/2|#2 Open Source Issue>',
                 type: 'mrkdwn',
               },
-              { text: '3 hours 0 minutes left', type: 'mrkdwn' },
+              { text: '3 business hours 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -733,12 +787,74 @@ describe('Triage Notification Tests', function () {
                 text: '2. <https://test.com/issues/1|#1 Test Issue>',
                 type: 'mrkdwn',
               },
-              { text: '4 hours 0 minutes left', type: 'mrkdwn' },
+              { text: '4 business hours 0 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
         ],
         channel: 'channel2',
+        text: '👋 Triage Reminder ⏰',
+      });
+    });
+    it('should return issue in act fast queue if SLA is within than 4 business hours away', async function () {
+      const channelToIssuesMap = {
+        channel1: [
+          {
+            url: 'https://test.com/issues/1',
+            number: 1,
+            title: 'Test Issue',
+            triageBy: '2022-12-12T18:00:00.000Z',
+            createdAt: '2022-12-10T18:00:00.000Z',
+            channels: [
+              { channelId: 'channel1', isChannelInBusinessHours: true },
+            ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
+          },
+        ],
+      };
+      const now = moment('2022-12-12T00:30:00.000Z');
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await Promise.all(constructSlackMessage(channelToIssuesMap, now));
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      expect(postMessageSpy).toHaveBeenCalledWith({
+        blocks: [
+          {
+            text: {
+              text: 'Hey! You have some tickets to triage:',
+              type: 'plain_text',
+            },
+            type: 'header',
+          },
+          {
+            type: 'divider',
+          },
+          {
+            fields: [
+              {
+                text: '⌛️ *Act fast!*',
+                type: 'mrkdwn',
+              },
+              {
+                text: '😨',
+                type: 'mrkdwn',
+              },
+            ],
+            type: 'section',
+          },
+          {
+            fields: [
+              {
+                text: '1. <https://test.com/issues/1|#1 Test Issue>',
+                type: 'mrkdwn',
+              },
+              { text: '1 business hour 30 minutes left', type: 'mrkdwn' },
+            ],
+            type: 'section',
+          },
+        ],
+        channel: 'channel1',
         text: '👋 Triage Reminder ⏰',
       });
     });
@@ -754,6 +870,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -766,6 +885,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -776,6 +898,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -800,6 +925,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -812,6 +940,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -822,6 +953,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -842,6 +976,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -854,6 +991,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -864,6 +1004,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -969,6 +1112,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -981,6 +1127,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -991,6 +1140,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -1015,6 +1167,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -1027,6 +1182,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -1037,6 +1195,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -1061,6 +1222,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/3',
@@ -1071,6 +1235,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel1', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
         channel2: [
@@ -1083,6 +1250,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/2',
@@ -1093,6 +1263,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
           {
             url: 'https://test.com/issues/3',
@@ -1103,6 +1276,9 @@ describe('Triage Notification Tests', function () {
             channels: [
               { channelId: 'channel2', isChannelInBusinessHours: true },
             ],
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
@@ -1141,7 +1317,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
                 type: 'mrkdwn',
               },
-              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
+              { text: '2 business hours 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -1200,7 +1376,7 @@ describe('Triage Notification Tests', function () {
                 text: '1. <https://test.com/issues/3|#3 Test Issue 2>',
                 type: 'mrkdwn',
               },
-              { text: '2 hours 2 minutes left', type: 'mrkdwn' },
+              { text: '2 business hours 2 minutes left', type: 'mrkdwn' },
             ],
             type: 'section',
           },
@@ -1220,6 +1396,9 @@ describe('Triage Notification Tests', function () {
             createdAt: '2022-12-08T21:00:00.000Z',
             isChannelInBusinessHours: true,
             channelId: 'channel1',
+            repo: 'routing-repo',
+            productArea: 'One-Team',
+            org: 'getsentry',
           },
         ],
       };
