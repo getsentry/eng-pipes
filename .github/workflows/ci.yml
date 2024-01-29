@@ -91,6 +91,9 @@ jobs:
     name: build and deploy
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     timeout-minutes: 10
     needs: [test]
     environment: 'production'
