@@ -233,6 +233,83 @@ describe('metrics tests', function () {
         });
       });
     });
+    describe('comment events', function () {
+      const defaultPayload = {
+        action: 'created',
+        issue: {
+          number: 1,
+          created_at: '2023-10-16T20:33:25Z',
+          updated_at: '2023-10-16T20:33:25Z',
+          title: 'Issue Title',
+        },
+        comment: {
+          id: 1,
+          created_at: '2023-10-17T00:00:00Z',
+          updated_at: '2023-10-17T00:00:00Z',
+        },
+        sender: {
+          login: 'username',
+          id: 'user_id',
+        },
+        repository: {
+          full_name: 'getsentry/routing-repo',
+          name: 'routing-repo',
+          owner: {
+            type: 'Organization',
+          },
+        },
+        organization: {
+          login: 'getsentry',
+        },
+      };
+      it('should insert issue comment info into bigquery', async function () {
+        const testPayload = cloneDeep(defaultPayload);
+        const result = await insertOss('issue_comment', testPayload);
+        expect(result).toEqual({
+          action: 'created',
+          created_at: '2023-10-17T00:00:00Z',
+          object_id: 1,
+          product_area: null,
+          repository: 'getsentry/routing-repo',
+          target_id: 1,
+          target_name: 'Issue Title',
+          target_type: 'issue',
+          teams: ['team-ospo'],
+          timeToRouteBy: null,
+          timeToTriageBy: null,
+          type: 'issue_comment',
+          updated_at: '2023-10-17T00:00:00Z',
+          user_id: 'user_id',
+          user_type: null,
+          username: 'username',
+        });
+      });
+
+      it('should insert pull request comment info into bigquery', async function () {
+        const testPayload = cloneDeep(defaultPayload);
+        testPayload.issue.pull_request = {};
+        testPayload.issue.title = 'Pull Request Title';
+        const result = await insertOss('issue_comment', testPayload);
+        expect(result).toEqual({
+          action: 'created',
+          created_at: '2023-10-17T00:00:00Z',
+          object_id: 1,
+          product_area: null,
+          repository: 'getsentry/routing-repo',
+          target_id: 1,
+          target_name: 'Pull Request Title',
+          target_type: 'pull_request',
+          teams: ['team-ospo'],
+          timeToRouteBy: null,
+          timeToTriageBy: null,
+          type: 'pull_request_comment',
+          updated_at: '2023-10-17T00:00:00Z',
+          user_id: 'user_id',
+          user_type: null,
+          username: 'username',
+        });
+      });
+    });
     describe('discussion events', function () {
       const defaultPayload = {
         action: 'created',
