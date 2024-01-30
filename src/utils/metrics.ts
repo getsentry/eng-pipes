@@ -328,6 +328,10 @@ export async function insertOss(
       payload.organization.login,
       data.product_area
     );
+    if (issue.pull_request) {
+      data.type = 'pull_request_comment';
+      data.target_type = 'pull_request';
+    }
   } else if (eventType === 'pull_request') {
     const { action, pull_request, requested_reviewer, requested_team, label } =
       payload;
