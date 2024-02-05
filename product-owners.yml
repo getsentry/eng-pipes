@@ -165,6 +165,7 @@ teams:
   team-issues:
     offices:
     - sfo
+    - yyz
     slack_channel: C0549083GJJ
   team-machine-learning:
     offices:
