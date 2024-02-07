@@ -7,13 +7,13 @@ import {
   GH_ORGS,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
+  PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
-import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 function isAlreadyWaitingForSupport(payload) {
   return payload.issue.labels.some(
@@ -88,12 +88,18 @@ async function routeIssue(org, productAreaLabelName) {
     const productArea = productAreaLabelName?.substr(
       PRODUCT_AREA_LABEL_PREFIX.length
     );
-    const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
-    await org.api.teams.getByName({
-      org: org.slug,
-      team_slug: ghTeamSlug,
-    }); // expected to throw if team doesn't exist
-    return `Routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    const teams = PRODUCT_OWNERS_INFO['product_areas'][productArea];
+    const ghTeamSlugs = teams.map((team) => `product-owners-${team}`);
+    for (const ghTeamSlug of ghTeamSlugs) {
+      await org.api.teams.getByName({
+        org: org.slug,
+        team_slug: ghTeamSlug,
+      }); // expected to throw if team doesn't exist
+    }
+    const ghTeamSlugsComment = ghTeamSlugs
+      .map((ghTeamSlug) => `@${org.slug}/${ghTeamSlug}`)
+      .join(', ');
+    return `Routing to ${ghTeamSlugsComment} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
     return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;

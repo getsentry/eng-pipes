@@ -171,8 +171,9 @@ OctokitWithRetries.request = jest.fn(async (URL, x) => {
 OctokitWithRetries.teams = {
   getByName: jest.fn(async function (payload) {
     if (
-      payload.team_slug === 'product-owners-test' ||
-      payload.team_slug === 'product-owners-rerouted'
+      payload.team_slug === 'product-owners-team-issues' ||
+      payload.team_slug === 'product-owners-team-ospo' ||
+      payload.team_slug === 'product-owners-team-enterprise'
     ) {
       return { status: 200, data: {} };
     }
