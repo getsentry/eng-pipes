@@ -51,7 +51,7 @@ describe('gocdSlackFeeds', function () {
     await db('slack_messages').delete();
   });
 
-  it('post and update message to all feeds', async function () {
+  it('post and update message to all feeds for canary failure', async function () {
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
@@ -101,11 +101,13 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|Canary Logs>*.\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/deploy-canary/1/deploy-backend|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
@@ -243,7 +245,395 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
-  it('do not reply to canary if deploy-backend job is not failed', async function () {
+  it('post and update message to all feeds for soak failure S4S', async function () {
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'deploy-getsentry-backend-s4s',
+          stage: {
+            name: 'soak-time',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'soak',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const soakReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(
+            ':double_vertical_bar: deploy-getsentry-backend-s4s has been paused'
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in soak-time. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-s4s/20/soak-time/1/soak|GoCD Logs>*.\n
+:sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry-st.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1513938|Sentry Release>* for any related issues.\n
+:thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+:arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+          )
+        ),
+      ],
+    };
+
+    const wantPostMsg = {
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *soak-time*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s/20/soak-time/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(soakReply);
+    expect(postCalls[1][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(postCalls[2][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(postCalls[3][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    let slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+
+    const wantSlack = {
+      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
+      channel: 'channel_id',
+      ts: '1234123.123',
+      context: {
+        text: 'GoCD deployment started',
+      },
+    };
+    expect(slackMessages[0]).toMatchObject(wantSlack);
+    expect(slackMessages[1]).toMatchObject(wantSlack);
+    expect(slackMessages[2]).toMatchObject(wantSlack);
+
+    // Second Event
+    await handler(
+      merge({}, gocdPayload, {
+        data: {
+          pipeline: {
+            stage: {
+              'approved-by': 'changes',
+              result: 'Passed',
+            },
+          },
+        },
+      })
+    );
+
+    const wantUpdate = {
+      ts: '1234123.123',
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('✅ *soak-time*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s/20/soak-time/1|Passed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+    // The reply message is not updated
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    updateCalls.sort(sortMessages);
+    expect(updateCalls[0][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(updateCalls[1][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(updateCalls[2][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+  });
+
+  it('post and update message to all feeds for soak failure SaaS', async function () {
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'soak-time',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'soak',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const soakReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in soak-time. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/soak-time/1/soak|GoCD Logs>*.\n
+:sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
+:thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+:arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+          )
+        ),
+      ],
+    };
+
+    const wantPostMsg = {
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *soak-time*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/soak-time/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(soakReply);
+    expect(postCalls[1][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(postCalls[2][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(postCalls[3][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    let slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+
+    const wantSlack = {
+      refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
+      channel: 'channel_id',
+      ts: '1234123.123',
+      context: {
+        text: 'GoCD deployment started',
+      },
+    };
+    expect(slackMessages[0]).toMatchObject(wantSlack);
+    expect(slackMessages[1]).toMatchObject(wantSlack);
+    expect(slackMessages[2]).toMatchObject(wantSlack);
+
+    // Second Event
+    await handler(
+      merge({}, gocdPayload, {
+        data: {
+          pipeline: {
+            stage: {
+              'approved-by': 'changes',
+              result: 'Passed',
+            },
+          },
+        },
+      })
+    );
+
+    const wantUpdate = {
+      ts: '1234123.123',
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('✅ *soak-time*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/soak-time/1|Passed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+    // The reply message is not updated
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    updateCalls.sort(sortMessages);
+    expect(updateCalls[0][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(updateCalls[1][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+    );
+    expect(updateCalls[2][0]).toMatchObject(
+      merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+
+    slackMessages = await db('slack_messages').select('*');
+    expect(slackMessages).toHaveLength(3);
+  });
+
+  it('do not reply to canary if deploy-backend job did not fail', async function () {
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
@@ -415,7 +805,7 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
-  it('post and update message to all feeds without author', async function () {
+  it('post and update message to all feeds without author for canary failure', async function () {
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
@@ -465,11 +855,13 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|Canary Logs>*.\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/deploy-canary/1/deploy-backend|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
@@ -602,7 +994,7 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
-  it('post and update message to all feeds with multiple authors', async function () {
+  it('post and update message to all feeds with multiple authors for canary failure', async function () {
     getUser.mockImplementation((args) => {
       switch (args.email) {
         case 'test@sentry.io':
@@ -670,11 +1062,13 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|Canary Logs>*.\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/deploy-canary/1/deploy-backend|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
@@ -812,7 +1206,7 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
-  it('post and update message to all feeds with more than 10 authors', async function () {
+  it('post and update message to all feeds with more than 10 authors for canary failure', async function () {
     getUser.mockImplementation((args) => {
       switch (args.email) {
         case 'test@sentry.io':
@@ -928,11 +1322,13 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(':double_vertical_bar: Canary has been paused')
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/20/deploy-canary/1/deploy-backend|Canary Logs>*.\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/deploy-canary/1/deploy-backend|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
