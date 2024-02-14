@@ -2,7 +2,7 @@ product_areas:
   APIs:
   - team-enterprise
   Alerts:
-  - team-issues
+  - team-alerts-notifications
   Crons:
   - team-crons
   DDM:
@@ -44,7 +44,7 @@ product_areas:
   Projects - Project Details:
   - team-issues
   Releases:
-  - team-issues
+  - team-alerts-notifications
   Replays:
   - team-replays
   SDKs - Mobile:
@@ -129,6 +129,10 @@ repos:
   symbolicator: team-processing
   wal2json: team-sns
 teams:
+  team-alerts-notifications:
+    offices:
+    - sfo
+    slack_channel: C06J6HKFKLG
   team-crons:
     offices:
     - sfo
