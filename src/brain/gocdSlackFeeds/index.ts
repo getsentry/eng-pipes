@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { getUser } from '@/api/getUser';
 import { getAuthors } from '@/api/github/getAuthors';
 import { gocdevents } from '@/api/gocdevents';
@@ -18,11 +20,16 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { GoCDResponse } from '@/types';
+import { GoCDPipeline, GoCDResponse } from '@/types';
 import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 
 import { DeployFeed } from './deployFeed';
+
+enum PauseCause {
+  CANARY = 'canary',
+  SOAK = 'soak-time',
+}
 
 const ENGINEERING_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',
@@ -57,6 +64,52 @@ export const ROLLBACK_PLAYBOOK_LINK =
   'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
 export const GOCD_USER_GUIDE_LINK =
   'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
+
+/**
+ * Get the pause cause for a pipeline. A pause cause is a reason why a pipeline
+ * has been paused. This is used to determine if we should send a message to
+ * slack.
+ * @param pipeline The pipeline to get the pause cause for
+ * @returns The pause cause or null if there is none
+ */
+function getPauseCause(pipeline: GoCDPipeline) {
+  if (
+    pipeline.stage.name.includes('canary') &&
+    pipeline.stage.result.toLowerCase() === 'failed' &&
+    pipeline.stage.jobs
+      .find((job) => job.name === 'deploy-backend')
+      ?.result.toLowerCase() === 'failed'
+  ) {
+    return PauseCause.CANARY;
+  }
+  if (
+    pipeline.stage.name.includes('soak-time') &&
+    pipeline.stage.result.toLowerCase() === 'failed'
+  ) {
+    return PauseCause.SOAK;
+  }
+  return null;
+}
+
+/**
+ * Get the unique users from a list of authors
+ * @param authors The authors to get the unique users from
+ * @returns The unique users
+ */
+async function getUniqueUsers(authors: { email?: string; login?: string }[]) {
+  const users = filterNulls(
+    await Promise.all(
+      authors.map((author) =>
+        getUser({ email: author.email, githubUser: author.login })
+      )
+    )
+  ).filter((user) => user.slackUser);
+  // Filter out duplicate users
+  return users.filter(
+    (user, index, self) =>
+      index === self.findIndex((u) => u.slackUser === user.slackUser)
+  );
+}
 
 // Post all pipelines to #feed-deploys
 const deployFeed = new DeployFeed({
@@ -128,28 +181,14 @@ const engineeringFeed = new DeployFeed({
     return pipeline.stage.result.toLowerCase() === 'failed';
   },
   replyCallback: async (pipeline) => {
-    const hasFailedCanary =
-      pipeline.stage.name.includes('canary') &&
-      pipeline.stage.result.toLowerCase() === 'failed' &&
-      pipeline.stage.jobs
-        .find((job) => job.name === 'deploy-backend')
-        ?.result.toLowerCase() === 'failed';
-    if (!hasFailedCanary) return [];
+    const pauseCause = getPauseCause(pipeline);
+
+    if (pauseCause == null) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
     const authors = head ? await getAuthors('getsentry', base, head) : [];
-    // Get all users who have a slack account
-    const users = filterNulls(
-      await Promise.all(
-        authors.map((author) =>
-          getUser({ email: author.email, githubUser: author.login })
-        )
-      )
-    ).filter((user) => user.slackUser);
-    // Filter out duplicate users
-    const uniqueUsers = users.filter(
-      (user, index, self) =>
-        index === self.findIndex((u) => u.slackUser === user.slackUser)
-    );
+    // Get unique users from the authors
+    const uniqueUsers = await getUniqueUsers(authors);
+
     // Pick at most 10 users to cc
     const ccUsers = uniqueUsers.slice(0, 10);
     const ccString = ccUsers
@@ -157,14 +196,29 @@ const engineeringFeed = new DeployFeed({
         return `<@${user.slackUser}>`;
       })
       .join(' ');
-    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-us/${pipeline.counter}/deploy-canary/${pipeline.stage.counter}/deploy-backend`;
-    const sentryReleaseLink = `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
+
+    const failedJob = pipeline.stage.jobs.find(
+      (job) => job.result.toLowerCase() === 'failed'
+    );
+    if (!failedJob) {
+      // This should never happen, but if it does, we want to know about it
+      Sentry.captureException(
+        new Error('Failed to find failed job in failed pipeline')
+      );
+      return [];
+    }
+    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
+    const sentryReleaseLink = pipeline.name.includes('s4s')
+      ? `https://sentry-st.sentry.io/releases/backend@${head}/?project=1513938`
+      : `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
 
     const blocks = [
-      header(plaintext(':double_vertical_bar: Canary has been paused')),
+      header(
+        plaintext(`:double_vertical_bar: ${pipeline.name} has been paused`)
+      ),
       section(
-        markdown(`The deployment pipeline has been paused due to detected issues in canary. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|Canary Logs>*.\n
+        markdown(`The deployment pipeline has been paused due to detected issues in ${pauseCause}. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
