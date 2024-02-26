@@ -1,6 +1,6 @@
 product_areas:
   APIs:
-  - team-enterprise
+  - team-ecosystem
   Alerts:
   - team-alerts-notifications
   Crons:
@@ -17,6 +17,8 @@ product_areas:
   - team-issues
   Help:
   - team-support
+  Ingestion and Filtering:
+  - team-ingest
   Issues:
   - team-issues
   Issues - Source Maps:
@@ -59,35 +61,35 @@ product_areas:
   Settings:
   - team-issues
   Settings - Auth:
-  - team-enterprise
+  - team-foundations
   Settings - Developer Settings:
-  - team-enterprise
+  - team-foundations
   Settings - General:
   - team-issues
   Settings - Integrations:
-  - team-integrations
+  - team-ecosystem
   Settings - Members:
-  - team-enterprise
+  - team-foundations
   Settings - Projects:
-  - team-enterprise
+  - team-foundations
   Settings - Relay:
   - team-ingest
   Settings - Repositories:
-  - team-enterprise
+  - team-ecosystem
   Settings - Security & Privacy:
-  - team-sentry-at-scale
+  - team-foundations
   Settings - Spend Allocation:
-  - team-enterprise
+  - team-revenue
   Settings - Spike Protection:
-  - team-enterprise
+  - team-revenue
   Settings - Subscription:
   - team-revenue
   Settings - Teams:
-  - team-enterprise
+  - team-foundations
   Sign In:
-  - team-enterprise
+  - team-foundations
   Stats:
-  - team-enterprise
+  - team-revenue
   Unknown:
   - team-ospo
   User Feedback:
@@ -154,7 +156,11 @@ teams:
     - sea
     - sfo
     slack_channel: C05CR9FM4AE
-  team-enterprise:
+  team-ecosystem:
+    offices:
+    - sfo
+    slack_channel: C058EAWNF1P
+  team-foundations:
     offices:
     - sfo
     slack_channel: CSD1XPPQA
