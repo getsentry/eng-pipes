@@ -208,6 +208,11 @@ export async function messageSlack(message: SentryOptionsResponse) {
 async function sendMessage(blocks) {
   for (const splitBlock of blocks) {
     try {
+      if (!validateBlocks(splitBlock)) {
+        console.error('Invalid blocks, not sending to Slack:', splitBlock);
+        continue;
+      }
+
       await bolt.client.chat.postMessage({
         channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
         blocks: splitBlock,
