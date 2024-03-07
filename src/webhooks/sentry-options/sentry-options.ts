@@ -234,6 +234,7 @@ function validateBlocks(blocks: KnownBlock[]): boolean {
         return false;
     }
 
+
     for (const block of blocks) {
         if (!block.type || !['section', 'header', 'divider'].includes(block.type)) {
             console.error(`Validation Failed: Missing or invalid block type: ${block.type}`);
@@ -250,10 +251,28 @@ function validateBlocks(blocks: KnownBlock[]): boolean {
 }
 
 function splitMessage(block: KnownBlock[]): KnownBlock[][] {
+  const MAX_BLOCK_SIZE = 3000; // Identifying Slack's size limit for a block
   const splitBlock: KnownBlock[][] = [];
   for (let i = 0; i < block.length; i += 10) {
-    splitBlock.push(block.slice(i, i + 10));
+    const currentChunk = block.slice(i, i + 10);
+    const adjustedChunk: KnownBlock[] = [];
+    for (const singleBlock of currentChunk) {
+      const blockSize = JSON.stringify(singleBlock).length;
+      if (blockSize > MAX_BLOCK_SIZE) {
+        // Assuming a hypothetical function 'adjustBlock' that modifies the block to comply with size limitations
+        const adjustedBlock = adjustBlock(singleBlock);
+        adjustedChunk.push(...adjustedBlock);
+      } else {
+        adjustedChunk.push(singleBlock);
+      }
+    }
+    splitBlock.push(adjustedChunk);
   }
   return splitBlock;
+}
+function adjustBlock(block: KnownBlock): KnownBlock[] {
+  // Logic to split or modify a block goes here
+  // This is a placeholder and requires a specific strategy based on the block content
+  return [block]; // Placeholder return
 }
 
