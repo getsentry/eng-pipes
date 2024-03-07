@@ -202,6 +202,7 @@ export async function messageSlack(message: SentryOptionsResponse) {
     Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
   }
+
 }
 
 async function sendMessage(blocks) {
@@ -218,6 +219,31 @@ async function sendMessage(blocks) {
     }
   }
 }
+function validateBlocks(blocks: KnownBlock[]): boolean {
+    if (!Array.isArray(blocks)) {
+        return false;
+    }
+
+    if (blocks.length > 50) {
+        console.error('Validation Failed: More than 50 blocks are not allowed.');
+        return false;
+    }
+
+    for (const block of blocks) {
+        if (!block.type || !['section', 'header', 'divider'].includes(block.type)) {
+            console.error(`Validation Failed: Missing or invalid block type: ${block.type}`);
+            return false;
+        }
+
+        if (block.type === 'section' && (!block.fields || block.fields.length === 0)) {
+            console.error('Validation Failed: Section blocks must have fields.');
+            return false;
+        }
+    }
+
+    return true;
+}
+
 function splitMessage(block: KnownBlock[]): KnownBlock[][] {
   const splitBlock: KnownBlock[][] = [];
   for (let i = 0; i < block.length; i += 10) {
@@ -225,3 +251,4 @@ function splitMessage(block: KnownBlock[]): KnownBlock[][] {
   }
   return splitBlock;
 }
+
