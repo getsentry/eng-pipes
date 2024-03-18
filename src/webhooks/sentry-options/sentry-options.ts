@@ -182,7 +182,7 @@ function createOptionBlocks(
   formatter: OptionFormatter
 ): KnownBlock[] {
   const block: KnownBlock[] = [];
-  const header = `* ${option_type.charAt(0).toUpperCase()}${option_type.slice(
+  const header = `*${option_type.charAt(0).toUpperCase()}${option_type.slice(
     1
   )} Options:* `;
   block.push(slackblocks.section(slackblocks.markdown(header)));
