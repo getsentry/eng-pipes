@@ -137,15 +137,15 @@ async function sendMessage(blocks) {
 function generateBlock(option_type: string, options: any[]): KnownBlock[] {
   /**
    * This function generates a list of KnownBlocks, a type of SlackBlock.
-   * It assumes that the option_type being passed in corresponds to the SentryOptionsResponse
-   * interface.
-   *
-   * It also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each sectionBlock has a
-   * block limit.
+   * If the given option_type does not fit into the formatterMap, report it as a sentry error.
+   * This function also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each
+   * sectionBlock has ablock limit.
    *
    */
-  const blocks: KnownBlock[] = [];
-  blocks.push(slackblocks.divider());
+
+  if (options.length === 0) {
+    return [];
+  }
 
   const formatterMap: { [key: string]: OptionFormatter } = {
     drifted: (option) =>
@@ -162,6 +162,9 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
       `Option \`${option.option_name}\` got type \`${option.got_type}\`, but expected type \`${option.expected_type}\`.`,
   };
 
+  const blocks: KnownBlock[] = [];
+  blocks.push(slackblocks.divider());
+
   if (formatterMap[option_type]) {
     blocks.push(
       ...createOptionBlocks(options, option_type, formatterMap[option_type])
@@ -169,8 +172,8 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
     return blocks;
   } else {
     Sentry.captureException(`unsupported option type: ${option_type}`);
+    return [];
   }
-  return [];
 }
 
 function createOptionBlocks(
