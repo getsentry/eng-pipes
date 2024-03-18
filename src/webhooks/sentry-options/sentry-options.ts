@@ -79,46 +79,6 @@ export async function sendSentryOptionsUpdatesToDatadog(
 }
 
 export async function messageSlack(message: SentryOptionsResponse) {
-  if (message.source !== 'options-automator') {
-    return;
-  }
-  try {
-    const successBlock: KnownBlock[] = [
-      slackblocks.header(
-        slackblocks.plaintext(
-          message.region
-            ? `✅ Successfully Updated Options in ${message.region}: ✅`
-            : '✅ Successfully Updated Options ✅'
-        )
-      ),
-      ...generateBlock('updated', message.updated_options),
-      ...generateBlock('set', message.set_options),
-      ...generateBlock('unset', message.unset_options),
-    ];
-    const failedBlock: KnownBlock[] = [
-      slackblocks.header(
-        slackblocks.plaintext(
-          message.region
-            ? `❌ FAILED TO UPDATE in ${message.region}: ❌`
-            : '❌ FAILED TO UPDATE ❌'
-        )
-      ),
-      ...generateBlock('drifted', message.drifted_options),
-      ...generateBlock('not_writable', message.not_writable_options),
-      ...generateBlock('unregistered', message.unregistered_options),
-      ...generateBlock('invalid_type', message.invalid_type_options),
-    ];
-    if (successBlock.length > 1) {
-      await sendMessage(successBlock);
-    }
-    if (failedBlock.length > 1) {
-      await sendMessage(failedBlock);
-    }
-  } catch (err) {
-    Sentry.setContext('message_data', { message });
-    Sentry.captureException(err);
-  }
-
   const formatterMap: { [key: string]: OptionFormatter } = {
     drifted: (option) =>
       `\`${option.option_name}\` drifted. Value on db: \`${option.option_value}\``,
@@ -186,6 +146,46 @@ export async function messageSlack(message: SentryOptionsResponse) {
     }
 
     return block;
+  }
+
+  if (message.source !== 'options-automator') {
+    return;
+  }
+  try {
+    const successBlock: KnownBlock[] = [
+      slackblocks.header(
+        slackblocks.plaintext(
+          message.region
+            ? `✅ Successfully Updated Options in ${message.region}: ✅`
+            : '✅ Successfully Updated Options ✅'
+        )
+      ),
+      ...generateBlock('updated', message.updated_options),
+      ...generateBlock('set', message.set_options),
+      ...generateBlock('unset', message.unset_options),
+    ];
+    const failedBlock: KnownBlock[] = [
+      slackblocks.header(
+        slackblocks.plaintext(
+          message.region
+            ? `❌ FAILED TO UPDATE in ${message.region}: ❌`
+            : '❌ FAILED TO UPDATE ❌'
+        )
+      ),
+      ...generateBlock('drifted', message.drifted_options),
+      ...generateBlock('not_writable', message.not_writable_options),
+      ...generateBlock('unregistered', message.unregistered_options),
+      ...generateBlock('invalid_type', message.invalid_type_options),
+    ];
+    if (successBlock.length > 1) {
+      await sendMessage(successBlock);
+    }
+    if (failedBlock.length > 1) {
+      await sendMessage(failedBlock);
+    }
+  } catch (err) {
+    Sentry.setContext('message_data', { message });
+    Sentry.captureException(err);
   }
 }
 
