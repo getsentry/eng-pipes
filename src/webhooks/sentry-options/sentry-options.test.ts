@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
 import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
+import testMegaPayload from '@test/payloads/sentry-options/testMegaPayload.json';
 import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
 import testPayload from '@test/payloads/sentry-options/testPayload.json';
 import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
@@ -165,7 +166,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*DRIFTED OPTIONS:* ',
+              text: '*Drifted Options:* ',
             },
           },
           {
@@ -188,7 +189,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*FAILED:* ',
+              text: '*Failed Options:* ',
             },
           },
           {
@@ -241,7 +242,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Invalid Typed Options:* ',
+              text: '*Invalid_typed Options:* ',
             },
           },
           {
@@ -284,7 +285,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*DRIFTED OPTIONS:* ',
+              text: '*Drifted Options:* ',
             },
           },
           {
@@ -311,6 +312,12 @@ describe('sentry-options webhook', function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testAdminPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('can handle more than the block size ', async function () {
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await messageSlack(testMegaPayload);
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
     });
   });
 
