@@ -91,15 +91,9 @@ export async function messageSlack(message: SentryOptionsResponse) {
             : '✅ Successfully Updated Options ✅'
         )
       ),
-      ...(message.updated_options.length > 0
-        ? [...generateBlock('updated', [])]
-        : []),
-      ...(message.set_options.length > 0
-        ? generateBlock('set', message.set_options)
-        : []),
-      ...(message.unset_options.length > 0
-        ? generateBlock('unset', message.unset_options)
-        : []),
+      ...generateBlock('updated', message.updated_options),
+      ...generateBlock('set', message.set_options),
+      ...generateBlock('unset', message.unset_options),
     ];
     const failedBlock: KnownBlock[] = [
       slackblocks.header(
@@ -109,18 +103,10 @@ export async function messageSlack(message: SentryOptionsResponse) {
             : '❌ FAILED TO UPDATE ❌'
         )
       ),
-      ...(message.drifted_options.length > 0
-        ? [...generateBlock('drifted', message.drifted_options)]
-        : []),
-      ...(message.not_writable_options.length > 0
-        ? [...generateBlock('not_writable', message.not_writable_options)]
-        : []),
-      ...(message.unregistered_options.length > 0
-        ? [...generateBlock('unregistered', message.unregistered_options)]
-        : []),
-      ...(message.invalid_type_options.length > 0
-        ? [...generateBlock('invalid_type', message.invalid_type_options)]
-        : []),
+      ...generateBlock('drifted', message.drifted_options),
+      ...generateBlock('not_writable', message.not_writable_options),
+      ...generateBlock('unregistered', message.unregistered_options),
+      ...generateBlock('invalid_type', message.invalid_type_options),
     ];
     if (successBlock.length > 1) {
       await sendMessage(successBlock);
@@ -182,10 +168,11 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
     blocks.push(
       ...createOptionBlocks(options, option_type, formatterMap[option_type])
     );
+    return blocks;
   } else {
     Sentry.captureException(`unsupported option type: ${option_type}`);
   }
-  return blocks;
+  return [];
 }
 
 function createOptionBlocks(
@@ -200,7 +187,11 @@ function createOptionBlocks(
   block.push(slackblocks.section(slackblocks.markdown(header)));
   const batched_options: MrkdwnElement[] = [];
   for (let count = 0; count < options.length; count += MAX_BLOCK_SIZE) {
-    for (let curr_batch = 0; curr_batch < MAX_BLOCK_SIZE; curr_batch += 1) {
+    for (
+      let curr_batch = 0;
+      curr_batch < Math.min(options.length - count, MAX_BLOCK_SIZE);
+      curr_batch += 1
+    ) {
       batched_options.push(
         slackblocks.markdown(formatter(options[curr_batch]))
       );
