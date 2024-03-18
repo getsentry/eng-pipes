@@ -174,11 +174,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. value on db: `value_1`',
+                text: '`drifted_option_1` drifted. Value on db: `value_1`',
               },
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. value on db: `value_2`',
+                text: '`drifted_option_2` drifted. Value on db: `value_2`',
               },
             ],
           },
@@ -293,11 +293,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. value on db: `value_1`',
+                text: '`drifted_option_1` drifted. Value on db: `value_1`',
               },
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. value on db: `value_2`',
+                text: '`drifted_option_2` drifted. Value on db: `value_2`',
               },
             ],
           },
