@@ -118,34 +118,6 @@ export async function messageSlack(message: SentryOptionsResponse) {
     Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
   }
-}
-
-async function sendMessage(blocks) {
-  try {
-    await bolt.client.chat.postMessage({
-      channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-      blocks: blocks,
-      text: '',
-      unfurl_links: false,
-    });
-  } catch (err) {
-    Sentry.setContext('block:', { blocks });
-    Sentry.captureException(err);
-  }
-}
-
-function generateBlock(option_type: string, options: any[]): KnownBlock[] {
-  /**
-   * This function generates a list of KnownBlocks, a type of SlackBlock.
-   * If the given option_type does not fit into the formatterMap, report it as a sentry error.
-   * This function also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each
-   * sectionBlock has a block limit.
-   *
-   */
-
-  if (options.length === 0) {
-    return [];
-  }
 
   const formatterMap: { [key: string]: OptionFormatter } = {
     drifted: (option) =>
@@ -162,43 +134,71 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
       `Option \`${option.option_name}\` got type \`${option.got_type}\`, but expected type \`${option.expected_type}\`.`,
   };
 
-  const blocks: KnownBlock[] = [];
-  blocks.push(slackblocks.divider());
+  function generateBlock(option_type: string, options: any[]): KnownBlock[] {
+    /**
+     * This function generates a list of KnownBlocks, a type of SlackBlock.
+     * If the given option_type does not fit into the formatterMap, report it as a sentry error.
+     * This function also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each
+     * sectionBlock has a block limit.
+     *
+     */
 
-  if (formatterMap[option_type]) {
-    blocks.push(
-      ...createOptionBlocks(options, option_type, formatterMap[option_type])
-    );
-    return blocks;
-  } else {
-    Sentry.captureException(`unsupported option type: ${option_type}`);
-    return [];
+    if (options.length === 0) {
+      return [];
+    }
+
+    const blocks: KnownBlock[] = [];
+    blocks.push(slackblocks.divider());
+
+    if (formatterMap[option_type]) {
+      blocks.push(
+        ...createOptionBlocks(options, option_type, formatterMap[option_type])
+      );
+      return blocks;
+    } else {
+      Sentry.captureException(`unsupported option type: ${option_type}`);
+      return [];
+    }
+  }
+
+  function createOptionBlocks(
+    options: any[],
+    option_type: string,
+    formatter: OptionFormatter
+  ): KnownBlock[] {
+    const block: KnownBlock[] = [];
+    const header = `*${option_type.charAt(0).toUpperCase()}${option_type.slice(
+      1
+    )} Options:* `;
+    block.push(slackblocks.section(slackblocks.markdown(header)));
+    const batched_options: MrkdwnElement[] = [];
+    for (let count = 0; count < options.length; count += MAX_BLOCK_SIZE) {
+      for (
+        let curr_batch = 0;
+        curr_batch < Math.min(options.length - count, MAX_BLOCK_SIZE);
+        curr_batch += 1
+      ) {
+        batched_options.push(
+          slackblocks.markdown(formatter(options[curr_batch]))
+        );
+      }
+      block.push(slackblocks.sectionBlock(batched_options));
+    }
+
+    return block;
   }
 }
 
-function createOptionBlocks(
-  options: any[],
-  option_type: string,
-  formatter: OptionFormatter
-): KnownBlock[] {
-  const block: KnownBlock[] = [];
-  const header = `*${option_type.charAt(0).toUpperCase()}${option_type.slice(
-    1
-  )} Options:* `;
-  block.push(slackblocks.section(slackblocks.markdown(header)));
-  const batched_options: MrkdwnElement[] = [];
-  for (let count = 0; count < options.length; count += MAX_BLOCK_SIZE) {
-    for (
-      let curr_batch = 0;
-      curr_batch < Math.min(options.length - count, MAX_BLOCK_SIZE);
-      curr_batch += 1
-    ) {
-      batched_options.push(
-        slackblocks.markdown(formatter(options[curr_batch]))
-      );
-    }
-    block.push(slackblocks.sectionBlock(batched_options));
+async function sendMessage(blocks) {
+  try {
+    await bolt.client.chat.postMessage({
+      channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+      blocks: blocks,
+      text: '',
+      unfurl_links: false,
+    });
+  } catch (err) {
+    Sentry.setContext('block:', { blocks });
+    Sentry.captureException(err);
   }
-
-  return block;
 }
