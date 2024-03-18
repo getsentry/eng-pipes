@@ -183,7 +183,7 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
       ...createOptionBlocks(options, option_type, formatterMap[option_type])
     );
   } else {
-    Sentry.error('unsupported option type');
+    Sentry.captureException(`unsupported option type: ${option_type}`);
   }
   return blocks;
 }
