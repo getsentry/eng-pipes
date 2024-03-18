@@ -139,7 +139,7 @@ function generateBlock(option_type: string, options: any[]): KnownBlock[] {
    * This function generates a list of KnownBlocks, a type of SlackBlock.
    * If the given option_type does not fit into the formatterMap, report it as a sentry error.
    * This function also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each
-   * sectionBlock has ablock limit.
+   * sectionBlock has a block limit.
    *
    */
 
