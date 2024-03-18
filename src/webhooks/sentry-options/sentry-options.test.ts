@@ -86,7 +86,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Updated options:* ',
+              text: '*Updated Options:* ',
             },
           },
           {
@@ -94,7 +94,7 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'updated `updated_option_1` with db value `db_value_1` to value `new_value_1`',
+                text: 'Updated `updated_option_1` with db value `db_value_1` to value `new_value_1`',
               },
             ],
           },
@@ -188,7 +188,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Failed Options:* ',
+              text: '*Not_writable Options:* ',
             },
           },
           {
@@ -196,11 +196,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`',
+                text: 'Failed to update `error_option_1` \nreason: `Error occurred for option 1`',
               },
               {
                 type: 'mrkdwn',
-                text: 'FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`',
+                text: 'Failed to update `error_option_2` \nreason: `Error occurred for option 2`',
               },
             ],
           },
@@ -234,7 +234,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Invalid_typed Options:* ',
+              text: '*Invalid_type Options:* ',
             },
           },
           {
