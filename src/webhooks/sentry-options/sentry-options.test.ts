@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
 import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
+import testMegaPayload from '@test/payloads/sentry-options/testMegaPayload.json';
 import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
 import testPayload from '@test/payloads/sentry-options/testPayload.json';
 import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
@@ -66,10 +67,9 @@ describe('sentry-options webhook', function () {
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testPayload);
-      expect(postMessageSpy).toHaveBeenCalledTimes(3);
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
       const firstMessage = postMessageSpy.mock.calls[0][0];
       const secondMessage = postMessageSpy.mock.calls[1][0];
-      const thirdMessage = postMessageSpy.mock.calls[2][0];
       expect(firstMessage).toEqual({
         blocks: [
           {
@@ -86,7 +86,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Updated options:* ',
+              text: '*Updated Options:* ',
             },
           },
           {
@@ -94,7 +94,7 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'updated `updated_option_1` with db value `db_value_1` to value `new_value_1`',
+                text: 'Updated `updated_option_1` with db value `db_value_1` to value `new_value_1`',
               },
             ],
           },
@@ -165,7 +165,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*DRIFTED OPTIONS:* ',
+              text: '*Drifted Options:* ',
             },
           },
           {
@@ -173,11 +173,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. value on db: `value_1`',
+                text: '`drifted_option_1` drifted. Value on db: `value_1`',
               },
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. value on db: `value_2`',
+                text: '`drifted_option_2` drifted. Value on db: `value_2`',
               },
             ],
           },
@@ -188,7 +188,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*FAILED:* ',
+              text: '*Not_writable Options:* ',
             },
           },
           {
@@ -196,11 +196,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: 'FAILED TO UPDATE `error_option_1` \nREASON: `Error occurred for option 1`',
+                text: 'Failed to update `error_option_1` \nreason: `Error occurred for option 1`',
               },
               {
                 type: 'mrkdwn',
-                text: 'FAILED TO UPDATE `error_option_2` \nREASON: `Error occurred for option 2`',
+                text: 'Failed to update `error_option_2` \nreason: `Error occurred for option 2`',
               },
             ],
           },
@@ -227,13 +227,6 @@ describe('sentry-options webhook', function () {
               },
             ],
           },
-        ],
-        channel: 'C05QM3AUDKJ',
-        text: '',
-        unfurl_links: false,
-      });
-      expect(thirdMessage).toEqual({
-        blocks: [
           {
             type: 'divider',
           },
@@ -241,7 +234,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Invalid Typed Options:* ',
+              text: '*Invalid_type Options:* ',
             },
           },
           {
@@ -263,6 +256,7 @@ describe('sentry-options webhook', function () {
         unfurl_links: false,
       });
     });
+
     it('writes drift only', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testPartialPayload);
@@ -284,7 +278,7 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*DRIFTED OPTIONS:* ',
+              text: '*Drifted Options:* ',
             },
           },
           {
@@ -292,11 +286,11 @@ describe('sentry-options webhook', function () {
             fields: [
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. value on db: `value_1`',
+                text: '`drifted_option_1` drifted. Value on db: `value_1`',
               },
               {
                 type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. value on db: `value_2`',
+                text: '`drifted_option_2` drifted. Value on db: `value_2`',
               },
             ],
           },
@@ -311,6 +305,12 @@ describe('sentry-options webhook', function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testAdminPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
+    });
+
+    it('can handle more than the block size ', async function () {
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await messageSlack(testMegaPayload);
+      expect(postMessageSpy).toHaveBeenCalledTimes(2);
     });
   });
 
