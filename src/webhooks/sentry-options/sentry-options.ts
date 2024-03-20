@@ -1,6 +1,6 @@
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
-import { KnownBlock } from '@slack/types';
+import { KnownBlock, MrkdwnElement } from '@slack/types';
 import { FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
@@ -21,6 +21,9 @@ export async function handler(
   await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
   return {};
 }
+
+type OptionFormatter = (option: any) => string;
+const MAX_BLOCK_SIZE = 10;
 
 export async function sendSentryOptionsUpdatesToDatadog(
   message: SentryOptionsResponse,
@@ -76,6 +79,75 @@ export async function sendSentryOptionsUpdatesToDatadog(
 }
 
 export async function messageSlack(message: SentryOptionsResponse) {
+  const formatterMap: { [key: string]: OptionFormatter } = {
+    drifted: (option) =>
+      `\`${option.option_name}\` drifted. Value on db: \`${option.option_value}\``,
+    updated: (option) =>
+      `Updated \`${option.option_name}\` with db value \`${option.db_value}\` to value \`${option.value}\``,
+    set: (option) =>
+      `Set \`${option.option_name}\` to value \`${option.option_value}\``,
+    unset: (option) => `Unset \`${option}\``,
+    not_writable: (option) =>
+      `Failed to update \`${option.option_name}\` \nreason: \`${option.error_msg}\``,
+    unregistered: (option) => `Option \`${option}\` is not registered!`,
+    invalid_type: (option) =>
+      `Option \`${option.option_name}\` got type \`${option.got_type}\`, but expected type \`${option.expected_type}\`.`,
+  };
+
+  function generateBlock(option_type: string, options: any[]): KnownBlock[] {
+    /**
+     * This function generates a list of KnownBlocks, a type of SlackBlock.
+     * If the given option_type does not fit into the formatterMap, report it as a sentry error.
+     * This function also builds blocks around the options in batches of MAX_BLOCK_SIZE. Each
+     * sectionBlock has a block limit.
+     *
+     */
+
+    if (options.length === 0) {
+      return [];
+    }
+
+    const blocks: KnownBlock[] = [];
+    blocks.push(slackblocks.divider());
+
+    if (formatterMap[option_type]) {
+      blocks.push(
+        ...createOptionBlocks(options, option_type, formatterMap[option_type])
+      );
+      return blocks;
+    } else {
+      Sentry.captureException(`unsupported option type: ${option_type}`);
+      return [];
+    }
+  }
+
+  function createOptionBlocks(
+    options: any[],
+    option_type: string,
+    formatter: OptionFormatter
+  ): KnownBlock[] {
+    const block: KnownBlock[] = [];
+    const header = `*${option_type.charAt(0).toUpperCase()}${option_type.slice(
+      1
+    )} Options:* `;
+    block.push(slackblocks.section(slackblocks.markdown(header)));
+    const batched_options: MrkdwnElement[] = [];
+    for (let count = 0; count < options.length; count += MAX_BLOCK_SIZE) {
+      for (
+        let curr_batch = 0;
+        curr_batch < Math.min(options.length - count, MAX_BLOCK_SIZE);
+        curr_batch += 1
+      ) {
+        batched_options.push(
+          slackblocks.markdown(formatter(options[curr_batch]))
+        );
+      }
+      block.push(slackblocks.sectionBlock(batched_options));
+    }
+
+    return block;
+  }
+
   if (message.source !== 'options-automator') {
     return;
   }
@@ -88,45 +160,10 @@ export async function messageSlack(message: SentryOptionsResponse) {
             : '✅ Successfully Updated Options ✅'
         )
       ),
-      ...(message.updated_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(slackblocks.markdown('*Updated options:* ')),
-            slackblocks.sectionBlock(
-              message.updated_options.map((option) =>
-                slackblocks.markdown(
-                  `updated \`${option.option_name}\` with db value \`${option.db_value}\` to value \`${option.value}\``
-                )
-              )
-            ),
-          ]
-        : []),
-      ...(message.set_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(slackblocks.markdown('*Set Options:* ')),
-            slackblocks.sectionBlock(
-              message.set_options.map((option) =>
-                slackblocks.markdown(
-                  `Set \`${option.option_name}\` to value \`${option.option_value}\``
-                )
-              )
-            ),
-          ]
-        : []),
-      ...(message.unset_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(slackblocks.markdown('*Unset Options:* ')),
-            slackblocks.sectionBlock(
-              message.unset_options.map((option) =>
-                slackblocks.markdown(`Unset \`${option}\``)
-              )
-            ),
-          ]
-        : []),
+      ...generateBlock('updated', message.updated_options),
+      ...generateBlock('set', message.set_options),
+      ...generateBlock('unset', message.unset_options),
     ];
-
     const failedBlock: KnownBlock[] = [
       slackblocks.header(
         slackblocks.plaintext(
@@ -135,68 +172,16 @@ export async function messageSlack(message: SentryOptionsResponse) {
             : '❌ FAILED TO UPDATE ❌'
         )
       ),
-      ...(message.drifted_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(slackblocks.markdown('*DRIFTED OPTIONS:* ')),
-            slackblocks.sectionBlock(
-              message.drifted_options.map((option) =>
-                slackblocks.markdown(
-                  `\`${option.option_name}\` drifted. value on db: \`${option.option_value}\``
-                )
-              )
-            ),
-          ]
-        : []),
-      ...(message.not_writable_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(slackblocks.markdown('*FAILED:* ')),
-            slackblocks.sectionBlock(
-              message.not_writable_options.map((option) =>
-                slackblocks.markdown(
-                  `FAILED TO UPDATE \`${option.option_name}\` \nREASON: \`${option.error_msg}\``
-                )
-              )
-            ),
-          ]
-        : []),
-      ...(message.unregistered_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(
-              slackblocks.markdown('*Unregistered Options:* ')
-            ),
-            slackblocks.sectionBlock(
-              message.unregistered_options.map((option) =>
-                slackblocks.markdown(`Option \`${option}\` is not registered!`)
-              )
-            ),
-          ]
-        : []),
-      ...(message.invalid_type_options.length > 0
-        ? [
-            slackblocks.divider(),
-            slackblocks.section(
-              slackblocks.markdown('*Invalid Typed Options:* ')
-            ),
-            slackblocks.sectionBlock(
-              message.invalid_type_options.map((option) =>
-                slackblocks.markdown(
-                  `Option \`${option.option_name}\` got type \`${option.got_type}\`, but expected type \`${option.expected_type}\`.`
-                )
-              )
-            ),
-          ]
-        : []),
+      ...generateBlock('drifted', message.drifted_options),
+      ...generateBlock('not_writable', message.not_writable_options),
+      ...generateBlock('unregistered', message.unregistered_options),
+      ...generateBlock('invalid_type', message.invalid_type_options),
     ];
     if (successBlock.length > 1) {
-      const chunkedSuccessBlocks = splitMessage(successBlock);
-      await sendMessage(chunkedSuccessBlocks);
+      await sendMessage(successBlock);
     }
     if (failedBlock.length > 1) {
-      const chunkedFailedBlocks = splitMessage(failedBlock);
-      await sendMessage(chunkedFailedBlocks);
+      await sendMessage(failedBlock);
     }
   } catch (err) {
     Sentry.setContext('message_data', { message });
@@ -205,23 +190,15 @@ export async function messageSlack(message: SentryOptionsResponse) {
 }
 
 async function sendMessage(blocks) {
-  for (const splitBlock of blocks) {
-    try {
-      await bolt.client.chat.postMessage({
-        channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
-        blocks: splitBlock,
-        text: '',
-        unfurl_links: false,
-      });
-    } catch (err) {
-      Sentry.captureException(err);
-    }
+  try {
+    await bolt.client.chat.postMessage({
+      channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+      blocks: blocks,
+      text: '',
+      unfurl_links: false,
+    });
+  } catch (err) {
+    Sentry.setContext('block:', { blocks });
+    Sentry.captureException(err);
   }
-}
-function splitMessage(block: KnownBlock[]): KnownBlock[][] {
-  const splitBlock: KnownBlock[][] = [];
-  for (let i = 0; i < block.length; i += 10) {
-    splitBlock.push(block.slice(i, i + 10));
-  }
-  return splitBlock;
 }
