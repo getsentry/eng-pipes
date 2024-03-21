@@ -6,4 +6,6 @@ export enum SlackMessage {
   FEED_ENGINGEERING_DEPLOY = 'feed-engineering-deploy',
   FEED_SNS_SAAS_DEPLOY = 'feed-sns-saas-deploy',
   FEED_SNS_ST_DEPLOY = 'feed-sns-st-deploy',
+  FEED_SNS_SAAS_K8S = 'feed-sns-saas-k8s',
+  FEED_SNS_S4S_K8S = 'feed-sns-st-k8s',
 }

@@ -52,6 +52,9 @@ const SNS_ST_PIPELINE_FILTER = [
   'deploy-snuba-customer-4',
 ];
 
+const SNS_SAAS_K8S_PIPELINE_FILTER = ['snuba-k8s'];
+const SNS_S4s_K8S_PIPELINE_FILTER = ['snuba-s4s-k8s'];
+
 const DEV_INFRA_PIPELINE_FILTER = [
   'deploy-gocd-staging',
   'deploy-gocd-production',
@@ -150,6 +153,18 @@ const snsSaaSFeed = new DeployFeed({
   },
 });
 
+const snsSaaSK8sFeed = new DeployFeed({
+  feedName: 'snsSaaSK8sSlackFeed',
+  channelID: FEED_SNS_SAAS_CHANNEL_ID,
+  msgType: SlackMessage.FEED_SNS_SAAS_K8S,
+  pipelineFilter: (pipeline) => {
+    return (
+      SNS_SAAS_K8S_PIPELINE_FILTER.includes(pipeline.name) &&
+      pipeline.stage.name.includes('k8s_apply')
+    );
+  },
+});
+
 // Post certain pipelines to #feed-sns-st
 const snsSTFeed = new DeployFeed({
   feedName: 'snsSTSlackFeed',
@@ -157,6 +172,18 @@ const snsSTFeed = new DeployFeed({
   msgType: SlackMessage.FEED_SNS_ST_DEPLOY,
   pipelineFilter: (pipeline) => {
     return SNS_ST_PIPELINE_FILTER.includes(pipeline.name);
+  },
+});
+
+const snsS4SK8sFeed = new DeployFeed({
+  feedName: 'snsS4SK8sFeed',
+  channelID: FEED_SNS_ST_CHANNEL_ID,
+  msgType: SlackMessage.FEED_SNS_S4S_K8S,
+  pipelineFilter: (pipeline) => {
+    return (
+      SNS_S4s_K8S_PIPELINE_FILTER.includes(pipeline.name) &&
+      pipeline.stage.name.includes('k8s_apply')
+    );
   },
 });
 
@@ -247,6 +274,8 @@ export async function handler(body: GoCDResponse) {
     snsSaaSFeed.handle(body),
     snsSTFeed.handle(body),
     engineeringFeed.handle(body),
+    snsS4SK8sFeed.handle(body),
+    snsSaaSK8sFeed.handle(body),
   ]);
 }
 
