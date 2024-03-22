@@ -21,7 +21,7 @@ const staleStatusUpdater = async (
     issues.map((issue) => {
       // Only pull requests will have issue.merge_commit_sha property
       const isPullRequest = issue.merge_commit_sha ? true : false;
-      if (now.diff(issue.updated_at, 'seconds') >= DAYS_BEFORE_STALE) {
+      if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
         return Promise.all([
           org.api.issues.addLabels({
             owner: org.slug,
