@@ -310,7 +310,7 @@ describe('sentry-options webhook', function () {
     it('can handle more than the block size ', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testMegaPayload);
-      expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      expect(postMessageSpy).toHaveBeenCalledTimes(4);
     });
   });
 
