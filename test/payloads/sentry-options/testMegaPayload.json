@@ -31,7 +31,7 @@
     "updated_options": [{"option_name": "update_1", "db_value": "value_2", "value": "value_3"}],
     "set_options": [
         {"option_name": "set_option_1", "option_value": "set_value_1"},
-        {"option_name": "set_option_2", "option_value": "set_value_2"},
+        {"option_name": "set_option_2", "option_value": "set_value_2"}
     ],
     "unset_options": [],
     "not_writable_options": [],
