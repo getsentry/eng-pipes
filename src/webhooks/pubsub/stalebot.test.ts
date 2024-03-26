@@ -10,6 +10,8 @@ import {
 
 import { triggerStaleBot } from './stalebot';
 
+const FAKE_MERGE_COMMIT = '12345';
+
 describe('Stalebot Tests', function () {
   const org = GETSENTRY_ORG;
   let origRepos;
@@ -62,7 +64,9 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
 
   it('should not mark PR as stale if it has been under 3 weeks', async function () {
     org.api.issues.listForRepo = () => [];
-    org.api.pulls.list = () => [{ ...issueInfo, merge_commit_sha: '12345' }];
+    org.api.pulls.list = () => [
+      { ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT },
+    ];
     await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
@@ -72,7 +76,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     org.api.issues.listForRepo = () => [];
     org.api.pulls.list = ({ repo }) => {
       return org.repos.withRouting.includes(repo)
-        ? [{ ...issueInfo, merge_commit_sha: '12345' }]
+        ? [{ ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT }]
         : [];
     };
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
@@ -80,7 +84,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     expect(org.api.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
 
-But! If you comment or otherwise update it, I will reset the clock, and if you add the label \`WIP\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you add the label \`WIP\`, I will leave it alone unless \`WIP\` is removed ... forever!
 
 ----
 
@@ -96,7 +100,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
             {
               ...issueInfo,
               labels: [WAITING_FOR_COMMUNITY_LABEL, WORK_IN_PROGRESS_LABEL],
-              merge_commit_sha: '12345',
+              merge_commit_sha: FAKE_MERGE_COMMIT,
             },
           ]
         : [];
@@ -110,7 +114,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     org.api.issues.listForRepo = () => [];
     org.api.pulls.list = ({ repo }) => {
       return org.repos.withoutRouting.includes(repo)
-        ? [{ ...issueInfo, merge_commit_sha: '12345' }]
+        ? [{ ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT }]
         : [];
     };
     await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());

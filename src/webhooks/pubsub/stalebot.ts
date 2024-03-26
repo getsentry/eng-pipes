@@ -41,7 +41,9 @@ But! If you comment or otherwise update it, I will reset the clock, and if you $
               isPullRequest
                 ? 'add the label `WIP`'
                 : 'remove the label `Waiting for: Community`'
-            }, I will leave it alone ... forever!
+            }, I will leave it alone ${
+              isPullRequest ? 'unless `WIP` is removed ' : ''
+            }... forever!
 
 ----
 
