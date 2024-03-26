@@ -32,8 +32,10 @@ enum PauseCause {
   SOAK = 'soak-time',
 }
 
+// TODO: consolidate constants for regions
 const ENGINEERING_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',
+  'deploy-getsentry-backend-de',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
