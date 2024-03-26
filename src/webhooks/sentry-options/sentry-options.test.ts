@@ -311,6 +311,217 @@ describe('sentry-options webhook', function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testMegaPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
+      const firstMessage = postMessageSpy.mock.calls[0][0];
+      const secondMessage = postMessageSpy.mock.calls[1][0];
+      expect(firstMessage).toEqual({
+        blocks: [
+          {
+            type: 'header',
+            text: {
+              type: 'plain_text',
+              text: '✅ Successfully Updated Options in TESTING: ✅',
+            },
+          },
+          {
+            type: 'divider',
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Updated Options:* ',
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: 'Updated `update_1` with db value `value_2` to value `value_3`',
+              },
+            ],
+          },
+          {
+            type: 'divider',
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Set Options:* ',
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: 'Set `set_option_1` to value `set_value_1`',
+              },
+              {
+                type: 'mrkdwn',
+                text: 'Set `set_option_2` to value `set_value_2`',
+              },
+            ],
+          },
+        ],
+        channel: 'C05QM3AUDKJ',
+        text: '',
+        unfurl_links: false,
+      });
+      expect(secondMessage).toEqual({
+        blocks: [
+          {
+            type: 'header',
+            text: {
+              type: 'plain_text',
+              text: '❌ FAILED TO UPDATE in TESTING: ❌',
+            },
+          },
+          {
+            type: 'divider',
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Drifted Options:* ',
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_1` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_2` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_3` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_4` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_5` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_6` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_7` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_8` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_9` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_10` drifted. Value on db: `value_2`',
+              },
+            ],
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Drifted Options:* ',
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_11` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_12` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_13` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_14` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_15` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_16` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_17` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_18` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_19` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_20` drifted. Value on db: `value_2`',
+              },
+            ],
+          },
+          {
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: '*Drifted Options:* ',
+            },
+          },
+          {
+            type: 'section',
+            fields: [
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_21` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_22` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_23` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_24` drifted. Value on db: `value_2`',
+              },
+              {
+                type: 'mrkdwn',
+                text: '`drifted_option_25` drifted. Value on db: `value_2`',
+              },
+            ],
+          },
+        ],
+        channel: 'C05QM3AUDKJ',
+        text: '',
+        unfurl_links: false,
+      });
     });
   });
 
