@@ -14,6 +14,7 @@ import {
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,
+  FEED_INGEST_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
@@ -36,6 +37,8 @@ const ENGINEERING_PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
+
+const INGEST_PIPELINE_FILTER = ['deploy-relay', 'deploy-relay-pop'];
 
 const SNS_SAAS_PIPELINE_FILTER = [
   'deploy-snuba',
@@ -160,6 +163,16 @@ const snsSTFeed = new DeployFeed({
   },
 });
 
+// Post certain pipelines to #discuss-ingest
+const ingestFeed = new DeployFeed({
+  feedName: 'ingestSlackFeed',
+  channelID: FEED_INGEST_CHANNEL_ID,
+  msgType: SlackMessage.FEED_INGEST_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    return INGEST_PIPELINE_FILTER.includes(pipeline.name);
+  },
+});
+
 // Post certain pipelines to #team-engineering
 const engineeringFeed = new DeployFeed({
   feedName: 'engineeringSlackFeed',
@@ -246,6 +259,7 @@ export async function handler(body: GoCDResponse) {
     devinfraFeed.handle(body),
     snsSaaSFeed.handle(body),
     snsSTFeed.handle(body),
+    ingestFeed.handle(body),
     engineeringFeed.handle(body),
   ]);
 }
