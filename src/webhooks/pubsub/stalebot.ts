@@ -19,7 +19,8 @@ const staleStatusUpdater = async (
 ) => {
   await Promise.all(
     issues.map((issue) => {
-      const isPullRequest = issue.pull_request ? true : false;
+      // Only pull requests will have issue.merge_commit_sha property
+      const isPullRequest = issue.merge_commit_sha ? true : false;
       if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
         return Promise.all([
           org.api.issues.addLabels({
@@ -36,7 +37,13 @@ const staleStatusUpdater = async (
               isPullRequest ? 'pull request' : 'issue'
             } has gone three weeks without activity. In another week, I will close it.
 
-But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you ${
+              isPullRequest
+                ? 'add the label `WIP`'
+                : 'remove the label `Waiting for: Community`'
+            }, I will leave it alone ${
+              isPullRequest ? 'unless `WIP` is removed ' : ''
+            }... forever!
 
 ----
 
