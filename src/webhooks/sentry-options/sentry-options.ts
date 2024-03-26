@@ -135,7 +135,7 @@ export async function messageSlack(message: SentryOptionsResponse) {
       const batched_options: MrkdwnElement[] = [];
       for (
         let curr_batch = count;
-        curr_batch < MAX_BLOCK_SIZE;
+        curr_batch < Math.min(count + MAX_BLOCK_SIZE, options.length);
         curr_batch += 1
       ) {
         batched_options.push(
