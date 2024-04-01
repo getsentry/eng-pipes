@@ -58,7 +58,7 @@ const SNS_ST_PIPELINE_FILTER = [
 ];
 
 const SNS_SAAS_K8S_PIPELINE_FILTER = ['snuba-k8s'];
-const SNS_S4s_K8S_PIPELINE_FILTER = ['snuba-s4s-k8s'];
+const SNS_S4S_K8S_PIPELINE_FILTER = ['snuba-s4s-k8s'];
 
 const DEV_INFRA_PIPELINE_FILTER = [
   'deploy-gocd-staging',
