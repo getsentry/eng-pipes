@@ -186,7 +186,7 @@ const snsS4SK8sFeed = new DeployFeed({
   msgType: SlackMessage.FEED_SNS_S4S_K8S,
   pipelineFilter: (pipeline) => {
     return (
-      SNS_S4s_K8S_PIPELINE_FILTER.includes(pipeline.name) &&
+      SNS_S4S_K8S_PIPELINE_FILTER.includes(pipeline.name) &&
       pipeline.stage.name.includes('k8s_apply')
     );
   },
