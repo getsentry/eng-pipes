@@ -43,8 +43,8 @@ sfo:
     "2024-08-30", # Day Off (add to Labor Day)
     "2024-09-02", # Labor Day
     "2024-10-14", # Indigenous Peoples’ Day
-    "2024-11-21", # Thanksgiving
-    "2024-11-22", # Day after Thanksgiving
+    "2024-11-28", # Thanksgiving
+    "2024-11-29", # Day after Thanksgiving
     "2024-12-24", # Christmas Eve (Observed)
     "2024-12-25", # Christmas Day (Observed)
     "2024-12-26", # Unofficial days between Christmas and New Years
@@ -94,8 +94,8 @@ sea:
     "2024-08-30", # Day Off (add to Labor Day)
     "2024-09-02", # Labor Day
     "2024-10-14", # Indigenous Peoples’ Day
-    "2024-11-21", # Thanksgiving
-    "2024-11-22", # Day after Thanksgiving
+    "2024-11-28", # Thanksgiving
+    "2024-11-29", # Day after Thanksgiving
     "2024-12-24", # Christmas Eve (Observed)
     "2024-12-25", # Christmas Day (Observed)
     "2024-12-26", # Unofficial days between Christmas and New Years
@@ -187,8 +187,8 @@ yyz:
     "2023-12-29",
     "2024-01-01", # New Year's Day
     "2024-02-19", # Nova Scotia Heritage Day and Family Day
-    "2024-04-19", # Good Friday
-    "2024-04-22", # Easter Monday
+    "2024-03-29", # Good Friday
+    "2024-04-01", # Easter Monday
     "2024-05-20", # Victoria Day
     "2024-07-01", # Canada Day
     "2024-08-05", # Civic Holiday / BC Day
