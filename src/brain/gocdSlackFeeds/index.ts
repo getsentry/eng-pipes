@@ -40,7 +40,7 @@ const ENGINEERING_PIPELINE_FILTER = [
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
 
-const INGEST_PIPELINE_FILTER = ['deploy-relay', 'deploy-relay-pop'];
+const INGEST_PIPELINE_FILTER = ['deploy-relay-processing', 'deploy-relay-pop'];
 
 const SNS_SAAS_PIPELINE_FILTER = [
   'deploy-snuba',
