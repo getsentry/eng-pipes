@@ -64,6 +64,7 @@ const SNS_SAAS_K8S_PIPELINE_FILTER = [
 ];
 const SNS_S4S_K8S_PIPELINE_FILTER = [
   'snuba-s4s-k8s',
+  'deploy-snuba-k8s-s4s',
   'deploy-snuba-k8s-customer-1',
   'deploy-snuba-k8s-customer-2',
   'deploy-snuba-k8s-customer-3',
