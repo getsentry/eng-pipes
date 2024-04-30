@@ -155,7 +155,7 @@ describe('sentry-options webhook', function () {
             type: 'header',
             text: {
               type: 'plain_text',
-              text: '❌ FAILED TO UPDATE in test_region: ❌',
+              text: ':warning: Failed to update in test_region: :warning:',
             },
           },
           {
@@ -268,7 +268,7 @@ describe('sentry-options webhook', function () {
             type: 'header',
             text: {
               type: 'plain_text',
-              text: '❌ FAILED TO UPDATE in test_region: ❌',
+              text: ':warning: Failed to update in test_region: :warning:',
             },
           },
           {
@@ -375,7 +375,7 @@ describe('sentry-options webhook', function () {
             type: 'header',
             text: {
               type: 'plain_text',
-              text: '❌ FAILED TO UPDATE in TESTING: ❌',
+              text: ':warning: Failed to update in TESTING: :warning:',
             },
           },
           {

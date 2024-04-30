@@ -168,8 +168,8 @@ export async function messageSlack(message: SentryOptionsResponse) {
       slackblocks.header(
         slackblocks.plaintext(
           message.region
-            ? `❌ FAILED TO UPDATE in ${message.region}: ❌`
-            : '❌ FAILED TO UPDATE ❌'
+            ? `:warning: Failed to update in ${message.region}: :warning:`
+            : ':warning: Failed to update :warning:'
         )
       ),
       ...generateBlock('drifted', message.drifted_options),
