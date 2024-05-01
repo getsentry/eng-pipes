@@ -6,9 +6,9 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import { buildServer } from '@/buildServer';
 import {
   Color,
+  DISCUSS_BACKEND_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
-  FEED_ENGINEERING_CHANNEL_ID,
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
@@ -157,10 +157,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(canaryReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -232,10 +232,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -351,10 +351,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(soakReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -426,10 +426,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -545,10 +545,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(soakReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -620,10 +620,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -717,10 +717,10 @@ describe('gocdSlackFeeds', function () {
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -792,10 +792,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -906,10 +906,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(canaryReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -981,10 +981,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -1118,10 +1118,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(canaryReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -1193,10 +1193,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -1378,10 +1378,10 @@ describe('gocdSlackFeeds', function () {
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(canaryReply);
     expect(postCalls[1][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(postCalls[2][0]).toMatchObject(
-      merge({}, wantPostMsg, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -1453,10 +1453,10 @@ describe('gocdSlackFeeds', function () {
     const updateCalls = bolt.client.chat.update.mock.calls;
     updateCalls.sort(sortMessages);
     expect(updateCalls[0][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
     expect(updateCalls[1][0]).toMatchObject(
-      merge({}, wantUpdate, { channel: FEED_ENGINEERING_CHANNEL_ID })
+      merge({}, wantUpdate, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
     expect(updateCalls[2][0]).toMatchObject(
       merge({}, wantUpdate, { channel: FEED_DEV_INFRA_CHANNEL_ID })
@@ -1515,7 +1515,7 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
-  it('post message to feed-deploy and not feed-engineering for failing checks', async function () {
+  it('post message to feed-deploy and not discuss-backend for failing checks', async function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {

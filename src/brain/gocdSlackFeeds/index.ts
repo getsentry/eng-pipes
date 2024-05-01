@@ -11,9 +11,9 @@ import {
   section,
 } from '@/blocks/slackBlocks';
 import {
+  DISCUSS_BACKEND_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
-  FEED_ENGINEERING_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
@@ -33,7 +33,7 @@ enum PauseCause {
 }
 
 // TODO: consolidate constants for regions
-const ENGINEERING_PIPELINE_FILTER = [
+const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',
   'deploy-getsentry-backend-de',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
@@ -76,7 +76,7 @@ const SNS_S4S_K8S_PIPELINE_FILTER = [
 const DEV_INFRA_PIPELINE_FILTER = [
   'deploy-gocd-staging',
   'deploy-gocd-production',
-  ...ENGINEERING_PIPELINE_FILTER,
+  ...BACKEND_PIPELINE_FILTER,
 ];
 
 export const IS_ROLLBACK_NECESSARY_LINK =
@@ -215,14 +215,14 @@ const ingestFeed = new DeployFeed({
   },
 });
 
-// Post certain pipelines to #team-engineering
-const engineeringFeed = new DeployFeed({
-  feedName: 'engineeringSlackFeed',
-  channelID: FEED_ENGINEERING_CHANNEL_ID,
-  msgType: SlackMessage.FEED_ENGINGEERING_DEPLOY,
+// Post certain pipelines to #discuss-backend
+const discussBackendFeed = new DeployFeed({
+  feedName: 'discussBackendSlackFeed',
+  channelID: DISCUSS_BACKEND_CHANNEL_ID,
+  msgType: SlackMessage.DISCUSS_BACKEND_DEPLOY,
   pipelineFilter: (pipeline) => {
     // We only want to log the getsentry FE and BE pipelines
-    if (!ENGINEERING_PIPELINE_FILTER.includes(pipeline.name)) {
+    if (!BACKEND_PIPELINE_FILTER.includes(pipeline.name)) {
       return false;
     }
 
@@ -299,10 +299,10 @@ export async function handler(body: GoCDResponse) {
   await Promise.all([
     deployFeed.handle(body),
     devinfraFeed.handle(body),
+    discussBackendFeed.handle(body),
     snsSaaSFeed.handle(body),
     snsSTFeed.handle(body),
     ingestFeed.handle(body),
-    engineeringFeed.handle(body),
     snsS4SK8sFeed.handle(body),
     snsSaaSK8sFeed.handle(body),
   ]);

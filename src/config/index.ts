@@ -51,6 +51,8 @@ export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
   process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
 export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
   process.env.DISCUSS_PRODUCT_CHANNEL_ID || 'CDXAKMGTU';
+export const DISCUSS_BACKEND_CHANNEL_ID = // #discuss-backend
+  process.env.DISCUSS_BACKEND_CHANNEL_ID || 'CUHS29QJ0';
 export const DISCUSS_FRONTEND_CHANNEL_ID = // #discuss-frontend
   process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'C8V02RHC7';
 export const DISABLE_GITHUB_METRICS =
