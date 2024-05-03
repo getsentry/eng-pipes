@@ -4,12 +4,19 @@ getsentry:
     privateKey: 'GH_APP_PRIVATE_KEY_FOR_GETSENTRY'
     installationId: 9303463
   project:
-    nodeId: 'PVT_kwDOABVQ184AZ4Df'
+    # GH project: https://github.com/orgs/getsentry/projects/227
+    nodeId: 'PVT_kwDOABVQ184AhGO2'
     fieldIds:
-      productArea: 'PVTSSF_lADOABVQ184AZ4DfzgQkiSc'
-      status: 'PVTSSF_lADOABVQ184AZ4DfzgQkiPA'
-      responseDue: 'PVTF_lADOABVQ184AZ4DfzgQkiSs'
-    # Old GH project: https://github.com/orgs/getsentry/projects/76
+      productArea: 'PVTSSF_lADOABVQ184AhGO2zgZ0pYk'
+      status: 'PVTSSF_lADOABVQ184AhGO2zgZ0pX4'
+      responseDue: 'PVTF_lADOABVQ184AhGO2zgZ0pY0'
+    # GH project: https://github.com/orgs/getsentry/projects/190
+    # nodeId: 'PVT_kwDOABVQ184AZ4Df'
+    # fieldIds:
+    #   productArea: 'PVTSSF_lADOABVQ184AZ4DfzgQkiSc'
+    #   status: 'PVTSSF_lADOABVQ184AZ4DfzgQkiPA'
+    #   responseDue: 'PVTF_lADOABVQ184AZ4DfzgQkiSs'
+    # GH project: https://github.com/orgs/getsentry/projects/76
     # nodeId: 'PVT_kwDOABVQ184AOGW8'
     # fieldIds:
     #   productArea: 'PVTSSF_lADOABVQ184AOGW8zgJEBno'
