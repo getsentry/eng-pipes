@@ -10,6 +10,7 @@ getsentry:
       productArea: 'PVTSSF_lADOABVQ184AhGO2zgZ0pYk'
       status: 'PVTSSF_lADOABVQ184AhGO2zgZ0pX4'
       responseDue: 'PVTF_lADOABVQ184AhGO2zgZ0pY0'
+    # Old GH projects (retired due to project item limit of 1200)
     # GH project: https://github.com/orgs/getsentry/projects/190
     # nodeId: 'PVT_kwDOABVQ184AZ4Df'
     # fieldIds:
