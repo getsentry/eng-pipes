@@ -298,7 +298,12 @@ export class DeployFeed {
   }
 
   async getBodyText(pipeline: GoCDPipeline) {
-    let body = `GoCD deployment started`;
+    let body  = '';
+    if (pipeline.stage.result.toLowerCase() == 'failed') {
+      body = 'GoCD deployment failed'
+    } else {
+      body = `GoCD deployment started`;
+    }
     const approvedBy = pipeline.stage['approved-by'];
     if (approvedBy) {
       // We check for "changes" since `getUser() can return an email

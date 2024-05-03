@@ -167,7 +167,7 @@ const snsSaaSFeed = new DeployFeed({
   channelID: FEED_SNS_SAAS_CHANNEL_ID,
   msgType: SlackMessage.FEED_SNS_SAAS_DEPLOY,
   pipelineFilter: (pipeline) => {
-    return SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name);
+    return SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name) && pipeline.stage.result.toLowerCase() === 'failed';
   },
 });
 
