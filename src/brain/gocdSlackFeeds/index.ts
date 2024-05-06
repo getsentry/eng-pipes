@@ -18,7 +18,6 @@ import {
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
-  GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types';
@@ -37,7 +36,6 @@ const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',
   'deploy-getsentry-backend-de',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
-  GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
 
 const INGEST_PIPELINE_FILTER = ['deploy-relay-processing', 'deploy-relay-pop'];
