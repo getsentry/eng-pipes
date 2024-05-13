@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { PRODUCT_OWNERS_INFO } from '@/config';
@@ -21,10 +22,15 @@ export const getChannelsForIssue = (
   }
   const channels: ChannelItem[] = teams.reduce(
     (acc: ChannelItem[], team: string) => {
-      const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'];
+      const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'] || ['sfo'];
+      const channel = PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'];
+      if (!channel) {
+        Sentry.captureMessage(`Could not find channel for ${team} in config`);
+        return acc;
+      }
       acc.push({
         channelId: PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'],
-        isChannelInBusinessHours: (offices || ['sfo'])
+        isChannelInBusinessHours: offices
           .map((office: any) => isTimeInBusinessHours(now, office))
           .includes(true),
       });
