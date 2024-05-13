@@ -10,11 +10,8 @@ import {
 } from '@/config';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 import { getChannelsForIssue } from '@utils/getChannelsForIssue';
 import { wrapHandler } from '@utils/wrapHandler';
-
-export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
   payload: { issue, label, repository, organization },

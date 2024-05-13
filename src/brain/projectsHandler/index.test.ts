@@ -37,8 +37,6 @@ describe('projectsHandler', function () {
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
     org.project = origProject;
-    await db('label_to_channel').delete();
-    await db.destroy();
   });
 
   beforeEach(async function () {

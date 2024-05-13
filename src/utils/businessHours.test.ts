@@ -18,7 +18,6 @@ jest.mock('@google-cloud/bigquery', () => ({
 import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   GETSENTRY_ORG,
   MAX_ROUTE_DAYS,
@@ -26,7 +25,6 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { db } from '@utils/db';
 
 import {
   calculateSLOViolationRoute,
@@ -37,33 +35,6 @@ import {
 } from './businessHours';
 
 describe('businessHours tests', function () {
-  beforeAll(async function () {
-    await db.migrate.latest();
-    await getLabelsTable().insert({
-      label_name: 'Test',
-      channel_id: 'CHNLIDRND1',
-      offices: ['sfo'],
-    });
-    await getLabelsTable().insert({
-      label_name: 'Undefined',
-      channel_id: 'CHNLIDRND1',
-      offices: undefined,
-    });
-    await getLabelsTable().insert({
-      label_name: 'Null',
-      channel_id: 'CHNLIDRND1',
-      offices: null,
-    });
-    await getLabelsTable().insert({
-      label_name: 'Other',
-      channel_id: 'CHNLIDRND1',
-      offices: ['sfo'],
-    });
-  });
-  afterAll(async function () {
-    await db('label_to_channel').delete();
-    await db.destroy();
-  });
   describe('calculateTimeToRespondBy', function () {
     const testTimestamps = [
       { day: 'Monday', timestamp: '2022-11-14T23:36:00.000Z' },

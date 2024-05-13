@@ -13,13 +13,6 @@ import {
 
 describe('Triage Notification Tests', function () {
   const org = GETSENTRY_ORG;
-  beforeAll(async function () {
-    await db.migrate.latest();
-  });
-  afterAll(async function () {
-    await db('label_to_channel').delete();
-    await db.destroy();
-  });
   describe('getTriageSLOTimestamp', function () {
     let getIssueDueDateFromProjectSpy;
     beforeAll(function () {
