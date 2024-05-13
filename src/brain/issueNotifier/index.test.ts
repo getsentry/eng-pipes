@@ -115,12 +115,12 @@ describe('issueNotifier Tests', function () {
         label: { name: 'Product Area: Test', id: 'random' },
         issue: {
           labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
-          organization: {
-            login: 'getsentry',
-          },
-          repository: {
-            name: 'routing-repo',
-          },
+        },
+        organization: {
+          login: 'getsentry',
+        },
+        repository: {
+          name: 'routing-repo',
         },
       };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {
