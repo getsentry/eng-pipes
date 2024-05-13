@@ -1,4 +1,5 @@
 import { EmitterWebhookEvent } from '@octokit/webhooks';
+import moment from 'moment-timezone';
 
 import {
   PRODUCT_AREA_LABEL_PREFIX,
@@ -9,6 +10,7 @@ import {
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
+import { getChannelsForIssue } from '@utils/getChannelsForIssue';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const getLabelsTable = () => db('label_to_channel');
@@ -44,21 +46,20 @@ export const githubLabelHandler = async ({
   // We didn't want to artificially limit this to 1-to-N or N-to-1, as N-to-N
   // mapping for this makes sense. Even more, a "channel" can actually be a
   // group convo or a private chat with the bot.
-  const channelsToNotify = (
-    await getLabelsTable()
-      .where({
-        label_name: productAreaLabel,
-      })
-      .select('channel_id')
-  ).map((row) => row.channel_id);
+  const channelsToNotify = getChannelsForIssue(
+    issue.repository.name,
+    issue.organization.login,
+    productAreaLabel.slice(PRODUCT_AREA_LABEL_PREFIX.length),
+    moment.utc()
+  );
   const escapedIssueTitle = issue.title
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
   await Promise.all(
-    channelsToNotify.map((channel) =>
+    channelsToNotify.map(({ channelId }) =>
       bolt.client.chat.postMessage({
         text: `⏲ A wild issue has appeared! <${issue.html_url}|#${issue.number} ${escapedIssueTitle}>`,
-        channel,
+        channel: channelId,
         unfurl_links: false,
         unfurl_media: false,
       })

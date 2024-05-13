@@ -3,18 +3,14 @@ import moment from 'moment-timezone';
 
 import {
   PRODUCT_AREA_LABEL_PREFIX,
-  PRODUCT_OWNERS_INFO,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
-import {
-  getBusinessHoursLeft,
-  isTimeInBusinessHours,
-} from '@/utils/businessHours';
+import { getBusinessHoursLeft } from '@/utils/businessHours';
+import { ChannelItem, getChannelsForIssue } from '@/utils/getChannelsForIssue';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import { getTeams } from '@utils/getTeams';
 
 const GH_API_PER_PAGE = 100;
 const DEFAULT_PRODUCT_AREA = 'Other';
@@ -60,11 +56,6 @@ type SlackMessageBlocks = {
   type: string;
   text?: object;
   fields?: object;
-};
-
-type ChannelItem = {
-  channelId: string;
-  isChannelInBusinessHours: boolean;
 };
 
 export const opts = {
@@ -393,32 +384,6 @@ export const constructSlackMessage = (
           .merge();
       });
   });
-};
-
-export const getChannelsForIssue = (
-  repo: string,
-  org: string,
-  productArea: string,
-  now: moment.Moment
-): ChannelItem[] => {
-  const teams = getTeams(repo, org, productArea);
-  if (!teams.length) {
-    return [];
-  }
-  const channels: ChannelItem[] = teams.reduce(
-    (acc: ChannelItem[], team: string) => {
-      const offices = PRODUCT_OWNERS_INFO['teams'][team]['offices'];
-      acc.push({
-        channelId: PRODUCT_OWNERS_INFO['teams'][team]['slack_channel'],
-        isChannelInBusinessHours: (offices || ['sfo'])
-          .map((office: any) => isTimeInBusinessHours(now, office))
-          .includes(true),
-      });
-      return acc;
-    },
-    []
-  );
-  return channels;
 };
 
 export const notifyProductOwnersForUntriagedIssues = async (
