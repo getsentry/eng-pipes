@@ -5,31 +5,10 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { bolt } from '@api/slack';
-import { db } from '@utils/db';
 
-import { getLabelsTable, githubLabelHandler } from '.';
-
-const NUM_CHANNELS = 2;
-
-const channelId = (i: number) => `CHNLIDRND${i}`;
+import { githubLabelHandler } from '.';
 
 describe('issueNotifier Tests', function () {
-  beforeAll(async function () {
-    await db.migrate.latest();
-    for (let i = 1; i <= NUM_CHANNELS; i++) {
-      await getLabelsTable().insert({
-        label_name: 'Product Area: Test',
-        channel_id: channelId(i),
-        offices: null,
-      });
-    }
-  });
-
-  afterAll(async function () {
-    await db('label_to_channel').delete();
-    await db.destroy();
-  });
-
   describe('githubLabelHandler', function () {
     beforeEach(() => {
       jest.clearAllMocks();
@@ -42,15 +21,21 @@ describe('issueNotifier Tests', function () {
       ],
       [
         'Only product area label',
-        { label: { name: 'Product Area: Test', id: 'test-id' } },
+        { label: { name: 'Product Area: Multi-Team', id: 'test-id' } },
         false,
       ],
       [
         `Product Area label on ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
         {
-          label: { name: 'Product Area: Test', id: 'test-id1' },
+          label: { name: 'Product Area: Multi-Team', id: 'test-id1' },
           issue: {
             labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
           },
         },
         true,
@@ -64,7 +49,15 @@ describe('issueNotifier Tests', function () {
         `${WAITING_FOR_PRODUCT_OWNER_LABEL} on Product Area label`,
         {
           label: { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
-          issue: { labels: [{ name: 'Product Area: Test', id: 'test-id2' }] },
+          issue: {
+            labels: [{ name: 'Product Area: Multi-Team', id: 'test-id2' }],
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
+          },
         },
         false,
       ],
@@ -75,8 +68,14 @@ describe('issueNotifier Tests', function () {
           issue: {
             labels: [
               { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
-              { name: 'Product Area: Test', id: 'test-id2' },
+              { name: 'Product Area: Multi-Team', id: 'test-id2' },
             ],
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
           },
         },
         false,
@@ -93,15 +92,19 @@ describe('issueNotifier Tests', function () {
       });
 
       if (shouldNotify) {
-        expect(bolt.client.chat.postMessage).toBeCalledTimes(NUM_CHANNELS);
-        for (let i = 1; i <= NUM_CHANNELS; i++) {
-          expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
-            text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
-            channel: channelId(i),
-            unfurl_links: false,
-            unfurl_media: false,
-          });
-        }
+        expect(bolt.client.chat.postMessage).toBeCalledTimes(2);
+        expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
+          text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
+          channel: 'C05A6BW303Z',
+          unfurl_links: false,
+          unfurl_media: false,
+        });
+        expect(bolt.client.chat.postMessage).toHaveBeenCalledWith({
+          text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 Spelling error in the README file>',
+          channel: 'C05A6BW303B',
+          unfurl_links: false,
+          unfurl_media: false,
+        });
       } else {
         expect(bolt.client.chat.postMessage).not.toBeCalled();
       }
@@ -112,6 +115,12 @@ describe('issueNotifier Tests', function () {
         label: { name: 'Product Area: Test', id: 'random' },
         issue: {
           labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
+        },
+        organization: {
+          login: 'getsentry',
+        },
+        repository: {
+          name: 'routing-repo',
         },
       };
       const eventPayload = hydrateGitHubEventAndPayload('issues', {
@@ -125,7 +134,7 @@ describe('issueNotifier Tests', function () {
         payload: eventPayload,
       });
       expect(bolt.client.chat.postMessage).toHaveBeenLastCalledWith({
-        channel: 'CHNLIDRND2',
+        channel: 'C05A6BW303Z',
         text: '⏲ A wild issue has appeared! <https://github.com/getsentry/Hello-World/issues/1|#1 &lt;Title with &lt; and &gt; characters&gt;>',
         unfurl_links: false,
         unfurl_media: false,

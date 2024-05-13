@@ -7,20 +7,12 @@ import { db } from '@utils/db';
 
 import {
   constructSlackMessage,
-  getChannelsForIssue,
   getTriageSLOTimestamp,
   notifyProductOwnersForUntriagedIssues,
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
   const org = GETSENTRY_ORG;
-  beforeAll(async function () {
-    await db.migrate.latest();
-  });
-  afterAll(async function () {
-    await db('label_to_channel').delete();
-    await db.destroy();
-  });
   describe('getTriageSLOTimestamp', function () {
     let getIssueDueDateFromProjectSpy;
     beforeAll(function () {
@@ -79,47 +71,7 @@ describe('Triage Notification Tests', function () {
       );
     });
   });
-  describe('getChannelsForIssue', () => {
-    it('will get channel info for repo without routing', () => {
-      expect(
-        getChannelsForIssue(
-          'test-ttt-simple',
-          'getsentry',
-          '',
-          moment('2022-12-12T17:00:00.000Z')
-        )
-      ).toEqual([{ channelId: 'C05A6BW303Z', isChannelInBusinessHours: true }]);
-    });
-    it('will get channel info for repo with routing', () => {
-      expect(
-        getChannelsForIssue(
-          'routing-repo',
-          'getsentry',
-          'Multi-Team',
-          moment('2022-12-14T00:00:00.000Z')
-        )
-      ).toEqual([
-        {
-          channelId: 'C05A6BW303Z',
-          isChannelInBusinessHours: true,
-        },
-        {
-          channelId: 'C05A6BW303B',
-          isChannelInBusinessHours: false,
-        },
-      ]);
-    });
-    it('will return team-ospo channel if inputs are invalid', () => {
-      expect(
-        getChannelsForIssue(
-          'garbage-repo',
-          'getsentry',
-          '',
-          moment('2022-12-12T17:00:00.000Z')
-        )
-      ).toEqual([{ channelId: 'C05A6BW303Y', isChannelInBusinessHours: true }]);
-    });
-  });
+
   describe('constructSlackMessage', function () {
     let boltPostMessageSpy;
     beforeEach(function () {

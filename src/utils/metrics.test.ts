@@ -18,13 +18,11 @@ jest.mock('@google-cloud/bigquery', () => ({
 import cloneDeep from 'lodash.clonedeep';
 import moment from 'moment-timezone';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { db } from '@utils/db';
 
 import { insertOss } from './metrics';
 
@@ -65,23 +63,10 @@ describe('metrics tests', function () {
         dateNowSpy = jest
           .spyOn(Date, 'now')
           .mockReturnValue(moment('2017-02-14T12:51:48.000Z').valueOf());
-        await db.migrate.latest();
-        await getLabelsTable().insert({
-          label_name: 'Product Area: Test',
-          channel_id: 'CHNLIDRND1',
-          offices: ['sfo'],
-        });
-        await getLabelsTable().insert({
-          label_name: 'Product Area: Other',
-          channel_id: 'CHNLIDRND1',
-          offices: ['sfo'],
-        });
       });
 
       afterAll(async () => {
         dateNowSpy.mockRestore();
-        await db('label_to_channel').delete();
-        await db.destroy();
       });
 
       it('should calculate triage by timestamp if labeled waiting for product owner', async function () {

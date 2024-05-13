@@ -1,6 +1,5 @@
 import { createGitHubEvent } from '@test/utils/github';
 
-import { getLabelsTable } from '@/brain/issueNotifier';
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_ORG,
@@ -32,11 +31,6 @@ describe('issueLabelHandler', function () {
     calculateSLOViolationTriageSpy = jest
       .spyOn(businessHourFunctions, 'calculateSLOViolationTriage')
       .mockReturnValue('2022-12-21T00:00:00.000Z');
-    await getLabelsTable().insert({
-      label_name: 'Product Area: Test',
-      channel_id: 'CHNLIDRND1',
-      offices: ['sfo'],
-    });
     jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
       'Product Area: Test': 1,
       'Product Area: Does Not Exist': 2,
@@ -47,8 +41,6 @@ describe('issueLabelHandler', function () {
     // @ts-expect-error
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
-    await db('label_to_channel').delete();
-    await db.destroy();
   });
 
   beforeEach(async function () {

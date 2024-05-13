@@ -23,10 +23,7 @@ import { createGitHubEvent } from '@test/utils/github';
 
 import { buildServer } from '@/buildServer';
 import { DRY_RUN, GETSENTRY_ORG } from '@/config';
-import { db } from '@utils/db';
 import * as dbFunctions from '@utils/metrics';
-
-import { getLabelsTable } from '../issueNotifier';
 
 import { githubMetrics as metrics } from '.';
 
@@ -47,20 +44,6 @@ const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
 describe('github webhook', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG;
-
-  beforeAll(async () => {
-    await db.migrate.latest();
-    await getLabelsTable().insert({
-      label_name: 'Product Area: Test',
-      channel_id: 'CHNLIDRND1',
-      offices: ['sfo'],
-    });
-  });
-
-  afterAll(async () => {
-    await db('label_to_channel').delete();
-    await db.destroy();
-  });
 
   beforeEach(async function () {
     fastify = await buildServer(false);
