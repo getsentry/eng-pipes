@@ -30,12 +30,12 @@ describe('issueNotifier Tests', function () {
           label: { name: 'Product Area: Multi-Team', id: 'test-id1' },
           issue: {
             labels: [{ name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id2' }],
-            organization: {
-              login: 'getsentry',
-            },
-            repository: {
-              name: 'routing-repo',
-            },
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
           },
         },
         true,
@@ -51,12 +51,12 @@ describe('issueNotifier Tests', function () {
           label: { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
           issue: {
             labels: [{ name: 'Product Area: Multi-Team', id: 'test-id2' }],
-            organization: {
-              login: 'getsentry',
-            },
-            repository: {
-              name: 'routing-repo',
-            },
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
           },
         },
         false,
@@ -70,12 +70,12 @@ describe('issueNotifier Tests', function () {
               { name: WAITING_FOR_PRODUCT_OWNER_LABEL, id: 'test-id1' },
               { name: 'Product Area: Multi-Team', id: 'test-id2' },
             ],
-            organization: {
-              login: 'getsentry',
-            },
-            repository: {
-              name: 'routing-repo',
-            },
+          },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
           },
         },
         false,

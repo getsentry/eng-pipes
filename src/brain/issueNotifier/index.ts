@@ -2,6 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import moment from 'moment-timezone';
 
 import {
+  GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
   SUPPORT_CHANNEL_ID,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -16,7 +17,7 @@ import { wrapHandler } from '@utils/wrapHandler';
 export const getLabelsTable = () => db('label_to_channel');
 
 export const githubLabelHandler = async ({
-  payload: { issue, label },
+  payload: { issue, label, repository, organization },
 }: EmitterWebhookEvent<'issues.labeled'>): Promise<void> => {
   if (!label) {
     return undefined;
@@ -47,8 +48,8 @@ export const githubLabelHandler = async ({
   // mapping for this makes sense. Even more, a "channel" can actually be a
   // group convo or a private chat with the bot.
   const channelsToNotify = getChannelsForIssue(
-    issue.repository.name,
-    issue.organization.login,
+    repository.name,
+    organization?.login || GETSENTRY_ORG.slug,
     productAreaLabel.slice(PRODUCT_AREA_LABEL_PREFIX.length),
     moment.utc()
   );
