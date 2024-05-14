@@ -5,7 +5,6 @@ import {
   GETSENTRY_ORG,
   PRODUCT_AREA_LABEL_PREFIX,
   SUPPORT_CHANNEL_ID,
-  WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { githubEvents } from '@api/github';
@@ -21,12 +20,7 @@ export const githubLabelHandler = async ({
   }
 
   let productAreaLabel: undefined | string;
-  if (
-    label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX) &&
-    issue.labels?.some(
-      (label) => label.name === WAITING_FOR_PRODUCT_OWNER_LABEL
-    )
-  ) {
+  if (label.name.startsWith(PRODUCT_AREA_LABEL_PREFIX)) {
     productAreaLabel = label.name;
   } else if (label.name === WAITING_FOR_SUPPORT_LABEL) {
     bolt.client.chat.postMessage({
