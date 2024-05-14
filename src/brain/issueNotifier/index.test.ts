@@ -21,8 +21,16 @@ describe('issueNotifier Tests', function () {
       ],
       [
         'Only product area label',
-        { label: { name: 'Product Area: Multi-Team', id: 'test-id' } },
-        false,
+        {
+          label: { name: 'Product Area: Multi-Team', id: 'test-id' },
+          organization: {
+            login: 'getsentry',
+          },
+          repository: {
+            name: 'routing-repo',
+          },
+        },
+        true,
       ],
       [
         `Product Area label on ${WAITING_FOR_PRODUCT_OWNER_LABEL}`,
