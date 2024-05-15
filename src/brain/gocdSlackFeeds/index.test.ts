@@ -1616,6 +1616,132 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('post message to discuss-eng-sns and feed-sns on snuba pipeline failure', async function () {
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'deploy-snuba-us',
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'health_check',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+    getUser.mockImplementation((args) => {
+      switch (args.email) {
+        case 'test@sentry.io':
+          return { slackUser: 'U1230' };
+        case 'test2@sentry.io':
+          return { slackUser: 'U1231' };
+        case 'test3@sentry.io':
+          return { slackUser: 'U1232' };
+        case 'test4@sentry.io':
+          return { slackUser: 'U1233' };
+        case 'test5@sentry.io':
+          return { slackUser: 'U1234' };
+        case 'test6@sentry.io':
+          return { slackUser: 'U1235' };
+        case 'test7@sentry.io':
+          return { slackUser: 'U1236' };
+        case 'test8@sentry.io':
+          return { slackUser: 'U1237' };
+        case 'test9@sentry.io':
+          return { slackUser: 'U1238' };
+        case 'test10@sentry.io':
+          return { slackUser: 'U1239' };
+        case 'test11@sentry.io':
+          return { slackUser: 'U12310' };
+        default:
+          return null;
+      }
+    });
+    org.api.repos.compareCommits.mockImplementation((_) => {
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: { author: { email: 'test@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test2@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test3@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test4@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test5@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test6@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test7@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test8@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test9@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test10@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test11@sentry.io' } },
+              author: {},
+            },
+          ],
+        },
+      };
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+  });
+
   function sortMessages(ao, bo) {
     const a = ao[0].channel;
     const b = bo[0].channel;
