@@ -1616,7 +1616,7 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
-  it('post message to discuss-eng-sns and feed-sns on snuba pipeline failure', async function () {
+  it('post an at message to feed-sns on snuba pipeline failure', async function () {
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);

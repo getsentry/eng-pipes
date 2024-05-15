@@ -12,7 +12,6 @@ import {
 } from '@/blocks/slackBlocks';
 import {
   DISCUSS_BACKEND_CHANNEL_ID,
-  DISCUSS_ENG_SNS_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
@@ -30,8 +29,6 @@ import { DeployFeed } from './deployFeed';
 enum PauseCause {
   CANARY = 'canary',
   SOAK = 'soak-time',
-  MIGRATION = 'migration',
-  HEALTH_CHECK = 'health-check',
 }
 
 // TODO: consolidate constants for regions
@@ -110,27 +107,6 @@ function getPauseCause(pipeline: GoCDPipeline) {
   ) {
     return PauseCause.SOAK;
   }
-  if (
-    SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name) &&
-    pipeline.stage.name === 'deploy-canary' &&
-    pipeline.stage.result.toLowerCase() === 'failed'
-  ) {
-    return PauseCause.CANARY;
-  }
-  if (
-    SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name) &&
-    pipeline.stage.name === 'migrate' &&
-    pipeline.stage.result.toLowerCase() === 'failed'
-  ) {
-    return PauseCause.MIGRATION;
-  }
-  if (
-    SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name) &&
-    pipeline.stage.name === 'health_check' &&
-    pipeline.stage.result.toLowerCase() === 'failed'
-  ) {
-    return PauseCause.HEALTH_CHECK;
-  }
   return null;
 }
 
@@ -191,74 +167,57 @@ const snsSaaSFeed = new DeployFeed({
   pipelineFilter: (pipeline) => {
     return SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name);
   },
-});
-
-const discussSnSFeed = new DeployFeed({
-  feedName: 'discussEngSnSSlackFeed',
-  channelID: DISCUSS_ENG_SNS_CHANNEL_ID,
-  msgType: SlackMessage.DISCUSS_SNS_DEPLOY,
-  pipelineFilter: (pipeline) => {
-    // We only want to log the snuba pipeline
-    if (!SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name)) {
-      return false;
-    }
-
-    // We only really care about creating new messages if the pipeline has
-    // failed.
-    return pipeline.stage.result.toLowerCase() === 'failed';
-  },
   replyCallback: async (pipeline) => {
-    const pauseCause = getPauseCause(pipeline);
+    if (pipeline.stage.result.toLowerCase() !== 'failed') {
+      return []
+    } else {
+      const [base, head] = await getBaseAndHeadCommit(pipeline);
+      const authors = head ? await getAuthors('snuba', base, head) : [];
+      // Get unique users from the authors
+      const uniqueUsers = await getUniqueUsers(authors);
 
-    if (pauseCause == null) {
-      return [];
-    }
-    const [base, head] = await getBaseAndHeadCommit(pipeline);
-    const authors = head ? await getAuthors('snuba', base, head) : [];
-    // Get unique users from the authors
-    const uniqueUsers = await getUniqueUsers(authors);
+      // Pick at most 10 users to cc
+      const ccUsers = uniqueUsers.slice(0, 10);
+      const ccString = ccUsers
+        .map((user) => {
+          return `<@${user.slackUser}>`;
+        })
+        .join(' ');
 
-    // Pick at most 10 users to cc
-    const ccUsers = uniqueUsers.slice(0, 10);
-    const ccString = ccUsers
-      .map((user) => {
-        return `<@${user.slackUser}>`;
-      })
-      .join(' ');
-
-    const failedJob = pipeline.stage.jobs.find(
-      (job) => job.result.toLowerCase() === 'failed'
-    );
-    if (!failedJob) {
-      // This should never happen, but if it does, we want to know about it
-      Sentry.captureException(
-        new Error('Failed to find failed job in failed pipeline')
+      const failedJob = pipeline.stage.jobs.find(
+        (job) => job.result.toLowerCase() === 'failed'
       );
-      return [];
-    }
-    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
+      if (!failedJob) {
+        // This should never happen, but if it does, we want to know about it
+        Sentry.captureException(
+          new Error('Failed to find failed job in failed pipeline')
+        );
+        return [];
+      }
+      const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
 
-    const blocks = [
-      header(
-        plaintext(`:double_vertical_bar: ${pipeline.name} has been paused`)
-      ),
-      section(
-        markdown(`The deployment pipeline has been paused due to detected issues in ${pauseCause}.\n
-Review the Errors*\n Review the errors in the *<${gocdLogsLink}|GoCD Logs>*.`)
-      ),
-    ];
-    if (ccUsers.length > 0) {
-      blocks.push(
-        context(
-          markdown(
-            `cc'ing the following ${
-              uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
-            }people who have commits in this deploy:\n${ccString}`
+      const blocks = [
+        header(
+          plaintext(`:double_vertical_bar: ${pipeline.name} has failed`)
+        ),
+        section(
+          markdown(`The deployment pipeline is blocked due to a failure in ${pipeline.stage.name}.\n
+  Review the Errors*\n Review the errors in the *<${gocdLogsLink}|GoCD Logs>*.`)
+        ),
+      ];
+      if (ccUsers.length > 0) {
+        blocks.push(
+          context(
+            markdown(
+              `cc'ing the following ${
+                uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+              }people who have commits in this deploy:\n${ccString}`
+            )
           )
-        )
-      );
+        );
+      }
+      return blocks;
     }
-    return blocks;
   },
 });
 
@@ -392,7 +351,6 @@ export async function handler(body: GoCDResponse) {
     devinfraFeed.handle(body),
     discussBackendFeed.handle(body),
     snsSaaSFeed.handle(body),
-    discussSnSFeed.handle(body),
     snsSTFeed.handle(body),
     ingestFeed.handle(body),
     snsS4SK8sFeed.handle(body),
