@@ -10,4 +10,5 @@ export enum SlackMessage {
   FEED_SNS_SAAS_K8S = 'feed-sns-saas-k8s',
   FEED_SNS_S4S_K8S = 'feed-sns-st-k8s',
   DISCUSS_BACKEND_DEPLOY = 'discuss-backend-deploy',
+  DISCUSS_SNS_DEPLOY = 'discuss-sns-deploy',
 }

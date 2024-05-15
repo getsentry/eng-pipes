@@ -1616,6 +1616,51 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('post message to discuss-eng-sns and feed-sns on snuba pipeline failure', async function () {
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'deploy-snuba-us',
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'health_check',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+  });
+
   function sortMessages(ao, bo) {
     const a = ao[0].channel;
     const b = bo[0].channel;
