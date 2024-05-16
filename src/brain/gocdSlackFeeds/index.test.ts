@@ -1617,27 +1617,6 @@ describe('gocdSlackFeeds', function () {
   });
 
   it('post message to discuss-eng-sns and feed-sns on snuba pipeline failure', async function () {
-    org.api.repos.compareCommits.mockImplementation((args) => {
-      if (args.owner !== GETSENTRY_ORG.slug) {
-        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
-      }
-      if (args.repo !== 'getsentry') {
-        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
-      }
-      return {
-        status: 200,
-        data: {
-          commits: [
-            {
-              commit: {},
-              author: {
-                login: 'githubUser',
-              },
-            },
-          ],
-        },
-      };
-    });
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
@@ -1740,6 +1719,31 @@ describe('gocdSlackFeeds', function () {
     await handler(gocdPayload);
 
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const pipelineFailureReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(
+            ':double_vertical_bar: deploy-snuba-us has failed'
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has failed due to detected issues in deploy-canary.\n
+Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following 10 of 11 people who have commits in this deploy:\n<@U1230> <@U1231> <@U1232> <@U1233> <@U1234> <@U1235> <@U1236> <@U1237> <@U1238> <@U1239>`
+          )
+        ),
+      ],
+    };
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(pipelineFailureReply);
   });
 
   function sortMessages(ao, bo) {
