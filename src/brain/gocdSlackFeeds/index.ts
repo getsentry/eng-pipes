@@ -211,10 +211,10 @@ const discussSnSFeed = new DeployFeed({
     const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
 
     const blocks = [
-      header(plaintext(`:double_vertical_bar: ${pipeline.name} has failed`)),
+      header(plaintext(`:x: ${pipeline.name} has failed`)),
       section(
         markdown(`The deployment pipeline has failed due to detected issues in ${pipeline.stage.name}.\n
-Review the Errors*\n Review the errors in the *<${gocdLogsLink}|GoCD Logs>*.`)
+*Review the errors* in the *<${gocdLogsLink}|GoCD Logs>*.`)
       ),
     ];
     if (ccUsers.length > 0) {
