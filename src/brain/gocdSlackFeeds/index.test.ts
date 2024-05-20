@@ -1725,13 +1725,11 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(
-            ':double_vertical_bar: deploy-snuba-us has failed'
-          )
+          slackblocks.plaintext(':x: deploy-snuba-us has failed')
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has failed due to detected issues in deploy-canary.\n
-Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
+*Review the errors* in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
