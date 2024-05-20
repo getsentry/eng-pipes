@@ -1616,6 +1616,134 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('post message to discuss-eng-sns and feed-sns on snuba pipeline failure', async function () {
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'deploy-snuba-us',
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'health_check',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+    getUser.mockImplementation((args) => {
+      switch (args.email) {
+        case 'test@sentry.io':
+          return { slackUser: 'U1230' };
+        case 'test2@sentry.io':
+          return { slackUser: 'U1231' };
+        case 'test3@sentry.io':
+          return { slackUser: 'U1232' };
+        case 'test4@sentry.io':
+          return { slackUser: 'U1233' };
+        case 'test5@sentry.io':
+          return { slackUser: 'U1234' };
+        case 'test6@sentry.io':
+          return { slackUser: 'U1235' };
+        case 'test7@sentry.io':
+          return { slackUser: 'U1236' };
+        case 'test8@sentry.io':
+          return { slackUser: 'U1237' };
+        case 'test9@sentry.io':
+          return { slackUser: 'U1238' };
+        case 'test10@sentry.io':
+          return { slackUser: 'U1239' };
+        case 'test11@sentry.io':
+          return { slackUser: 'U12310' };
+        default:
+          return null;
+      }
+    });
+    org.api.repos.compareCommits.mockImplementation((_) => {
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: { author: { email: 'test@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test2@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test3@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test4@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test5@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test6@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test7@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test8@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test9@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test10@sentry.io' } },
+              author: {},
+            },
+            {
+              commit: { author: { email: 'test11@sentry.io' } },
+              author: {},
+            },
+          ],
+        },
+      };
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const pipelineFailureReply = {
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(':x: deploy-snuba-us has failed')
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has failed due to detected issues in deploy-canary.\n
+*Review the errors* in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following 10 of 11 people who have commits in this deploy:\n<@U1230> <@U1231> <@U1232> <@U1233> <@U1234> <@U1235> <@U1236> <@U1237> <@U1238> <@U1239>`
+          )
+        ),
+      ],
+    };
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(pipelineFailureReply);
+  });
+
   function sortMessages(ao, bo) {
     const a = ao[0].channel;
     const b = bo[0].channel;
