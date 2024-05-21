@@ -214,6 +214,7 @@ const discussSnSFeed = new DeployFeed({
       header(plaintext(`:x: ${pipeline.name} has failed`)),
       section(
         markdown(`The deployment pipeline has failed due to detected issues in ${pipeline.stage.name}.\n
+Please do not ignore this message just because the environment is not SaaS, because deployment to any subsequent environment will be cancelled.\n
 *Review the errors* in the *<${gocdLogsLink}|GoCD Logs>*.`)
       ),
     ];
