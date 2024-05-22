@@ -35,12 +35,6 @@ product_areas:
   - team-ospo
   Performance:
   - team-performance
-  Performance - Interactions:
-  - team-performance
-  Performance - Queries:
-  - team-performance
-  Performance - Web Vitals:
-  - team-performance
   Profiling:
   - team-profiling
   Projects - Project Creation:
