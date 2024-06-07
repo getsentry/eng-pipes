@@ -111,6 +111,22 @@ function getPauseCause(pipeline: GoCDPipeline) {
 }
 
 /**
+ * Get the Sentry environment for an instance of the getsentry backend pipeline
+ * @param pipeline The pipeline to get the environment for
+ * @returns The environment or null if it is not applicable
+ */
+function getGetSentryBackendEnvionment(pipeline: GoCDPipeline) {
+  if (pipeline.name.includes('-de')) {
+    return 'de';
+  } else if (pipeline.name.includes('-us')) {
+    // We don't use 'us' for legacy reasons
+    return 'prod';
+  } else {
+    return null;
+  }
+}
+
+/**
  * Get the unique users from a list of authors
  * @param authors The authors to get the unique users from
  * @returns The unique users
@@ -261,9 +277,11 @@ const discussBackendFeed = new DeployFeed({
       return [];
     }
     const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
+    const environment = getGetSentryBackendEnvionment(pipeline);
+    const environmentQuery = environment ? `&environment=${environment}` : '';
     const sentryReleaseLink = pipeline.name.includes('s4s')
       ? `https://sentry-st.sentry.io/releases/backend@${head}/?project=1513938`
-      : `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
+      : `https://sentry.sentry.io/releases/backend@${head}/?project=1${environmentQuery}`;
 
     const blocks = [
       header(
