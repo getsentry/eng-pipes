@@ -38,6 +38,11 @@ describe('GoCD Paused Pipeline Notifications', function () {
     postMessageSpy.mockClear();
   });
 
+  it('should not send a message if org is not getsentry', async () => {
+    await triggerPausedPipelineBot({} as any, NOW);
+    expect(postMessageSpy).toHaveBeenCalledTimes(0);
+  });
+
   it('should not send a message if fetchDashboard fails', async () => {
     jest.spyOn(gocdAPI, 'fetchDashboard').mockImplementation(() => {
       return Promise.reject('error');

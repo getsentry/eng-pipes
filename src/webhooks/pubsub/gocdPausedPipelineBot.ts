@@ -35,6 +35,21 @@ export const triggerPausedPipelineBot = async (
     Sentry.captureException(err);
     return;
   }
+  const remindersByChannel = getRemindersByChannel(dashboardResult, now);
+  for (const [channel, pausedPipelineInfos] of remindersByChannel.entries()) {
+    const pausedPipelineReminderText = getReminderText(pausedPipelineInfos);
+    postMessageToSlack(
+      channel,
+      pausedPipelineReminderText,
+      pausedPipelineInfos
+    );
+  }
+};
+
+function getRemindersByChannel(
+  dashboardResult: GoCDDashboardResponse,
+  now: moment.Moment
+): Map<string, PausedPipelineInfo[]> {
   const remindersByChannel = new Map<string, PausedPipelineInfo[]>();
   for (const pipeline of dashboardResult.pipelines) {
     const pauseInfo = pipeline.pause_info;
@@ -51,31 +66,36 @@ export const triggerPausedPipelineBot = async (
     }
     const durationPaused = moment.duration(now.diff(pauseInfo.paused_at));
     if (durationPaused >= pausedPipelineReminder.notifyAfter) {
+      const pausedPipelineInfos =
+        remindersByChannel.get(pausedPipelineReminder.slackChannel) ?? [];
+      pausedPipelineInfos.push({
+        pipelineName: pipeline.name,
+        durationPaused,
+      });
       remindersByChannel.set(
         pausedPipelineReminder.slackChannel,
-        (
-          remindersByChannel.get(pausedPipelineReminder.slackChannel) || []
-        ).concat({
-          pipelineName: pipeline.name,
-          durationPaused,
-        })
+        pausedPipelineInfos
       );
     }
   }
+  return remindersByChannel;
+}
 
-  for (const [channel, pausedPipelineInfos] of remindersByChannel.entries()) {
-    const pausedPipelineReminderText = getReminderText(pausedPipelineInfos);
-    const pausedPipelineReminderBlocks = generatePausedPipelineReminderBlocks(
-      pausedPipelineReminderText,
-      pausedPipelineInfos
-    );
-    bolt.client.chat.postMessage({
-      channel,
-      text: pausedPipelineReminderText,
-      blocks: pausedPipelineReminderBlocks,
-    });
-  }
-};
+function postMessageToSlack(
+  channel: string,
+  pausedPipelineReminderText: string,
+  pausedPipelineInfos: PausedPipelineInfo[]
+) {
+  const pausedPipelineReminderBlocks = generatePausedPipelineReminderBlocks(
+    pausedPipelineReminderText,
+    pausedPipelineInfos
+  );
+  bolt.client.chat.postMessage({
+    channel,
+    text: pausedPipelineReminderText,
+    blocks: pausedPipelineReminderBlocks,
+  });
+}
 
 function generatePausedPipelineReminderBlocks(
   pausedPipelineReminderText: string,
