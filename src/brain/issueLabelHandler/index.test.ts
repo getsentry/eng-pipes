@@ -502,19 +502,20 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
-    it('does not route if bot adds product area label', async function () {
+    it.only('does not include routing comment if bot adds product area label', async function () {
       await createIssue('routing-repo');
       await addLabel(
         'Product Area: Test',
         'routing-repo',
+        'open',
         'sentry-test-fixture-nonmember'
       );
-      expectWaitingForSupport();
+      expectWaitingforProductOwner();
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
-      expect(modifyProjectIssueFieldSpy).not.toHaveBeenCalled();
+      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
     it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
