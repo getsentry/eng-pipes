@@ -203,17 +203,17 @@ export const OFFICES_12_HOUR = ['sfo', 'sea'];
 export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
   {
     pipelineName: 'deploy-getsentry-backend-s4s',
-    slackChannel: 'C05KAFZ5Y7M',
+    slackChannel: DISCUSS_BACKEND_CHANNEL_ID,
     notifyAfter: moment.duration(1.5, 'hour'),
   },
   {
     pipelineName: 'deploy-getsentry-backend-de',
-    slackChannel: 'C05KAFZ5Y7M',
+    slackChannel: DISCUSS_BACKEND_CHANNEL_ID,
     notifyAfter: moment.duration(1.5, 'hour'),
   },
   {
     pipelineName: 'deploy-getsentry-backend-us',
-    slackChannel: 'C05KAFZ5Y7M',
+    slackChannel: DISCUSS_BACKEND_CHANNEL_ID,
     notifyAfter: moment.duration(1.5, 'hour'),
   },
 ];
