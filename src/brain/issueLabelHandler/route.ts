@@ -73,7 +73,7 @@ async function makePredictions(
     predictedLabel = inferenceJSON.predicted_label;
     const probability = inferenceJSON.probability;
     // Only auto-route if probability is 0.7 or over
-    if (probability >= 0.7) {
+    if (probability >= 0.9) {
       await org.api.issues.addLabels({
         owner: org.slug,
         repo: repo,

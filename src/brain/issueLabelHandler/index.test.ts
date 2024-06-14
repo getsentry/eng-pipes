@@ -396,7 +396,7 @@ describe('issueLabelHandler', function () {
           data: {
             input_text: 'input text',
             predicted_label: 'Product Area: Test',
-            probability: 0.8,
+            probability: 0.9,
           },
         };
         const mockRequest = jest.fn().mockResolvedValue(mockResponse);
