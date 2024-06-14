@@ -91,6 +91,7 @@ OctokitWithRetries.issues = {
   createComment: jest.fn(async function (payload) {
     this._comments.push(payload.body);
   }),
+  get: jest.fn(),
   update: jest.fn(),
 };
 

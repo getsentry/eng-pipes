@@ -2,15 +2,19 @@ import '@sentry/tracing';
 
 import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
+import { GoogleAuth } from 'google-auth-library';
 
 import {
   GH_ORGS,
+  PREDICT_ENDPOINT,
   PRODUCT_AREA_LABEL_PREFIX,
   PRODUCT_AREA_UNKNOWN,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { isFromABot } from '@/utils/isFromABot';
 import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
+import { db } from '@utils/db';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 import { slugizeProductArea } from '@utils/slugizeProductArea';
@@ -42,12 +46,12 @@ function shouldLabelBeRemoved(labelName, target_name) {
 
 // Markers of State
 
-export async function markWaitingForSupport({
+export async function handleNewIssues({
   payload,
 }: EmitterWebhookEvent<'issues.opened'>) {
   const tx = Sentry.startTransaction({
     op: 'brain',
-    name: 'issueLabelHandler.markWaitingForSupport',
+    name: 'issueLabelHandler.handleNewIssues',
   });
 
   const org = GH_ORGS.getForPayload(payload);
@@ -65,20 +69,92 @@ export async function markWaitingForSupport({
   const repo = payload.repository.name;
   const issueNumber = payload.issue.number;
 
-  // New issues get a Waiting for: Support label.
-  await org.api.issues.addLabels({
+  const issueData = (
+    await org.api.issues.get({
+      owner: org.slug,
+      repo: repo,
+      issue_number: issueNumber,
+    })
+  )?.data;
+
+  const issueText = issueData?.title + ' ' + issueData?.body;
+  // Google Auth needs to set up to authenticate requests with inference Cloud Run instance
+  const auth = new GoogleAuth();
+  const client = await auth.getIdTokenClient(PREDICT_ENDPOINT);
+  let comment = `Assigning to @${org.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`;
+  let suggestedProductAreaLabel, productArea;
+
+  try {
+    const inferenceResponse = await client.request({
+      url: PREDICT_ENDPOINT,
+      method: 'POST',
+      data: { text: issueText },
+    });
+    // @ts-ignore Response is of type unknown since it comes from inference service
+    const inferenceJSON: any = inferenceResponse?.data;
+    suggestedProductAreaLabel = inferenceJSON.predicted_label;
+    const probability = inferenceJSON.probability;
+    // Only auto-route if probability is 0.7 or over
+    if (probability >= 0.7) {
+      await org.api.issues.addLabels({
+        owner: org.slug,
+        repo: repo,
+        issue_number: issueNumber,
+        labels: [suggestedProductAreaLabel],
+      });
+      productArea = suggestedProductAreaLabel?.substr(
+        PRODUCT_AREA_LABEL_PREFIX.length
+      );
+      const ghTeamSlug = 'product-owners-' + slugizeProductArea(productArea);
+      comment = `Auto-routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    }
+  } catch (err) {
+    Sentry.captureException(err);
+  }
+
+  const response = await org.api.issues.createComment({
     owner: org.slug,
     repo: repo,
     issue_number: issueNumber,
-    labels: [WAITING_FOR_SUPPORT_LABEL],
+    body: comment,
   });
 
-  await org.api.issues.createComment({
-    owner: org.slug,
-    repo: repo,
-    issue_number: issueNumber,
-    body: `Assigning to @${org.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`,
-  });
+  // Store all auto routed comments in db for now, so we can figure out how many issues have been successfully routed.
+  // We can do this by comparing the suggested product area label with the final product area of an issue.
+  if (comment.startsWith('Auto-routing')) {
+    await db('auto_routed_comments').insert({
+      owner: org.slug,
+      repo: repo,
+      url: response?.data.url,
+      product_area: suggestedProductAreaLabel,
+    });
+    // New routed issues get a Waiting for: Product Owner label.
+    await org.api.issues.addLabels({
+      owner: org.slug,
+      repo: repo,
+      issue_number: issueNumber,
+      labels: [WAITING_FOR_PRODUCT_OWNER_LABEL],
+    });
+    const itemId: string = await org.addIssueToGlobalIssuesProject(
+      payload.issue.node_id,
+      repo,
+      issueNumber
+    );
+
+    await org.modifyProjectIssueField(
+      itemId,
+      productArea,
+      org.project.fieldIds.productArea
+    );
+  } else {
+    // New unrouted issues get a Waiting for: Support label.
+    await org.api.issues.addLabels({
+      owner: org.slug,
+      repo: repo,
+      issue_number: issueNumber,
+      labels: [WAITING_FOR_SUPPORT_LABEL],
+    });
+  }
 
   tx.finish();
 }
@@ -110,7 +186,11 @@ export async function markNotWaitingForSupport({
 
   const org = GH_ORGS.getForPayload(payload);
 
-  const reasonsToSkip = [isNotInARepoWeCareAboutForRouting, isValidLabel];
+  const reasonsToSkip = [
+    isNotInARepoWeCareAboutForRouting,
+    isValidLabel,
+    isFromABot,
+  ];
   if (await shouldSkip(payload, org, reasonsToSkip)) {
     return;
   }
