@@ -1,6 +1,9 @@
 import fs from 'fs';
 
 import yaml from 'js-yaml';
+import moment from 'moment-timezone';
+
+import { GoCDPausedPipelineReminder } from '@/types';
 
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
@@ -148,6 +151,10 @@ export const FORCE_USER_TOKEN_GITHUB_CLIENT =
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT === 'true' ||
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT === '1';
 
+export const GOCD_TOKEN = process.env.GOCD_TOKEN || '';
+export const IAP_URL = process.env.IAP_URL || '';
+export const IAP_TARGET_AUDIENCE = process.env.IAP_TARGET_AUDIENCE || '';
+
 /**
  * Load GitHubOrgs. We support processing events coming at us from multiple
  * GitHub orgs and this is how we encapsulate it all.
@@ -192,3 +199,21 @@ export const OFFICE_TIME_ZONES = {
 export const OFFICES_24_HOUR = ['vie', 'ams', 'yyz'];
 
 export const OFFICES_12_HOUR = ['sfo', 'sea'];
+
+export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
+  {
+    pipelineName: 'deploy-getsentry-backend-s4s',
+    slackChannel: 'C05KAFZ5Y7M',
+    notifyAfter: moment.duration(1.5, 'hour'),
+  },
+  {
+    pipelineName: 'deploy-getsentry-backend-de',
+    slackChannel: 'C05KAFZ5Y7M',
+    notifyAfter: moment.duration(1.5, 'hour'),
+  },
+  {
+    pipelineName: 'deploy-getsentry-backend-us',
+    slackChannel: 'C05KAFZ5Y7M',
+    notifyAfter: moment.duration(1.5, 'hour'),
+  },
+];
