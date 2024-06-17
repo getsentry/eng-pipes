@@ -152,7 +152,6 @@ export const FORCE_USER_TOKEN_GITHUB_CLIENT =
   process.env.FORCE_USER_TOKEN_GITHUB_CLIENT === '1';
 
 export const GOCD_TOKEN = process.env.GOCD_TOKEN || '';
-export const IAP_URL = process.env.IAP_URL || '';
 export const IAP_TARGET_AUDIENCE = process.env.IAP_TARGET_AUDIENCE || '';
 
 /**
