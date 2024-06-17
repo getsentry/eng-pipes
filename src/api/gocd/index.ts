@@ -1,8 +1,6 @@
-import fetch, { Headers, RequestInit } from 'node-fetch';
-
 import { GOCD_ORIGIN } from '@/config';
 import { GoCDDashboardResponse } from '@/types';
-import { getIDToken } from '@utils/iap';
+import { fetchUsingProxyAuth, RequestOptions } from '@utils/iap';
 
 /**
  * The GoCD API returns a lot of data nested under `_embedded` keys.
@@ -34,16 +32,18 @@ export function removeNestedEmbeddings(data: any): any {
   }
 }
 
-async function gocdFetch<T>(urlSuffix: string, opts: RequestInit): Promise<T> {
+async function gocdFetch<T>(
+  urlSuffix: string,
+  opts: RequestOptions
+): Promise<T> {
   const fullURL = `${GOCD_ORIGIN}${urlSuffix}`;
-  const headers: Headers = new Headers(opts.headers || {});
-  const token = await getIDToken();
-  headers.set('Authorization', `Bearer ${process.env.GOCD_TOKEN}`);
-  headers.set('Proxy-Authorization', token);
-  opts.headers = headers;
+  opts.headers = {
+    Authorization: `Bearer ${process.env.GOCD_TOKEN}`,
+    ...opts.headers,
+  };
 
-  const resp = await fetch(fullURL, opts);
-  const json = await resp.json();
+  const resp = await fetchUsingProxyAuth(fullURL, opts);
+  const json = JSON.parse(resp.data);
   return removeNestedEmbeddings(json) as T;
 }
 

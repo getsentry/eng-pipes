@@ -1,18 +1,28 @@
-import { getIDToken } from './iap';
+import { GoogleAuth, IdTokenClient } from 'google-auth-library';
 
-jest.mock('google-auth-library', () => ({
-  GoogleAuth: jest.fn().mockImplementation(() => ({
-    getIdTokenClient: jest.fn().mockResolvedValue({
-      getRequestHeaders: jest.fn().mockResolvedValue({
-        Authorization: 'Bearer fake-token',
-      }),
-    }),
-  })),
-}));
+import { IAP_TARGET_AUDIENCE } from '@/config';
+
+import { fetchUsingProxyAuth } from './iap';
 
 describe('iap', () => {
-  it('returns the ID token', async () => {
-    const token = await getIDToken();
-    expect(token).toEqual('Bearer fake-token');
+  it('fetches using proxy auth', async () => {
+    const mockGetRequestHeaders = jest.fn().mockResolvedValue({
+      Authorization: 'Bearer blah',
+    });
+    const mockGetIdTokenClient = jest.fn().mockResolvedValue({
+      getRequestHeaders: mockGetRequestHeaders,
+    } as unknown as IdTokenClient);
+    const getIdTokenSpy = jest
+      .spyOn(GoogleAuth.prototype, 'getIdTokenClient')
+      .mockImplementation(mockGetIdTokenClient);
+
+    await fetchUsingProxyAuth('https://example.com', {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer blah',
+      },
+    });
+
+    expect(getIdTokenSpy).toHaveBeenCalledWith(IAP_TARGET_AUDIENCE);
   });
 });

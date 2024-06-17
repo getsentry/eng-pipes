@@ -68,7 +68,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["middie", "npm:5.3.0"],\
             ["module-alias", "npm:2.2.2"],\
             ["moment-timezone", "npm:0.5.39"],\
-            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],\
             ["nodemon", "npm:2.0.7"],\
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],\
             ["pino-pretty", "npm:4.5.0"],\
@@ -10170,7 +10169,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["middie", "npm:5.3.0"],\
             ["module-alias", "npm:2.2.2"],\
             ["moment-timezone", "npm:0.5.39"],\
-            ["node-fetch", "virtual:1e5e0403195a65f6a2c7239f59d5d2f1920ec39b64bf97b1abfd4c4e978f95f60b4b84960156c3b00ba985d44b2ff0d4f7c04f46d62a0027be1ae08b0a72296c#npm:2.6.9"],\
             ["nodemon", "npm:2.0.7"],\
             ["pg", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:8.5.1"],\
             ["pino-pretty", "npm:4.5.0"],\

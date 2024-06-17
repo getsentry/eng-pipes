@@ -1,16 +1,14 @@
-import fetch, { Headers } from 'node-fetch';
-
-import { GOCD_ORIGIN } from '@/config';
+import { GOCD_ORIGIN, GOCD_TOKEN } from '@/config';
 import { GoCDDashboardResponse } from '@/types';
 import * as iap from '@/utils/iap';
 
 import { fetchDashboard, removeNestedEmbeddings } from './index';
 
 describe('gocd', () => {
-  let iapSpy: jest.SpyInstance;
-  beforeEach(() => {
-    iapSpy = jest.spyOn(iap, 'getIDToken');
-    iapSpy.mockReturnValue('fake-token');
+  let fetchUsingProxyAuthSpy: jest.SpyInstance;
+
+  beforeAll(() => {
+    fetchUsingProxyAuthSpy = jest.spyOn(iap, 'fetchUsingProxyAuth');
   });
 
   afterEach(() => {
@@ -102,26 +100,57 @@ describe('gocd', () => {
     expect(removeNestedEmbeddings(data)).toEqual(data);
   });
 
+  it('handles nested primitives', () => {
+    const data = {
+      _embedded: {
+        key: [],
+      },
+      nested: {
+        key: 'value',
+      },
+    };
+    const expected = {
+      key: [],
+      nested: {
+        key: 'value',
+      },
+    };
+    expect(removeNestedEmbeddings(data)).toEqual(expected);
+  });
+
+  it('handles primitives', () => {
+    const data = 'value';
+    expect(removeNestedEmbeddings(data)).toEqual(data);
+  });
+
   it('fetches the GoCD dashboard', async () => {
+    fetchUsingProxyAuthSpy.mockReturnValue(
+      Promise.resolve({
+        data: `
+        {
+          "_embedded": {
+            "pipelines": []
+          }
+        }`,
+      })
+    );
+
     const mockResponse: GoCDDashboardResponse = {
       pipelines: [],
     };
 
-    jest.spyOn(fetch, 'default').mockResolvedValue({
-      json: jest.fn().mockResolvedValue(mockResponse),
-    });
-
     const response = await fetchDashboard();
 
-    const headers = new Headers();
-    headers.set('Authorization', 'Bearer fake-token');
-    headers.set('Proxy-Authorization', 'fake-token');
-    headers.set('Accept', 'application/vnd.go.cd.v4+json');
-
-    expect(fetch).toHaveBeenCalledWith(`${GOCD_ORIGIN}/go/api/dashboard`, {
-      method: 'GET',
-      headers,
-    });
+    expect(fetchUsingProxyAuthSpy).toHaveBeenCalledWith(
+      `${GOCD_ORIGIN}/go/api/dashboard`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/vnd.go.cd.v4+json',
+          Authorization: `Bearer ${GOCD_TOKEN}`,
+        },
+      }
+    );
     expect(response).toEqual(mockResponse);
   });
 });
