@@ -38,7 +38,7 @@ export const triggerPausedPipelineBot = async (
   const remindersByChannel = getRemindersByChannel(dashboardResult, now);
   for (const [channel, pausedPipelineInfos] of remindersByChannel.entries()) {
     const pausedPipelineReminderText = getReminderText(pausedPipelineInfos);
-    postMessageToSlack(
+    await postMessageToSlack(
       channel,
       pausedPipelineReminderText,
       pausedPipelineInfos
@@ -81,7 +81,7 @@ function getRemindersByChannel(
   return remindersByChannel;
 }
 
-function postMessageToSlack(
+async function postMessageToSlack(
   channel: string,
   pausedPipelineReminderText: string,
   pausedPipelineInfos: PausedPipelineInfo[]
@@ -90,7 +90,7 @@ function postMessageToSlack(
     pausedPipelineReminderText,
     pausedPipelineInfos
   );
-  bolt.client.chat.postMessage({
+  await bolt.client.chat.postMessage({
     channel,
     text: pausedPipelineReminderText,
     blocks: pausedPipelineReminderBlocks,
