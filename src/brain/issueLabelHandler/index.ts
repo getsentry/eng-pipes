@@ -6,7 +6,7 @@ import {
   ensureOneWaitingForLabel,
   updateFollowupsOnComment,
 } from './followups';
-import { markNotWaitingForSupport, markWaitingForSupport } from './route';
+import { handleNewIssues, markNotWaitingForSupport } from './route';
 import {
   markNotWaitingForProductOwner,
   markWaitingForProductOwner,
@@ -19,8 +19,8 @@ export async function issueLabelHandler() {
   githubEvents.on('issues.opened', markWaitingForProductOwner);
   githubEvents.removeListener('issues.labeled', markNotWaitingForProductOwner);
   githubEvents.on('issues.labeled', markNotWaitingForProductOwner);
-  githubEvents.removeListener('issues.opened', markWaitingForSupport);
-  githubEvents.on('issues.opened', markWaitingForSupport);
+  githubEvents.removeListener('issues.opened', handleNewIssues);
+  githubEvents.on('issues.opened', handleNewIssues);
   githubEvents.removeListener('issues.labeled', markNotWaitingForSupport);
   githubEvents.on('issues.labeled', markNotWaitingForSupport);
   githubEvents.removeListener(

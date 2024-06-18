@@ -13,6 +13,10 @@ import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
 
+jest.mock('google-auth-library');
+
+import { GoogleAuth } from 'google-auth-library';
+
 import { issueLabelHandler } from '.';
 
 describe('issueLabelHandler', function () {
@@ -130,14 +134,19 @@ describe('issueLabelHandler', function () {
     );
   }
 
-  async function addLabel(label: string, repo?: string, state?: string) {
+  async function addLabel(
+    label: string,
+    repo?: string,
+    state?: string,
+    sender?: string
+  ) {
     await createGitHubEvent(
       fastify,
       'issues.labeled',
       makePayload({
         repo,
         label,
-        sender: undefined,
+        sender,
         state,
         author_association: undefined,
       })
@@ -344,6 +353,27 @@ describe('issueLabelHandler', function () {
         .spyOn(org, 'modifyProjectIssueField')
         .mockImplementation(jest.fn());
     });
+
+    beforeEach(function () {
+      GoogleAuth.mockImplementation(() => {
+        const mockResponse = {
+          data: {
+            input_text: 'input text',
+            predicted_label: 'Product Area: Test',
+            probability: 0.6,
+          },
+        };
+        const mockRequest = jest.fn().mockResolvedValue(mockResponse);
+        const mockIdTokenClient = jest
+          .fn()
+          .mockResolvedValue({ request: mockRequest });
+
+        return {
+          getIdTokenClient: mockIdTokenClient,
+        };
+      });
+    });
+
     afterEach(function () {
       jest.clearAllMocks();
     });
@@ -356,6 +386,41 @@ describe('issueLabelHandler', function () {
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+      ]);
+      expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
+    });
+
+    it('auto routes new issues that with label if probability > 0.7', async function () {
+      GoogleAuth.mockImplementation(() => {
+        const mockResponse = {
+          data: {
+            input_text: 'input text',
+            predicted_label: 'Product Area: Test',
+            probability: 0.9,
+          },
+        };
+        const mockRequest = jest.fn().mockResolvedValue(mockResponse);
+        const mockIdTokenClient = jest
+          .fn()
+          .mockResolvedValue({ request: mockRequest });
+
+        return {
+          getIdTokenClient: mockIdTokenClient,
+        };
+      });
+      await createIssue('routing-repo');
+      expectNotWaitingForSupport();
+      expectWaitingforProductOwner();
+      expect(org.api.issues._labels).toContain('Product Area: Test');
+      // Simulate GitHub adding Waiting for Product Owner Label to send webhook
+      await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
+      await addLabel(
+        'Product Area: Test',
+        'routing-repo',
+        'sentry-test-fixture-nonmember'
+      );
+      expect(org.api.issues._comments).toEqual([
+        'Auto-routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -433,6 +498,22 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
         'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+      ]);
+      expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
+    });
+
+    it.only('does not include routing comment if bot adds product area label', async function () {
+      await createIssue('routing-repo');
+      await addLabel(
+        'Product Area: Test',
+        'routing-repo',
+        'open',
+        'sentry-test-fixture-nonmember'
+      );
+      expectWaitingforProductOwner();
+      expect(org.api.issues._labels).toContain('Product Area: Test');
+      expect(org.api.issues._comments).toEqual([
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -797,7 +878,7 @@ describe('issueLabelHandler', function () {
       }
     );
 
-    it.only.each([
+    it.each([
       WAITING_FOR_PRODUCT_OWNER_LABEL,
       WAITING_FOR_SUPPORT_LABEL,
       WAITING_FOR_COMMUNITY_LABEL,
