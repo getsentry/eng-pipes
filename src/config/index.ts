@@ -12,9 +12,6 @@ export const SENTRY_DSN =
     'https://34b97f5891a044c6ab1f6ce6332733fb@o1.ingest.sentry.io/5246761') ||
   process.env.SENTRY_LOCAL_DSN ||
   '';
-
-export const PREDICT_ENDPOINT =
-  process.env.PREDICT_ENDPOINT || 'http://127.0.0.1:9002/predict';
 export const DEFAULT_PORT = 3000;
 
 export const DAY_IN_MS = 1000 * 60 * 60 * 24;
