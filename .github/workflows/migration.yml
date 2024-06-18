@@ -4,8 +4,10 @@ name: Migration
 
 on:
   push:
+    paths:
+      - 'migrations/**'
     branches:
-      - hubertdeng123/fix-migrations
+      - main
   workflow_dispatch:
     inputs:
       name:
