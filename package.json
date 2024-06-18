@@ -62,7 +62,6 @@
     "@types/tar": "^6.1.4",
     "fastify": "^3.29.4",
     "fastify-formbody": "^5.2.0",
-    "google-auth-library": "^9.11.0",
     "js-yaml": "^4.1.0",
     "knex": "^2.4.2",
     "middie": "^5.3.0",
