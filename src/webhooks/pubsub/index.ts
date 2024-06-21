@@ -6,6 +6,7 @@ import moment from 'moment-timezone';
 
 import { GH_ORGS } from '@/config';
 
+import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
@@ -51,6 +52,7 @@ export const pubSubHandler = async (
     ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
     ['stale-bot', triggerStaleBot],
     ['slack-scores', triggerSlackScores],
+    ['gocd-paused-pipeline-bot', triggerPausedPipelineBot],
   ]).get(payload.name);
 
   if (operation) {
