@@ -38,8 +38,8 @@ sfo:
     "2024-05-24", # Day Off (add to Memorial Day)
     "2024-05-27", # Memorial Day
     "2024-06-19", # Juneteenth (Observed)
-    "2024-07-03", # Independence Day (additional holiday)
     "2024-07-04", # Independence Day
+    "2024-07-05", # Independence Day (additional holiday)
     "2024-08-30", # Day Off (add to Labor Day)
     "2024-09-02", # Labor Day
     "2024-10-14", # Indigenous Peoples’ Day
@@ -89,8 +89,8 @@ sea:
     "2024-05-24", # Day Off (add to Memorial Day)
     "2024-05-27", # Memorial Day
     "2024-06-19", # Juneteenth (Observed)
-    "2024-07-03", # Independence Day (additional holiday)
     "2024-07-04", # Independence Day
+    "2024-07-05", # Independence Day (additional holiday)
     "2024-08-30", # Day Off (add to Labor Day)
     "2024-09-02", # Labor Day
     "2024-10-14", # Indigenous Peoples’ Day
