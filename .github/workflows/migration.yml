@@ -4,8 +4,6 @@ name: Migration
 
 on:
   push:
-    paths:
-      - 'migrations/**'
     branches:
       - main
       - hubertdeng123/test-migration
