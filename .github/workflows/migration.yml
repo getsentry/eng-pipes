@@ -24,6 +24,9 @@ jobs:
     name: run migration
     runs-on: ubuntu-latest
     environment: migration
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
     - name: Checkout
@@ -34,13 +37,15 @@ jobs:
       with:
         node-version: '12'
 
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool
+        service_account: gha-eng-pipes-deploy@sac-prod-sa.iam.gserviceaccount.com
+
     # Setup gcloud CLI
     - name: Setup gcloud CLI
-      uses: google-github-actions/setup-gcloud@v0
-      with:
-        service_account_email: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}
-        service_account_key: ${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}
-        export_default_credentials: true
+      uses: google-github-actions/setup-gcloud@v1
 
     - name: Setup CloudSQL Proxy
       env:
