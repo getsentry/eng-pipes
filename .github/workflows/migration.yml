@@ -35,7 +35,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v3
       with:
-        node-version: '12'
+        node-version: '14'
 
     - id: 'auth'
       uses: 'google-github-actions/auth@v2'
