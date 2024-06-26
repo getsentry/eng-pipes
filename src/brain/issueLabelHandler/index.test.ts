@@ -502,7 +502,7 @@ describe('issueLabelHandler', function () {
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
-    it.only('does not include routing comment if bot adds product area label', async function () {
+    it('does not include routing comment if bot adds product area label', async function () {
       await createIssue('routing-repo');
       await addLabel(
         'Product Area: Test',
