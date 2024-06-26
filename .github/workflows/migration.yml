@@ -27,6 +27,8 @@ jobs:
     permissions:
       id-token: write
       contents: read
+    env:
+      GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
 
     steps:
     - name: Checkout
@@ -35,7 +37,7 @@ jobs:
     - name: Setup node
       uses: actions/setup-node@v3
       with:
-        node-version: '12'
+        node-version: '14'
 
     - id: 'auth'
       uses: 'google-github-actions/auth@v2'
