@@ -64,5 +64,6 @@ jobs:
         DB_USER: ${{ secrets.DB_USER }}
         DB_NAME: ${{ secrets.DB_NAME }}
         DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
       run: |
         yarn migrate migrate:${{ github.event.inputs.name || 'latest' }} --env ${{ github.event.inputs.environment || 'proxy' }}
