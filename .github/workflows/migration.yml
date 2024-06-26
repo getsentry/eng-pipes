@@ -4,10 +4,9 @@ name: Migration
 
 on:
   push:
-    paths:
-      - 'migrations/**'
     branches:
       - main
+      - hubertdeng123/bump-node-migrations
   workflow_dispatch:
     inputs:
       name:
