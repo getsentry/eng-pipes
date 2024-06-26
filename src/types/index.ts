@@ -173,6 +173,59 @@ type GoCDStateType = 'Passed' | 'Failed' | 'Cancelled' | 'Building';
 
 export type GoCDBuildType = 'git' | 'pipeline';
 
+export type DashboardPipelinePauseInfo = {
+  paused: boolean;
+  paused_by: string | null;
+  pause_reason: string | null;
+  paused_at: string | null;
+};
+
+export type DashboardPipeline = {
+  name: string;
+  last_updated_timestamp: number;
+  locked: boolean;
+  pause_info?: DashboardPipelinePauseInfo;
+  can_operate: boolean;
+  can_administer: boolean;
+  can_unlock: boolean;
+  can_pause: boolean;
+  from_config_repo: boolean;
+  instances: DashboardPipelineInstance[];
+};
+
+export type DashboardPipelineStage = {
+  name: string;
+  counter: number;
+  status: string;
+  approved_by: string;
+  scheduled_at: string;
+};
+
+export type DashboardPipelineInstance = {
+  label: string;
+  counter: number;
+  triggered_by: string;
+  scheduled_at: number;
+  stages: DashboardPipelineStage[];
+};
+
+export type PipelineGroup = {
+  name: string;
+  pipelines: string[];
+  // TODO: add the rest of the fields
+};
+
+export type GoCDDashboardResponse = {
+  pipeline_groups: PipelineGroup[];
+  pipelines: DashboardPipeline[];
+};
+
+export type GoCDPausedPipelineReminder = {
+  pipelineName: string;
+  slackChannel: string;
+  notifyAfter: moment.Duration;
+};
+
 export interface SentryOptionsResponse {
   region: string;
   source: string;

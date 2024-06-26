@@ -55,7 +55,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],\
             ["fastify", "npm:3.29.5"],\
             ["fastify-formbody", "npm:5.2.0"],\
-            ["google-auth-library", "npm:9.11.0"],\
+            ["google-auth-library", "npm:9.10.0"],\
             ["husky", "npm:4.3.0"],\
             ["jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.3.1"],\
             ["jest-circus", "npm:27.3.1"],\
@@ -6032,10 +6032,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["npm:9.11.0", {\
-          "packageLocation": "./.yarn/cache/google-auth-library-npm-9.11.0-21ebf7d9c0-984d344b5e.zip/node_modules/google-auth-library/",\
+        ["npm:9.10.0", {\
+          "packageLocation": "./.yarn/cache/google-auth-library-npm-9.10.0-58be44cab5-238ef40fba.zip/node_modules/google-auth-library/",\
           "packageDependencies": [\
-            ["google-auth-library", "npm:9.11.0"],\
+            ["google-auth-library", "npm:9.10.0"],\
             ["base64-js", "npm:1.3.1"],\
             ["ecdsa-sig-formatter", "npm:1.0.11"],\
             ["gaxios", "npm:6.6.0"],\
@@ -10156,7 +10156,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["eslint-plugin-simple-import-sort", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:7.0.0"],\
             ["fastify", "npm:3.29.5"],\
             ["fastify-formbody", "npm:5.2.0"],\
-            ["google-auth-library", "npm:9.11.0"],\
+            ["google-auth-library", "npm:9.10.0"],\
             ["husky", "npm:4.3.0"],\
             ["jest", "virtual:b77bd565da35d59b6f0008d506d805f28323c88637cb50db85f7c4cea9d5e9a8b88634ab36a9cc065ba1abf08ff10bedc951fc7fd19b783f44971cd1457b8daf#npm:27.3.1"],\
             ["jest-circus", "npm:27.3.1"],\

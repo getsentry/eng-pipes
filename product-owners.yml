@@ -19,6 +19,8 @@ product_areas:
   - team-support
   Ingestion and Filtering:
   - team-ingest
+  Insights:
+  - team-performance
   Issues:
   - team-issues
   Issues - Source Maps:
@@ -32,12 +34,6 @@ product_areas:
   Other:
   - team-ospo
   Performance:
-  - team-performance
-  Performance - Interactions:
-  - team-performance
-  Performance - Queries:
-  - team-performance
-  Performance - Web Vitals:
   - team-performance
   Profiling:
   - team-profiling

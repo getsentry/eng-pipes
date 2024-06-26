@@ -12,6 +12,7 @@ import {
 } from '@/blocks/slackBlocks';
 import {
   DISCUSS_BACKEND_CHANNEL_ID,
+  DISCUSS_ENG_SNS_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
@@ -169,6 +170,69 @@ const snsSaaSFeed = new DeployFeed({
   },
 });
 
+const discussSnSFeed = new DeployFeed({
+  feedName: 'discussEngSnSSlackFeed',
+  channelID: DISCUSS_ENG_SNS_CHANNEL_ID,
+  msgType: SlackMessage.DISCUSS_SNS_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    // We only want to log the snuba pipeline
+    if (!SNS_SAAS_PIPELINE_FILTER.includes(pipeline.name)) {
+      return false;
+    }
+
+    // We only really care about creating new messages if the pipeline has
+    // failed.
+    return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+  replyCallback: async (pipeline) => {
+    const [base, head] = await getBaseAndHeadCommit(pipeline);
+    const authors = head ? await getAuthors('snuba', base, head) : [];
+    // Get unique users from the authors
+    const uniqueUsers = await getUniqueUsers(authors);
+
+    // Pick at most 10 users to cc
+    const ccUsers = uniqueUsers.slice(0, 10);
+    const ccString = ccUsers
+      .map((user) => {
+        return `<@${user.slackUser}>`;
+      })
+      .join(' ');
+
+    const failedJob = pipeline.stage.jobs.find(
+      (job) => job.result.toLowerCase() === 'failed'
+    );
+    if (!failedJob) {
+      // This should never happen, but if it does, we want to know about it
+      Sentry.captureException(
+        new Error('Failed to find failed job in failed pipeline')
+      );
+      return [];
+    }
+    const gocdLogsLink = `https://deploy.getsentry.net/go/tab/build/detail/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}/${failedJob.name}`;
+
+    const blocks = [
+      header(plaintext(`:x: ${pipeline.name} has failed`)),
+      section(
+        markdown(`The deployment pipeline has failed due to detected issues in ${pipeline.stage.name}.\n
+Please do not ignore this message just because the environment is not SaaS, because deployment to any subsequent environment will be cancelled.\n
+*Review the errors* in the *<${gocdLogsLink}|GoCD Logs>*.`)
+      ),
+    ];
+    if (ccUsers.length > 0) {
+      blocks.push(
+        context(
+          markdown(
+            `cc'ing the following ${
+              uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
+            }people who have commits in this deploy:\n${ccString}`
+          )
+        )
+      );
+    }
+    return blocks;
+  },
+});
+
 const snsSaaSK8sFeed = new DeployFeed({
   feedName: 'snsSaaSK8sSlackFeed',
   channelID: FEED_SNS_SAAS_CHANNEL_ID,
@@ -299,6 +363,7 @@ export async function handler(body: GoCDResponse) {
     devinfraFeed.handle(body),
     discussBackendFeed.handle(body),
     snsSaaSFeed.handle(body),
+    discussSnSFeed.handle(body),
     snsSTFeed.handle(body),
     ingestFeed.handle(body),
     snsS4SK8sFeed.handle(body),
