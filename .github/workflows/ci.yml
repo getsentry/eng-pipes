@@ -152,6 +152,7 @@ jobs:
           DB_INSTANCE_CONNECTION_NAME: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
           GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
           GCP_SERVICE_ACCOUNT: ${{ vars.GCP_SERVICE_ACCOUNT }}
+          PREDICT_ENDPOINT: ${{ vars.PREDICT_ENDPOINT }}
         run: |
           echo "deploy-start=$(date +%s)" >> "$GITHUB_OUTPUT"
           bin/deploy.sh

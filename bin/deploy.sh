@@ -8,6 +8,7 @@ env_vars="${env_vars}VERSION=${VERSION},"
 env_vars="${env_vars}DB_USER=${DB_USER},"
 env_vars="${env_vars}DB_NAME=${DB_NAME},"
 env_vars="${env_vars}DB_INSTANCE_CONNECTION_NAME=${DB_INSTANCE_CONNECTION_NAME},"
+env_vars="${env_vars}PREDICT_ENDPOINT=${PREDICT_ENDPOINT},"
 
 secret_names="
 GH_APP_PRIVATE_KEY_FOR_GETSENTRY
