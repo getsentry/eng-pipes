@@ -32,6 +32,8 @@ export const triggerPausedPipelineBot = async (
   try {
     dashboardResult = await fetchDashboard();
   } catch (err) {
+    // eslint-disable-next-line no-console
+    console.log('Failed to fetch dashboard', err);
     Sentry.captureException(err);
     return;
   }
