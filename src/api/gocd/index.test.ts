@@ -126,12 +126,11 @@ describe('gocd', () => {
   it('fetches the GoCD dashboard', async () => {
     fetchUsingProxyAuthSpy.mockReturnValue(
       Promise.resolve({
-        data: `
-        {
-          "_embedded": {
-            "pipelines": []
-          }
-        }`,
+        data: {
+          _embedded: {
+            pipelines: [],
+          },
+        },
       })
     );
 
