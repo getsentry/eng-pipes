@@ -43,7 +43,7 @@ async function gocdFetch<T>(
   };
 
   const resp = await fetchUsingProxyAuth(fullURL, opts);
-  const json = JSON.parse(resp.data);
+  const json = JSON.parse(JSON.stringify(resp.data));
   return removeNestedEmbeddings(json) as T;
 }
 
