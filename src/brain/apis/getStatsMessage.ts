@@ -80,6 +80,8 @@ function getMessageForTeam(ownership_data, team) {
 function strAdjustLength(word: string, target: number) {
   if (word.length < target) {
     return word + ' '.repeat(target - word.length);
+  } else if (word.length > target) {
+    return word.slice(0, word.length - target - 1) + '…';
   }
   return word;
 }
