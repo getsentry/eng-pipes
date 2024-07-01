@@ -1,6 +1,9 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": ["jest"]
+    "target": "ES2022",
+    "types": [
+      "jest"
+    ]
   }
 }
