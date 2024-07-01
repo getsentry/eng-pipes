@@ -158,7 +158,7 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
           (pullRequest) =>
             !pullRequest.labels.some(
               (label) =>
-                label === WORK_IN_PROGRESS_LABEL ||
+                (label as string) === WORK_IN_PROGRESS_LABEL ||
                 label.name === WORK_IN_PROGRESS_LABEL
             )
         );
@@ -166,7 +166,8 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
         // sending a GET request for pull requests, so we need to do this manually.
         const stalePullRequests = pullRequestsToCheck.filter((pullRequest) =>
           pullRequest.labels.some(
-            (label) => label === STALE_LABEL || label.name === STALE_LABEL
+            (label) =>
+              (label as string) === STALE_LABEL || label.name === STALE_LABEL
           )
         );
         const activePullRequests = pullRequestsToCheck.filter(
