@@ -266,11 +266,13 @@ export const sendGitHubActivityMetrics = async (
         );
         scoreBoard += `| ${usernameText}| ${numCommentsText}|\n`;
       } else {
+        // This is the correct char-by-char representation of a string that may have unicode chars
+        const segmentizedTitle = Array.from(new Intl.Segmenter().segment(itemInfo.title));
         // Append less than sign here, because trailing spaces are ignored for text within the <> blocks for a hyperlink
         const truncatedDiscussionTitle =
-          itemInfo.title.length <= DISCUSSION_COLUMN_WIDTH
+          segmentizedTitle.length <= DISCUSSION_COLUMN_WIDTH
             ? itemInfo.title + '>'
-            : `${itemInfo.title.slice(0, DISCUSSION_COLUMN_WIDTH - 4)}...> `;
+            : `${segmentizedTitle.slice(0, DISCUSSION_COLUMN_WIDTH - 1)}…> `;
         const truncatedDiscussionTitleWithSpaces = addSpaces(
           // Remove all instances of ` char from string
           truncatedDiscussionTitle.replace(/`/g, ''),
