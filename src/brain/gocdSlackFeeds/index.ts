@@ -358,7 +358,7 @@ const discussBackendFeed = new DeployFeed({
 });
 
 export async function handler(body: GoCDResponse) {
-  await Promise.all([
+  const promises = [
     deployFeed.handle(body),
     devinfraFeed.handle(body),
     discussBackendFeed.handle(body),
@@ -368,7 +368,14 @@ export async function handler(body: GoCDResponse) {
     ingestFeed.handle(body),
     snsS4SK8sFeed.handle(body),
     snsSaaSK8sFeed.handle(body),
-  ]);
+  ];
+  // Don't fail the entire handler if one of the feeds fails
+  const results = await Promise.allSettled(promises);
+  results.forEach((result) => {
+    if (result.status === 'rejected' && result.reason instanceof Error) {
+      Sentry.captureException(result.reason);
+    }
+  });
 }
 
 export async function gocdSlackFeeds() {
