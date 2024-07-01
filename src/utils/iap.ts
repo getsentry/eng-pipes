@@ -35,7 +35,7 @@ export async function fetchUsingProxyAuth(
       ...opts.headers,
     },
   });
-  const result = await gaxiosInstance.request({
+  return gaxiosInstance.request({
     url,
     responseType: 'json',
     retry: true,
@@ -46,13 +46,4 @@ export async function fetchUsingProxyAuth(
     timeout: 10000,
     ...opts,
   });
-  // eslint-disable-next-line no-console
-  console.log('headers', JSON.stringify(result.headers));
-  // eslint-disable-next-line no-console
-  console.log('statusCode', result.status);
-  // eslint-disable-next-line no-console
-  console.log('statusText', result.statusText);
-  // eslint-disable-next-line no-console
-  console.log('body', JSON.stringify(result.data));
-  return result;
 }
