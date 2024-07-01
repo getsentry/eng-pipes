@@ -71,7 +71,7 @@
     "pg": "^8.5.1",
     "source-map-support": "^0.5.21",
     "tar": "^6.2.1",
-    "typescript": "^4.5.0"
+    "typescript": "^4.7.0"
   },
   "devDependencies": {
     "@sentry/cli": "^2.20.1",
