@@ -226,19 +226,26 @@ export const sendGitHubActivityMetrics = async (
       },
     },
   ];
+}
+
+  const segmentize = (text: string): string[] => Array.from(
+    new Intl.Segmenter().segment(text)
+  ).map((s) => s.segment)
+
   const addSpaces = (entry: string, column: string) => {
+    const entryLength = segmentize(entry).length
     if (column === 'discussion') {
       return (
         entry +
         ' '.repeat(
-          DISCUSSION_COLUMN_WIDTH + LESS_THAN_SIGN_LENGTH - entry.length
+          DISCUSSION_COLUMN_WIDTH + LESS_THAN_SIGN_LENGTH - entryLength
         )
       );
     } else if (column === 'firstColumnItem') {
-      return entry + ' '.repeat(DISCUSSION_COLUMN_WIDTH - entry.length);
+      return entry + ' '.repeat(DISCUSSION_COLUMN_WIDTH - entryLength);
     }
     return (
-      ' '.repeat(NUM_COMMENTS_COLUMN_WIDTH - entry.length - SPACE_LENGTH) +
+      ' '.repeat(NUM_COMMENTS_COLUMN_WIDTH - entryLength - SPACE_LENGTH) +
       entry +
       ' '
     );
@@ -267,9 +274,7 @@ export const sendGitHubActivityMetrics = async (
         scoreBoard += `| ${usernameText}| ${numCommentsText}|\n`;
       } else {
         // This is the correct char-by-char representation of a string that may have unicode chars
-        const segmentizedTitle = Array.from(
-          new Intl.Segmenter().segment(itemInfo.title)
-        ).map((s) => s.segment);
+        const segmentizedTitle = segmentize(itemInfo.title);
         // Append less than sign here, because trailing spaces are ignored for text within the <> blocks for a hyperlink
         const truncatedDiscussionTitle =
           segmentizedTitle.length <= DISCUSSION_COLUMN_WIDTH
