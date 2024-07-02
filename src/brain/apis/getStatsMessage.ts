@@ -77,6 +77,7 @@ function getMessageForTeam(ownership_data, team) {
   };
 }
 
+// TODO: Make this unicode aware -- see #810
 function strAdjustLength(word: string, target: number) {
   if (word.length < target) {
     return word + ' '.repeat(target - word.length);
