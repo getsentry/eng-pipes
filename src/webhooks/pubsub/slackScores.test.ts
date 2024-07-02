@@ -429,7 +429,7 @@ describe('slackScores tests', function () {
 ├────────────────────────────────────────────────────────────────────┤
 | <https://github.com/routing-repo/discussions/001|Discussion 1>                                      |              3 |
 | <https://github.com/routing-repo/discussions/002|Discussion 2>                                      |              2 |
-| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahb…> |              1 |
+| <https://github.com/test-ttt-simple/discussions/003|Overflowing Discussion Title blahblahblahblahbla…> |              1 |
 └────────────────────────────────────────────────────────────────────┘
 ┌────────────────────────────────────────────────────────────────────┐
 | Most Active Issues this Week                      │     # comments |
