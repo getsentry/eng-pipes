@@ -228,7 +228,7 @@ export const sendGitHubActivityMetrics = async (
   ];
 
   const segmentize = (text: string): string[] =>
-    Array.from(new Intl.Segmenter().segment(text)).map((s) => s.segment);
+    Array.from(new Intl.Segmenter('en').segment(text)).map((s) => s.segment);
 
   const addSpaces = (entry: string, column: string) => {
     const entryLength = segmentize(entry).length;
@@ -278,7 +278,7 @@ export const sendGitHubActivityMetrics = async (
           segmentizedTitle.length <= DISCUSSION_COLUMN_WIDTH
             ? itemInfo.title + '>'
             : `${segmentizedTitle
-                .slice(0, DISCUSSION_COLUMN_WIDTH - 1)
+                .slice(0, DISCUSSION_COLUMN_WIDTH - 2)
                 .join('')}…> `;
         const truncatedDiscussionTitleWithSpaces = addSpaces(
           // Remove all instances of ` char from string
