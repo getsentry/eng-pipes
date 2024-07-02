@@ -56,12 +56,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: yarn install
         run: yarn install --immutable
@@ -71,7 +71,7 @@ jobs:
       - name: test
         run: yarn test:ci --coverage
       - name: Codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: eslint
@@ -112,9 +112,9 @@ jobs:
           fetch-depth: 0
 
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: yarn install
         run: yarn install --immutable
