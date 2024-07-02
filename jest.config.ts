@@ -1,5 +1,11 @@
 // eslint-disable-next-line
 module.exports = {
+  // TODO: Remove the snapshotFormat override below and regen snapshots
+  //       This is a remnant from the v29 upgrade
+  snapshotFormat: {
+    escapeString: true,
+    printBasicPrototype: true,
+  },
   collectCoverageFrom: [
     '**/*.ts',
     '!test/**',

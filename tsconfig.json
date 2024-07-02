@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "allowJs": false,
-    "lib": ["ES2020"],
+    "lib": ["ES2022"],
     "module": "CommonJS",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "target": "ES2020",
+    "target": "ES2022",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
@@ -19,7 +19,9 @@
     "resolveJsonModule": true,
     "baseUrl": "./",
     "paths": {
-      "_comment": ["⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "],
+      "_comment": [
+        "⚠️  Keep this in sync with jest.config.ts and package.json. ⚠️ "
+      ],
       "@/*": ["src/*"],
       "@api/*": ["src/api/*"],
       "@test/*": ["test/*"],
