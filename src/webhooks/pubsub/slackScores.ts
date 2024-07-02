@@ -226,14 +226,12 @@ export const sendGitHubActivityMetrics = async (
       },
     },
   ];
-}
 
-  const segmentize = (text: string): string[] => Array.from(
-    new Intl.Segmenter().segment(text)
-  ).map((s) => s.segment)
+  const segmentize = (text: string): string[] =>
+    Array.from(new Intl.Segmenter().segment(text)).map((s) => s.segment);
 
   const addSpaces = (entry: string, column: string) => {
-    const entryLength = segmentize(entry).length
+    const entryLength = segmentize(entry).length;
     if (column === 'discussion') {
       return (
         entry +
