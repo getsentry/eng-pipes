@@ -31,41 +31,41 @@ jobs:
       GH_USER_TOKEN: ${{ secrets.GH_USER_TOKEN }}
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup node
-      uses: actions/setup-node@v3
-      with:
-        node-version: '14'
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        workload_identity_provider: projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool
-        service_account: gha-eng-pipes-deploy@sac-prod-sa.iam.gserviceaccount.com
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: projects/868781662168/locations/global/workloadIdentityPools/prod-github/providers/github-oidc-pool
+          service_account: gha-eng-pipes-deploy@sac-prod-sa.iam.gserviceaccount.com
 
-    # Setup gcloud CLI
-    - name: Setup gcloud CLI
-      uses: google-github-actions/setup-gcloud@v1
+      # Setup gcloud CLI
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
 
-    - name: Setup CloudSQL Proxy
-      env:
-        DB: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
-      run: |
-        wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
-        chmod +x cloud_sql_proxy
-        ./cloud_sql_proxy -instances=$DB=tcp:5432 -dir . &
+      - name: Setup CloudSQL Proxy
+        env:
+          DB: ${{ secrets.DB_INSTANCE_CONNECTION_NAME }}
+        run: |
+          wget https://dl.google.com/cloudsql/cloud_sql_proxy.linux.amd64 -O cloud_sql_proxy
+          chmod +x cloud_sql_proxy
+          ./cloud_sql_proxy -instances=$DB=tcp:5432 -dir . &
 
-    - name: yarn install
-      run: |
-        yarn install --immutable
+      - name: yarn install
+        run: |
+          yarn install --immutable
 
-    - name: Run migration
-      env:
-        DB_HOST: ${{ secrets.DB_HOST }}
-        DB_USER: ${{ secrets.DB_USER }}
-        DB_NAME: ${{ secrets.DB_NAME }}
-        DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      run: |
-        yarn migrate migrate:${{ github.event.inputs.name || 'latest' }} --env ${{ github.event.inputs.environment || 'proxy' }}
+      - name: Run migration
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: |
+          yarn migrate migrate:${{ github.event.inputs.name || 'latest' }} --env ${{ github.event.inputs.environment || 'proxy' }}
