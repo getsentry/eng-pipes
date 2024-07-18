@@ -35,6 +35,8 @@ product_areas:
   - team-ospo
   Performance:
   - team-performance
+  Processing:
+  - team-processing
   Profiling:
   - team-profiling
   Projects - Project Creation:
