@@ -24,7 +24,7 @@ product_areas:
   Issues:
   - team-issues
   Issues - Source Maps:
-  - team-processing
+  - team-ingest
   - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
@@ -36,7 +36,7 @@ product_areas:
   Performance:
   - team-performance
   Processing:
-  - team-processing
+  - team-ingest
   Profiling:
   - team-profiling
   Projects - Project Creation:
@@ -51,7 +51,6 @@ product_areas:
   - team-mobile-sdks
   SDKs - Native:
   - team-mobile-sdks
-  - team-processing
   SDKs - Web Backend:
   - team-web-backend-sdks
   SDKs - Web Frontend:
@@ -125,8 +124,8 @@ repos:
   sentry-wizard: team-web-frontend-sdks
   snuba: team-sns
   snuba-sdk: team-sns
-  symbolic: team-processing
-  symbolicator: team-processing
+  symbolic: team-ingest
+  symbolicator: team-ingest
   wal2json: team-sns
 teams:
   team-alerts-notifications:
@@ -191,10 +190,6 @@ teams:
     offices:
     - yyz
     slack_channel: C026Y0SK34H
-  team-processing:
-    offices:
-    - vie
-    slack_channel: C05LK7YQRFE
   team-product:
     offices:
     - sfo
