@@ -241,3 +241,10 @@ export interface SentryOptionsResponse {
     expected_type: string;
   }[];
 }
+
+export interface InfraEventNotifierResponse {
+  source: string;
+  title: string;
+  basicBody: string;
+  // additionalBlocks?: { [blocks: string]: any };
+}

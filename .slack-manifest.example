@@ -12,7 +12,7 @@ features:
     always_online: true
   slash_commands:
     - command: /notify-for-triage
-      url: <NGROK_URL>/apps/slack/events
+      url: https://albacore-pumped-formerly.ngrok-free.app/apps/slack/events
       description: Notification subscriptions for untriaged issues
       usage_hint: "Product area (from labels) followed by office location, e.g., `Issues sfo`"
       should_escape: false
@@ -50,7 +50,7 @@ oauth_config:
       - commands
 settings:
   event_subscriptions:
-    request_url: <NGROK_URL>/apps/slack/events
+    request_url: https://albacore-pumped-formerly.ngrok-free.app/apps/slack/events
     bot_events:
       - app_home_opened
       - app_mention
@@ -58,8 +58,8 @@ settings:
       - user_change
   interactivity:
     is_enabled: true
-    request_url: <NGROK_URL>/apps/slack/events
-    message_menu_options_url: <NGROK_URL>/apps/slack/events
+    request_url: https://albacore-pumped-formerly.ngrok-free.app/apps/slack/events
+    message_menu_options_url: https://albacore-pumped-formerly.ngrok-free.app/apps/slack/events
   org_deploy_enabled: false
   socket_mode_enabled: false
   token_rotation_enabled: false
