@@ -245,6 +245,5 @@ export interface SentryOptionsResponse {
 export interface InfraEventNotifierResponse {
   source: string;
   title: string;
-  basicBody: string;
-  // additionalBlocks?: { [blocks: string]: any };
+  body: string;
 }
