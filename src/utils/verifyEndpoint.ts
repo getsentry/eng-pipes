@@ -18,6 +18,7 @@ export async function verifyEndpoint(
   if (!verifySignature(request, SECRET_KEY)) {
     return reply.code(401).send({ error: 'Unauthorized' });
   }
+  return;
 }
 
 export async function verifyPubSubEndpoint(
@@ -29,4 +30,5 @@ export async function verifyPubSubEndpoint(
   if (!verifySignature(request, SECRET_KEY)) {
     return reply.code(401).send({ error: 'Unauthorized' });
   }
+  return;
 }
