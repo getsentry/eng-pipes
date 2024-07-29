@@ -6,7 +6,6 @@ import { InfraEventNotifierResponse } from '@types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { NOTIFIER_CHANNEL_ID } from '@/config';
 
 export async function handler(
   request: FastifyRequest<{ Body: InfraEventNotifierResponse }>
@@ -25,17 +24,17 @@ export async function messageSlack(message: InfraEventNotifierResponse) {
       slackblocks.header(slackblocks.plaintext(message.title)),
       slackblocks.section(slackblocks.markdown(message.body)),
     ];
-    await sendMessage(sendBlock);
+    await sendMessage(sendBlock, message.channel);
   } catch (err) {
     Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
   }
 }
 
-async function sendMessage(blocks) {
+async function sendMessage(blocks, channel_id: string) {
   try {
     await bolt.client.chat.postMessage({
-      channel: NOTIFIER_CHANNEL_ID,
+      channel: channel_id,
       blocks: blocks,
       text: '',
       unfurl_links: false,

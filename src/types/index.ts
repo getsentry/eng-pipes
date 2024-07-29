@@ -246,4 +246,5 @@ export interface InfraEventNotifierResponse {
   source: string;
   title: string;
   body: string;
+  channel: string;
 }
