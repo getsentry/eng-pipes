@@ -13,6 +13,7 @@ import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { loadBrain } from '@utils/loadBrain';
 
+import { verifyEndpoint } from './utils/verifyEndpoint';
 import * as PubSub from './webhooks/pubsub';
 import { SENTRY_DSN } from './config';
 
@@ -94,7 +95,7 @@ export async function buildServer(
   // middleware/event abstraction layer.
   server.post<{ Params: { service: string } }>(
     '/metrics/:service/webhook',
-    {},
+    { preHandler: verifyEndpoint },
     WebhookRouter(server)
   );
 
