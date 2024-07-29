@@ -23,6 +23,7 @@ export async function messageSlack(message: InfraEventNotifierResponse) {
   try {
     const sendBlock: KnownBlock[] = [
       slackblocks.header(slackblocks.plaintext(message.title)),
+      slackblocks.section(slackblocks.markdown(message.basicBody)),
     ];
     await sendMessage(sendBlock);
   } catch (err) {
