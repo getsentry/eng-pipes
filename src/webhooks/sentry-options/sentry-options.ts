@@ -16,6 +16,7 @@ import {
 export async function handler(
   request: FastifyRequest<{ Body: SentryOptionsResponse }>
 ) {
+  return {};
   const { body }: { body: SentryOptionsResponse } = request;
   await messageSlack(body);
   await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
