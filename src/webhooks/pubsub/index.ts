@@ -43,6 +43,8 @@ export const pubSubHandler = async (
     op: 'webhooks',
     name: 'pubsub.pubSubHandler',
   });
+
+  return;
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
