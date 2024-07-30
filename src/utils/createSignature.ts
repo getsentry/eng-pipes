@@ -4,7 +4,7 @@ export function createSignature(
   payload: string,
   secret: string,
   createDigest = (i) => i,
-  method: 'sha1' | 'sha256' = 'sha1'
+  method: 'sha1' | 'sha256' = 'sha256'
 ) {
   const hmac = crypto.createHmac(method, secret);
   const digest = Buffer.from(

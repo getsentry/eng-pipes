@@ -15,6 +15,7 @@ import {
   DISCUSS_ENG_SNS_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
+  FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
@@ -38,6 +39,8 @@ const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-de',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 ];
+
+const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
 
 const INGEST_PIPELINE_FILTER = ['deploy-relay-processing', 'deploy-relay-pop'];
 
@@ -357,17 +360,29 @@ const discussBackendFeed = new DeployFeed({
   },
 });
 
+const goCDCustomJobRunnerFeed = new DeployFeed({
+  feedName: 'goCDCustomJobRunnerSlackFeed',
+  channelID: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+  msgType: SlackMessage.GOCD_CUSTOM_JOB_RUN,
+  pipelineFilter: (pipeline) => {
+    // We only want to capture updates for the GoCD Job Runner pipeline,
+    // whether successful or failed
+    return pipeline.name === GOCD_CUSTOM_JOB_PIPELINE_NAME;
+  },
+});
+
 export async function handler(body: GoCDResponse) {
   await Promise.all([
     deployFeed.handle(body),
     devinfraFeed.handle(body),
     discussBackendFeed.handle(body),
-    snsSaaSFeed.handle(body),
     discussSnSFeed.handle(body),
-    snsSTFeed.handle(body),
+    goCDCustomJobRunnerFeed.handle(body),
     ingestFeed.handle(body),
     snsS4SK8sFeed.handle(body),
+    snsSaaSFeed.handle(body),
     snsSaaSK8sFeed.handle(body),
+    snsSTFeed.handle(body),
   ]);
 }
 
