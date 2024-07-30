@@ -13,29 +13,26 @@ import {
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
   SENTRY_OPTIONS_WEBHOOK_SECRET,
 } from '@/config';
-import { verifySignature } from '@/utils/verifySignature';
+import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(
   request: FastifyRequest<{ Body: SentryOptionsResponse }>,
   reply: FastifyReply
 ) {
   try {
-    const clientSignatureHeader =
-      request.headers['x-sentry-options-signature'] ?? '';
-    const clientSignature = Array.isArray(clientSignatureHeader)
-      ? clientSignatureHeader.join('')
-      : clientSignatureHeader;
-
-    const isVerified = verifySignature(
-      JSON.stringify(request.body),
-      clientSignature,
-      SENTRY_OPTIONS_WEBHOOK_SECRET,
-      (i) => i,
-      'sha256'
+    // If the webhook secret is not defined, throw an error
+    if (SENTRY_OPTIONS_WEBHOOK_SECRET === undefined) {
+      throw new Error('SENTRY_OPTIONS_WEBHOOK_SECRET is not defined');
+    }
+    const isVerified = await extractAndVerifySignature(
+      request,
+      reply,
+      'x-sentry-options-signature',
+      SENTRY_OPTIONS_WEBHOOK_SECRET
     );
 
     if (!isVerified) {
-      return reply.code(401).send('Unauthorized');
+      return;
     }
 
     const { body }: { body: SentryOptionsResponse } = request;

@@ -41,7 +41,20 @@ describe('sentry-options webhook', function () {
     expect(response.statusCode).toBe(200);
   });
 
-  it('returns 401 for invalid signature', async function () {
+  it('returns 401 for valid but incorrect signature', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/sentry-options/webhook',
+      headers: {
+        'x-sentry-options-signature':
+          'd2c2e36b95268d0fc7965b2154fcb112b9578b9a9adbe5a38375d3253c971d6e',
+      },
+      payload: testPayload,
+    });
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('returns 400 for invalid signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/sentry-options/webhook',
@@ -50,16 +63,16 @@ describe('sentry-options webhook', function () {
       },
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
-  it('returns 401 for no signature', async function () {
+  it('returns 400 for no signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/sentry-options/webhook',
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
   describe('messageSlack tests', function () {
