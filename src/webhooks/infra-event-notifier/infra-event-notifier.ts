@@ -1,18 +1,45 @@
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { InfraEventNotifierResponse } from '@types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
+import { INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET } from '@/config';
+import { verifySignature } from '@/utils/verifySignature';
 
 export async function handler(
-  request: FastifyRequest<{ Body: InfraEventNotifierResponse }>
+  request: FastifyRequest<{ Body: InfraEventNotifierResponse }>,
+  reply: FastifyReply
 ) {
-  const { body }: { body: InfraEventNotifierResponse } = request;
-  await messageSlack(body);
-  return {};
+  try {
+    const clientSignatureHeader =
+      request.headers['x-infra-event-notifier-signature'] ?? '';
+    const clientSignature = Array.isArray(clientSignatureHeader)
+      ? clientSignatureHeader.join('')
+      : clientSignatureHeader;
+
+    const payloadBody = request.body ? JSON.stringify(request.body) : '';
+    const isVerified = verifySignature(
+      payloadBody,
+      clientSignature!,
+      INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET!,
+      (i) => i,
+      'sha256'
+    );
+
+    if (!isVerified) {
+      return reply.code(401).send('Unauthorized');
+    }
+
+    const { body }: { body: InfraEventNotifierResponse } = request;
+    await messageSlack(body);
+    return reply.code(200).send('OK');
+  } catch (err) {
+    Sentry.captureException(err);
+    return reply.code(500).send();
+  }
 }
 
 export async function messageSlack(message: InfraEventNotifierResponse) {

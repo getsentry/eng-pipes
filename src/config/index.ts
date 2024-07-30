@@ -221,3 +221,11 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
     notifyAfter: moment.duration(1.5, 'hour'),
   },
 ];
+
+// Webhook Secrets
+export const INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET =
+  process.env.INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET;
+
+if (INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET === undefined) {
+  throw new TypeError('INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET must be set');
+}

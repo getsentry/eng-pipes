@@ -4,9 +4,9 @@ import * as Sentry from '@sentry/node';
 
 import testAdminPayload from '@test/payloads/infra-event-notifier/testAdminPayload.json';
 import testBadPayload from '@test/payloads/infra-event-notifier/testBadPayload.json';
-import testEmptyPayload from '@test/payloads/infra-event-notifier/testEmptyPayload.json';
 import testMegaPayload from '@test/payloads/infra-event-notifier/testMegaPayload.json';
 import testPayload from '@test/payloads/infra-event-notifier/testPayload.json';
+import { createNotifierRequest } from '@test/utils/createInfraEventNotifierRequest';
 
 import { buildServer } from '@/buildServer';
 import { bolt } from '@api/slack';
@@ -25,13 +25,30 @@ describe('infra-events-notifier webhook', function () {
   });
 
   it('correctly inserts infra-event-notifier webhook when stage starts', async function () {
+    const response = await createNotifierRequest(fastify, testPayload);
+
+    expect(response.statusCode).toBe(200);
+  });
+
+  it('returns 401 for invalid signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/infra-event-notifier/webhook',
-      payload: testEmptyPayload,
+      headers: {
+        'x-infra-event-notifier-signature': 'invalid',
+      },
+      payload: testPayload,
     });
+    expect(response.statusCode).toBe(401);
+  });
 
-    expect(response.statusCode).toBe(200);
+  it('returns 401 for no signature', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/infra-event-notifier/webhook',
+      payload: testPayload,
+    });
+    expect(response.statusCode).toBe(401);
   });
 
   describe('messageSlack tests', function () {
