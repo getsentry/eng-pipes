@@ -7,7 +7,7 @@ export function verifySignature(
   signature: string,
   secret: string,
   createDigest = (i) => i,
-  method: 'sha1' | 'sha256' = 'sha1'
+  method: 'sha1' | 'sha256' = 'sha256'
 ) {
   const digest = createSignature(payload, secret, createDigest, method);
   const checksum = Buffer.from(signature, 'utf8');
