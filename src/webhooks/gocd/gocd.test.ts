@@ -1,5 +1,6 @@
 import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
 import gocdstagepayload from '@test/payloads/gocd/gocd-stage-building.json';
+import { createGoCDRequest } from '@test/utils/createGoCDRequest';
 
 import { buildServer } from '@/buildServer';
 
@@ -14,12 +15,7 @@ describe('gocd webhook', function () {
   });
 
   it('correctly inserts gocd webhook when stage starts', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/gocd/webhook',
-      payload: gocdstagepayload,
-    });
-
+    const response = await createGoCDRequest(fastify, gocdstagepayload);
     expect(response.statusCode).toBe(200);
 
     // TODO (mattgauntseo-sentry): Check metric is stored correctly in
@@ -27,12 +23,30 @@ describe('gocd webhook', function () {
   });
 
   it('does nothing for agent updates', async function () {
+    const response = await createGoCDRequest(fastify, gocdagentpayload);
+    expect(response.statusCode).toBe(200);
+  });
+
+  it('returns 401 if the signature is incorrect', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/gocd/webhook',
-      payload: gocdagentpayload,
+      headers: {
+        'x-gocd-signature': 'incorrect',
+      },
+      payload: gocdstagepayload,
     });
 
-    expect(response.statusCode).toBe(200);
+    expect(response.statusCode).toBe(401);
+  });
+
+  it('returns 401 if no signature is provided', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      payload: gocdstagepayload,
+    });
+
+    expect(response.statusCode).toBe(401);
   });
 });

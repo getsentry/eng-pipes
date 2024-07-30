@@ -219,3 +219,8 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
     notifyAfter: moment.duration(1.5, 'hour'),
   },
 ];
+
+/**
+ * GoCD Webhook Secret
+ */
+export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET || '';
