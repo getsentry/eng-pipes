@@ -2,30 +2,21 @@
 
 import * as Sentry from '@sentry/node';
 
-import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
-import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
-import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
-import testMegaPayload from '@test/payloads/sentry-options/testMegaPayload.json';
-import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
-import testPayload from '@test/payloads/sentry-options/testPayload.json';
-import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
+import testAdminPayload from '@test/payloads/infra-event-notifier/testAdminPayload.json';
+import testBadPayload from '@test/payloads/infra-event-notifier/testBadPayload.json';
+import testEmptyPayload from '@test/payloads/infra-event-notifier/testEmptyPayload.json';
+import testMegaPayload from '@test/payloads/infra-event-notifier/testMegaPayload.json';
+import testPayload from '@test/payloads/infra-event-notifier/testPayload.json';
 
 import { buildServer } from '@/buildServer';
-import { DATADOG_API_INSTANCE } from '@/config';
 import { bolt } from '@api/slack';
 
-import {
-  messageSlack,
-  sendSentryOptionsUpdatesToDatadog,
-} from './infra-event-notifier';
+import { messageSlack } from './infra-event-notifier';
 
-describe('sentry-options webhook', function () {
-  let fastify, datadogApiInstanceSpy;
+describe('infra-events-notifier webhook', function () {
+  let fastify;
   beforeEach(async function () {
     fastify = await buildServer(false);
-    datadogApiInstanceSpy = jest
-      .spyOn(DATADOG_API_INSTANCE, 'createEvent')
-      .mockImplementation(jest.fn());
   });
 
   afterEach(function () {
@@ -33,10 +24,10 @@ describe('sentry-options webhook', function () {
     jest.clearAllMocks();
   });
 
-  it('correctly inserts sentry-options webhook when stage starts', async function () {
+  it('correctly inserts infra-event-notifier webhook when stage starts', async function () {
     const response = await fastify.inject({
       method: 'POST',
-      url: '/metrics/sentry-options/webhook',
+      url: '/metrics/infra-event-notifier/webhook',
       payload: testEmptyPayload,
     });
 
@@ -48,20 +39,28 @@ describe('sentry-options webhook', function () {
       jest.clearAllMocks();
     });
 
-    it('handles errors and reports to Sentry', async function () {
+    it('handles bad fields and reports to Sentry', async function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       const sentrySetContextSpy = jest.spyOn(Sentry, 'setContext');
       await messageSlack(testBadPayload);
-      expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(1);
-      expect(sentrySetContextSpy).toHaveBeenCalledTimes(1);
+      await messageSlack(testMegaPayload);
+      expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(2);
+      expect(sentrySetContextSpy).toHaveBeenCalledTimes(2);
       expect(sentrySetContextSpy.mock.calls[0][0]).toEqual(`message_data`);
       expect(sentrySetContextSpy.mock.calls[0][1]).toEqual({
         message: {
-          drifted_options: [
-            { bad_key_vaue: 'value_1', option_name: 'drifted_option_1' },
-          ],
-          region: 'bad',
-          source: 'options-automator',
+          bad_key_name: 'not good',
+          source: 'infra-event-notifier',
+          title: 'this is a title',
+        },
+      });
+      expect(sentrySetContextSpy.mock.calls[1][0]).toEqual(`message_data`);
+      expect(sentrySetContextSpy.mock.calls[1][1]).toEqual({
+        message: {
+          source: 'infra-event-notifier',
+          title: 'really, really big payload',
+          body: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nSed fringilla venenatis ipsum eu vestibulum.\nNam ultricies, elit sed commodo eleifend, ipsum est tempus lorem, porttitor molestie urna sem in eros.\nSuspendisse non interdum sapien, vel commodo dui.\nNunc eu scelerisque augue.\nAliquam eget rhoncus leo.\nDonec nulla elit, aliquet ut porttitor at, sodales quis ex.\nMaecenas sit amet pretium neque.\nIn eu nisi vel purus mattis vehicula in sed mauris.\nPellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.\nProin varius eget nisl sed vulputate.\nFusce quis nibh eu enim blandit bibendum.\nCras volutpat est erat, sit amet molestie ante commodo hendrerit.\nPellentesque in luctus augue.Lorem ipsum dolor sit amet, consectetur adipiscing elit.\nIn ac bibendum odio, condimentum finibus nisi.\nIn at enim vel elit aliquet dictum.\nNullam efficitur gravida gravida.\nNullam scelerisque euismod mi, non dictum elit posuere sed.\nSed dictum quam in ornare lacinia.\nDonec vulputate dictum tortor quis volutpat.\nCurabitur at nulla hendrerit, placerat nibh sed, gravida metus.\nMaecenas nec eros sollicitudin, consectetur nibh sit amet, fringilla nibh.\nUt efficitur convallis luctus.\nIn ultricies lectus non urna faucibus, a venenatis ipsum mollis.\nVivamus tincidunt interdum lorem vitae fermentum.\nVivamus ante nunc, facilisis sed velit egestas, maximus euismod enim.\nSed pretium et ligula ac suscipit.\nSed et metus ut orci faucibus lacinia.\nInteger vestibulum commodo blandit.\nIn dapibus libero nec mauris sagittis, vel accumsan erat feugiat.\nCurabitur tempus, arcu non accumsan faucibus, sapien nisl pharetra justo, id fringilla mauris sem eu ante.\nProin ac feugiat dolor.\nNulla auctor vestibulum tortor at placerat.\nCras tempus non tortor ut dictum.\nSed eleifend velit nisi, sit amet lacinia velit convallis non.\nCurabitur imperdiet tortor sit amet massa condimentum, nec cursus lectus placerat.\nUt egestas suscipit est, at ultricies tellus viverra ut.\nSed elementum dignissim nulla, a feugiat massa mollis quis.\nPellentesque a lobortis dolor.\nCras eleifend condimentum orci, a venenatis arcu feugiat at.\nSuspendisse condimentum neque metus, non faucibus libero ultricies nec.\nInteger quis orci at enim aliquet dapibus id quis nisl.\nMaecenas et convallis massa.\nSed ornare sagittis erat, et hendrerit neque auctor quis.\nSed dignissim erat nisl, sed pharetra mauris sollicitudin sed.\nNullam eu purus quis augue scelerisque aliquam id sed enim.\nMaecenas in posuere ex.\nVivamus quis sem faucibus, suscipit eros nec, bibendum purus.\nUt in urna orci.\nAenean id bibendum urna.\nDuis gravida ac massa vel egestas.\nFusce in erat hendrerit nunc tempus dictum.\nCras sapien diam, eleifend vitae commodo in, bibendum ut eros.\nNam sit amet massa tincidunt neque rutrum sodales.\nNunc vitae felis ut diam lobortis pellentesque.\nNunc nulla ante, sodales non tempor pretium, vulputate vel nisi.\nNulla facilisis dolor sit amet aliquam imperdiet.\nPellentesque lacinia augue eget nulla finibus tincidunt.\nNam urna tellus, aliquam sit amet velit vestibulum, dictum eleifend dolor.\nDonec eu commodo est, non tincidunt orci.\nCras vel nisl libero.\nPraesent cursus neque massa.\nNunc convallis vitae sem nec tincidunt.\nEtiam eget dui in ligula dictum sodales nec quis ante.\nCras sagittis, dui at tempus porttitor, lectus ipsum malesuada augue, vitae suscipit felis lacus facilisis nisl.\nDonec tristique tellus at aliquet accumsan.\nInteger elementum venenatis mollis.\nSuspendisse rutrum eros eget justo scelerisque facilisis.\nDonec vehicula neque at lectus interdum egestas.\nPellentesque dolor dui, feugiat ac placerat sit amet, lacinia sed massa.\nMaecenas aliquam, massa sodales ultrices pellentesque, est tortor pharetra metus, at congue libero ligula ut purus.\nVestibulum mattis scelerisque tellus, vitae volutpat velit ultrices nec.\nUt mollis hendrerit magna vitae mollis.\nNulla pharetra magna eros, quis facilisis arcu accumsan sodales.\nIn pharetra quam maximus turpis volutpat blandit.\nIn at dui nec velit sagittis tincidunt.\nIn felis orci, vulputate non luctus ac, molestie vitae urna.\nIn iaculis velit id convallis condimentum.',
+          channel: 'TESTCHAN',
         },
       });
     });
@@ -69,199 +68,6 @@ describe('sentry-options webhook', function () {
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testPayload);
-      expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      const firstMessage = postMessageSpy.mock.calls[0][0];
-      const secondMessage = postMessageSpy.mock.calls[1][0];
-      expect(firstMessage).toEqual({
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: '✅ Successfully Updated Options in test_region: ✅',
-            },
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Updated Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Updated `updated_option_1` with db value `db_value_1` to value `new_value_1`',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Set Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Set `set_option_1` to value `set_value_1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Set `set_option_2` to value `set_value_2`',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Unset Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Unset `unset_option_1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Unset `unset_option_2`',
-              },
-            ],
-          },
-        ],
-        channel: 'C05QM3AUDKJ',
-        text: '',
-        unfurl_links: false,
-      });
-      expect(secondMessage).toEqual({
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: ':warning: Failed to update in test_region: :warning:',
-            },
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Drifted Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. Value on db: `value_1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. Value on db: `value_2`',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Not_writable Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Failed to update `error_option_1` \nreason: `Error occurred for option 1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Failed to update `error_option_2` \nreason: `Error occurred for option 2`',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Unregistered Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Option `unregisterd_option_1` is not registered!',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Option `unregisterd_option_2` is not registered!',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Invalid_type Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Option `invalid_type_option_1` got type `string`, but expected type `float`.',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Option `invalid_type_option_2` got type `float`, but expected type `int`.',
-              },
-            ],
-          },
-        ],
-        channel: 'C05QM3AUDKJ',
-        text: '',
-        unfurl_links: false,
-      });
-    });
-
-    it('writes drift only', async function () {
-      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testPartialPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       const message = postMessageSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -270,328 +76,27 @@ describe('sentry-options webhook', function () {
             type: 'header',
             text: {
               type: 'plain_text',
-              text: ':warning: Failed to update in test_region: :warning:',
+              text: 'this is a title',
             },
-          },
-          {
-            type: 'divider',
           },
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Drifted Options:* ',
+              text: 'this is a text body',
             },
           },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. Value on db: `value_1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. Value on db: `value_2`',
-              },
-            ],
-          },
         ],
-        channel: 'C05QM3AUDKJ',
+        channel: 'TESTCHAN',
         text: '',
         unfurl_links: false,
       });
     });
 
-    it('only writes sentry-options changes', async function () {
+    it('only writes infra-event-notifier changes', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
       await messageSlack(testAdminPayload);
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
-    });
-
-    it('can handle more than the block size ', async function () {
-      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testMegaPayload);
-      expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      const firstMessage = postMessageSpy.mock.calls[0][0];
-      const secondMessage = postMessageSpy.mock.calls[1][0];
-      expect(firstMessage).toEqual({
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: '✅ Successfully Updated Options in TESTING: ✅',
-            },
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Updated Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Updated `update_1` with db value `value_2` to value `value_3`',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Set Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Set `set_option_1` to value `set_value_1`',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Set `set_option_2` to value `set_value_2`',
-              },
-            ],
-          },
-        ],
-        channel: 'C05QM3AUDKJ',
-        text: '',
-        unfurl_links: false,
-      });
-      expect(secondMessage).toEqual({
-        blocks: [
-          {
-            type: 'header',
-            text: {
-              type: 'plain_text',
-              text: ':warning: Failed to update in TESTING: :warning:',
-            },
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Drifted Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_1` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_2` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_3` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_4` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_5` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_6` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_7` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_8` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_9` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_10` drifted. Value on db: `value_2`',
-              },
-            ],
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Drifted Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_11` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_12` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_13` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_14` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_15` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_16` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_17` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_18` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_19` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_20` drifted. Value on db: `value_2`',
-              },
-            ],
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
-              text: '*Drifted Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_21` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_22` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_23` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_24` drifted. Value on db: `value_2`',
-              },
-              {
-                type: 'mrkdwn',
-                text: '`drifted_option_25` drifted. Value on db: `value_2`',
-              },
-            ],
-          },
-        ],
-        channel: 'C05QM3AUDKJ',
-        text: '',
-        unfurl_links: false,
-      });
-    });
-  });
-
-  describe('sendSentryOptionsUpdatesToDataDog tests', function () {
-    it('should send the right payload', async function () {
-      await sendSentryOptionsUpdatesToDatadog(testPartialPayload, 1699563828);
-      expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
-      const message = datadogApiInstanceSpy.mock.calls[0][0];
-      expect(message).toEqual({
-        body: {
-          dateHappened: 1699563828,
-          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"}}',
-          title: 'Sentry Options Update',
-          alertType: 'error',
-          tags: [
-            'sentry_region:st-test_region',
-            'source_tool:options-automator',
-            'source:options-automator',
-            'source_category:infra-tools',
-            'option_name:drifted_option_1',
-            `sentry_user:options-automator`,
-          ],
-        },
-      });
-      const secondMessage = datadogApiInstanceSpy.mock.calls[1][0];
-      expect(secondMessage).toEqual({
-        body: {
-          dateHappened: 1699563828,
-          text: '{"change":"drifted_options","option":{"option_name":"drifted_option_2","option_value":"value_2"}}',
-          title: 'Sentry Options Update',
-          alertType: 'error',
-          tags: [
-            'sentry_region:st-test_region',
-            'source_tool:options-automator',
-            'source:options-automator',
-            'source_category:infra-tools',
-            'option_name:drifted_option_2',
-            `sentry_user:options-automator`,
-          ],
-        },
-      });
-    });
-  });
-  it('should send multiple messages', async function () {
-    await sendSentryOptionsUpdatesToDatadog(testPayload, 1699563828);
-    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(13);
-  });
-
-  it('should handle different regions', async function () {
-    await sendSentryOptionsUpdatesToDatadog(testSaasPayload, 1699563828);
-    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
-
-    const message = datadogApiInstanceSpy.mock.calls[0][0];
-    expect(message).toEqual({
-      body: {
-        dateHappened: 1699563828,
-        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}}',
-        title: 'Sentry Options Update',
-        alertType: 'success',
-        tags: [
-          'sentry_region:us',
-          'source_tool:options-automator',
-          'source:options-automator',
-          'source_category:infra-tools',
-          'option_name:updated_option_1',
-          `sentry_user:options-automator`,
-        ],
-      },
     });
   });
 });
