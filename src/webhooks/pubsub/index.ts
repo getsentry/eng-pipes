@@ -46,7 +46,7 @@ export const pubSubHandler = async (
     const bearer = request.headers.authorization || '';
 
     if (!bearer) {
-      reply.code(400);
+      reply.code(401);
       reply.send();
       return;
     }
@@ -54,7 +54,7 @@ export const pubSubHandler = async (
     const match = bearer.match(/Bearer (.*)/);
 
     if (!match) {
-      reply.code(400);
+      reply.code(401);
       reply.send();
       return;
     }
@@ -72,7 +72,7 @@ export const pubSubHandler = async (
       idToken: token,
     });
   } catch (e) {
-    reply.code(400);
+    reply.code(401);
     reply.send();
     return;
   }
