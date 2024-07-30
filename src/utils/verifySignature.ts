@@ -11,6 +11,7 @@ export function verifySignature(
 ) {
   const digest = createSignature(payload, secret, createDigest, method);
   const checksum = Buffer.from(signature, 'utf8');
+
   if (
     checksum.length !== digest.length ||
     !crypto.timingSafeEqual(digest, checksum)

@@ -27,12 +27,14 @@ describe('gocd webhook', function () {
     expect(response.statusCode).toBe(200);
   });
 
-  it('returns 401 if the signature is incorrect', async function () {
+  it('returns 400 if the signature is valid but incorrect', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/gocd/webhook',
       headers: {
-        'x-gocd-signature': 'incorrect',
+        // Random sha256 hash
+        'x-gocd-signature':
+          'd2c2e36b95268d0fc7965b2154fcb112b9578b9a9adbe5a38375d3253c971d6e',
       },
       payload: gocdstagepayload,
     });
@@ -40,13 +42,26 @@ describe('gocd webhook', function () {
     expect(response.statusCode).toBe(401);
   });
 
-  it('returns 401 if no signature is provided', async function () {
+  it('returns 400 if the signature is invalid', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/metrics/gocd/webhook',
+      headers: {
+        'x-gocd-signature': 'invalid',
+      },
+      payload: gocdstagepayload,
+    });
+
+    expect(response.statusCode).toBe(400);
+  });
+
+  it('returns 400 if no signature is provided', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/gocd/webhook',
       payload: gocdstagepayload,
     });
 
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 });

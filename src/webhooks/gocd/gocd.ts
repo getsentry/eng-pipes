@@ -4,7 +4,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { GoCDResponse } from '@types';
 
 import { GOCD_WEBHOOK_SECRET } from '@/config';
-import { verifySignature } from '@/utils/verifySignature';
+import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 import { gocdevents } from '@api/gocdevents';
 
 export async function handler(
@@ -12,22 +12,15 @@ export async function handler(
   reply: FastifyReply
 ) {
   try {
-    const clientSignatureHeader = request.headers['x-gocd-signature'] ?? '';
-
-    const clientSignature = Array.isArray(clientSignatureHeader)
-      ? clientSignatureHeader.join('')
-      : clientSignatureHeader;
-
-    const isVerified = verifySignature(
-      JSON.stringify(request.body),
-      clientSignature,
-      GOCD_WEBHOOK_SECRET,
-      (i) => i,
-      'sha256'
+    const isVerified = await extractAndVerifySignature(
+      request,
+      reply,
+      'x-gocd-signature',
+      GOCD_WEBHOOK_SECRET
     );
 
     if (!isVerified) {
-      return reply.code(401).send('Unauthorized');
+      return;
     }
 
     const { body }: { body: GoCDResponse } = request;
