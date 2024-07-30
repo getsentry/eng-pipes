@@ -29,9 +29,9 @@ describe('slack app', function () {
     const request = {
       body: {
         message: {
-          data: new Buffer.from(
-            JSON.stringify({ name: operationSlug })
-          ).toString('base64'),
+          data: Buffer.from(JSON.stringify({ name: operationSlug })).toString(
+            'base64'
+          ),
         },
       },
       headers: {
@@ -99,5 +99,49 @@ describe('slack app', function () {
     expect(mockNotifier).not.toHaveBeenCalled();
     expect(mockSlackScores).not.toHaveBeenCalled();
     expect(mockStaleBot).not.toHaveBeenCalled();
+  });
+
+  it('replies with 400 for missing auth', async function () {
+    const request = {
+      body: {
+        message: {
+          data: Buffer.from(JSON.stringify({ name: 'stale-bot' })).toString(
+            'base64'
+          ),
+        },
+      },
+      headers: {},
+    };
+    const reply = new MockReply();
+    await pubSubHandler(request, reply);
+    expect(reply.statusCode).toBe(400);
+  });
+
+  it('replies with 400 for invalid auth', async function () {
+    const request = {
+      body: {
+        message: {
+          data: Buffer.from(JSON.stringify({ name: 'stale-bot' })).toString(
+            'base64'
+          ),
+        },
+      },
+      headers: {
+        authorization: 'invalid',
+      },
+    };
+    const reply = new MockReply();
+    await pubSubHandler(request, reply);
+    expect(reply.statusCode).toBe(400);
+  });
+
+  it('replies with 401 for invalid token', async function () {
+    jest
+      .spyOn(OAuth2Client.prototype, 'verifyIdToken')
+      .mockImplementationOnce(() => {
+        throw new Error('test');
+      });
+    const reply = await pubSub('stale-bot');
+    expect(reply.statusCode).toBe(401);
   });
 });
