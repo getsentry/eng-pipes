@@ -219,3 +219,7 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
     notifyAfter: moment.duration(1.5, 'hour'),
   },
 ];
+
+// Webhook Secrets
+export const SENTRY_OPTIONS_WEBHOOK_SECRET =
+  process.env.SENTRY_OPTIONS_WEBHOOK_SECRET || '';

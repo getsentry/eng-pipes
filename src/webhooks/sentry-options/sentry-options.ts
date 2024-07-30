@@ -1,7 +1,7 @@
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { KnownBlock, MrkdwnElement } from '@slack/types';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { SentryOptionsResponse } from '@types';
@@ -11,16 +11,41 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import {
   DATADOG_API_INSTANCE,
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+  SENTRY_OPTIONS_WEBHOOK_SECRET,
 } from '@/config';
+import { verifySignature } from '@/utils/verifySignature';
 
 export async function handler(
-  request: FastifyRequest<{ Body: SentryOptionsResponse }>
+  request: FastifyRequest<{ Body: SentryOptionsResponse }>,
+  reply: FastifyReply
 ) {
-  return {};
-  const { body }: { body: SentryOptionsResponse } = request;
-  await messageSlack(body);
-  await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
-  return {};
+  try {
+    const clientSignatureHeader =
+      request.headers['x-sentry-options-signature'] ?? '';
+    const clientSignature = Array.isArray(clientSignatureHeader)
+      ? clientSignatureHeader.join('')
+      : clientSignatureHeader;
+
+    const isVerified = verifySignature(
+      JSON.stringify(request.body),
+      clientSignature,
+      SENTRY_OPTIONS_WEBHOOK_SECRET,
+      (i) => i,
+      'sha256'
+    );
+
+    if (!isVerified) {
+      return reply.code(401).send('Unauthorized');
+    }
+
+    const { body }: { body: SentryOptionsResponse } = request;
+    await messageSlack(body);
+    await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
+    return reply.code(200).send('OK');
+  } catch (err) {
+    Sentry.captureException(err);
+    return reply.code(500).send();
+  }
 }
 
 type OptionFormatter = (option: any) => string;
