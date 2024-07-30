@@ -11,11 +11,11 @@ export async function handler(
   request: FastifyRequest<{ Body: GoCDResponse }>,
   reply: FastifyReply
 ) {
-  // If the webhook secret is not defined, return a 500
-  if (GOCD_WEBHOOK_SECRET === undefined) {
-    return reply.code(500).send();
-  }
   try {
+    // If the webhook secret is not defined, throw an error
+    if (GOCD_WEBHOOK_SECRET === undefined) {
+      throw new Error('GOCD_WEBHOOK_SECRET is not defined');
+    }
     const isVerified = await extractAndVerifySignature(
       request,
       reply,
