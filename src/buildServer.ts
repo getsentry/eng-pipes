@@ -95,7 +95,7 @@ export async function buildServer(
   // middleware/event abstraction layer.
   server.post<{ Params: { service: string } }>(
     '/metrics/:service/webhook',
-    { preHandler: verifyEndpoint },
+    {},
     WebhookRouter(server)
   );
 

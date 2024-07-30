@@ -1,7 +1,7 @@
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { KnownBlock, MrkdwnElement } from '@slack/types';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { SentryOptionsResponse } from '@types';
@@ -12,10 +12,15 @@ import {
   DATADOG_API_INSTANCE,
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
 } from '@/config';
+import { verifyEndpoint } from '@/utils/verifyEndpoint';
 
 export async function handler(
-  request: FastifyRequest<{ Body: SentryOptionsResponse }>
+  request: FastifyRequest<{ Body: SentryOptionsResponse }>,
+  reply: FastifyReply
 ) {
+  if (!verifyEndpoint(request)) {
+    return reply.code(401).send({ error: 'Unauthorized' });
+  }
   const { body }: { body: SentryOptionsResponse } = request;
   await messageSlack(body);
   await sendSentryOptionsUpdatesToDatadog(body, moment().unix());

@@ -5,7 +5,6 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { GH_ORGS } from '@/config';
-import { verifyPubSubEndpoint } from '@/utils/verifyEndpoint';
 
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
@@ -34,7 +33,6 @@ export const opts = {
       },
     },
   },
-  preHandler: verifyPubSubEndpoint,
 };
 
 export const pubSubHandler = async (

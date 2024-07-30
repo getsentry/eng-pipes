@@ -1,10 +1,15 @@
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
+import { verifyEndpoint } from '@/utils/verifyEndpoint';
 import { insert } from '@utils/metrics';
 
 export async function handler(
-  request: FastifyRequest<{ Body: { event: string; name: string } }>
+  request: FastifyRequest<{ Body: { event: string; name: string } }>,
+  reply: FastifyReply
 ) {
+  if (!verifyEndpoint(request)) {
+    return reply.code(401).send({ error: 'Unauthorized' });
+  }
   const { body: payload } = request;
 
   const now = new Date();
