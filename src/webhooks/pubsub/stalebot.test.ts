@@ -53,11 +53,11 @@ describe('Stalebot Tests', function () {
     expect(org.api.issues._comments).toEqual([
       `This issue has gone three weeks without activity. In another week, I will close it.
 
-  But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you remove the label \`Waiting for: Community\`, I will leave it alone ... forever!
 
-  ----
+----
 
-  "A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
+"A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
     ]);
   });
 
@@ -91,11 +91,11 @@ describe('Stalebot Tests', function () {
     expect(org.api.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
 
-  But! If you comment or otherwise update it, I will reset the clock, and if you add the label \`WIP\`, I will leave it alone unless \`WIP\` is removed ... forever!
+But! If you comment or otherwise update it, I will reset the clock, and if you add the label \`WIP\`, I will leave it alone unless \`WIP\` is removed ... forever!
 
-  ----
+----
 
-  "A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
+"A weed is but an unloved flower." ― _Ella Wheeler Wilcox_ 🥀`,
     ]);
   });
 
