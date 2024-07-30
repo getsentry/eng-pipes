@@ -1,6 +1,7 @@
 export enum SlackMessage {
   REQUIRED_CHECK = 'required-check',
   PLEASE_DEPLOY = 'please-deploy',
+  GOCD_CUSTOM_JOB_RUN = 'gocd-custom-job-run',
   FEED_ENG_DEPLOY = 'feed-eng-deploy',
   FEED_DEV_INFRA_GOCD_DEPLOY = 'feed-dev-infra-gocd-deploy',
   FEED_ENGINGEERING_DEPLOY = 'feed-engineering-deploy',
