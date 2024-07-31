@@ -32,16 +32,19 @@ export async function handler(
     );
 
     if (!isVerified) {
+      // If the signature is not verified, return (since extractAndVerifySignature sends the response)
       return;
     }
 
     const { body }: { body: SentryOptionsResponse } = request;
     await messageSlack(body);
     await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
-    return reply.code(200).send('OK');
+    reply.code(200).send('OK');
+    return;
   } catch (err) {
     Sentry.captureException(err);
-    return reply.code(500).send();
+    reply.code(500).send();
+    return;
   }
 }
 
