@@ -6,6 +6,7 @@ import gocdStageBuildingDeploying from '@test/payloads/gocd/gocd-stage-building-
 import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
 import gocdFrontendBuilding from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
+import { createGoCDRequest } from '@test/utils/createGoCDRequest';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE, GETSENTRY_ORG } from '@/config';
@@ -47,11 +48,7 @@ describe('GocdDatadogEvents', () => {
   });
 
   it('webhook working empty payload', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/gocd/webhook',
-      payload: testEmptyPayload,
-    });
+    const response = await createGoCDRequest(fastify, testEmptyPayload);
     expect(response.statusCode).toBe(200);
     await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -59,33 +56,21 @@ describe('GocdDatadogEvents', () => {
   });
 
   it('webhook ignore agent payload', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/gocd/webhook',
-      payload: gocdagentpayload,
-    });
+    const response = await createGoCDRequest(fastify, gocdagentpayload);
     expect(response.statusCode).toBe(200);
     await new Promise((resolve) => setTimeout(resolve, 500));
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(0);
   });
 
   it('webhook ignore checks stage payload', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/gocd/webhook',
-      payload: gocdStateChecksPayload,
-    });
+    const response = await createGoCDRequest(fastify, gocdStateChecksPayload);
     expect(response.statusCode).toBe(200);
     await new Promise((resolve) => setTimeout(resolve, 500));
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(0);
   });
 
   it('webhook snuba payload', async function () {
-    const response = await fastify.inject({
-      method: 'POST',
-      url: '/metrics/gocd/webhook',
-      payload: gocdSnubaMigratePayload,
-    });
+    const response = await createGoCDRequest(fastify, gocdSnubaMigratePayload);
     expect(response.statusCode).toBe(200);
     await new Promise((resolve) => setTimeout(resolve, 500));
     // TODO: uncomment when fixed

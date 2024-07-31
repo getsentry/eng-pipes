@@ -223,9 +223,15 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
 ];
 
 // Webhook Secrets
+export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
 export const INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET =
   process.env.INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET;
 
 if (INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET === undefined) {
   throw new TypeError('INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET must be set');
 }
+
+/**
+ * Regex
+ */
+export const SHA256_REGEX = /^[A-Fa-f0-9]{64}$/;
