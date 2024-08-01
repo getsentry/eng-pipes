@@ -2,15 +2,18 @@ import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { InfraEventNotifierResponse } from '@types';
+import { KafkaControlPlaneResponse } from '@types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET } from '@/config';
+import {
+  KAFKA_CONTROL_PLANE_CHANNEL_ID,
+  KAFKA_CONTROL_PLANE_WEBHOOK_SECRET,
+} from '@/config';
 import { verifySignature } from '@/utils/verifySignature';
 
 export async function handler(
-  request: FastifyRequest<{ Body: InfraEventNotifierResponse }>,
+  request: FastifyRequest<{ Body: KafkaControlPlaneResponse }>,
   reply: FastifyReply
 ) {
   try {
@@ -24,7 +27,7 @@ export async function handler(
     const isVerified = verifySignature(
       payloadBody,
       clientSignature!,
-      INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET!,
+      KAFKA_CONTROL_PLANE_WEBHOOK_SECRET!,
       (i) => i,
       'sha256'
     );
@@ -33,7 +36,7 @@ export async function handler(
       return reply.code(401).send('Unauthorized');
     }
 
-    const { body }: { body: InfraEventNotifierResponse } = request;
+    const { body }: { body: KafkaControlPlaneResponse } = request;
     await messageSlack(body);
     return reply.code(200).send('OK');
   } catch (err) {
@@ -42,8 +45,8 @@ export async function handler(
   }
 }
 
-export async function messageSlack(message: InfraEventNotifierResponse) {
-  if (message.source !== 'infra-event-notifier') {
+export async function messageSlack(message: KafkaControlPlaneResponse) {
+  if (message.source !== 'kafka-control-plane') {
     return;
   }
   validatePayload(message);
@@ -52,7 +55,7 @@ export async function messageSlack(message: InfraEventNotifierResponse) {
       slackblocks.header(slackblocks.plaintext(message.title)),
       slackblocks.section(slackblocks.markdown(message.body)),
     ];
-    await sendMessage(sendBlock, message.channel);
+    await sendMessage(sendBlock);
   } catch (err) {
     Sentry.setContext('message_data', { message });
     Sentry.captureException(err);
@@ -60,14 +63,14 @@ export async function messageSlack(message: InfraEventNotifierResponse) {
 }
 
 async function reportMessageError(
-  message: InfraEventNotifierResponse,
+  message: KafkaControlPlaneResponse,
   errorMsg: string
 ) {
   Sentry.setContext('message_data', { message });
   Sentry.captureException(errorMsg);
 }
 
-function validatePayload(message: InfraEventNotifierResponse) {
+function validatePayload(message: KafkaControlPlaneResponse) {
   const fields = [
     Object.hasOwn(message, 'title'),
     Object.hasOwn(message, 'body'),
@@ -90,10 +93,10 @@ function validatePayload(message: InfraEventNotifierResponse) {
   }
 }
 
-async function sendMessage(blocks, channel_id: string) {
+async function sendMessage(blocks) {
   try {
     await bolt.client.chat.postMessage({
-      channel: channel_id,
+      channel: KAFKA_CONTROL_PLANE_CHANNEL_ID,
       blocks: blocks,
       text: '',
       unfurl_links: false,

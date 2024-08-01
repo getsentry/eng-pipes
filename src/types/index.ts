@@ -242,7 +242,7 @@ export interface SentryOptionsResponse {
   }[];
 }
 
-export interface InfraEventNotifierResponse {
+export interface KafkaControlPlaneResponse {
   source: string;
   title: string;
   body: string;

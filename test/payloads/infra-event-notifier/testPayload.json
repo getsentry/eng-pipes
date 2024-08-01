@@ -1,6 +1,0 @@
-{
-    "source": "infra-event-notifier",
-    "title": "this is a title",
-    "body": "this is a text body",
-    "channel": "TESTCHAN"
-}

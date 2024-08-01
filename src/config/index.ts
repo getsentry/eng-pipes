@@ -51,6 +51,8 @@ export const FEED_INGEST_CHANNEL_ID = // #discuss-ingest
   process.env.FEED_INGEST_CHANNEL_ID || 'C019637C760';
 export const FEED_GOCD_JOB_RUNNER_CHANNEL_ID = // #feed-gocd-job-runner
   process.env.FEED_GOCD_JOB_RUNNER_CHANNEL_ID || 'C07E8TG7VJP';
+export const KAFKA_CONTROL_PLANE_CHANNEL_ID = // #feed-topicctl
+  process.env.KAFKA_CONTROL_PLANE_CHANNEL_ID || 'C07E9S96YPM';
 export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
@@ -224,11 +226,11 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
 
 // Webhook Secrets
 export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
-export const INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET =
-  process.env.INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET;
+export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
+  process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
 
-if (INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET === undefined) {
-  throw new TypeError('INFRA_EVENT_NOTIFIER_WEBHOOK_SECRET must be set');
+if (KAFKA_CONTROL_PLANE_WEBHOOK_SECRET === undefined) {
+  throw new TypeError('KAFKA_CONTROL_PLANE_WEBHOOK_SECRET must be set');
 }
 
 /**
