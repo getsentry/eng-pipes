@@ -15,6 +15,7 @@ import { loadBrain } from '@utils/loadBrain';
 
 import * as PubSub from './webhooks/pubsub';
 import { SENTRY_DSN } from './config';
+import { SlackRouter } from './slack';
 
 export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
@@ -101,6 +102,12 @@ export async function buildServer(
   // Endpoint for Google PubSub events
   // TODO: Unify all these webhooks URL patterns!
   server.post('/webhooks/pubsub', PubSub.opts, PubSub.pubSubHandler);
+
+  server.post<{ Params: { service: string } }>(
+    '/slack/:service/webhooks',
+    {},
+    SlackRouter(server)
+  );
 
   return server;
 }

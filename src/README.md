@@ -13,6 +13,7 @@ Below are descriptions for how this application is organized.
 | `types`   | Typescript types                                                                                                                                                                                              |
 | `utils`   | Utility functions that do not interact with external APIs                                                                                                                                                     |
 | `webhooks`| Webhook handlers for various services.                                                                                                                                                                        |
+| `slack`   | Slack handlers for various services which send to specific Slack channels                                                                                                                                     |
 
 ## Testing
 

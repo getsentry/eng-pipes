@@ -228,6 +228,15 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
 export const SENTRY_OPTIONS_WEBHOOK_SECRET =
   process.env.SENTRY_OPTIONS_WEBHOOK_SECRET;
 export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
+export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
+  process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
+
+export const STATUS_PAGE_WEBHOOK_SECRET =
+  process.env.STATUS_PAGE_WEBHOOK_SECRET;
+
+if (KAFKA_CONTROL_PLANE_WEBHOOK_SECRET === undefined) {
+  throw new TypeError('KAFKA_CONTROL_PLANE_WEBHOOK_SECRET must be set');
+}
 
 /**
  * Regex
