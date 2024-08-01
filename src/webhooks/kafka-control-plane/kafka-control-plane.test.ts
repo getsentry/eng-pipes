@@ -102,7 +102,7 @@ describe('kafka-control-plane webhook', function () {
           },
         ],
         text: '',
-        channel: 'C07DQR95XSS',
+        channel: 'C07E9S96YPM',
         unfurl_links: false,
       });
     });
