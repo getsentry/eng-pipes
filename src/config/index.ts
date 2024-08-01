@@ -224,7 +224,11 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
   },
 ];
 
-// Webhook Secrets
+/**
+ * Webhook secrets
+ */
+export const SENTRY_OPTIONS_WEBHOOK_SECRET =
+  process.env.SENTRY_OPTIONS_WEBHOOK_SECRET;
 export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
 export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
   process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;

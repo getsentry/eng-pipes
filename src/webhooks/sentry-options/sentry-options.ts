@@ -1,7 +1,7 @@
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { KnownBlock, MrkdwnElement } from '@slack/types';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import moment from 'moment-timezone';
 
 import { SentryOptionsResponse } from '@types';
@@ -11,16 +11,41 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import {
   DATADOG_API_INSTANCE,
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+  SENTRY_OPTIONS_WEBHOOK_SECRET,
 } from '@/config';
+import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(
-  request: FastifyRequest<{ Body: SentryOptionsResponse }>
+  request: FastifyRequest<{ Body: SentryOptionsResponse }>,
+  reply: FastifyReply
 ) {
-  return {};
-  const { body }: { body: SentryOptionsResponse } = request;
-  await messageSlack(body);
-  await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
-  return {};
+  try {
+    // If the webhook secret is not defined, throw an error
+    if (SENTRY_OPTIONS_WEBHOOK_SECRET === undefined) {
+      throw new Error('SENTRY_OPTIONS_WEBHOOK_SECRET is not defined');
+    }
+    const isVerified = await extractAndVerifySignature(
+      request,
+      reply,
+      'x-sentry-options-signature',
+      SENTRY_OPTIONS_WEBHOOK_SECRET
+    );
+
+    if (!isVerified) {
+      // If the signature is not verified, return (since extractAndVerifySignature sends the response)
+      return;
+    }
+
+    const { body }: { body: SentryOptionsResponse } = request;
+    await messageSlack(body);
+    await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
+    reply.code(200).send('OK');
+    return;
+  } catch (err) {
+    Sentry.captureException(err);
+    reply.code(500).send();
+    return;
+  }
 }
 
 type OptionFormatter = (option: any) => string;
