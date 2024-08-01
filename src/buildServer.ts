@@ -104,7 +104,7 @@ export async function buildServer(
   server.post('/webhooks/pubsub', PubSub.opts, PubSub.pubSubHandler);
 
   server.post<{ Params: { service: string } }>(
-    '/slack/:service/webhooks',
+    '/slack/:service/webhook',
     {},
     SlackRouter(server)
   );

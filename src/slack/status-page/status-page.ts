@@ -15,7 +15,7 @@ export async function handler(
 ) {
   try {
     const clientSignatureHeader =
-      request.headers['x-status-page-webhook-signature'] ?? '';
+      request.headers['x-infra-event-notifier-signature'] ?? '';
     const clientSignature = Array.isArray(clientSignatureHeader)
       ? clientSignatureHeader.join('')
       : clientSignatureHeader;
