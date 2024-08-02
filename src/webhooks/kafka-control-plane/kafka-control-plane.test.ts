@@ -28,7 +28,7 @@ describe('kafka-control-plane webhook', function () {
     expect(response.statusCode).toBe(200);
   });
 
-  it('returns 401 for invalid signature', async function () {
+  it('returns 400 for invalid signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/kafka-control-plane/webhook',
@@ -37,16 +37,16 @@ describe('kafka-control-plane webhook', function () {
       },
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
-  it('returns 401 for no signature', async function () {
+  it('returns 400 for no signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/metrics/kafka-control-plane/webhook',
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
   describe('messageSlack tests', function () {

@@ -10,30 +10,23 @@ import {
   KAFKA_CONTROL_PLANE_CHANNEL_ID,
   KAFKA_CONTROL_PLANE_WEBHOOK_SECRET,
 } from '@/config';
-import { verifySignature } from '@/utils/verifySignature';
+import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(
   request: FastifyRequest<{ Body: KafkaControlPlaneResponse }>,
   reply: FastifyReply
 ) {
   try {
-    const clientSignatureHeader =
-      request.headers['x-infra-event-notifier-signature'] ?? '';
-    const clientSignature = Array.isArray(clientSignatureHeader)
-      ? clientSignatureHeader.join('')
-      : clientSignatureHeader;
-
-    const payloadBody = request.body ? JSON.stringify(request.body) : '';
-    const isVerified = verifySignature(
-      payloadBody,
-      clientSignature!,
-      KAFKA_CONTROL_PLANE_WEBHOOK_SECRET!,
-      (i) => i,
-      'sha256'
+    const isVerified = await extractAndVerifySignature(
+      request,
+      reply,
+      'x-infra-event-notifier-signature',
+      KAFKA_CONTROL_PLANE_WEBHOOK_SECRET!
     );
 
     if (!isVerified) {
-      return reply.code(401).send('Unauthorized');
+      // If the signature is not verified, return (since extractAndVerifySignature sends the response)
+      return;
     }
 
     const { body }: { body: KafkaControlPlaneResponse } = request;
