@@ -8,7 +8,7 @@ product_areas:
   DDM:
   - team-telemetry-experience
   Dashboards:
-  - team-discover-and-dashboards
+  - team-dashboards
   Discover:
   - team-discover-and-dashboards
   Docs:
@@ -144,6 +144,10 @@ teams:
     offices:
     - vie
     slack_channel: C027HJCKP0V
+  team-dashboards:
+    offices:
+    - yyz
+    slack_channel: C01MYDW8Y7K
   team-discover-and-dashboards:
     offices:
     - yyz
