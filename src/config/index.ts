@@ -233,10 +233,6 @@ export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
 export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
   process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
 
-if (KAFKA_CONTROL_PLANE_WEBHOOK_SECRET === undefined) {
-  throw new TypeError('KAFKA_CONTROL_PLANE_WEBHOOK_SECRET must be set');
-}
-
 /**
  * Regex
  */

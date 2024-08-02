@@ -17,6 +17,9 @@ export async function handler(
   reply: FastifyReply
 ) {
   try {
+    if (KAFKA_CONTROL_PLANE_WEBHOOK_SECRET === undefined) {
+      throw new TypeError('KAFKA_CONTROL_PLANE_WEBHOOK_SECRET must be set');
+    }
     const isVerified = await extractAndVerifySignature(
       request,
       reply,
