@@ -2,6 +2,7 @@ import '@sentry/tracing';
 
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
 import { GH_ORGS } from '@/config';
@@ -39,12 +40,47 @@ export const pubSubHandler = async (
   request: FastifyRequest<{ Body: { message: { data: string } } }>,
   reply: FastifyReply
 ) => {
+  try {
+    const client = new OAuth2Client();
+    // Get the Cloud Pub/Sub-generated JWT in the "Authorization" header.
+    const bearer = request.headers.authorization || '';
+
+    if (!bearer) {
+      reply.code(400);
+      reply.send();
+      return;
+    }
+
+    const match = bearer.match(/Bearer (.*)/);
+
+    if (!match) {
+      reply.code(400);
+      reply.send();
+      return;
+    }
+
+    const token = match[1];
+
+    // Verify and decode the JWT.
+    // Note: For high volume push requests, it would save some network
+    // overhead if you verify the tokens offline by decoding them using
+    // Google's Public Cert; caching already seen tokens works best when
+    // a large volume of messages have prompted a single push server to
+    // handle them, in which case they would all share the same token for
+    // a limited time window.
+    await client.verifyIdToken({
+      idToken: token,
+    });
+  } catch (e) {
+    reply.code(401);
+    reply.send();
+    return;
+  }
   const tx = Sentry.startTransaction({
     op: 'webhooks',
     name: 'pubsub.pubSubHandler',
   });
 
-  return;
   const payload: PubSubPayload = JSON.parse(
     Buffer.from(request.body.message.data, 'base64').toString().trim()
   );
