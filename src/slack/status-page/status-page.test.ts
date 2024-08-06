@@ -27,25 +27,25 @@ describe('status-page webhook', function () {
     expect(response.statusCode).toBe(200);
   });
 
-  it('returns 401 for invalid signature', async function () {
+  it('returns 400 for invalid signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/slack/status-page/webhook',
       headers: {
-        'x-kafka-control-plane-signature': 'invalid',
+        'x-status-page-webhook-signature': 'invalid',
       },
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
-  it('returns 401 for no signature', async function () {
+  it('returns 400 for no signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
       url: '/slack/status-page/webhook',
       payload: testPayload,
     });
-    expect(response.statusCode).toBe(401);
+    expect(response.statusCode).toBe(400);
   });
 
   describe('messageSlack tests', function () {

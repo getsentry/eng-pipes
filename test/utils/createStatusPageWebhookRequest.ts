@@ -17,7 +17,7 @@ export async function createKCPRequest(fastify: Fastify, payload: any) {
     method: 'POST',
     url: '/slack/status-page/webhook',
     headers: {
-      'x-infra-event-notifier-signature': signature.toString(),
+      'x-status-page-webhook-signature': signature.toString(),
     },
     payload: payload,
   });
