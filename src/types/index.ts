@@ -241,3 +241,10 @@ export interface SentryOptionsResponse {
     expected_type: string;
   }[];
 }
+
+export interface KafkaControlPlaneResponse {
+  source: string;
+  title: string;
+  body: string;
+  channel: string;
+}
