@@ -111,7 +111,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
@@ -305,7 +305,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry-st.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1513938|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/deploy-getsentry-backend-s4s|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
@@ -499,7 +499,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
@@ -865,7 +865,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
         ),
       ],
     };
@@ -1072,7 +1072,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
@@ -1332,7 +1332,7 @@ describe('gocdSlackFeeds', function () {
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to unpause the pipeline once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
