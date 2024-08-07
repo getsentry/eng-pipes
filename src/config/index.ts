@@ -233,6 +233,9 @@ export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
 export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
   process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
 
+export const STATUS_PAGE_WEBHOOK_SECRET =
+  process.env.STATUS_PAGE_WEBHOOK_SECRET;
+
 /**
  * Regex
  */

@@ -248,3 +248,9 @@ export interface KafkaControlPlaneResponse {
   body: string;
   channel: string;
 }
+
+export interface StatusPageWebhookResponse {
+  title: string;
+  body: string;
+  channel: string;
+}
