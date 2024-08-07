@@ -13,6 +13,8 @@ product_areas:
   - team-discover-and-dashboards
   Docs:
   - team-docs
+  Explore:
+  - team-explore
   Footer:
   - team-issues
   Help:
@@ -20,7 +22,7 @@ product_areas:
   Ingestion and Filtering:
   - team-ingest
   Insights:
-  - team-performance
+  - team-insights
   Issues:
   - team-issues
   Issues - Source Maps:
@@ -161,6 +163,11 @@ teams:
     offices:
     - sfo
     slack_channel: C058EAWNF1P
+  team-explore:
+    offices:
+    - yyz
+    - sfo
+    slack_channel: C07EH5HJX25
   team-foundations:
     offices:
     - sfo
@@ -169,6 +176,10 @@ teams:
     offices:
     - vie
     slack_channel: C019637C760
+  team-insights:
+    offices:
+    - yyz
+    slack_channel: CTZCE4WBZ
   team-integrations:
     offices:
     - sfo
@@ -193,7 +204,7 @@ teams:
   team-performance:
     offices:
     - yyz
-    slack_channel: C026Y0SK34H
+    slack_channel: CTZCE4WBZ
   team-product:
     offices:
     - sfo
