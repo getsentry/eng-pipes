@@ -104,11 +104,5 @@ describe('status-page webhook', function () {
         unfurl_links: false,
       });
     });
-
-    // it('only writes kafka-control-plane changes', async function () {
-    //   const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-    //   await messageSlack(testAdminPayload);
-    //   expect(postMessageSpy).toHaveBeenCalledTimes(0);
-    // });
   });
 });
