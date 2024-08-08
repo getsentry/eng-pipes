@@ -42,7 +42,7 @@ export async function handler(
 }
 
 export async function messageSlack(message: KafkaControlPlaneResponse) {
-  if (message.source !== 'kafka-control-plane') {
+  if (message.source !== 'infra-event-notifier') {
     return;
   }
   validatePayload(message);
