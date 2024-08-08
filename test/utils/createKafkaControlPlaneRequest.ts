@@ -17,7 +17,7 @@ export async function createKCPRequest(fastify: Fastify, payload: any) {
     method: 'POST',
     url: '/metrics/kafka-control-plane/webhook',
     headers: {
-      'x-kafka-control-plane-signature': signature.toString(),
+      'x-infra-event-notifier-signature': signature.toString(),
     },
     payload: payload,
   });

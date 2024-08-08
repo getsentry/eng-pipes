@@ -33,7 +33,7 @@ describe('kafka-control-plane webhook', function () {
       method: 'POST',
       url: '/metrics/kafka-control-plane/webhook',
       headers: {
-        'x-kafka-control-plane-signature': 'invalid',
+        'x-infra-event-notifier-signature': 'invalid',
       },
       payload: testPayload,
     });

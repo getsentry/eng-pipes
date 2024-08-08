@@ -23,7 +23,7 @@ export async function handler(
     const isVerified = await extractAndVerifySignature(
       request,
       reply,
-      'x-kafka-control-plane-signature',
+      'x-infra-event-notifier-signature',
       KAFKA_CONTROL_PLANE_WEBHOOK_SECRET!
     );
 
