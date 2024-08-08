@@ -179,7 +179,7 @@ teams:
   team-insights:
     offices:
     - yyz
-    slack_channel: CTZCE4WBZ
+    slack_channel: C026Y0SK34H
   team-integrations:
     offices:
     - sfo
@@ -204,7 +204,7 @@ teams:
   team-performance:
     offices:
     - yyz
-    slack_channel: CTZCE4WBZ
+    slack_channel: C026Y0SK34H
   team-product:
     offices:
     - sfo
