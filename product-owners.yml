@@ -10,7 +10,7 @@ product_areas:
   Dashboards:
   - team-dashboards
   Discover:
-  - team-discover-and-dashboards
+  - team-explore
   Docs:
   - team-docs
   Explore:
@@ -150,10 +150,6 @@ teams:
     offices:
     - yyz
     slack_channel: C01MYDW8Y7K
-  team-discover-and-dashboards:
-    offices:
-    - yyz
-    slack_channel: C026Y0SK34H
   team-docs:
     offices:
     - sea
