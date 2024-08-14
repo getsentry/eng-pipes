@@ -11,11 +11,7 @@ import {
 import { getUser } from '@/api/getUser';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import {
-  GETSENTRY_REPO_SLUG,
-  GH_ORGS,
-  SENTRY_REPO_SLUG,
-} from '@/config';
+import { GETSENTRY_REPO_SLUG, GH_ORGS, SENTRY_REPO_SLUG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';

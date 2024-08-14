@@ -377,9 +377,7 @@ const goCDCustomJobRunnerFeed = new DeployFeed({
     }
 
     const blocks = [
-      header(
-        plaintext(`${pipeline.name} stage update`)
-      ),
+      header(plaintext(`${pipeline.name} stage update`)),
       stageBlock(pipeline),
     ];
 
@@ -393,7 +391,7 @@ const goCDCustomJobRunnerFeed = new DeployFeed({
             `cc'ing the user who started this deployment: <@${user.slackUser}>`
           )
         )
-      )
+      );
     }
 
     return blocks;
