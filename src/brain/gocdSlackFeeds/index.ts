@@ -5,6 +5,7 @@ import { getAuthors } from '@/api/github/getAuthors';
 import { gocdevents } from '@/api/gocdevents';
 import {
   context,
+  divider,
   header,
   markdown,
   plaintext,
@@ -27,6 +28,7 @@ import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 
 import { DeployFeed } from './deployFeed';
+import { stageBlock } from './stage';
 
 enum PauseCause {
   CANARY = 'canary',
@@ -366,9 +368,35 @@ const goCDCustomJobRunnerFeed = new DeployFeed({
   channelID: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
   msgType: SlackMessage.GOCD_CUSTOM_JOB_RUN,
   pipelineFilter: (pipeline) => {
-    // We only want to capture updates for the GoCD Job Runner pipeline,
-    // whether successful or failed
+    // We only want to capture updates for the GoCD Job Runner pipeline
     return pipeline.name === GOCD_CUSTOM_JOB_PIPELINE_NAME;
+  },
+  replyCallback: async (pipeline) => {
+    if (pipeline.stage.result.toLowerCase() === 'unknown') {
+      return [];
+    }
+
+    const blocks = [
+      header(
+        plaintext(`${pipeline.name} stage update`)
+      ),
+      stageBlock(pipeline),
+    ];
+
+    const approvedBy = pipeline.stage['approved-by'];
+    const user = await getUser({ email: approvedBy });
+    if (user?.slackUser) {
+      blocks.push(divider());
+      blocks.push(
+        context(
+          markdown(
+            `cc'ing the user who started this deployment: <@${user.slackUser}>`
+          )
+        )
+      )
+    }
+
+    return blocks;
   },
 });
 
