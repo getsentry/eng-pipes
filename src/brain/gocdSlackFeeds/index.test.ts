@@ -9,6 +9,7 @@ import {
   DISCUSS_BACKEND_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
+  FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
@@ -1743,6 +1744,199 @@ Please do not ignore this message just because the environment is not SaaS, beca
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(pipelineFailureReply);
+  });
+
+  it(`post message without a reply for run-custom-job when the stage result is unknown`, async function () {
+    const gocdPayloadStarted = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            result: 'Unknown',
+          },
+        },
+      },
+    });
+
+    // First Event
+    await handler(gocdPayloadStarted);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it(`post message and reply for run-custom-job when there are stage updates`, async function () {
+    getUser.mockImplementation((_) => {
+      return { slackUser: 'GoCD_Slack_User' };
+    });
+
+    const gocdPayloadSuccess = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            'approved-by': 'GoCD_Slack_User',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+    await handler(gocdPayloadSuccess);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('❌ *checks*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Failed>'
+            ),
+          ],
+        },
+        slackblocks.divider(),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the user who started this deployment: <@GoCD_Slack_User>`
+          )
+        ),
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      text: 'GoCD deployment started by <@GoCD_Slack_User>',
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[2][0]).toMatchObject({
+      text: 'GoCD deployment started by <@GoCD_Slack_User>',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
   });
 
   function sortMessages(ao, bo) {
