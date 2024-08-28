@@ -1829,12 +1829,112 @@ Please do not ignore this message just because the environment is not SaaS, beca
     });
   });
 
+  it(`post message without a reply for run-custom-job when the stage result is known`, async function () {
+    const gocdPayloadSuccess = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'execute',
+            result: 'Passed',
+          },
+        },
+      },
+    });
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
+    await handler(gocdPayloadSuccess);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      channel: 'channel_id',
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('✅ *execute*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/execute/1|Passed>'
+            ),
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('✅ *execute*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/execute/1|Passed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[2][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.SUCCESS,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('✅ *execute*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/execute/1|Passed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it(`post message and reply for run-custom-job when there are stage updates`, async function () {
     getUser.mockImplementation((_) => {
       return { slackUser: 'GoCD_Slack_User' };
     });
 
-    const gocdPayloadSuccess = merge({}, payload, {
+    const gocdPayloadFailure = merge({}, payload, {
       data: {
         pipeline: {
           name: 'run-custom-job',
@@ -1847,7 +1947,7 @@ Please do not ignore this message just because the environment is not SaaS, beca
       },
     });
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(0);
-    await handler(gocdPayloadSuccess);
+    await handler(gocdPayloadFailure);
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
