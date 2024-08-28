@@ -1,3 +1,5 @@
+import * as Sentry from '@sentry/node';
+
 import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import { db } from '@utils/db';
@@ -39,7 +41,16 @@ export async function handler(resBody: GoCDResponse) {
   };
 
   if (!dbEntry) {
-    await db(DB_TABLE_STAGES).insert(gocdpipeline);
+    try {
+      await db(DB_TABLE_STAGES).insert(gocdpipeline);
+    } catch (e) {
+      Sentry.captureException(e, {
+        extra: {
+          pipeline_id,
+          pipeline,
+        },
+      });
+    }
 
     await saveBuildMaterials(pipeline_id, pipeline);
 
