@@ -11,12 +11,7 @@ import {
 import { getUser } from '@/api/getUser';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import {
-  GETSENTRY_REPO_SLUG,
-  GH_ORGS,
-  GOCD_ORIGIN,
-  SENTRY_REPO_SLUG,
-} from '@/config';
+import { GETSENTRY_REPO_SLUG, GH_ORGS, SENTRY_REPO_SLUG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDModification, GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
@@ -27,6 +22,8 @@ import {
   firstGitMaterialSHA,
   getProgressColor,
 } from '@/utils/gocdHelpers';
+
+import { stageBlock } from './stage';
 
 export class DeployFeed {
   private feedName: string;
@@ -226,32 +223,6 @@ export class DeployFeed {
     return block;
   }
 
-  stageMessage(pipeline: GoCDPipeline): string {
-    const stage = pipeline.stage;
-    switch (stage.result.toLowerCase()) {
-      case 'unknown':
-        return 'In progress';
-      default:
-        return stage.result;
-    }
-  }
-
-  stageEmoji(pipeline: GoCDPipeline): string {
-    const stage = pipeline.stage;
-    switch (stage.result.toLowerCase()) {
-      case 'passed':
-        return '✅';
-      case 'failed':
-        return '❌';
-      case 'cancelled':
-        return '🛑';
-      case 'unknown':
-        return '⏳';
-      default:
-        return '❓';
-    }
-  }
-
   async getMessageBlocks(pipeline: GoCDPipeline): Promise<Array<KnownBlock>> {
     const blocks: Array<KnownBlock> = [
       slackblocks.section(
@@ -263,24 +234,9 @@ export class DeployFeed {
       blocks.push(shaBlock);
     }
     blocks.push(slackblocks.divider());
-    blocks.push(this.stageBlock(pipeline));
+    blocks.push(stageBlock(pipeline));
 
     return blocks;
-  }
-
-  stageBlock(pipeline: GoCDPipeline): KnownBlock {
-    const stageOverviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
-    return {
-      type: 'context',
-      elements: [
-        slackblocks.markdown(
-          `${this.stageEmoji(pipeline)} *${pipeline.stage.name}*`
-        ),
-        slackblocks.markdown(
-          `<${stageOverviewURL}|${this.stageMessage(pipeline)}>`
-        ),
-      ],
-    };
   }
 
   // Attachments are largely deprecated, however slack does not offer a way
