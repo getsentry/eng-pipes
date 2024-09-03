@@ -7,6 +7,8 @@ import {
   MessageAttachment,
   MrkdwnElement,
 } from '@slack/types';
+import { WebAPICallResult } from '@slack/web-api';
+import { SlackMessageRow } from 'knex/types/tables';
 
 import { getUser } from '@/api/getUser';
 import { bolt } from '@/api/slack';
@@ -311,6 +313,28 @@ export class DeployFeed {
     });
   }
 
+  async replyToMessage(
+    pipeline: GoCDPipeline,
+    message: SlackMessageRow<SlackMessage> | WebAPICallResult | undefined
+  ) {
+    if (
+      message !== undefined &&
+      this.pipelineFilter &&
+      this.pipelineFilter(pipeline) &&
+      this.replyCallback
+    ) {
+      const replyBlocks = await this.replyCallback(pipeline);
+      if (replyBlocks.length > 0) {
+        await bolt.client.chat.postMessage({
+          channel: `${message.channel}`,
+          thread_ts: `${message.ts}`,
+          text: '',
+          blocks: replyBlocks,
+        });
+      }
+    }
+  }
+
   getPipelineId(pipeline: GoCDPipeline) {
     let refId = `${pipeline.group}-${pipeline.name}/${pipeline.counter}`;
     const buildCauses = filterBuildCauses(pipeline, 'git');
@@ -329,22 +353,20 @@ export class DeployFeed {
     const messages = await getSlackMessage(this.msgType, [refId]);
     if (!messages.length) {
       const postMessage = await this.newSlackMessage(refId, pipeline);
-      if (postMessage && this.replyCallback) {
-        const replyBlocks = await this.replyCallback(pipeline);
-        if (replyBlocks.length > 0) {
-          await bolt.client.chat.postMessage({
-            channel: `${postMessage.channel}`,
-            thread_ts: `${postMessage.ts}`,
-            text: '',
-            blocks: replyBlocks,
-          });
-        }
-      }
+      // Post reply if required
+      await this.replyToMessage(pipeline, postMessage);
     } else {
       const attachment = await this.getMessageAttachment(pipeline);
       await Promise.all(
-        messages.map((message) => {
-          return this.updateSlackMessage(message, attachment);
+        messages.map(async (message) => {
+          // eslint-disable-next-line no-console
+          console.log(message.channel, this.slackChannelID);
+          if (message.channel === this.slackChannelID) {
+            // Updates even if pipeline filter predicate is false
+            await this.updateSlackMessage(message, attachment);
+            // Post reply if required (if reply callback exists and pipeline filter predicate is true)
+            await this.replyToMessage(pipeline, message);
+          }
         })
       );
     }
