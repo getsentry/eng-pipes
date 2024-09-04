@@ -79,7 +79,7 @@ describe('slack app', function () {
             "type": "section",
           },
         ],
-        "channel": "channel_id",
+        "channel": "G018X8Y9B1N",
         "text": "TypeScript progress: 50% completed, 10 files remaining",
         "ts": "1234123.123",
       }

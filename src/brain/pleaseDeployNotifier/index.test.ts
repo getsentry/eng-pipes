@@ -262,7 +262,7 @@ describe('pleaseDeployNotifier', function () {
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -927,7 +927,7 @@ describe('pleaseDeployNotifier', function () {
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1082,7 +1082,7 @@ describe('pleaseDeployNotifier', function () {
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1262,7 +1262,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1442,7 +1442,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1617,7 +1617,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1751,7 +1751,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '333333',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -1933,7 +1933,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '333333',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',
@@ -2115,7 +2115,7 @@ Remove "always()" from GHA workflows`,
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '333333',
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         status: 'undeployed',

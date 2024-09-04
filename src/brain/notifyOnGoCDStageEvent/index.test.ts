@@ -251,7 +251,7 @@ describe('notifyOnGoCDStageEvent', function () {
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
       refId: HEAD_SHA,
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         target: 'U789123',
@@ -310,7 +310,7 @@ describe('notifyOnGoCDStageEvent', function () {
             "color": "#E7E1EC",
           },
         ],
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> ${INPROGRESS_MSG}",
         "ts": "1234123.123",
       }
@@ -374,7 +374,7 @@ describe('notifyOnGoCDStageEvent', function () {
             "color": "#E7E1EC",
           },
         ],
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> is being deployed",
         "ts": "1234123.123",
       }
@@ -440,7 +440,7 @@ describe('notifyOnGoCDStageEvent', function () {
             "color": "#E7E1EC",
           },
         ],
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> is being deployed",
         "ts": "1234123.123",
       }
@@ -473,7 +473,7 @@ describe('notifyOnGoCDStageEvent', function () {
     expect(bolt.client.chat.postMessage.mock.calls[0][0])
       .toMatchInlineSnapshot(`
       Object {
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit has been deployed. *Note* This message from Sentaur is now deprecated as this feature is now native to Sentry. Please <https://sentry.io/settings/account/notifications/deploy/|configure your Sentry deploy notifications here> to turn on Slack deployment notifications",
         "thread_ts": "1234123.123",
       }
@@ -507,7 +507,7 @@ describe('notifyOnGoCDStageEvent', function () {
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
       refId: HEAD_SHA,
-      channel: 'channel_id',
+      channel: 'U789123',
       ts: '1234123.123',
       context: {
         target: 'U789123',
@@ -566,7 +566,7 @@ describe('notifyOnGoCDStageEvent', function () {
             "color": "#E7E1EC",
           },
         ],
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> ${INPROGRESS_MSG}",
         "ts": "1234123.123",
       }
@@ -641,7 +641,7 @@ describe('notifyOnGoCDStageEvent', function () {
             "color": "#F55459",
           },
         ],
-        "channel": "channel_id",
+        "channel": "U789123",
         "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> failed to deploy",
         "ts": "1234123.123",
       }
