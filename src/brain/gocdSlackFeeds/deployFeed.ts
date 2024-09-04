@@ -359,10 +359,8 @@ export class DeployFeed {
       const attachment = await this.getMessageAttachment(pipeline);
       await Promise.all(
         messages.map(async (message) => {
-          // eslint-disable-next-line no-console
-          console.log(message.channel, this.slackChannelID);
           if (message.channel === this.slackChannelID) {
-            // Updates even if pipeline filter predicate is false
+            // Updates message even if pipeline filter predicate is false
             await this.updateSlackMessage(message, attachment);
             // Post reply if required (if reply callback exists and pipeline filter predicate is true)
             await this.replyToMessage(pipeline, message);

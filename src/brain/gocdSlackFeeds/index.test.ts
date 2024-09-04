@@ -7,6 +7,7 @@ import { buildServer } from '@/buildServer';
 import {
   Color,
   DISCUSS_BACKEND_CHANNEL_ID,
+  DISCUSS_ENG_SNS_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
@@ -98,7 +99,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const canaryReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -156,10 +157,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(canaryReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(canaryReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -168,19 +169,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -292,7 +302,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const soakReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -350,10 +360,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(soakReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(soakReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -362,19 +372,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -486,7 +505,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const soakReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -544,10 +563,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(soakReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(soakReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -556,19 +575,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -728,19 +756,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -852,7 +889,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const canaryReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -905,10 +942,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(canaryReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(canaryReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -917,19 +954,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -1059,7 +1105,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const canaryReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -1117,10 +1163,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(canaryReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(canaryReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -1129,19 +1175,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -1319,7 +1374,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const canaryReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -1377,10 +1432,10 @@ describe('gocdSlackFeeds', function () {
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(canaryReply);
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
+    expect(postCalls[1][0]).toMatchObject(canaryReply);
     expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
@@ -1389,19 +1444,28 @@ describe('gocdSlackFeeds', function () {
     );
 
     let slackMessages = await db('slack_messages').select('*');
+    slackMessages.sort(sortMessages);
     expect(slackMessages).toHaveLength(3);
 
     const wantSlack = {
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
       },
     };
-    expect(slackMessages[0]).toMatchObject(wantSlack);
-    expect(slackMessages[1]).toMatchObject(wantSlack);
-    expect(slackMessages[2]).toMatchObject(wantSlack);
+    expect(slackMessages[0]).toMatchObject({
+      ...wantSlack,
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+    });
+    expect(slackMessages[1]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
+    expect(slackMessages[2]).toMatchObject({
+      ...wantSlack,
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
 
     // Second Event
     await handler(
@@ -1722,7 +1786,7 @@ describe('gocdSlackFeeds', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
 
     const pipelineFailureReply = {
-      channel: 'channel_id',
+      channel: DISCUSS_ENG_SNS_CHANNEL_ID,
       text: '',
       blocks: [
         slackblocks.header(
@@ -1743,7 +1807,7 @@ Please do not ignore this message just because the environment is not SaaS, beca
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
-    expect(postCalls[0][0]).toMatchObject(pipelineFailureReply);
+    expect(postCalls[1][0]).toMatchObject(pipelineFailureReply);
   });
 
   it(`post message without a reply for run-custom-job when the stage result is unknown`, async function () {
@@ -1849,23 +1913,6 @@ Please do not ignore this message just because the environment is not SaaS, beca
     postCalls.sort(sortMessages);
 
     expect(postCalls[0][0]).toMatchObject({
-      channel: 'channel_id',
-      text: '',
-      blocks: [
-        slackblocks.header(
-          slackblocks.plaintext('run-custom-job stage update')
-        ),
-        {
-          elements: [
-            slackblocks.markdown('✅ *execute*'),
-            slackblocks.markdown(
-              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/execute/1|Passed>'
-            ),
-          ],
-        },
-      ],
-    });
-    expect(postCalls[1][0]).toMatchObject({
       text: 'GoCD deployment started',
       channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
       attachments: [
@@ -1892,6 +1939,23 @@ Please do not ignore this message just because the environment is not SaaS, beca
                 ),
               ],
             },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('✅ *execute*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/execute/1|Passed>'
+            ),
           ],
         },
       ],
@@ -1953,29 +2017,6 @@ Please do not ignore this message just because the environment is not SaaS, beca
     postCalls.sort(sortMessages);
 
     expect(postCalls[0][0]).toMatchObject({
-      channel: 'channel_id',
-      text: '',
-      blocks: [
-        slackblocks.header(
-          slackblocks.plaintext('run-custom-job stage update')
-        ),
-        {
-          elements: [
-            slackblocks.markdown('❌ *checks*'),
-            slackblocks.markdown(
-              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Failed>'
-            ),
-          ],
-        },
-        slackblocks.divider(),
-        slackblocks.context(
-          slackblocks.markdown(
-            `cc'ing the user who started this deployment: <@GoCD_Slack_User>`
-          )
-        ),
-      ],
-    });
-    expect(postCalls[1][0]).toMatchObject({
       text: 'GoCD deployment started by <@GoCD_Slack_User>',
       channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
       attachments: [
@@ -2004,6 +2045,29 @@ Please do not ignore this message just because the environment is not SaaS, beca
             },
           ],
         },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('❌ *checks*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Failed>'
+            ),
+          ],
+        },
+        slackblocks.divider(),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the user who started this deployment: <@GoCD_Slack_User>`
+          )
+        ),
       ],
     });
     expect(postCalls[2][0]).toMatchObject({
@@ -2039,13 +2103,180 @@ Please do not ignore this message just because the environment is not SaaS, beca
     });
   });
 
+  it(`post message and reply for run-custom-job when there are stage updates`, async function () {
+    const gocdPayload1 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            result: 'Unknown',
+          },
+        },
+      },
+    });
+    const gocdPayload2 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            result: 'Passed',
+          },
+        },
+      },
+    });
+    const gocdPayload3 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'dry-run',
+            result: 'Unknown',
+          },
+        },
+      },
+    });
+    const gocdPayload4 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'dry-run',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+    await handler(gocdPayload1);
+    await handler(gocdPayload2);
+    await handler(gocdPayload3);
+    await handler(gocdPayload4);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(6);
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    postCalls.sort(sortMessages);
+    updateCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      text: 'GoCD deployment started by <@GoCD_Slack_User>',
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('✅ *checks*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Passed>'
+            ),
+          ],
+        },
+        slackblocks.divider(),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the user who started this deployment: <@GoCD_Slack_User>`
+          )
+        ),
+      ],
+    });
+    expect(postCalls[2][0]).toMatchObject({
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('❌ *dry-run*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/dry-run/1|Failed>'
+            ),
+          ],
+        },
+        slackblocks.divider(),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the user who started this deployment: <@GoCD_Slack_User>`
+          )
+        ),
+      ],
+    });
+    expect(postCalls[3][0]).toMatchObject({
+      text: 'GoCD deployment started by <@GoCD_Slack_User>',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   function sortMessages(ao, bo) {
-    const a = ao[0].channel;
-    const b = bo[0].channel;
-    if (a < b) {
+    const aChannel = ao.channel ?? ao[0].channel;
+    const bChannel = bo.channel ?? bo[0].channel;
+    if (aChannel < bChannel) {
       return 1;
     }
-    if (a > b) {
+    if (aChannel > bChannel) {
       return -1;
     }
     return 0;
