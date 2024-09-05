@@ -141,6 +141,18 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     expect(issueUpdateSpy).toHaveBeenCalledTimes(0);
   });
 
+  it('should reomve stale label on PR that has activity in the past day', async function () {
+    const removeLabelSpy = jest.spyOn(org.api.issues, 'removeLabel');
+    org.api.issues.listForRepo = () => [];
+    org.api.pulls.list = ({ repo }) => {
+      return org.repos.withRouting.includes(repo)
+        ? [{ ...issueInfo, labels: [STALE_LABEL] }]
+        : [];
+    };
+    await triggerStaleBot(org, moment('2023-04-06T00:28:13Z').utc());
+    expect(removeLabelSpy).toHaveBeenCalledTimes(1);
+  });
+
   it('should close PR if there is no activity after a week and issue has label `Stale`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = () => [];
