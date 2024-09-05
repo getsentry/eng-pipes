@@ -117,7 +117,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.context(
           slackblocks.markdown(
-            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+            `cc'ing the following people who have commits in this deploy, please triage using the above steps:\n<@U018H4DA8N5>`
           )
         ),
       ],
@@ -320,7 +320,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.context(
           slackblocks.markdown(
-            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+            `cc'ing the following people who have commits in this deploy, please triage using the above steps:\n<@U018H4DA8N5>`
           )
         ),
       ],
@@ -523,7 +523,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.context(
           slackblocks.markdown(
-            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+            `cc'ing the following people who have commits in this deploy, please triage using the above steps:\n<@U018H4DA8N5>`
           )
         ),
       ],
@@ -1123,7 +1123,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.context(
           slackblocks.markdown(
-            `cc'ing the following people who have commits in this deploy:\n<@U1234> <@U12345> <@U123456>`
+            `cc'ing the following people who have commits in this deploy, please triage using the above steps:\n<@U1234> <@U12345> <@U123456>`
           )
         ),
       ],
@@ -1392,7 +1392,7 @@ describe('gocdSlackFeeds', function () {
         ),
         slackblocks.context(
           slackblocks.markdown(
-            `cc'ing the following 10 of 11 people who have commits in this deploy:\n<@U1230> <@U1231> <@U1232> <@U1233> <@U1234> <@U1235> <@U1236> <@U1237> <@U1238> <@U1239>`
+            `cc'ing the following 10 of 11 people who have commits in this deploy, please triage using the above steps:\n<@U1230> <@U1231> <@U1232> <@U1233> <@U1234> <@U1235> <@U1236> <@U1237> <@U1238> <@U1239>`
           )
         ),
       ],
