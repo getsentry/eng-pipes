@@ -42,7 +42,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'messages-without-filter-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -50,7 +50,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'messages-without-filter-channel',
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -84,7 +84,7 @@ describe('DeployFeed', () => {
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
+      channel: 'messages-without-filter-channel',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started',
@@ -103,7 +103,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'messages-with-filter-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
       pipelineFilter: (pipeline: GoCDPipeline) => {
         return pipeline.name === 'ONLY_THIS_PIPELINE';
@@ -143,7 +143,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'auto-deploy-messages-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -151,7 +151,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD auto-deployment started',
-      channel: 'example-channel-id',
+      channel: 'auto-deploy-messages-channel',
       attachments: [
         {
           color: Color.SUCCESS,
@@ -196,7 +196,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'update-user-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -204,7 +204,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: 'example-channel-id',
+      channel: 'update-user-channel',
       attachments: [
         {
           color: Color.DANGER,
@@ -238,7 +238,7 @@ describe('DeployFeed', () => {
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
+      channel: 'update-user-channel',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started by <@U018H4DA8N5>',
@@ -260,7 +260,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.update.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started by <@U018H4DA8N5>',
-      channel: 'example-channel-id',
+      channel: 'update-user-channel',
       attachments: [
         {
           color: Color.DANGER,
@@ -293,7 +293,7 @@ describe('DeployFeed', () => {
     expect(slackMessages).toHaveLength(1);
     expect(slackMessages[0]).toMatchObject({
       refId: `sentryio-${gocdPayload.data.pipeline.name}/20@2b0034becc4ab26b985f4c1a08ab068f153c274c`,
-      channel: 'channel_id',
+      channel: 'update-user-channel',
       ts: '1234123.123',
       context: {
         text: 'GoCD deployment started by <@U018H4DA8N5>',
@@ -316,7 +316,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'no-build-cause-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -324,7 +324,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'no-build-cause-channel',
       attachments: [
         {
           color: Color.DANGER,
@@ -370,7 +370,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'url-test-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -378,7 +378,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'url-test-channel',
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -470,7 +470,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'non-getsentry-commits-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -478,7 +478,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'non-getsentry-commits-channel',
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -598,7 +598,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'getsentry-commits-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -606,7 +606,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'getsentry-commits-channel',
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,
@@ -707,7 +707,7 @@ describe('DeployFeed', () => {
 
     const feed = new DeployFeed({
       feedName: 'example-feed',
-      channelID: 'example-channel-id',
+      channelID: 'handle-error-channel',
       msgType: SlackMessage.FEED_ENG_DEPLOY,
     });
     await feed.handle(gocdPayload);
@@ -715,7 +715,7 @@ describe('DeployFeed', () => {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: 'GoCD deployment started',
-      channel: 'example-channel-id',
+      channel: 'handle-error-channel',
       attachments: [
         {
           color: Color.OFF_WHITE_TOO,

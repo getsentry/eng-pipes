@@ -273,7 +273,7 @@ describe('requiredChecks', function () {
     // Threaded message with job statuses
     expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        channel: 'channel_id',
+        channel: REQUIRED_CHECK_CHANNEL,
         thread_ts: '1234123.123',
       })
     );
@@ -284,7 +284,7 @@ describe('requiredChecks', function () {
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: REQUIRED_CHECK_CHANNEL,
       ts: '1234123.123',
       context: {
         status: 'failure',
@@ -523,7 +523,7 @@ describe('requiredChecks', function () {
     // Threaded message with job statuses
     expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        channel: 'channel_id',
+        channel: REQUIRED_CHECK_CHANNEL,
         thread_ts: '1234123.123',
       })
     );
@@ -780,14 +780,14 @@ describe('requiredChecks', function () {
     // Threaded message with job statuses
     expect(postMessage).toHaveBeenLastCalledWith(
       expect.objectContaining({
-        channel: 'channel_id',
+        channel: REQUIRED_CHECK_CHANNEL,
         thread_ts: '1234123.123',
       })
     );
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
-      channel: 'channel_id',
+      channel: REQUIRED_CHECK_CHANNEL,
       ts: '1234123.123',
       context: {
         status: 'failure',
@@ -853,7 +853,7 @@ describe('requiredChecks', function () {
           color: '#33BF9E',
         },
       ]),
-      channel: 'channel_id',
+      channel: REQUIRED_CHECK_CHANNEL,
       ts: '1234123.123',
     });
 

@@ -20,10 +20,10 @@ jest.mock('@slack/web-api', () => ({
         ),
       },
       chat: {
-        postMessage: jest.fn(() =>
+        postMessage: jest.fn(({ channel }) =>
           // TODO: this is incomplete
           Promise.resolve({
-            channel: 'channel_id',
+            channel: channel,
             ts: '1234123.123',
             message: {
               bot_id: 'B01834PAJDT',
