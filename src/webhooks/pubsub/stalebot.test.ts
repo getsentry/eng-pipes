@@ -141,7 +141,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     expect(issueUpdateSpy).toHaveBeenCalledTimes(0);
   });
 
-  it('should reomve stale label on PR that has activity in the past day', async function () {
+  it('should remove stale label on PR that has activity in the past day', async function () {
     const removeLabelSpy = jest.spyOn(org.api.issues, 'removeLabel');
     org.api.issues.listForRepo = () => [];
     org.api.pulls.list = ({ repo }) => {
