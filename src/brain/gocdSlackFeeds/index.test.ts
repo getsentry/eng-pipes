@@ -2004,7 +2004,7 @@ Please do not ignore this message just because the environment is not SaaS, beca
           name: 'run-custom-job',
           stage: {
             name: 'checks',
-            'approved-by': 'GoCD_Slack_User',
+            'approved-by': 'test@sentry.io',
             result: 'Failed',
           },
         },
