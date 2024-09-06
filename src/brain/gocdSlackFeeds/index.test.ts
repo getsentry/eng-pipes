@@ -2270,6 +2270,122 @@ Please do not ignore this message just because the environment is not SaaS, beca
     });
   });
 
+  it(`post the correct message for run-custom-job when approved-by is not a Sentry email`, async function () {
+    const gocdPayload1 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            'approved-by': 'changes',
+            result: 'Unknown',
+          },
+        },
+      },
+    });
+    const gocdPayload2 = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'run-custom-job',
+          stage: {
+            name: 'checks',
+            'approved-by': 'changes',
+            result: 'Passed',
+          },
+        },
+      },
+    });
+    await handler(gocdPayload1);
+    await handler(gocdPayload2);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.update).toHaveBeenCalledTimes(2);
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    const updateCalls = bolt.client.chat.update.mock.calls;
+    postCalls.sort(sortMessages);
+    updateCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      text: 'GoCD auto-deployment started',
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      channel: FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext('run-custom-job stage update')
+        ),
+        {
+          elements: [
+            slackblocks.markdown('✅ *checks*'),
+            slackblocks.markdown(
+              '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|Passed>'
+            ),
+          ],
+        },
+      ],
+    });
+    expect(postCalls[2][0]).toMatchObject({
+      text: 'GoCD auto-deployment started',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.OFF_WHITE_TOO,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/run-custom-job*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('⏳ *checks*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/run-custom-job/20/checks/1|In progress>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   function sortMessages(ao, bo) {
     const aChannel = ao.channel ?? ao[0].channel;
     const bChannel = bo.channel ?? bo[0].channel;
