@@ -26,6 +26,7 @@ import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types';
 import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
+import { isSentryEmail } from '@/utils/isSentryEmail';
 
 import { DeployFeed } from './deployFeed';
 import { stageBlock } from './stage';
@@ -382,6 +383,9 @@ const goCDCustomJobRunnerFeed = new DeployFeed({
     ];
 
     const approvedBy = pipeline.stage['approved-by'];
+    if (!isSentryEmail(approvedBy)) {
+      return blocks;
+    }
     const user = await getUser({ email: approvedBy });
     if (user?.slackUser) {
       blocks.push(divider());
