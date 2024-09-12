@@ -32,6 +32,6 @@
     }
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],
-  "exclude": ["**/*.test.ts", "**/__mocks__/**"],
+  "exclude": ["**/__mocks__/**"],
   "compileOnSave": false
 }
