@@ -24,6 +24,7 @@
       ],
       "@/*": ["src/*"],
       "@api/*": ["src/api/*"],
+      "@init/*": ["src/init/*"],
       "@test/*": ["test/*"],
       "@types": ["src/types"],
       "@utils/*": ["src/utils/*"],

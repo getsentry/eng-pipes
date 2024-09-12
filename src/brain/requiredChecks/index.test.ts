@@ -26,9 +26,9 @@ import {
   REQUIRED_CHECK_CHANNEL,
   REQUIRED_CHECK_NAME,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { Fastify } from '@/types';
 import { db } from '@/utils/db';
-import { bolt } from '@api/slack';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
 import { getTimestamp } from '@utils/db/getTimestamp';
 import * as saveSlackMessage from '@utils/db/saveSlackMessage';

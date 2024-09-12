@@ -5,11 +5,11 @@ import {
   PRODUCT_AREA_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { Issue } from '@/types';
 import { getBusinessHoursLeft } from '@/utils/businessHours';
 import { ChannelItem, getChannelsForIssue } from '@/utils/getChannelsForIssue';
 import { GitHubOrg } from '@api/github/org';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 const GH_API_PER_PAGE = 100;

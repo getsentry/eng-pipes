@@ -4,7 +4,7 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 
 import { githubLabelHandler } from '.';
 

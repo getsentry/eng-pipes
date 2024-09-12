@@ -1,4 +1,4 @@
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
 import {

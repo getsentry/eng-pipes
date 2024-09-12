@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 
 import { GETSENTRY_ORG, GH_ORGS } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import * as scoresUtils from '@utils/scores';
 
 import * as getAPIsStatsMessage from '../../brain/apis/getStatsMessage';

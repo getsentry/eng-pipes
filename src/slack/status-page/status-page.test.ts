@@ -6,7 +6,7 @@ import testPayload from '@test/payloads/status-page/testPayload.json';
 import { createKCPRequest } from '@test/utils/createStatusPageWebhookRequest';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 
 import { messageSlack } from './status-page';
 

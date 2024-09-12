@@ -10,12 +10,12 @@ import {
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import {
   getGitHubActivityMetrics,
   getIssueEventsForTeam,
 } from '@/utils/scores';
 import { GitHubOrg } from '@api/github/org';
-import { bolt } from '@api/slack';
 
 type teamScoreInfo = {
   team: string;

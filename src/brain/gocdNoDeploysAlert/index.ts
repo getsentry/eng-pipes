@@ -1,7 +1,6 @@
 import { KnownBlock } from '@slack/types';
 
 import { gocdevents } from '@/api/gocdevents';
-import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
   FEED_DEV_INFRA_CHANNEL_ID,
@@ -9,6 +8,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import {
   DBGoCDDeployment,
   GoCDPipeline,

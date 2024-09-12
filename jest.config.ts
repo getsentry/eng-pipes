@@ -29,6 +29,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@api/(.*)$': '<rootDir>/src/api/$1',
+    '^@init/(.*)$': '<rootDir>/src/init/$1',
     '^@test/(.*)$': '<rootDir>/test/$1',
     '^@types$': '<rootDir>/src/types',
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',

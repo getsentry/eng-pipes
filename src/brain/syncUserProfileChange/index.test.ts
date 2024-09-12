@@ -2,7 +2,7 @@ import { createSlackEvent } from '@test/utils/createSlackEvent';
 
 import { buildServer } from '@/buildServer';
 import { SLACK_PROFILE_ID_GITHUB } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import { db } from '@utils/db';
 
 import { syncUserProfileChange } from '.';

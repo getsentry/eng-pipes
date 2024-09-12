@@ -14,9 +14,9 @@ import {
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { Fastify } from '@/types';
 import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import {

@@ -1,13 +1,13 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 
 import * as getAPIsStatsMessage from './getStatsMessage';
 import { apis } from '.';
 
 const STATS_TEXT = 'Some random team stats';
-jest.mock('@api/slack');
+jest.mock('@init/slack');
 
 describe('slack app', function () {
   let fastify, getStatsMessageSpy, postMessageSpy;

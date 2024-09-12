@@ -16,9 +16,9 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 

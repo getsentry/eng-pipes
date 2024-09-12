@@ -7,7 +7,7 @@ import testPayload from '@test/payloads/kafka-control-plane/testPayload.json';
 import { createKCPRequest } from '@test/utils/createKafkaControlPlaneRequest';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 
 import { messageSlack } from './kafka-control-plane';
 

@@ -1,8 +1,8 @@
 import { KnownBlock } from '@slack/types';
 
-import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import { GOCD_ORIGIN } from '@/config';
+import { bolt } from '@/init/slack';
 import {
   DBGoCDDeployment,
   GoCDPipeline,

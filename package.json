@@ -39,6 +39,7 @@
     "_comment": "⚠️  Keep this in sync with jest.config.ts and tsconfig.json. ⚠️ ",
     "@": "lib",
     "@api": "lib/api",
+    "@init": "lib/init",
     "@apps": "lib/apps",
     "@utils": "lib/utils",
     "@webhooks": "lib/webhooks"

@@ -13,8 +13,8 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { Fastify } from '@/types';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT } from './consecutiveUnsuccessfulDeploysAlert';

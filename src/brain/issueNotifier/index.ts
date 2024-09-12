@@ -7,8 +7,8 @@ import {
   SUPPORT_CHANNEL_ID,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { githubEvents } from '@api/github';
-import { bolt } from '@api/slack';
 import { getChannelsForIssue } from '@utils/getChannelsForIssue';
 import { wrapHandler } from '@utils/wrapHandler';
 

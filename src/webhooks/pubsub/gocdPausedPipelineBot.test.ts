@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { GETSENTRY_ORG } from '@/config';
 
 import * as gocdAPI from '../../api/gocd/index';
-import { bolt } from '../../api/slack/__mocks__';
+import { bolt } from '../../init/slack/__mocks__';
 
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 

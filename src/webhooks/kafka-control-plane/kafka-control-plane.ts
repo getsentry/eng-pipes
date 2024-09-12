@@ -4,12 +4,12 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { KafkaControlPlaneResponse } from '@types';
 
-import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
   KAFKA_CONTROL_PLANE_CHANNEL_ID,
   KAFKA_CONTROL_PLANE_WEBHOOK_SECRET,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(

@@ -8,10 +8,10 @@ import { ReposGetCommit } from '@types';
 import { jobStatuses } from '@/blocks/jobStatuses';
 import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { bolt } from '@/init/slack';
 import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
-import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 

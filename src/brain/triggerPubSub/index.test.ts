@@ -7,7 +7,7 @@ import { TEAM_OSPO_CHANNEL_ID } from '../../config';
 
 import { triggerPubSub } from '.';
 
-jest.mock('@api/slack');
+jest.mock('@init/slack');
 
 describe('slack app', function () {
   let fastify, sendGitHubEngagementMetricsSpy, sendGitHubActivityMetricsSpy;

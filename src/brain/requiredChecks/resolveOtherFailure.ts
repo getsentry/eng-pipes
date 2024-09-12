@@ -3,9 +3,9 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 
 import { BuildStatus, Color } from '@/config';
+import { bolt } from '@/init/slack';
 import { CheckRun } from '@/types';
 import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
-import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';
 
 import { getTextParts } from './getTextParts';

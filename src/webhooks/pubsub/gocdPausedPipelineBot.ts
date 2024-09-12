@@ -3,12 +3,12 @@ import moment from 'moment-timezone';
 
 import { GitHubOrg } from '@/api/github/org';
 import { fetchDashboard } from '@/api/gocd';
-import { bolt } from '@/api/slack';
 import {
   GETSENTRY_ORG,
   GOCD_ORIGIN,
   GOCD_PAUSED_PIPELINE_REMINDERS,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { GoCDDashboardResponse } from '@/types';
 
 const GOCD_PAUSED_PIPELINE_REMINDER_TEXT_SINGULAR =
