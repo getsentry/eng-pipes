@@ -2,7 +2,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { githubEvents } from '@api/github';
+import { githubEvents } from '@/init/github';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 

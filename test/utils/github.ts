@@ -3,7 +3,7 @@ import merge from 'lodash.merge';
 
 import { Fastify } from '@types';
 
-import { githubEvents } from '@/api/github';
+import { githubEvents } from '@/init/github';
 
 type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]

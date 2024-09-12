@@ -1,4 +1,4 @@
-import { gocdevents } from '@api/gocdevents';
+import { gocdevents } from '@/init/gocdevents';
 
 describe('gocdevents', function () {
   beforeEach(async function () {

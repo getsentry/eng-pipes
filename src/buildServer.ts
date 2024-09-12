@@ -9,8 +9,8 @@ import middie from 'middie';
 
 import { Fastify } from '@types';
 
+import { githubEvents } from '@/init/github';
 import { bolt } from '@/init/slack';
-import { githubEvents } from '@api/github';
 import { loadBrain } from '@utils/loadBrain';
 
 import * as PubSub from './webhooks/pubsub';

@@ -1,4 +1,4 @@
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/init/gocdevents';
 // import {
 //   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 //   GOCD_SENTRYIO_FE_PIPELINE_NAME,
