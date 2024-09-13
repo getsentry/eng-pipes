@@ -81,6 +81,9 @@ describe('Triage Notification Tests', function () {
     beforeEach(function () {
       boltPostMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
     });
+    beforeAll(async function () {
+      await db.migrate.latest();
+    });
     afterEach(async function () {
       await db('channel_last_notified').delete();
       jest.clearAllMocks();
