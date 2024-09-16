@@ -2,6 +2,7 @@ import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG } from '@/config';
+import { GoCDDashboardResponse } from '@/types';
 
 import * as gocdAPI from '../../api/gocd/index';
 import { bolt } from '../../api/slack/__mocks__';
@@ -66,7 +67,7 @@ describe('GoCD Paused Pipeline Notifications', function () {
             },
           },
         ],
-      });
+      } as GoCDDashboardResponse);
     });
     await triggerPausedPipelineBot(GETSENTRY_ORG, NOW);
     expect(postMessageSpy).toHaveBeenCalledTimes(0);
@@ -84,7 +85,7 @@ describe('GoCD Paused Pipeline Notifications', function () {
             },
           },
         ],
-      });
+      } as GoCDDashboardResponse);
     });
     await triggerPausedPipelineBot(GETSENTRY_ORG, NOW);
     expect(postMessageSpy).toBeCalledWith({
@@ -121,7 +122,7 @@ describe('GoCD Paused Pipeline Notifications', function () {
             },
           },
         ],
-      });
+      } as GoCDDashboardResponse);
     });
     await triggerPausedPipelineBot(GETSENTRY_ORG, NOW);
     expect(postMessageSpy).toHaveBeenCalledTimes(0);
@@ -146,7 +147,7 @@ describe('GoCD Paused Pipeline Notifications', function () {
             },
           },
         ],
-      });
+      } as GoCDDashboardResponse);
     });
     await triggerPausedPipelineBot(GETSENTRY_ORG, NOW);
     expect(postMessageSpy).toBeCalledWith({

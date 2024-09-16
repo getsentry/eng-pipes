@@ -57,6 +57,7 @@ describe('kafka-control-plane webhook', function () {
     it('handles bad fields and reports to Sentry', async function () {
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       const sentrySetContextSpy = jest.spyOn(Sentry, 'setContext');
+      // @ts-expect-error
       await messageSlack(testBadPayload);
       await messageSlack(testMegaPayload);
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledTimes(2);

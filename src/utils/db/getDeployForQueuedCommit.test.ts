@@ -1,3 +1,4 @@
+import { CompareCommits } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { db } from '@utils/db';
 
@@ -28,10 +29,9 @@ describe('getDeployForQueuedCommit', function () {
     it('return nothing for queued commit but no GoCD data', async function () {
       await queueCommitsForDeploy([
         {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
-      ]);
+      ] as CompareCommits['commits']);
 
       const got = await getGoCDDeployForQueuedCommit('abc123', 'example');
       expect(got).toEqual(undefined);
@@ -40,10 +40,9 @@ describe('getDeployForQueuedCommit', function () {
     it('return GoCD deploy', async function () {
       await queueCommitsForDeploy([
         {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
-      ]);
+      ] as CompareCommits['commits']);
 
       await db('gocd-stages').insert({
         pipeline_id: 'pipeline-id-123',
@@ -99,7 +98,6 @@ describe('getDeployForQueuedCommit', function () {
 
         id: expect.any(Number),
         data: {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
       });
