@@ -335,7 +335,7 @@ export const sendGitHubActivityMetrics = async (
 
 export const triggerSlackScores = async (
   org: GitHubOrg,
-  __now: moment.Moment
+  __now?: moment.Moment
 ) => {
   if (org !== GETSENTRY_ORG) {
     return;
