@@ -43,7 +43,6 @@ const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
 
 describe('github webhook', function () {
   let fastify: Fastify;
-  // const org = GETSENTRY_ORG;
 
   beforeEach(async function () {
     fastify = await buildServer(false);
@@ -54,7 +53,6 @@ describe('github webhook', function () {
     fastify.close();
     (dbFunctions.insertOss as jest.Mock).mockClear();
     (dbFunctions.insert as jest.Mock).mockClear();
-    // org.api.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
