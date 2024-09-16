@@ -91,12 +91,15 @@ export function getProgressColor(pipeline: GoCDPipeline) {
 }
 
 export function firstGitMaterialSHA(
-  deploy: DBGoCDDeployment | undefined
+  deploy?: Pick<DBGoCDDeployment, 'pipeline_build_cause'>
 ): string | null {
-  if (!deploy) {
+  if (deploy === undefined) {
     return null;
   }
-  if (deploy.pipeline_build_cause.length === 0) {
+  if (
+    deploy.pipeline_build_cause === undefined ||
+    deploy.pipeline_build_cause.length === 0
+  ) {
     return null;
   }
   for (const bc of deploy.pipeline_build_cause) {
@@ -112,11 +115,11 @@ export function firstGitMaterialSHA(
 }
 
 export function filterBuildCauses(
-  pipeline: GoCDPipeline,
+  pipeline: Pick<GoCDPipeline, 'build-cause'>,
   type: GoCDBuildType
 ): Array<GoCDBuildCause> {
   const buildCauses = pipeline['build-cause'];
-  if (!buildCauses || buildCauses.length === 0) {
+  if (buildCauses.length === 0) {
     return [];
   }
 
@@ -135,7 +138,7 @@ export function filterBuildCauses(
 }
 
 export async function getBaseAndHeadCommit(
-  pipeline: GoCDPipeline
+  pipeline: Pick<GoCDPipeline, 'build-cause' | 'group' | 'name'>
 ): Promise<[string | null, string | null]> {
   const buildCauses = filterBuildCauses(pipeline, 'git');
   if (buildCauses.length === 0) {
