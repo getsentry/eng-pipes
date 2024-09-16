@@ -1,3 +1,4 @@
+import { FastifyRequest } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 
 import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
@@ -11,13 +12,19 @@ const mockNotifier = jest.fn();
 const mockSlackScores = jest.fn();
 const mockStaleBot = jest.fn();
 
-gocdPausedPipelineBot.triggerPausedPipelineBot = mockGocdPausedPipelineBot;
-slackNotifications.notifyProductOwnersForUntriagedIssues = mockNotifier;
-slackScores.triggerSlackScores = mockSlackScores;
-staleBot.triggerStaleBot = mockStaleBot;
+jest
+  .spyOn(gocdPausedPipelineBot, 'triggerPausedPipelineBot')
+  .mockImplementation(mockGocdPausedPipelineBot);
+jest
+  .spyOn(slackNotifications, 'notifyProductOwnersForUntriagedIssues')
+  .mockImplementation(mockNotifier);
+jest
+  .spyOn(slackScores, 'triggerSlackScores')
+  .mockImplementation(mockSlackScores);
+jest.spyOn(staleBot, 'triggerStaleBot').mockImplementation(mockStaleBot);
 
 class MockReply {
-  statusCode: number;
+  statusCode: number = 0;
   code(c) {
     this.statusCode = c;
   }
@@ -37,8 +44,8 @@ describe('slack app', function () {
       headers: {
         authorization: 'Bearer 1234abcd',
       },
-    };
-    const reply = new MockReply();
+    } as FastifyRequest<{ Body: { message: { data: string } } }>;
+    const reply = new MockReply() as any;
     await pubSubHandler(request, reply);
     return reply;
   }
@@ -111,8 +118,8 @@ describe('slack app', function () {
         },
       },
       headers: {},
-    };
-    const reply = new MockReply();
+    } as FastifyRequest<{ Body: { message: { data: string } } }>;
+    const reply = new MockReply() as any;
     await pubSubHandler(request, reply);
     expect(reply.statusCode).toBe(400);
   });
@@ -129,8 +136,8 @@ describe('slack app', function () {
       headers: {
         authorization: 'invalid',
       },
-    };
-    const reply = new MockReply();
+    } as FastifyRequest<{ Body: { message: { data: string } } }>;
+    const reply = new MockReply() as any;
     await pubSubHandler(request, reply);
     expect(reply.statusCode).toBe(400);
   });
