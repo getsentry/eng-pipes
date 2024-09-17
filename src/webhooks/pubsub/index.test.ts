@@ -1,4 +1,4 @@
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 
 import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
@@ -32,7 +32,7 @@ class MockReply {
 }
 
 describe('slack app', function () {
-  async function pubSub(operationSlug: string) {
+  async function pubSub(operationSlug: string): Promise<MockReply> {
     const request = {
       body: {
         message: {
@@ -45,7 +45,7 @@ describe('slack app', function () {
         authorization: 'Bearer 1234abcd',
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
-    const reply = new MockReply() as any;
+    const reply = new MockReply() as FastifyReply;
     await pubSubHandler(request, reply);
     return reply;
   }
@@ -119,7 +119,7 @@ describe('slack app', function () {
       },
       headers: {},
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
-    const reply = new MockReply() as any;
+    const reply = new MockReply() as FastifyReply;
     await pubSubHandler(request, reply);
     expect(reply.statusCode).toBe(400);
   });
@@ -137,7 +137,7 @@ describe('slack app', function () {
         authorization: 'invalid',
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
-    const reply = new MockReply() as any;
+    const reply = new MockReply() as FastifyReply;
     await pubSubHandler(request, reply);
     expect(reply.statusCode).toBe(400);
   });
