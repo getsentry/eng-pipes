@@ -27,9 +27,20 @@ import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';
 
+type MockedGitHubAPI = {
+  checks: {
+    listForRef: jest.Mock;
+  };
+  repos: {
+    getCommit: jest.Mock;
+    compareCommits: jest.Mock;
+  };
+  paginate: jest.Mock;
+};
+
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -1628,7 +1639,6 @@ Remove "always()" from GHA workflows`,
   it('tells user GoCD frontend deploy is in progress', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);
@@ -1762,7 +1772,6 @@ Remove "always()" from GHA workflows`,
   it('asks user to deploy backend while frontend deploy is in progress', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);
@@ -1944,7 +1953,6 @@ Remove "always()" from GHA workflows`,
   it('asks user to deploy fullstack change', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);

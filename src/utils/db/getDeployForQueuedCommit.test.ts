@@ -28,7 +28,6 @@ describe('getDeployForQueuedCommit', function () {
     it('return nothing for queued commit but no GoCD data', async function () {
       await queueCommitsForDeploy([
         {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
       ]);
@@ -40,7 +39,6 @@ describe('getDeployForQueuedCommit', function () {
     it('return GoCD deploy', async function () {
       await queueCommitsForDeploy([
         {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
       ]);
