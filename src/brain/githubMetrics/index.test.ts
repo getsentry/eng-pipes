@@ -20,9 +20,10 @@ jest.mock('@google-cloud/bigquery', () => ({
 import { Fastify } from '@types';
 
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
-import { DRY_RUN } from '@/config';
+import { DRY_RUN, GETSENTRY_ORG } from '@/config';
 import * as dbFunctions from '@utils/metrics';
 
 import { githubMetrics as metrics } from '.';
@@ -43,6 +44,7 @@ const SCHEMA = Object.entries(dbFunctions.TARGETS.oss.schema).map(
 
 describe('github webhook', function () {
   let fastify: Fastify;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeEach(async function () {
     fastify = await buildServer(false);
@@ -53,6 +55,7 @@ describe('github webhook', function () {
     fastify.close();
     (dbFunctions.insertOss as jest.Mock).mockClear();
     (dbFunctions.insert as jest.Mock).mockClear();
+    org.api.orgs.checkMembershipForUser.mockClear();
     mockDataset.mockClear();
     mockTable.mockClear();
     mockInsert.mockClear();
