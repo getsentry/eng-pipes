@@ -26,6 +26,13 @@ export type MockedGitHubAPI = {
   };
   issues: {
     createComment: jest.Mock;
+    addLabels: jest.Mock;
+    removeLabel: jest.Mock;
+    _labels: Set<string>;
+    _comments: string[];
+  };
+  teams: {
+    getByName: jest.Mock;
   };
 };
 
