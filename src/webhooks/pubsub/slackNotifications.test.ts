@@ -14,6 +14,9 @@ import {
 
 describe('Triage Notification Tests', function () {
   const org = GETSENTRY_ORG;
+  afterAll(async function () {
+    await db.destroy();
+  });
   describe('getTriageSLOTimestamp', function () {
     let getIssueDueDateFromProjectSpy;
     beforeAll(function () {

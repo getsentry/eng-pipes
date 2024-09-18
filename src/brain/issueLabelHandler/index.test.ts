@@ -45,6 +45,7 @@ describe('issueLabelHandler', function () {
     // @ts-expect-error
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
+    await db.destroy();
   });
 
   beforeEach(async function () {
