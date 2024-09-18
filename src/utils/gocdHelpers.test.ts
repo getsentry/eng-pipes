@@ -1,3 +1,4 @@
+import { GoCDPipeline } from '@/types';
 import {
   filterBuildCauses,
   firstGitMaterialSHA,
@@ -13,7 +14,7 @@ describe('firstGitMaterialSHA', () => {
   });
 
   it('return nothing for no deploy', async function () {
-    const got = firstGitMaterialSHA(null);
+    const got = firstGitMaterialSHA(undefined);
     expect(got).toEqual(null);
   });
 
@@ -28,8 +29,14 @@ describe('firstGitMaterialSHA', () => {
     const got = firstGitMaterialSHA({
       pipeline_build_cause: [
         {
+          changed: true,
           material: {
             type: 'git',
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'https://example.com/repo.git',
+            },
           },
           modifications: [],
         },
@@ -42,12 +49,14 @@ describe('firstGitMaterialSHA', () => {
     const got = firstGitMaterialSHA({
       pipeline_build_cause: [
         {
+          changed: true,
           material: {
-            type: 'other',
+            type: 'pipeline',
           },
           modifications: [
             {
               revision: 'example-pipeline/1/example-stage',
+              'modified-time': '2021-01-01T00:00:00Z',
             },
           ],
         },
@@ -60,12 +69,19 @@ describe('firstGitMaterialSHA', () => {
     const got = firstGitMaterialSHA({
       pipeline_build_cause: [
         {
+          changed: true,
           material: {
             type: 'git',
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'https://example.com/repo.git',
+            },
           },
           modifications: [
             {
               revision: 'abc123',
+              'modified-time': '2021-01-01T00:00:00Z',
             },
           ],
         },
@@ -77,31 +93,41 @@ describe('firstGitMaterialSHA', () => {
 
 describe('filterBuildCauses', () => {
   it('filter build causes', function () {
-    const pipeline = {
+    const pipeline: Pick<GoCDPipeline, 'build-cause'> = {
       'build-cause': [
         {
-          id: 1,
+          changed: true,
           material: {
             type: 'git',
           },
-          modifications: [{}],
+          modifications: [
+            {
+              revision: 'abc123',
+              'modified-time': '2021-01-01T00:00:00Z',
+            },
+          ],
         },
         {
-          id: 2,
+          changed: true,
           material: {
             type: 'git',
           },
           modifications: [],
         },
         {
-          id: 3,
+          changed: true,
           material: {
             type: 'pipeline',
           },
-          modifications: [{}],
+          modifications: [
+            {
+              revision: 'example-pipeline-name/123/pipeline-complete/1',
+              'modified-time': '2021-01-01T00:00:00Z',
+            },
+          ],
         },
         {
-          id: 4,
+          changed: true,
           material: {
             type: 'pipeline',
           },
@@ -110,47 +136,38 @@ describe('filterBuildCauses', () => {
       ],
     };
 
+    const expectedGit = [pipeline['build-cause'][0]];
+
     const gotGit = filterBuildCauses(pipeline, 'git');
-    expect(gotGit.length).toEqual(1);
-    expect(gotGit).toEqual([
-      {
-        id: 1,
-        material: {
-          type: 'git',
-        },
-        modifications: [{}],
-      },
-    ]);
+    expect(gotGit).toEqual(expectedGit);
+
+    const expectedPipeline = [pipeline['build-cause'][2]];
 
     const gotPipeline = filterBuildCauses(pipeline, 'pipeline');
-    expect(gotPipeline.length).toEqual(1);
-    expect(gotPipeline).toEqual([
-      {
-        id: 3,
-        material: {
-          type: 'pipeline',
-        },
-        modifications: [{}],
-      },
-    ]);
+    expect(gotPipeline).toEqual(expectedPipeline);
   });
 
   describe('getBaseAndHeadCommit', () => {
     it('return nothing when there is no build cause', async function () {
       const got = await getBaseAndHeadCommit({
         'build-cause': [],
+        group: 'example-pipeline-group',
+        name: 'example-pipeline-name',
       });
       expect(got).toEqual([null, null]);
     });
 
     it('return nothing when there is no git build cause', async function () {
       const got = await getBaseAndHeadCommit({
+        group: 'example-pipeline-group',
+        name: 'example-pipeline-name',
         'build-cause': [
           {
+            changed: true,
             material: {
-              type: 'other',
+              type: 'pipeline',
             },
-            modifications: [{}],
+            modifications: [],
           },
         ],
       });
@@ -159,10 +176,18 @@ describe('filterBuildCauses', () => {
 
     it('return nothing when there is no modifications', async function () {
       const got = await getBaseAndHeadCommit({
+        group: 'example-pipeline-group',
+        name: 'example-pipeline-name',
         'build-cause': [
           {
+            changed: true,
             material: {
               type: 'git',
+              'git-configuration': {
+                'shallow-clone': false,
+                branch: 'master',
+                url: 'https://example.com/repo.git',
+              },
             },
             modifications: [],
           },
@@ -180,12 +205,19 @@ describe('filterBuildCauses', () => {
         name: 'example-pipeline-name',
         'build-cause': [
           {
+            changed: true,
             material: {
               type: 'git',
+              'git-configuration': {
+                'shallow-clone': false,
+                branch: 'master',
+                url: 'https://example.com/repo.git',
+              },
             },
             modifications: [
               {
                 revision: 'abc123',
+                'modified-time': '2021-01-01T00:00:00Z',
               },
             ],
           },
@@ -218,12 +250,19 @@ describe('filterBuildCauses', () => {
         name: 'example-pipeline-name',
         'build-cause': [
           {
+            changed: true,
             material: {
               type: 'git',
+              'git-configuration': {
+                branch: 'master',
+                'shallow-clone': false,
+                url: 'https://example.com/repo.git',
+              },
             },
             modifications: [
               {
                 revision: 'abc123',
+                'modified-time': '2021-01-01T00:00:00Z',
               },
             ],
           },

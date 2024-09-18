@@ -16,4 +16,5 @@
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "terminal.integrated.shellArgs.linux": ["-l"],
   "terminal.integrated.shellArgs.osx": ["-l"],
+  "jest.runMode": "on-demand",
 }

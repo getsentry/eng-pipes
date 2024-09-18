@@ -128,6 +128,7 @@ describe('gocd', () => {
       Promise.resolve({
         data: {
           _embedded: {
+            pipeline_groups: [],
             pipelines: [],
           },
         },
@@ -136,6 +137,7 @@ describe('gocd', () => {
 
     const mockResponse: GoCDDashboardResponse = {
       pipelines: [],
+      pipeline_groups: [],
     };
 
     const response = await fetchDashboard();

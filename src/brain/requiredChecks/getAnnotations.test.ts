@@ -1,9 +1,11 @@
 import { GETSENTRY_ORG } from '@/config';
 
+import { MockedGitHubAPI } from '../../../test/utils/testTypes';
+
 import { getAnnotations } from './getAnnotations';
 
 describe('getAnnotations', function () {
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeEach(function () {
     org.api.checks.listAnnotations.mockClear();

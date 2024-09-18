@@ -1,7 +1,8 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
+import { MockedBolt } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
 
 import * as getAPIsStatsMessage from './getStatsMessage';
 import { apis } from '.';
@@ -11,6 +12,7 @@ jest.mock('@api/slack');
 
 describe('slack app', function () {
   let fastify, getStatsMessageSpy, postMessageSpy;
+  const bolt = originalBolt as unknown as MockedBolt;
 
   beforeAll(() => {
     getStatsMessageSpy = jest.spyOn(getAPIsStatsMessage, 'getStatsMessage');

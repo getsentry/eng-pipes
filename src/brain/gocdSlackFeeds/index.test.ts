@@ -1,6 +1,7 @@
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
 import { buildServer } from '@/buildServer';
@@ -31,7 +32,7 @@ jest.mock('@api/getUser');
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeAll(async function () {
     await db.migrate.latest();

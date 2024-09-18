@@ -18,6 +18,7 @@ jest.mock('@google-cloud/bigquery', () => ({
 import merge from 'lodash.merge';
 
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import {
@@ -42,7 +43,7 @@ function tick(timeout = 10) {
 
 describe('requiredChecks', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
   const postMessage = bolt.client.chat.postMessage as jest.Mock;
   const updateMessage = bolt.client.chat.update as jest.Mock;
   const SCHEMA = Object.entries(TARGETS.brokenBuilds.schema).map(
