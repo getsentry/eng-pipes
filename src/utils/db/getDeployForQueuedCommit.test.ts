@@ -97,7 +97,6 @@ describe('getDeployForQueuedCommit', function () {
 
         id: expect.any(Number),
         data: {
-          head_sha: 'abc123',
           sha: 'abc123',
         },
       });

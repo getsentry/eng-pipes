@@ -2,6 +2,7 @@ import merge from 'lodash.merge';
 
 import { createSlackRequest } from '@test/utils/createSlackRequest';
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import {
   DB_TABLE_MATERIALS,
@@ -18,25 +19,16 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
+const bolt = originalBolt as unknown as MockedSlackAPI;
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
+import { MockedSlackAPI } from '../../../test/utils/testTypes';
 import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';
-
-type MockedGitHubAPI = {
-  checks: {
-    listForRef: jest.Mock;
-  };
-  repos: {
-    getCommit: jest.Mock;
-    compareCommits: jest.Mock;
-  };
-  paginate: jest.Mock;
-};
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;

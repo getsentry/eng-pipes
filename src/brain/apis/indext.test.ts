@@ -1,7 +1,10 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
+const bolt = originalBolt as unknown as MockedSlackAPI;
+
+import { MockedSlackAPI } from '@test/utils/testTypes';
 
 import * as getAPIsStatsMessage from './getStatsMessage';
 import { apis } from '.';

@@ -6,7 +6,10 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import { Color, GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline } from '@/types';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
+const bolt = originalBolt as unknown as MockedSlackAPI;
+import { MockedSlackAPI } from '@test/utils/testTypes';
+
 import { db } from '@utils/db';
 
 import { DeployFeed } from './deployFeed';

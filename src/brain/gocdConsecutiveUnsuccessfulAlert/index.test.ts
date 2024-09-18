@@ -14,7 +14,10 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
+const bolt = originalBolt as unknown as MockedSlackAPI;
+import { MockedSlackAPI } from '@test/utils/testTypes';
+
 import { db } from '@utils/db';
 
 import { CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT } from './consecutiveUnsuccessfulDeploysAlert';
