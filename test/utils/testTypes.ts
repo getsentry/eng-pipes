@@ -30,7 +30,7 @@ export type MockedGitHubAPI = {
 };
 
 // Mocked Slack API for Jest
-export type MockedSlackAPI = {
+export type MockedBolt = {
   client: {
     chat: {
       postMessage: jest.Mock;

@@ -20,11 +20,10 @@ import {
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { bolt as originalBolt } from '@api/slack';
-const bolt = originalBolt as unknown as MockedSlackAPI;
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
-import { MockedSlackAPI } from '../../../test/utils/testTypes';
+import { MockedBolt } from '../../../test/utils/testTypes';
 import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
@@ -33,6 +32,7 @@ import { pleaseDeployNotifier } from '.';
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
+  const bolt = originalBolt as unknown as MockedBolt;
 
   beforeAll(async function () {
     await db.migrate.latest();

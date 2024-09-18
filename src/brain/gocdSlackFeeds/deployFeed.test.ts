@@ -1,15 +1,13 @@
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import { MockedBolt } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
 import { Color, GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline } from '@/types';
 import { bolt as originalBolt } from '@api/slack';
-const bolt = originalBolt as unknown as MockedSlackAPI;
-import { MockedSlackAPI } from '@test/utils/testTypes';
-
 import { db } from '@utils/db';
 
 import { DeployFeed } from './deployFeed';
@@ -18,6 +16,7 @@ jest.mock('@api/getUser');
 
 describe('DeployFeed', () => {
   const org = GETSENTRY_ORG;
+  const bolt = originalBolt as unknown as MockedBolt;
 
   beforeAll(async function () {
     await db.migrate.latest();
