@@ -7,6 +7,7 @@ import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
 import gocdFrontendBuilding from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import { createGoCDRequest } from '@test/utils/createGoCDRequest';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE, GETSENTRY_ORG } from '@/config';
@@ -151,7 +152,7 @@ describe('GocdDatadogEvents', () => {
     });
 
     it('post message with commits in deploy link for getsentry', async () => {
-      const org = GETSENTRY_ORG;
+      const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
       org.api.repos.getContent.mockImplementation((args) => {
         if (args.owner !== 'getsentry') {

@@ -2,13 +2,13 @@ import { CompareCommits } from '@types';
 
 import { db } from '.';
 
+type CommitSha = Pick<CompareCommits['commits'][0], 'sha'>;
+
 /**
  * We want to save the list of commits that are currently queued to be deployed
  * so that we can later look up if it's queued given a sha
  */
-export async function queueCommitsForDeploy(
-  commits: CompareCommits['commits']
-) {
+export async function queueCommitsForDeploy(commits: CommitSha[]) {
   if (commits.length === 0) {
     return;
   }

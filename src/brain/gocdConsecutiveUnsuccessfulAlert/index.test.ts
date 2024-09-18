@@ -1,6 +1,7 @@
 import merge from 'lodash.merge';
 
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import { MockedBolt } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
 import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
@@ -14,7 +15,7 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT } from './consecutiveUnsuccessfulDeploysAlert';
@@ -24,6 +25,7 @@ jest.mock('@api/getUser');
 
 describe('gocdConsecutiveUnsuccessfulAlerts', function () {
   let fastify: Fastify;
+  const bolt = originalBolt as unknown as MockedBolt;
 
   beforeAll(async function () {
     await db.migrate.latest();

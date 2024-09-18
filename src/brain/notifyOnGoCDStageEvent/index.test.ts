@@ -2,6 +2,7 @@ import merge from 'lodash.merge';
 
 import payload from '@test/payloads/gocd/gocd-stage-building.json';
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import {
@@ -26,7 +27,7 @@ const HEAD_SHA = '982345';
 describe('notifyOnGoCDStageEvent', function () {
   let fastify: Fastify;
   let gocdPayload;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeAll(async function () {
     await db.migrate.latest();

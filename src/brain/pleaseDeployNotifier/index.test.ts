@@ -2,6 +2,7 @@ import merge from 'lodash.merge';
 
 import { createSlackRequest } from '@test/utils/createSlackRequest';
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import {
   DB_TABLE_MATERIALS,
@@ -18,10 +19,11 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
-import { bolt } from '@api/slack';
+import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
+import { MockedBolt } from '../../../test/utils/testTypes';
 import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
@@ -29,7 +31,8 @@ import { pleaseDeployNotifier } from '.';
 
 describe('pleaseDeployNotifier', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
+  const bolt = originalBolt as unknown as MockedBolt;
 
   beforeAll(async function () {
     await db.migrate.latest();
@@ -1628,7 +1631,6 @@ Remove "always()" from GHA workflows`,
   it('tells user GoCD frontend deploy is in progress', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);
@@ -1762,7 +1764,6 @@ Remove "always()" from GHA workflows`,
   it('asks user to deploy backend while frontend deploy is in progress', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);
@@ -1944,7 +1945,6 @@ Remove "always()" from GHA workflows`,
   it('asks user to deploy fullstack change', async function () {
     await queueCommitsForDeploy([
       {
-        head_sha: '333333',
         sha: '333333',
       },
     ]);

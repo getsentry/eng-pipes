@@ -1,4 +1,5 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
+import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_ORG } from '@/config';
@@ -9,7 +10,7 @@ import { ghaCancel } from '.';
 
 describe('gha-test', function () {
   let fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
 
   beforeAll(async function () {
     await db.migrate.latest();
