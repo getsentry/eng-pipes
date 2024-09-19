@@ -1,16 +1,21 @@
 import merge from 'lodash.merge';
 
 import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
-import gocdSnubaMigratePayload from '@test/payloads/gocd/gocd-snuba-build-passed.json';
-import gocdStageBuildingDeploying from '@test/payloads/gocd/gocd-stage-building-deploying.json';
+import gocdSnubaMigratePayloadOld from '@test/payloads/gocd/gocd-snuba-build-passed.json';
+const gocdSnubaMigratePayload = gocdSnubaMigratePayloadOld as GoCDResponse;
+import gocdStageBuildingDeployingOld from '@test/payloads/gocd/gocd-stage-building-deploying.json';
+const gocdStageBuildingDeploying =
+  gocdStageBuildingDeployingOld as GoCDResponse;
 import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
-import gocdFrontendBuilding from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
+import gocdFrontendBuildingOld from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
+const gocdFrontendBuilding = gocdFrontendBuildingOld as GoCDResponse;
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import { createGoCDRequest } from '@test/utils/createGoCDRequest';
 import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE, GETSENTRY_ORG } from '@/config';
+import { GoCDResponse } from '@/types';
 import { db } from '@utils/db';
 
 import { gocdDataDog, handler } from '.';

@@ -13,7 +13,8 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
-  const org = GETSENTRY_ORG;
+  // bandage fix for lint errors
+  const org = GETSENTRY_ORG as any;
   afterAll(async function () {
     await db.destroy();
   });
@@ -1361,6 +1362,7 @@ describe('Triage Notification Tests', function () {
             repo: 'routing-repo',
             productArea: 'One-Team',
             org: 'getsentry',
+            channels: [],
           },
         ],
       };

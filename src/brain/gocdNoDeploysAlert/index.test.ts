@@ -1,6 +1,7 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
+import oldPayload from '@test/payloads/gocd/gocd-stage-building.json';
+const payload = oldPayload as GoCDResponse;
 import { MockedBolt } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
@@ -11,7 +12,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
-import { Fastify } from '@/types';
+import { Fastify, GoCDResponse } from '@/types';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
