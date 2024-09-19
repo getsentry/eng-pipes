@@ -91,6 +91,7 @@ describe('notifyOnGoCDStageEvent', function () {
     metrics.insert.mockReset();
     // @ts-ignore
     metrics.mapDeployToPullRequest.mockReset();
+    await db.destroy();
   });
 
   beforeEach(async function () {

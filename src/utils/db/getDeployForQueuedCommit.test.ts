@@ -1,3 +1,4 @@
+import { CompareCommits } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { db } from '@utils/db';
 
@@ -30,7 +31,7 @@ describe('getDeployForQueuedCommit', function () {
         {
           sha: 'abc123',
         },
-      ]);
+      ] as CompareCommits['commits']);
 
       const got = await getGoCDDeployForQueuedCommit('abc123', 'example');
       expect(got).toEqual(undefined);
@@ -41,7 +42,7 @@ describe('getDeployForQueuedCommit', function () {
         {
           sha: 'abc123',
         },
-      ]);
+      ] as CompareCommits['commits']);
 
       await db('gocd-stages').insert({
         pipeline_id: 'pipeline-id-123',

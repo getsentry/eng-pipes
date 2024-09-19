@@ -7,7 +7,7 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { Fastify } from '@/types';
+import { Fastify, GitHubIssuesSomeoneElseCaresAbout } from '@/types';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import * as businessHourFunctions from '@utils/businessHours';
@@ -17,11 +17,16 @@ jest.mock('google-auth-library');
 
 import { GoogleAuth } from 'google-auth-library';
 
+import { MockedGitHubAPI } from '@test/utils/testTypes';
+
 import { issueLabelHandler } from '.';
 
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as {
+    api: MockedGitHubAPI;
+    project: GitHubIssuesSomeoneElseCaresAbout;
+  };
   const errors = jest.fn();
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
 
@@ -45,6 +50,7 @@ describe('issueLabelHandler', function () {
     // @ts-expect-error
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
+    await db.destroy();
   });
 
   beforeEach(async function () {

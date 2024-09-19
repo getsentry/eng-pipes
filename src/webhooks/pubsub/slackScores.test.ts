@@ -54,7 +54,8 @@ describe('slackScores tests', function () {
         issues: [],
         gitHubCommenters: [],
       });
-      await triggerSlackScores(GH_ORGS.get('codecov'), null);
+      // second arg is not used
+      await triggerSlackScores(GH_ORGS.get('codecov'));
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
     });
 
@@ -65,7 +66,7 @@ describe('slackScores tests', function () {
         issues: [],
         gitHubCommenters: [],
       });
-      await triggerSlackScores(GETSENTRY_ORG, null);
+      await triggerSlackScores(GETSENTRY_ORG);
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({

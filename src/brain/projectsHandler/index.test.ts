@@ -37,6 +37,7 @@ describe('projectsHandler', function () {
     githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
     org.project = origProject;
+    await db.destroy();
   });
 
   beforeEach(async function () {

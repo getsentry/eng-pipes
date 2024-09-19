@@ -1,4 +1,3 @@
-import { GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { db } from '@utils/db';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
@@ -6,15 +5,11 @@ import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { getFailureMessages } from './getFailureMessages';
 
 describe('getFailureMessages', function () {
-  const org = GETSENTRY_ORG;
-
   beforeAll(async function () {
     await db.migrate.latest();
   });
 
-  beforeEach(async function () {
-    org.api.mockClear();
-  });
+  beforeEach(async function () {});
 
   afterAll(async function () {
     await db.destroy();
@@ -22,7 +17,6 @@ describe('getFailureMessages', function () {
 
   afterEach(async function () {
     await db('slack_messages').delete();
-    org.api.repos.compareCommits.mockClear();
   });
 
   it('initially is not failing', async function () {
