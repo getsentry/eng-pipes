@@ -22,9 +22,4 @@ bolt.error((error) => {
   // Check the details of the error to handle cases where you should retry sending a message or stop the app
   // @ts-ignore
   Sentry.captureException(error.original || error);
-
-  if (process.env.NODE_ENV !== 'production') {
-    // @ts-ignore
-    console.error(`Slack error occurred: `, error);
-  }
 });
