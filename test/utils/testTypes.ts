@@ -44,6 +44,7 @@ export type MockedGitHubAPI = {
     createComment: jest.Mock;
     addLabels: jest.Mock;
     removeLabel: jest.Mock;
+    listForRepo: jest.Mock;
     _labels: Set<string>;
     _comments: string[];
   };
