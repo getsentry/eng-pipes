@@ -1,5 +1,7 @@
 import { gocdevents } from '@api/gocdevents';
 
+import { GoCDResponse } from '../../../lib/types/index';
+
 describe('gocdevents', function () {
   beforeEach(async function () {
     // Ensure each test starts with no listeners
@@ -24,8 +26,8 @@ describe('gocdevents', function () {
       data: {
         pipeline: { name: 'test-name', group: 'test-group' },
       },
-    });
-    gocdevents.emit('agent', {});
+    } as GoCDResponse);
+    gocdevents.emit('agent', {} as GoCDResponse);
 
     expect(starSpy).toHaveBeenCalledTimes(2);
     expect(stageSpy).toHaveBeenCalledTimes(1);
@@ -39,7 +41,9 @@ describe('gocdevents', function () {
     gocdevents.on('*', starSpy);
     gocdevents.on('stage', stageSpy);
 
-    gocdevents.emit('stage', { data: { pipeline: { name: 'test-name' } } });
+    gocdevents.emit('stage', {
+      data: { pipeline: { name: 'test-name' } },
+    } as GoCDResponse);
 
     expect(starSpy).toHaveBeenCalledTimes(0);
     expect(stageSpy).toHaveBeenCalledTimes(0);

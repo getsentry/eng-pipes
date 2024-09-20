@@ -1,3 +1,19 @@
+import { GitHubIssuesSomeoneElseCaresAbout } from '@/types';
+
+// Mocked Github Org for Jest
+export type MockedGithubOrg = {
+  api: MockedGitHubAPI;
+  project: GitHubIssuesSomeoneElseCaresAbout;
+  repos: any;
+  getAllProjectFieldNodeIds: jest.Mock;
+  addIssueToGlobalIssuesProject: jest.Mock;
+  modifyProjectIssueField: jest.Mock;
+  clearProjectIssueField: jest.Mock;
+  modifyDueByDate: jest.Mock;
+  getIssueDetailsFromNodeId: jest.Mock;
+  getKeyValueFromProjectField: jest.Mock;
+};
+
 // Mocked GitHub API for Jest
 export type MockedGitHubAPI = {
   checks: {

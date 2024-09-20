@@ -3,6 +3,7 @@ import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
+import { MockedGithubOrg } from '../../../test/utils/testTypes';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
@@ -14,7 +15,7 @@ import { triggerStaleBot } from './stalebot';
 const FAKE_MERGE_COMMIT = '12345';
 
 describe('Stalebot Tests', function () {
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   let origRepos;
 
   const issueInfo = {

@@ -1,8 +1,11 @@
 import merge from 'lodash.merge';
 
-import buildingPayload from '@test/payloads/gocd/gocd-stage-building.json';
-import failedPayload from '@test/payloads/gocd/gocd-stage-failed.json';
+import buildingPayloadImport from '@test/payloads/gocd/gocd-stage-building.json';
+const buildingPayload = buildingPayloadImport as GoCDResponse;
+import failedPayloadImport from '@test/payloads/gocd/gocd-stage-failed.json';
+const failedPayload = failedPayloadImport as GoCDResponse;
 
+import { GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
 import * as utils from '@utils/db';
 
@@ -38,7 +41,9 @@ describe('saveGoCDStageEvents.handler', function () {
     // 1x Insert materials and revision
     expect(dbMock).toHaveBeenCalledTimes(3);
 
-    let stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
+    let stages = await utils
+      .db(saveGoCDStageEvents.DB_TABLE_STAGES)
+      .select('*');
     expect(stages).toHaveLength(1);
     expect(stages[0]).toMatchObject({
       pipeline_build_cause: [
@@ -100,7 +105,8 @@ describe('saveGoCDStageEvents.handler', function () {
       stage_state: 'Building',
     });
 
-    const materials = await dbMock(saveGoCDStageEvents.DB_TABLE_MATERIALS)
+    const materials = await utils
+      .db(saveGoCDStageEvents.DB_TABLE_MATERIALS)
       .select('*')
       .orderBy('url', 'asc');
     expect(materials).toHaveLength(2);
@@ -127,7 +133,7 @@ describe('saveGoCDStageEvents.handler', function () {
 
     expect(dbMock).toHaveBeenCalledTimes(2);
 
-    stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
+    stages = await utils.db(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
     expect(stages).toHaveLength(1);
 
     expect(stages[0]).toMatchObject({
@@ -246,7 +252,9 @@ describe('saveGoCDStageEvents.handler', function () {
     // 1x Insert materials and revision
     expect(dbMock).toHaveBeenCalledTimes(3);
 
-    let stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
+    let stages = await utils
+      .db(saveGoCDStageEvents.DB_TABLE_STAGES)
+      .select('*');
     expect(stages).toHaveLength(1);
     expect(stages[0]).toMatchObject({
       pipeline_build_cause: [
@@ -308,7 +316,8 @@ describe('saveGoCDStageEvents.handler', function () {
       stage_state: 'Building',
     });
 
-    const materials = await dbMock(saveGoCDStageEvents.DB_TABLE_MATERIALS)
+    const materials = await utils
+      .db(saveGoCDStageEvents.DB_TABLE_MATERIALS)
       .select('*')
       .orderBy('url', 'asc');
     expect(materials).toHaveLength(1);
@@ -327,7 +336,7 @@ describe('saveGoCDStageEvents.handler', function () {
 
     expect(dbMock).toHaveBeenCalledTimes(2);
 
-    stages = await dbMock(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
+    stages = await utils.db(saveGoCDStageEvents.DB_TABLE_STAGES).select('*');
     expect(stages).toHaveLength(1);
 
     expect(stages[0]).toMatchObject({
