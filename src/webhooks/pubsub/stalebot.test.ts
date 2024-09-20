@@ -1,6 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
+import { GitHubOrg } from '@/api/github/org';
 import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
 import { MockedGithubOrg } from '../../../test/utils/testTypes';
@@ -49,7 +50,10 @@ describe('Stalebot Tests', function () {
   it('should mark issue as stale if it has been over 3 weeks', async function () {
     org.api.issues.listForRepo = jest.fn(() => [issueInfo]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([
       `This issue has gone three weeks without activity. In another week, I will close it.
@@ -65,7 +69,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
   it('should not mark issue as stale if it has been under 3 weeks', async function () {
     org.api.issues.listForRepo = jest.fn(() => [issueInfo]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-10T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
@@ -75,7 +82,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
     org.api.pulls.list = jest.fn(() => [
       { ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT },
     ]);
-    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-10T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
@@ -87,7 +97,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you r
         ? [{ ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT }]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([
       `This pull request has gone three weeks without activity. In another week, I will close it.
@@ -113,7 +126,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
           ]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
@@ -125,7 +141,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, merge_commit_sha: FAKE_MERGE_COMMIT }]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
     expect(org.api.issues._comments).toEqual([]);
   });
@@ -138,7 +157,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [STALE_LABEL] }]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-10T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-10T14:28:13Z').utc()
+    );
     expect(issueUpdateSpy).toHaveBeenCalledTimes(0);
   });
 
@@ -150,7 +172,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [STALE_LABEL] }]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-06T00:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-06T00:28:13Z').utc()
+    );
     expect(removeLabelSpy).toHaveBeenCalledTimes(1);
   });
 
@@ -162,7 +187,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [STALE_LABEL] }]
         : [];
     });
-    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-13T14:28:13Z').utc()
+    );
     expect(issueUpdateSpy).toHaveBeenCalledTimes(1);
     expect(issueUpdateSpy).toHaveBeenCalledWith({
       issue_number: undefined,
@@ -179,7 +207,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       { ...issueInfo, labels: [STALE_LABEL] },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-13T14:28:13Z').utc()
+    );
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
 
@@ -189,7 +220,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       { ...issueInfo, labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL] },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-13T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-13T14:28:13Z').utc()
+    );
     expect(issueUpdateSpy).toHaveBeenCalledWith({
       issue_number: undefined,
       owner: 'getsentry',
@@ -205,7 +239,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       { ...issueInfo, labels: [STALE_LABEL] },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-06T14:28:13Z').utc()
+    );
     expect(issueUpdateSpy).toBeCalledTimes(0);
   });
 
@@ -218,7 +255,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-06T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-06T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
 
@@ -231,7 +271,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).not.toContain(STALE_LABEL);
   });
 
@@ -244,7 +287,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
-    await triggerStaleBot(org, moment('2023-04-27T14:28:13Z').utc());
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
     expect(org.api.issues._labels).toContain(STALE_LABEL);
   });
 });
