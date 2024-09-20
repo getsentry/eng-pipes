@@ -6,6 +6,9 @@ import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
+import { MockedGithubOrg } from '../../../test/utils/testTypes';
+import { GitHubOrg } from '../../api/github/org';
+
 import {
   constructSlackMessage,
   getTriageSLOTimestamp,
@@ -14,7 +17,7 @@ import {
 
 describe('Triage Notification Tests', function () {
   // bandage fix for lint errors
-  const org = GETSENTRY_ORG as any;
+  const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   afterAll(async function () {
     await db.destroy();
   });
@@ -37,24 +40,30 @@ describe('Triage Notification Tests', function () {
     });
 
     it('should return date populated in project field', async function () {
-      org.api = {
-        paginate: (a, b) => a(b),
-        issues: { listComments: () => [] },
-      };
+      org.api.paginate = jest.fn((a, b) => a(b));
+      org.api.issues.listComments = jest.fn(() => []);
       getIssueDueDateFromProjectSpy.mockReturnValue('2023-01-05T16:00:00.000Z');
       expect(
-        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(
+          org as unknown as GitHubOrg,
+          'test',
+          1234,
+          'issueNodeId'
+        )
       ).toEqual('2023-01-05T16:00:00.000Z');
     });
     it('should return current time if unable to parse random string in project field', async function () {
-      org.api = {
-        paginate: (a, b) => a(b),
-        issues: { listComments: () => [] },
-      };
+      org.api.paginate = jest.fn((a, b) => a(b));
+      org.api.issues.listComments = jest.fn(() => []);
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('randomstring');
       expect(
-        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(
+          org as unknown as GitHubOrg,
+          'test',
+          1234,
+          'issueNodeId'
+        )
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(
@@ -63,14 +72,17 @@ describe('Triage Notification Tests', function () {
       );
     });
     it('should return current time if unable to parse empty string in project field', async function () {
-      org.api = {
-        paginate: (a, b) => a(b),
-        issues: { listComments: () => [] },
-      };
+      org.api.paginate = jest.fn((a, b) => a(b));
+      org.api.issues.listComments = jest.fn(() => []);
       const sentryCaptureExceptionSpy = jest.spyOn(Sentry, 'captureException');
       getIssueDueDateFromProjectSpy.mockReturnValue('');
       expect(
-        await getTriageSLOTimestamp(org, 'test', 1234, 'issueNodeId')
+        await getTriageSLOTimestamp(
+          org as unknown as GitHubOrg,
+          'test',
+          1234,
+          'issueNodeId'
+        )
       ).not.toEqual('2023-01-05T16:00:00.000Z');
       expect(sentryCaptureExceptionSpy).toHaveBeenCalledWith(
         new Error(
@@ -1414,7 +1426,7 @@ describe('Triage Notification Tests', function () {
     beforeAll(function () {
       jest
         .spyOn(org, 'addIssueToGlobalIssuesProject')
-        .mockReturnValue('issueNodeIdInProject');
+        .mockImplementation(() => Promise.resolve('issueNodeIdInProject'));
       getIssueDueDateFromProjectSpy = jest.spyOn(
         org,
         'getIssueDueDateFromProject'

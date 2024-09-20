@@ -12,6 +12,7 @@ export type MockedGithubOrg = {
   modifyDueByDate: jest.Mock;
   getIssueDetailsFromNodeId: jest.Mock;
   getKeyValueFromProjectField: jest.Mock;
+  getIssueDueDateFromProject: jest.Mock;
 };
 
 // Mocked GitHub API for Jest
@@ -44,6 +45,7 @@ export type MockedGitHubAPI = {
     createComment: jest.Mock;
     addLabels: jest.Mock;
     removeLabel: jest.Mock;
+    listComments: jest.Mock;
     listForRepo: jest.Mock;
     _labels: Set<string>;
     _comments: string[];
