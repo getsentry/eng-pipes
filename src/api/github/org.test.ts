@@ -3,6 +3,8 @@ import { createAppAuth } from '@octokit/auth-app';
 import { GETSENTRY_ORG } from '@/config';
 import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
 
+import { GitHubOrgConfig } from '../../../lib/types/index';
+
 import { GitHubOrg } from './org';
 
 describe('constructor', function () {
@@ -14,7 +16,7 @@ describe('constructor', function () {
         privateKey: 'so secret',
         installationId: 432,
       },
-    });
+    } as GitHubOrgConfig);
   });
 
   it('is instantiated once', async function () {
@@ -38,7 +40,7 @@ describe('constructor', function () {
         withRouting: ['cheese'],
         withoutRouting: ['bread'],
       },
-    });
+    } as GitHubOrgConfig);
     expect(org.repos.all).toEqual(['cheese', 'bread']);
   });
 
@@ -47,7 +49,7 @@ describe('constructor', function () {
       repos: {
         withRouting: ['cheese', 'wine'],
       },
-    });
+    } as GitHubOrgConfig);
     expect(org.repos.all).toEqual(['cheese', 'wine']);
     expect(org.repos.withRouting).toEqual(['cheese', 'wine']);
     expect(org.repos.withoutRouting).toEqual([]);
