@@ -54,6 +54,7 @@ export type MockedGitHubAPI = {
   teams: {
     getByName: jest.Mock;
   };
+  graphql: jest.Mock;
 };
 
 // Mocked Slack API for Jest
