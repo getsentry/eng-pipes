@@ -2,13 +2,9 @@ import merge from 'lodash.merge';
 
 import gocdagentpayload from '@test/payloads/gocd/gocd-agent.json';
 import gocdSnubaMigratePayloadOld from '@test/payloads/gocd/gocd-snuba-build-passed.json';
-const gocdSnubaMigratePayload = gocdSnubaMigratePayloadOld as GoCDResponse;
 import gocdStageBuildingDeployingOld from '@test/payloads/gocd/gocd-stage-building-deploying.json';
-const gocdStageBuildingDeploying =
-  gocdStageBuildingDeployingOld as GoCDResponse;
 import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
 import gocdFrontendBuildingOld from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
-const gocdFrontendBuilding = gocdFrontendBuildingOld as GoCDResponse;
 import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
 import { createGoCDRequest } from '@test/utils/createGoCDRequest';
 import { MockedGitHubAPI } from '@test/utils/testTypes';
@@ -24,6 +20,10 @@ jest.mock('@api/getUser');
 
 describe('GocdDatadogEvents', () => {
   let fastify, datadogApiInstanceSpy;
+  const gocdSnubaMigratePayload = gocdSnubaMigratePayloadOld as GoCDResponse;
+  const gocdStageBuildingDeploying =
+    gocdStageBuildingDeployingOld as GoCDResponse;
+  const gocdFrontendBuilding = gocdFrontendBuildingOld as GoCDResponse;
 
   beforeAll(async function () {
     await db.migrate.latest();

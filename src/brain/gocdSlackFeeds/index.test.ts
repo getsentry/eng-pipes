@@ -1,7 +1,6 @@
 import merge from 'lodash.merge';
 
 import oldPayload from '@test/payloads/gocd/gocd-stage-building.json';
-const payload = oldPayload as GoCDResponse;
 import { MockedBolt, MockedGitHubAPI } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
@@ -36,6 +35,7 @@ describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
   const bolt = originalBolt as unknown as MockedBolt;
+  const payload = oldPayload as GoCDResponse;
 
   beforeAll(async function () {
     await db.migrate.latest();

@@ -1,9 +1,7 @@
 import merge from 'lodash.merge';
 
 import buildingPayloadImport from '@test/payloads/gocd/gocd-stage-building.json';
-const buildingPayload = buildingPayloadImport as GoCDResponse;
 import failedPayloadImport from '@test/payloads/gocd/gocd-stage-failed.json';
-const failedPayload = failedPayloadImport as GoCDResponse;
 
 import { GoCDResponse } from '@/types';
 import { gocdevents } from '@api/gocdevents';
@@ -13,6 +11,8 @@ import * as saveGoCDStageEvents from '.';
 
 describe('saveGoCDStageEvents.handler', function () {
   let dbMock: jest.SpyInstance;
+  const buildingPayload = buildingPayloadImport as GoCDResponse;
+  const failedPayload = failedPayloadImport as GoCDResponse;
 
   beforeAll(async function () {
     await utils.db.migrate.latest();
