@@ -1,4 +1,7 @@
-import { EmitterWebhookEvent } from '@octokit/webhooks';
+import {
+  EmitterWebhookEvent,
+  EmitterWebhookEventName,
+} from '@octokit/webhooks';
 import merge from 'lodash.merge';
 
 import { Fastify } from '@types';
@@ -38,7 +41,7 @@ export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
 export function hydrateGitHubEventAndPayload<
   E extends EmitterWebhookEvent['name']
 >(
-  event: E,
+  event: EmitterWebhookEventName,
   payload: DeepPartial<EmitterWebhookEvent<E>['payload']> | undefined
 ) {
   let defaultPayload;

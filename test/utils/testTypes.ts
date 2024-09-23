@@ -1,8 +1,13 @@
-import { GitHubIssuesSomeoneElseCaresAbout } from '@/types';
+import {
+  AppAuthStrategyOptions,
+  GitHubIssuesSomeoneElseCaresAbout,
+} from '@/types';
 
 // Mocked Github Org for Jest
 export type MockedGithubOrg = {
   api: MockedGitHubAPI;
+  slug: string;
+  appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
   repos: any;
   getAllProjectFieldNodeIds: jest.Mock;
