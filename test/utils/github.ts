@@ -18,7 +18,7 @@ type DeepPartial<T> = {
 
 export async function createGitHubEvent<E extends EmitterWebhookEvent['name']>(
   fastify: Fastify,
-  event: E,
+  event: EmitterWebhookEventName,
   payload?: DeepPartial<EmitterWebhookEvent<E>['payload']>
 ) {
   const { event: baseEvent, payload: fullPayload } =
