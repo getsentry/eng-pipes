@@ -16,7 +16,6 @@ import { db } from '@utils/db';
 jest.mock('google-auth-library');
 
 import { GoogleAuth as MockedGoogleAuth } from 'google-auth-library';
-const GoogleAuth = MockedGoogleAuth as unknown as jest.Mock;
 
 import { MockedGithubOrg } from '../../../test/utils/testTypes';
 
@@ -25,6 +24,7 @@ import { issueLabelHandler } from '.';
 describe('issueLabelHandler', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
+  const GoogleAuth = MockedGoogleAuth as unknown as jest.Mock;
   const errors = jest.fn();
   let calculateSLOViolationRouteSpy, calculateSLOViolationTriageSpy;
 
