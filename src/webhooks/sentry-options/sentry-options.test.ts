@@ -11,7 +11,7 @@ import { createSentryOptionsRequest } from '@test/utils/createSentryOptionsReque
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 
 import {
   messageSlack,

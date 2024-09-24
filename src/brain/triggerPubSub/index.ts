@@ -1,9 +1,9 @@
 import { TEAM_OSPO_CHANNEL_ID } from '@/config';
+import { bolt } from '@/init/slack';
 import {
   sendGitHubActivityMetrics,
   sendGitHubEngagementMetrics,
 } from '@/webhooks/pubsub/slackScores';
-import { bolt } from '@api/slack';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const slackHandler = async ({ event }) => {

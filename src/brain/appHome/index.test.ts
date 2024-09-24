@@ -1,8 +1,8 @@
 import { createSlackEvent } from '@test/utils/createSlackEvent';
 
 import { buildServer } from '@/buildServer';
+import { bolt } from '@/init/slack';
 import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { appHome } from '.';

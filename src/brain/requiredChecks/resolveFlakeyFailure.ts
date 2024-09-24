@@ -5,9 +5,9 @@ import { SlackMessageRow } from 'knex/types/tables';
 
 import { BuildStatus, Color } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { bolt } from '@/init/slack';
 import { CheckRun } from '@/types';
 import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
-import { bolt } from '@api/slack';
 
 import { getTextParts } from './getTextParts';
 

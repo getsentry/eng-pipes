@@ -19,13 +19,13 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { bolt } from '@/init/slack';
 import { getGoCDDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
 import { getBlocksForCommit } from '@api/getBlocksForCommit';
 import { getUser } from '@api/getUser';
 import { getRelevantCommit } from '@api/github/getRelevantCommit';
 import { isGetsentryRequiredCheck } from '@api/github/isGetsentryRequiredCheck';
-import { bolt } from '@api/slack';
 import { slackMessageUser } from '@api/slackMessageUser';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
 import { wrapHandler } from '@utils/wrapHandler';

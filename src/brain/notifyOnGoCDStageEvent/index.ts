@@ -23,6 +23,7 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { bolt } from '@/init/slack';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
@@ -36,7 +37,6 @@ import {
 } from '@/utils/gocdHelpers';
 import { getUser } from '@api/getUser';
 import { GitHubOrg } from '@api/github/org';
-import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
 
 function getProgressMessage(pipeline: GoCDPipeline, message: any) {

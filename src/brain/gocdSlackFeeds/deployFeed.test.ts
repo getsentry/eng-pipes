@@ -6,8 +6,8 @@ import { MockedBolt } from '@test/utils/testTypes';
 import * as slackblocks from '@/blocks/slackBlocks';
 import { Color, GETSENTRY_ORG } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { bolt as originalBolt } from '@/init/slack';
 import { GoCDPipeline, GoCDResponse } from '@/types';
-import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { MockedGitHubAPI } from '../../../test/utils/testTypes';

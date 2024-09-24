@@ -6,13 +6,13 @@ import moment from 'moment-timezone';
 
 import { SentryOptionsResponse } from '@types';
 
-import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
   DATADOG_API_INSTANCE,
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
   SENTRY_OPTIONS_WEBHOOK_SECRET,
 } from '@/config';
+import { bolt } from '@/init/slack';
 import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(

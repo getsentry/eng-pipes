@@ -3,7 +3,7 @@ import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_ORG } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import { db } from '@utils/db';
 
 import { ghaCancel } from '.';

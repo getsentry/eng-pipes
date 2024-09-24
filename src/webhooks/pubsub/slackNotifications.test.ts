@@ -3,7 +3,7 @@ import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG } from '@/config';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import { db } from '@utils/db';
 
 import { MockedGithubOrg } from '../../../test/utils/testTypes';

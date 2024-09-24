@@ -5,7 +5,7 @@ import { GETSENTRY_ORG } from '@/config';
 import { GoCDDashboardResponse } from '@/types';
 
 import * as gocdAPI from '../../api/gocd/index';
-import { bolt } from '../../api/slack/__mocks__';
+import { bolt } from '../../init/slack/__mocks__';
 
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 

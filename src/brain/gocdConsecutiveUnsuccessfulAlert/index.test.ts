@@ -14,8 +14,8 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import { bolt as originalBolt } from '@/init/slack';
 import { Fastify, GoCDResponse } from '@/types';
-import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import { CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT } from './consecutiveUnsuccessfulDeploysAlert';

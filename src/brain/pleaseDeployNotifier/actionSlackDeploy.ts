@@ -2,7 +2,7 @@ import * as Sentry from '@sentry/node';
 
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
 import { unmuteDeployNotificationsButton } from '@/blocks/unmuteDeployNotificationsButton';
-import { updateAppHome } from '@api/slack/updateAppHome';
+import { updateAppHome } from '@/init/slack/updateAppHome';
 import { setUserPreference } from '@utils/db/setUserPreference';
 
 /**

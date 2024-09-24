@@ -1,7 +1,7 @@
 import { createSlackMessage } from '@test/utils/createSlackMessage';
 
 import { buildServer } from '@/buildServer';
-import { bolt } from '@api/slack';
+import { bolt } from '@/init/slack';
 import { db } from '@utils/db';
 import { setUserPreference } from '@utils/db/setUserPreference';
 
