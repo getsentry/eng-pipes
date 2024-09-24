@@ -1,11 +1,15 @@
 import { createAppAuth } from '@octokit/auth-app';
 
 import { GETSENTRY_ORG } from '@/config';
-import { OctokitWithRetries as octokitClass } from '@api/github/octokitWithRetries';
+import { OctokitWithRetries as octokitClassImport } from '@api/github/octokitWithRetries';
+
+import { GitHubOrgConfig } from '../../../lib/types/index';
+import { MockedGithubOrg } from '../../../test/utils/testTypes';
 
 import { GitHubOrg } from './org';
 
 describe('constructor', function () {
+  const octokitClass = octokitClassImport as unknown as jest.Mock;
   beforeAll(async function () {
     octokitClass.mockClear();
     new GitHubOrg('zerb', {
@@ -14,7 +18,7 @@ describe('constructor', function () {
         privateKey: 'so secret',
         installationId: 432,
       },
-    });
+    } as GitHubOrgConfig);
   });
 
   it('is instantiated once', async function () {
@@ -38,7 +42,7 @@ describe('constructor', function () {
         withRouting: ['cheese'],
         withoutRouting: ['bread'],
       },
-    });
+    } as GitHubOrgConfig);
     expect(org.repos.all).toEqual(['cheese', 'bread']);
   });
 
@@ -47,7 +51,7 @@ describe('constructor', function () {
       repos: {
         withRouting: ['cheese', 'wine'],
       },
-    });
+    } as GitHubOrgConfig);
     expect(org.repos.all).toEqual(['cheese', 'wine']);
     expect(org.repos.withRouting).toEqual(['cheese', 'wine']);
     expect(org.repos.withoutRouting).toEqual([]);
@@ -55,31 +59,27 @@ describe('constructor', function () {
 });
 
 describe('helpers', function () {
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
 
   it('addIssueToGlobalIssuesProject should return project item id from project', async function () {
-    org.api = {
-      graphql: jest
-        .fn()
-        .mockReturnValue({ addProjectV2ItemById: { item: { id: '12345' } } }),
-    };
+    org.api.graphql = jest
+      .fn()
+      .mockReturnValue({ addProjectV2ItemById: { item: { id: '12345' } } });
     expect(
       await org.addIssueToGlobalIssuesProject('issueNodeId', 'test-repo', 1)
     ).toEqual('12345');
   });
 
   it('getAllProjectFieldNodeIds should return timestamp from project', async function () {
-    org.api = {
-      graphql: jest.fn().mockReturnValue({
-        node: {
-          options: [
-            { name: 'Waiting for: Product Owner', id: 1 },
-            { name: 'Waiting for: Support', id: 2 },
-            { name: 'Waiting for: Community', id: 3 },
-          ],
-        },
-      }),
-    };
+    org.api.graphql = jest.fn().mockReturnValue({
+      node: {
+        options: [
+          { name: 'Waiting for: Product Owner', id: 1 },
+          { name: 'Waiting for: Support', id: 2 },
+          { name: 'Waiting for: Community', id: 3 },
+        ],
+      },
+    });
     expect(await org.getAllProjectFieldNodeIds('projectFieldId')).toEqual({
       'Waiting for: Product Owner': 1,
       'Waiting for: Support': 2,
@@ -88,44 +88,38 @@ describe('helpers', function () {
   });
 
   it('getKeyValueFromProjectField should return timestamp from project', async function () {
-    org.api = {
-      graphql: jest.fn().mockReturnValue({
-        node: { fieldValueByName: { name: 'Product Area: Test' } },
-      }),
-    };
+    org.api.graphql = jest.fn().mockReturnValue({
+      node: { fieldValueByName: { name: 'Product Area: Test' } },
+    });
     expect(
       await org.getKeyValueFromProjectField('issueNodeId', 'fieldName')
     ).toEqual('Product Area: Test');
   });
 
   it('getIssueDueDateFromProject should return timestamp from project', async function () {
-    org.api = {
-      graphql: jest.fn().mockReturnValue({
-        node: {
-          fieldValues: {
-            nodes: [
-              {},
-              {},
-              {
-                text: '2023-06-23T18:00:00.000Z',
-                field: { id: org.project.fieldIds.responseDue },
-              },
-            ],
-          },
+    org.api.graphql = jest.fn().mockReturnValue({
+      node: {
+        fieldValues: {
+          nodes: [
+            {},
+            {},
+            {
+              text: '2023-06-23T18:00:00.000Z',
+              field: { id: org.project.fieldIds.responseDue },
+            },
+          ],
         },
-      }),
-    };
+      },
+    });
     expect(await org.getIssueDueDateFromProject('issueNodeId')).toEqual(
       '2023-06-23T18:00:00.000Z'
     );
   });
 
   it('getIssueDetailsFromNodeId should return issue details', async function () {
-    org.api = {
-      graphql: jest.fn().mockReturnValue({
-        node: { number: 1, repository: { name: 'test-repo' } },
-      }),
-    };
+    org.api.graphql = jest.fn().mockReturnValue({
+      node: { number: 1, repository: { name: 'test-repo' } },
+    });
     expect(await org.getIssueDetailsFromNodeId('issueNodeId')).toEqual({
       number: 1,
       repo: 'test-repo',

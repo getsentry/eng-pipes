@@ -1,7 +1,7 @@
 import merge from 'lodash.merge';
 
-import payload from '@test/payloads/gocd/gocd-stage-building.json';
-import { MockedGitHubAPI } from '@test/utils/testTypes';
+import payloadRaw from '@test/payloads/gocd/gocd-stage-building.json';
+import { MockedBolt, MockedGitHubAPI } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
 import { buildServer } from '@/buildServer';
@@ -15,9 +15,9 @@ import {
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
-import { Fastify } from '@/types';
-import { getUser } from '@api/getUser';
-import { bolt } from '@api/slack';
+import { Fastify, GoCDResponse } from '@/types';
+import { getUser as nonMockedGetUser } from '@api/getUser';
+import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
 import {
@@ -29,10 +29,13 @@ import {
 } from '.';
 
 jest.mock('@api/getUser');
+const getUser = nonMockedGetUser as jest.Mock;
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
   const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };
+  const bolt = originalBolt as unknown as MockedBolt;
+  const payload = payloadRaw as GoCDResponse;
 
   beforeAll(async function () {
     await db.migrate.latest();

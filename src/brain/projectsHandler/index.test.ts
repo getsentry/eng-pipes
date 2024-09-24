@@ -1,4 +1,5 @@
 import { createGitHubEvent } from '@test/utils/github';
+import { MockedGithubOrg } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_ORG } from '@/config';
@@ -10,7 +11,7 @@ import { projectsHandler } from '.';
 
 describe('projectsHandler', function () {
   let fastify: Fastify;
-  const org = GETSENTRY_ORG;
+  const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   const errors = jest.fn();
   let origProject;
 

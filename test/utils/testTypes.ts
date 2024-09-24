@@ -1,3 +1,20 @@
+import { GitHubIssuesSomeoneElseCaresAbout } from '@/types';
+
+// Mocked Github Org for Jest
+export type MockedGithubOrg = {
+  api: MockedGitHubAPI;
+  project: GitHubIssuesSomeoneElseCaresAbout;
+  repos: any;
+  getAllProjectFieldNodeIds: jest.Mock;
+  addIssueToGlobalIssuesProject: jest.Mock;
+  modifyProjectIssueField: jest.Mock;
+  clearProjectIssueField: jest.Mock;
+  modifyDueByDate: jest.Mock;
+  getIssueDetailsFromNodeId: jest.Mock;
+  getKeyValueFromProjectField: jest.Mock;
+  getIssueDueDateFromProject: jest.Mock;
+};
+
 // Mocked GitHub API for Jest
 export type MockedGitHubAPI = {
   checks: {
@@ -28,12 +45,16 @@ export type MockedGitHubAPI = {
     createComment: jest.Mock;
     addLabels: jest.Mock;
     removeLabel: jest.Mock;
+    listComments: jest.Mock;
+    listForRepo: jest.Mock;
+    update: jest.Mock;
     _labels: Set<string>;
     _comments: string[];
   };
   teams: {
     getByName: jest.Mock;
   };
+  graphql: jest.Mock;
 };
 
 // Mocked Slack API for Jest
