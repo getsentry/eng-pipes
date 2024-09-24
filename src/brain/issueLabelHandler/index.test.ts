@@ -7,8 +7,8 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { defaultErrorHandler, githubEvents } from '@/init/github';
 import { Fastify } from '@/types';
-import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
 import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';

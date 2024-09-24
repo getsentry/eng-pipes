@@ -1,5 +1,5 @@
 import { DISABLE_GITHUB_METRICS } from '@/config';
-import { githubEvents } from '@api/github';
+import { githubEvents } from '@/init/github';
 import { wrapHandler } from '@utils/wrapHandler';
 
 import { ossMetrics } from './ossMetrics';

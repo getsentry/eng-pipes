@@ -3,8 +3,8 @@ import { MockedGithubOrg } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { GETSENTRY_ORG } from '@/config';
+import { defaultErrorHandler, githubEvents } from '@/init/github';
 import { Fastify } from '@/types';
-import { defaultErrorHandler, githubEvents } from '@api/github';
 import { db } from '@utils/db';
 
 import { projectsHandler } from '.';

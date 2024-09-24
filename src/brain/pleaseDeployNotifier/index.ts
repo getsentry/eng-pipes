@@ -4,7 +4,6 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
-import { githubEvents } from '@/api/github';
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { gocdDeploy } from '@/blocks/gocdDeploy';
@@ -19,6 +18,7 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { githubEvents } from '@/init/github';
 import { bolt } from '@/init/slack';
 import { getGoCDDeployForQueuedCommit } from '@/utils/db/getDeployForQueuedCommit';
 import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
