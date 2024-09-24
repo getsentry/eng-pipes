@@ -16,7 +16,6 @@ import {
 } from './slackNotifications';
 
 describe('Triage Notification Tests', function () {
-  // bandage fix for lint errors
   const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   afterAll(async function () {
     await db.destroy();

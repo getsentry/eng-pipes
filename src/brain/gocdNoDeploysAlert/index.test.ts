@@ -1,7 +1,6 @@
 import merge from 'lodash.merge';
 
-import oldPayload from '@test/payloads/gocd/gocd-stage-building.json';
-const payload = oldPayload as GoCDResponse;
+import payloadRaw from '@test/payloads/gocd/gocd-stage-building.json';
 import { MockedBolt } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
@@ -23,6 +22,7 @@ jest.mock('@api/getUser');
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
   const bolt = originalBolt as unknown as MockedBolt;
+  const payload = payloadRaw as GoCDResponse;
 
   beforeAll(async function () {
     await db.migrate.latest();

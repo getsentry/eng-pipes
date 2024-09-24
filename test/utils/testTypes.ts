@@ -6,10 +6,10 @@ import {
 // Mocked Github Org for Jest
 export type MockedGithubOrg = {
   api: MockedGitHubAPI;
-  slug: string;
-  appAuth: AppAuthStrategyOptions;
   project: GitHubIssuesSomeoneElseCaresAbout;
   repos: any;
+  slug: string;
+  appAuth: AppAuthStrategyOptions;
   getAllProjectFieldNodeIds: jest.Mock;
   addIssueToGlobalIssuesProject: jest.Mock;
   modifyProjectIssueField: jest.Mock;
