@@ -30,7 +30,6 @@ describe('issueLabelHandler', function () {
 
   beforeAll(async function () {
     await db.migrate.latest();
-    githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
     calculateSLOViolationRouteSpy = jest
       .spyOn(businessHourFunctions, 'calculateSLOViolationRoute')
@@ -182,12 +181,7 @@ describe('issueLabelHandler', function () {
     if (isPR) {
       payload['issue'].pull_request = {};
     }
-    await createGitHubEvent(
-      fastify,
-      // @ts-expect-error
-      'issue_comment.created',
-      payload
-    );
+    await createGitHubEvent(fastify, 'issue_comment.created', payload);
   }
 
   // Expectations
@@ -769,7 +763,9 @@ describe('issueLabelHandler', function () {
     it('should modify time to respond by when adding `Waiting for: Product Owner` label when calculateSLOViolationTriage returns null', async function () {
       await setupIssue();
       calculateSLOViolationTriageSpy.mockReturnValue(null);
-      jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
+      jest
+        .spyOn(Date, 'now')
+        .mockReturnValue(Date.parse('2023-06-20T00:00:00.000Z'));
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(
@@ -791,7 +787,9 @@ describe('issueLabelHandler', function () {
     it('should modify time to respond by when adding `Waiting for: Support` label when calculateSLOViolationTriage returns null', async function () {
       await createIssue('routing-repo');
       calculateSLOViolationRouteSpy.mockReturnValue(null);
-      jest.spyOn(Date, 'now').mockReturnValue('2023-06-20T00:00:00.000Z');
+      jest
+        .spyOn(Date, 'now')
+        .mockReturnValue(Date.parse('2023-06-20T00:00:00.000Z'));
       // Simulate GH webhook being thrown when Waiting for: Product Owner label is added
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(modifyProjectIssueFieldSpy).toHaveBeenLastCalledWith(

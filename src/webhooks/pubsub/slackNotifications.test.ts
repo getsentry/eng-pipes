@@ -1420,7 +1420,6 @@ describe('Triage Notification Tests', function () {
     });
   });
   describe('notifyProductOwnersForUntriagedIssues', function () {
-    const org = GETSENTRY_ORG;
     let getIssueDueDateFromProjectSpy, postMessageSpy;
     beforeAll(function () {
       jest
@@ -1490,7 +1489,10 @@ describe('Triage Notification Tests', function () {
         .mockReturnValueOnce('2022-12-12T13:00:00.000Z')
         .mockReturnValue('2022-12-12T21:00:00.000Z');
       const now = moment('2022-12-12T21:00:00.000Z');
-      await notifyProductOwnersForUntriagedIssues(org, now);
+      await notifyProductOwnersForUntriagedIssues(
+        org as unknown as GitHubOrg,
+        now
+      );
       expect(postMessageSpy).toHaveBeenCalledTimes(2);
       expect(postMessageSpy).toHaveBeenCalledWith({
         blocks: [
@@ -1632,7 +1634,10 @@ describe('Triage Notification Tests', function () {
         .mockReturnValue('2022-12-12T21:00:00.000Z');
       const now = moment('2022-12-12T04:00:00.000Z');
       org.slug = 'codecov';
-      await notifyProductOwnersForUntriagedIssues(org, now);
+      await notifyProductOwnersForUntriagedIssues(
+        org as unknown as GitHubOrg,
+        now
+      );
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
     });
 
@@ -1691,7 +1696,10 @@ describe('Triage Notification Tests', function () {
         .mockReturnValueOnce('2022-12-12T13:00:00.000Z')
         .mockReturnValue('2022-12-12T21:00:00.000Z');
       const now = moment('2022-12-12T04:00:00.000Z');
-      await notifyProductOwnersForUntriagedIssues(org, now);
+      await notifyProductOwnersForUntriagedIssues(
+        org as unknown as GitHubOrg,
+        now
+      );
       expect(postMessageSpy).toHaveBeenCalledTimes(0);
     });
   });

@@ -17,7 +17,6 @@ describe('projectsHandler', function () {
 
   beforeAll(async function () {
     await db.migrate.latest();
-    githubEvents.removeListener('error', defaultErrorHandler);
     githubEvents.onError(errors);
     origProject = org.project;
     org.project = {
@@ -25,6 +24,7 @@ describe('projectsHandler', function () {
       fieldIds: {
         status: 'status-field-id',
         productArea: 'product-area-field-id',
+        responseDue: 'response-due-field-id',
       },
     };
     jest.spyOn(org, 'getAllProjectFieldNodeIds').mockReturnValue({
@@ -35,7 +35,6 @@ describe('projectsHandler', function () {
   });
 
   afterAll(async function () {
-    githubEvents.removeListener('error', errors);
     githubEvents.onError(defaultErrorHandler);
     org.project = origProject;
     await db.destroy();

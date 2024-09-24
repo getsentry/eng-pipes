@@ -99,6 +99,11 @@ describe('filterBuildCauses', () => {
           changed: true,
           material: {
             type: 'git',
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'https://example.com/repo.git',
+            },
           },
           modifications: [
             {
@@ -111,6 +116,11 @@ describe('filterBuildCauses', () => {
           changed: true,
           material: {
             type: 'git',
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'https://example.com/repo.git',
+            },
           },
           modifications: [],
         },
