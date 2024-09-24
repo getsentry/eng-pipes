@@ -3,7 +3,7 @@ import merge from 'lodash.merge';
 import buildingPayloadImport from '@test/payloads/gocd/gocd-stage-building.json';
 import failedPayloadImport from '@test/payloads/gocd/gocd-stage-failed.json';
 
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/init/gocd';
 import { GoCDResponse } from '@/types';
 import * as utils from '@utils/db';
 

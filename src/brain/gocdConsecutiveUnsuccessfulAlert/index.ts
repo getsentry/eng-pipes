@@ -1,10 +1,10 @@
-import { gocdevents } from '@/api/gocdevents';
 import {
   DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import { gocdevents } from '@/init/gocd';
 import { GoCDResponse } from '@/types';
 
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';

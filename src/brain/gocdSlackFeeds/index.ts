@@ -2,7 +2,6 @@ import * as Sentry from '@sentry/node';
 
 import { getUser } from '@/api/getUser';
 import { getAuthors } from '@/api/github/getAuthors';
-import { gocdevents } from '@/api/gocdevents';
 import {
   context,
   divider,
@@ -23,6 +22,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { gocdevents } from '@/init/gocd';
 import { GoCDPipeline, GoCDResponse } from '@/types';
 import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';

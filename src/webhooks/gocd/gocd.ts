@@ -3,8 +3,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { GoCDResponse } from '@types';
 
-import { gocdevents } from '@/api/gocdevents';
 import { GOCD_WEBHOOK_SECRET } from '@/config';
+import { gocdevents } from '@/init/gocd';
 import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 
 export async function handler(

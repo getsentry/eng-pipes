@@ -13,7 +13,6 @@ import {
 
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';
-import { gocdevents } from '@/api/gocdevents';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
   GETSENTRY_ORG,
@@ -23,6 +22,7 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { gocdevents } from '@/init/gocd';
 import { bolt } from '@/init/slack';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';

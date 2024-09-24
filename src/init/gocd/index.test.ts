@@ -1,4 +1,4 @@
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/init/gocd';
 
 import { GoCDResponse } from '../../../lib/types/index';
 
