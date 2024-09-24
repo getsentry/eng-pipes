@@ -164,13 +164,13 @@ export const constructSlackMessage = (
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
       const hoursLeft = now.diff(triageBy, 'hours') * -1;
-      const businessHoursLeft = getBusinessHoursLeft(
+      const businessHoursLeft = getBusinessHoursLeft({
         triageBy,
         now,
         repo,
         org,
-        productArea
-      );
+        productArea,
+      });
       const minutesLeft = now.diff(triageBy, 'minutes') * -1 - hoursLeft * 60;
       const daysLeft = now.diff(triageBy, 'days') * -1;
       hasEnoughTimePassedSinceIssueCreation =
