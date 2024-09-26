@@ -11,7 +11,7 @@ import {
   GoCDStageData,
 } from '@types';
 
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
   GETSENTRY_ORG,

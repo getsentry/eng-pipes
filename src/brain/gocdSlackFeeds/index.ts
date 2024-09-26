@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import {
   context,
   divider,

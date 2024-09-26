@@ -3,9 +3,9 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { GoCDResponse } from '@types';
 
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { GOCD_WEBHOOK_SECRET } from '@/config';
 import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
-import { gocdevents } from '@api/gocdevents';
 
 export async function handler(
   request: FastifyRequest<{ Body: GoCDResponse }>,
