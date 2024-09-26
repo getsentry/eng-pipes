@@ -11,8 +11,6 @@ import {
   GoCDStageData,
 } from '@types';
 
-import { getChangedStack } from '@/api/github/getChangedStack';
-import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { gocdevents } from '@/api/gocdevents';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
@@ -26,6 +24,9 @@ import { SlackMessage } from '@/config/slackMessage';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
+import { getChangedStack } from '@/utils/github/getChangedStack';
+import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
+import { getUser } from '@/utils/github/getUser';
 import {
   ALL_MESSAGE_SUFFIX,
   filterBuildCauses,
@@ -34,7 +35,6 @@ import {
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
-import { getUser } from '@api/getUser';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';

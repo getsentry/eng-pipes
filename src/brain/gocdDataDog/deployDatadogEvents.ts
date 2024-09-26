@@ -3,8 +3,6 @@ import '@sentry/tracing';
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 
-import { getUser } from '@/api/getUser';
-import { getAuthors } from '@/api/github/getAuthors';
 import {
   DATADOG_API_INSTANCE,
   GETSENTRY_REPO_SLUG,
@@ -14,6 +12,8 @@ import {
 } from '@/config';
 import { GoCDPipeline, GoCDResponse } from '@/types';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
+import { getAuthors } from '@/utils/github/getAuthors';
+import { getUser } from '@/utils/github/getUser';
 import {
   filterBuildCauses,
   firstGitMaterialSHA,
