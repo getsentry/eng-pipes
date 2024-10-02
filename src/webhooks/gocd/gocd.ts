@@ -1,9 +1,8 @@
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import { GoCDResponse } from '@types';
-
 import { GOCD_WEBHOOK_SECRET } from '@/config';
+import { GoCDResponse } from '@/types/gocd';
 import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
 import { gocdevents } from '@api/gocdevents';
 

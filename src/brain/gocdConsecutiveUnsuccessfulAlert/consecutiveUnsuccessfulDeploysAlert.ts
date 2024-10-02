@@ -8,7 +8,7 @@ import {
   GoCDPipeline,
   GoCDResponse,
   GoCDStageResponse,
-} from '@/types';
+} from '@/types/gocd';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 
 export const CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT = 3;

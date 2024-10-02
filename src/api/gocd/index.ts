@@ -1,5 +1,5 @@
 import { GOCD_ORIGIN } from '@/config';
-import { GoCDDashboardResponse } from '@/types';
+import { GoCDDashboardResponse } from '@/types/gocd';
 import { fetchUsingProxyAuth, RequestOptions } from '@utils/iap';
 
 /**

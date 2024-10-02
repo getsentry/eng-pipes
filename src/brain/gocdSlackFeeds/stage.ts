@@ -2,7 +2,7 @@ import { KnownBlock } from '@slack/types';
 
 import * as slackblocks from '@/blocks/slackBlocks';
 import { GOCD_ORIGIN } from '@/config';
-import { GoCDPipeline } from '@/types';
+import { GoCDPipeline } from '@/types/gocd';
 
 export function stageMessage(pipeline: GoCDPipeline): string {
   const stage = pipeline.stage;

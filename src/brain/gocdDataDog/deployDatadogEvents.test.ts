@@ -11,7 +11,7 @@ import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE, GETSENTRY_ORG } from '@/config';
-import { GoCDResponse } from '@/types';
+import { GoCDResponse } from '@/types/gocd';
 import { db } from '@utils/db';
 
 import { gocdDataDog, handler } from '.';

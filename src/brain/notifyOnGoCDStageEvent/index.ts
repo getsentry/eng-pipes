@@ -3,14 +3,6 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
-import {
-  CompareCommits,
-  GoCDBuildCause,
-  GoCDPipeline,
-  GoCDResponse,
-  GoCDStageData,
-} from '@types';
-
 import { getChangedStack } from '@/api/github/getChangedStack';
 import { getRelevantCommit } from '@/api/github/getRelevantCommit';
 import { gocdevents } from '@/api/gocdevents';
@@ -23,6 +15,13 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
+import { CompareCommits } from '@/types';
+import {
+  GoCDBuildCause,
+  GoCDPipeline,
+  GoCDResponse,
+  GoCDStageData,
+} from '@/types/gocd';
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';

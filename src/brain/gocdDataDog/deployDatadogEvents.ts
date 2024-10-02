@@ -12,7 +12,7 @@ import {
   GOCD_ORIGIN,
   SENTRY_REPO_SLUG,
 } from '@/config';
-import { GoCDPipeline, GoCDResponse } from '@/types';
+import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import {
   filterBuildCauses,

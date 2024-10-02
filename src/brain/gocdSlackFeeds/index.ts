@@ -23,7 +23,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline, GoCDResponse } from '@/types';
+import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { filterNulls } from '@/utils/arrays';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 import { isSentryEmail } from '@/utils/isSentryEmail';

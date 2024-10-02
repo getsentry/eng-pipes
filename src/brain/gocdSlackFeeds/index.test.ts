@@ -15,7 +15,8 @@ import {
   GETSENTRY_ORG,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
-import { Fastify, GoCDResponse } from '@/types';
+import { Fastify } from '@/types';
+import { GoCDResponse } from '@/types/gocd';
 import { getUser as nonMockedGetUser } from '@api/getUser';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';

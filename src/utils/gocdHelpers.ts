@@ -1,15 +1,14 @@
 import {
-  DBGoCDDeployment,
-  GoCDBuildCause,
-  GoCDBuildType,
-  GoCDPipeline,
-} from '@types';
-
-import {
   Color,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
+import {
+  DBGoCDDeployment,
+  GoCDBuildCause,
+  GoCDBuildType,
+  GoCDPipeline,
+} from '@/types/gocd';
 
 import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
 

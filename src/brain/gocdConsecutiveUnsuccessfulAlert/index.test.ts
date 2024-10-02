@@ -14,7 +14,8 @@ import {
   GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
-import { Fastify, GoCDResponse } from '@/types';
+import { Fastify } from '@/types';
+import { GoCDResponse } from '@/types/gocd';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
