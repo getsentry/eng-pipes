@@ -4,8 +4,8 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { GH_ORGS, WAITING_FOR_PRODUCT_OWNER_LABEL } from '@/config';
+import { isFromABot } from '@/utils/github/isFromABot';
 import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
-import { isFromABot } from '@utils/isFromABot';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
 import { shouldSkip } from '@utils/shouldSkip';
 

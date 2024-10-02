@@ -13,7 +13,7 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { isFromABot } from '@/utils/isFromABot';
+import { isFromABot } from '@/utils/github/isFromABot';
 import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
 import { db } from '@utils/db';
 import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
