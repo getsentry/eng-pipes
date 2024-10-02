@@ -13,7 +13,7 @@ import {
   FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
   SENTRY_OPTIONS_WEBHOOK_SECRET,
 } from '@/config';
-import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
+import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
 export async function handler(
   request: FastifyRequest<{ Body: SentryOptionsResponse }>,

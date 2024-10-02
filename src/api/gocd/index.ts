@@ -1,6 +1,6 @@
 import { GOCD_ORIGIN } from '@/config';
 import { GoCDDashboardResponse } from '@/types';
-import { fetchUsingProxyAuth, RequestOptions } from '@utils/iap';
+import { fetchUsingProxyAuth, RequestOptions } from '@/utils/auth/iap';
 
 /**
  * The GoCD API returns a lot of data nested under `_embedded` keys.

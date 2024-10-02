@@ -1,5 +1,5 @@
 import { Fastify } from '@/types';
-import { createSignature } from '@utils/createSignature';
+import { createSignature } from '@/utils/auth/createSignature';
 
 function createSentryOptionsSignature(payload) {
   return createSignature(

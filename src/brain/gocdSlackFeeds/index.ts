@@ -22,11 +22,11 @@ import {
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types';
-import { filterNulls } from '@/utils/arrays';
 import { getAuthors } from '@/utils/github/getAuthors';
 import { getUser } from '@/utils/github/getUser';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 import { isSentryEmail } from '@/utils/isSentryEmail';
+import { filterNulls } from '@/utils/typing/arrays';
 
 import { DeployFeed } from './deployFeed';
 import { stageBlock } from './stage';
