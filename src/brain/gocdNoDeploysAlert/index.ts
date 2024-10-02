@@ -1,6 +1,6 @@
 import { KnownBlock } from '@slack/types';
 
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {

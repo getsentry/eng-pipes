@@ -1,4 +1,4 @@
-import { getUser } from '@api/getUser';
+import { getUser } from '@/utils/github/getUser';
 import { bolt } from '@api/slack';
 import { updateAppHome } from '@api/slack/updateAppHome';
 import { db } from '@utils/db';

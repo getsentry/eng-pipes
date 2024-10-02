@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 import { ChatPostMessageArguments } from '@slack/web-api';
 
-import { getUser } from '@api/getUser';
+import { getUser } from '@/utils/github/getUser';
 import { bolt } from '@api/slack';
 
 /**

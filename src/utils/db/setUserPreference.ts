@@ -1,6 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { getUser } from '@api/getUser';
+import { getUser } from '@/utils/github/getUser';
 
 import { findUser } from './findUser';
 import { db } from '.';

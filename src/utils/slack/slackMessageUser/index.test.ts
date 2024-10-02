@@ -1,7 +1,7 @@
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { slackMessageUser } from './';
+import { slackMessageUser } from '.';
 
 describe('slackMessageUser', function () {
   beforeAll(async function () {
