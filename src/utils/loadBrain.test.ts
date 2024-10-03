@@ -7,7 +7,6 @@ describe('loadBrain', function () {
     const modules = await getBrainModules();
     const modulesSet = new Set(modules.map((m) => m.split('/').pop())); // Get the filename from the path
     const fns = getExportedFunctions(modules);
-    const t = new Set(fns.map((f) => f.name));
-    expect(modulesSet).toEqual(t); // Check that the filenames & loaded functions are the same
+    expect(modulesSet).toEqual(new Set(fns.map((f) => f.name))); // Check that the filenames & loaded functions are the same
   });
 });
