@@ -29,11 +29,11 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { db } from '@/utils/db';
+import { TARGETS } from '@/utils/db/metrics';
 import { bolt } from '@api/slack';
 import * as getFailureMessages from '@utils/db/getFailureMessages';
 import { getTimestamp } from '@utils/db/getTimestamp';
 import * as saveSlackMessage from '@utils/db/saveSlackMessage';
-import { TARGETS } from '@utils/metrics';
 
 import { requiredChecks } from '.';
 

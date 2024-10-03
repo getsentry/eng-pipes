@@ -4,7 +4,7 @@ import { EmitterWebhookEvent } from '@octokit/webhooks';
 import * as Sentry from '@sentry/node';
 
 import { GH_ORGS, PRODUCT_AREA_LABEL_PREFIX } from '@/config';
-import { shouldSkip } from '@utils/shouldSkip';
+import { shouldSkip } from '@/utils/github/shouldSkip';
 
 function isNotInAProjectWeCareAbout(payload, org) {
   return payload?.projects_v2_item?.project_node_id !== org.project.nodeId;

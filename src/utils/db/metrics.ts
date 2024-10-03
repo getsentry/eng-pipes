@@ -3,12 +3,12 @@ import * as Sentry from '@sentry/node';
 
 import { DRY_RUN, PRODUCT_AREA_LABEL_PREFIX, PROJECT } from '@/config';
 
-import { getTeams } from './github/getTeams';
+import { getOssUserType } from '../github/getOssUserType';
+import { getTeams } from '../github/getTeams';
 import {
   calculateSLOViolationRoute,
   calculateSLOViolationTriage,
-} from './businessHours';
-import { getOssUserType } from './getOssUserType';
+} from '../misc/businessHours';
 
 const bigqueryClient = new BigQuery({ projectId: PROJECT });
 

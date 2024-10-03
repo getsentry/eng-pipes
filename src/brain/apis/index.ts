@@ -1,5 +1,5 @@
+import { wrapHandler } from '@/utils/misc/wrapHandler';
 import { bolt } from '@api/slack';
-import { wrapHandler } from '@utils/wrapHandler';
 
 import {
   getStatsMessage,

@@ -6,7 +6,7 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types';
-import { getBusinessHoursLeft } from '@/utils/businessHours';
+import { getBusinessHoursLeft } from '@/utils/misc/businessHours';
 import {
   ChannelItem,
   getChannelsForIssue,

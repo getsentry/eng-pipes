@@ -24,7 +24,7 @@ import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import { DRY_RUN, GETSENTRY_ORG } from '@/config';
-import * as dbFunctions from '@utils/metrics';
+import * as dbFunctions from '@/utils/db/metrics';
 
 import { githubMetrics as metrics } from '.';
 

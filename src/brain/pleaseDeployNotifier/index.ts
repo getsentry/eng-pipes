@@ -24,11 +24,11 @@ import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
 import { getUser } from '@/utils/github/getUser';
 import { isGetsentryRequiredCheck } from '@/utils/github/isGetsentryRequiredCheck';
 import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocd/gocdHelpers';
+import { wrapHandler } from '@/utils/misc/wrapHandler';
 import { getBlocksForCommit } from '@/utils/slack/getBlocksForCommit';
 import { slackMessageUser } from '@/utils/slack/slackMessageUser';
 import { bolt } from '@api/slack';
 import { saveSlackMessage } from '@utils/db/saveSlackMessage';
-import { wrapHandler } from '@utils/wrapHandler';
 
 import { actionSlackDeploy } from './actionSlackDeploy';
 import { actionViewUndeployedCommits } from './actionViewUndeployedCommits';
