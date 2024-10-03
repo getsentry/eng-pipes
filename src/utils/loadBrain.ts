@@ -19,10 +19,28 @@ export async function loadBrain() {
 /**
  * This is only exported for test
  */
-export async function getBrainModules() {
-  return (await fs.readdir(ROOT)).filter(
-    (f) => !f.endsWith('.d.ts') && !f.endsWith('.map') && !f.endsWith('.md')
-  );
+export async function getBrainModules(dir = ROOT) {
+  // Read the directory contents
+  const files = await fs.readdir(dir, { withFileTypes: true });
+  const directories: Set<string> = new Set();
+
+  // Loop through each file or directory in the current directory
+  for (const file of files) {
+    const filePath = path.join(dir, file.name);
+
+    if (file.isDirectory()) {
+      const nestedDirs = await getBrainModules(filePath);
+      nestedDirs.forEach((nestedDir) => directories.add(nestedDir));
+    } else if (
+      !file.name.endsWith('.d.ts') &&
+      !file.name.endsWith('.map') &&
+      !file.name.endsWith('.md')
+    ) {
+      directories.add(path.relative(ROOT, dir)); // Add relative path to directory
+    }
+  }
+
+  return Array.from(directories);
 }
 
 /**
