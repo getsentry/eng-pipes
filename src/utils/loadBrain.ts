@@ -40,7 +40,7 @@ export async function getBrainModules(dir: string = ROOT): Promise<string[]> {
       !file.name.endsWith('.map') &&
       !file.name.endsWith('.md')
     ) {
-      directories.add(path.relative(ROOT, dir)); // Add relative path to directory
+      directories.add(path.relative(ROOT, dir));
     }
   }
 
