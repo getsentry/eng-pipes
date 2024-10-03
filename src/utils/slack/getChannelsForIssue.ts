@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/node';
 import moment from 'moment-timezone';
 
 import { PRODUCT_OWNERS_INFO } from '@/config';
+import { getTeams } from '@/utils/github/getTeams';
 import { isTimeInBusinessHours } from '@utils/businessHours';
-import { getTeams } from '@utils/getTeams';
 
 export type ChannelItem = {
   channelId: string;

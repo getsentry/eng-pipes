@@ -1,6 +1,6 @@
 import moment from 'moment-timezone';
 
-import { getChannelsForIssue } from '@utils/getChannelsForIssue';
+import { getChannelsForIssue } from '@/utils/slack/getChannelsForIssue';
 
 describe('getChannelsForIssue', () => {
   it('will get channel info for repo without routing', () => {

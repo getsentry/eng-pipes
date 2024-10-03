@@ -2,8 +2,8 @@ import * as Sentry from '@sentry/node';
 
 import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types/gocd';
+import { filterBuildCauses } from '@/utils/gocd/gocdHelpers';
 import { db } from '@utils/db';
-import { filterBuildCauses } from '@utils/gocdHelpers';
 
 export const DB_TABLE_STAGES = 'gocd-stages';
 export const DB_TABLE_MATERIALS = 'gocd-stage-materials';

@@ -7,9 +7,9 @@ import {
   SUPPORT_CHANNEL_ID,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { getChannelsForIssue } from '@/utils/slack/getChannelsForIssue';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
-import { getChannelsForIssue } from '@utils/getChannelsForIssue';
 import { wrapHandler } from '@utils/wrapHandler';
 
 export const githubLabelHandler = async ({

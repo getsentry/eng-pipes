@@ -23,7 +23,7 @@ import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getProgressColor,
-} from '@/utils/gocdHelpers';
+} from '@/utils/gocd/gocdHelpers';
 
 import { stageBlock } from './stage';
 

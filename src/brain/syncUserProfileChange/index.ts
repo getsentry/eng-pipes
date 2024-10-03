@@ -1,8 +1,8 @@
 import { SLACK_PROFILE_ID_GITHUB } from '@/config';
+import { normalizeGithubUser } from '@/utils/github/normalizeGithubUser';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 import { isSentrySlackUser } from '@utils/isSentrySlackUser';
-import { normalizeGithubUser } from '@utils/normalizeGithubUser';
 
 /**
  * Syncs a Slack user profile change (specifically the GH profile field) to DB

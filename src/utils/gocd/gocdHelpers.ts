@@ -10,7 +10,7 @@ import {
   GoCDPipeline,
 } from '@/types/gocd';
 
-import { getLastGetSentryGoCDDeploy } from './db/getLatestDeploy';
+import { getLastGetSentryGoCDDeploy } from '../db/getLatestDeploy';
 
 export const INPROGRESS_MSG = 'is being deployed';
 const DEPLOYED_MSG = 'was deployed';

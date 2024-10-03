@@ -7,7 +7,10 @@ import {
 } from '@/config';
 import { Issue } from '@/types';
 import { getBusinessHoursLeft } from '@/utils/businessHours';
-import { ChannelItem, getChannelsForIssue } from '@/utils/getChannelsForIssue';
+import {
+  ChannelItem,
+  getChannelsForIssue,
+} from '@/utils/slack/getChannelsForIssue';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
