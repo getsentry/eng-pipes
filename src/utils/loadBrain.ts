@@ -10,6 +10,8 @@ const ROOT = path.join(__dirname, '../brain');
  *
  * Currently we only want to load the exported fn whose name matches the module name,
  * this is because we sometimes export functions only for testing.
+ *
+ * This function supports nested directories in `@/brain` via recursion
  */
 export async function loadBrain() {
   const modules = getExportedFunctions(await getBrainModules());
@@ -18,8 +20,10 @@ export async function loadBrain() {
 
 /**
  * This is only exported for test
+ * This function returns a list of relative paths to directories in brain which
+ * contain a file that is not a .d.ts, .map, or .md file
  */
-export async function getBrainModules(dir = ROOT) {
+export async function getBrainModules(dir: string = ROOT) {
   // Read the directory contents
   const files = await fs.readdir(dir, { withFileTypes: true });
   const directories: Set<string> = new Set();
@@ -45,6 +49,9 @@ export async function getBrainModules(dir = ROOT) {
 
 /**
  * This is only exported for test
+ * This function takes a list of relative paths to directories in brain
+ * and returns a list of exported functions from those directories
+ * which have the same name as the directory
  */
 export function getExportedFunctions(fileNames: string[]) {
   return fileNames.flatMap((f) => {
