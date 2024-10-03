@@ -7,7 +7,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
-import { firstGitMaterialSHA } from '@/utils/gocdHelpers';
+import { firstGitMaterialSHA } from '@/utils/gocd/gocdHelpers';
 import { getBlocksForCommit } from '@/utils/slack/getBlocksForCommit';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 

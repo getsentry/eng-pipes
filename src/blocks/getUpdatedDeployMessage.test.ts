@@ -1,6 +1,6 @@
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import { GOCD_ORIGIN } from '@/config';
-import { FINAL_STAGE_NAMES } from '@/utils/gocdHelpers';
+import { FINAL_STAGE_NAMES } from '@/utils/gocd/gocdHelpers';
 
 describe('getUpdatedGoCDDeployMessage', function () {
   const CURRENT_USER = 'current-user';

@@ -1,7 +1,7 @@
 import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
 import { db } from '@utils/db';
 
-import { FINAL_STAGE_NAMES } from '../gocdHelpers';
+import { FINAL_STAGE_NAMES } from '../gocd/gocdHelpers';
 
 import { getLastGetSentryGoCDDeploy } from './getLatestDeploy';
 

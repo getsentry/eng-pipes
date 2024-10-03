@@ -10,7 +10,7 @@ import {
   KAFKA_CONTROL_PLANE_CHANNEL_ID,
   KAFKA_CONTROL_PLANE_WEBHOOK_SECRET,
 } from '@/config';
-import { extractAndVerifySignature } from '@/utils/extractAndVerifySignature';
+import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
 export async function handler(
   request: FastifyRequest<{ Body: KafkaControlPlaneResponse }>,

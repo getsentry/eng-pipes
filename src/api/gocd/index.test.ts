@@ -1,6 +1,6 @@
 import { GOCD_ORIGIN, GOCD_TOKEN } from '@/config';
 import { GoCDDashboardResponse } from '@/types/gocd';
-import * as iap from '@/utils/iap';
+import * as iap from '@/utils/auth/iap';
 
 import { fetchDashboard, removeNestedEmbeddings } from './index';
 

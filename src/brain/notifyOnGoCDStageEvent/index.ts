@@ -33,7 +33,7 @@ import {
   firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
-} from '@/utils/gocdHelpers';
+} from '@/utils/gocd/gocdHelpers';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';

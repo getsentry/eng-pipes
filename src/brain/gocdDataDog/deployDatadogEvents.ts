@@ -18,7 +18,7 @@ import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getBaseAndHeadCommit,
-} from '@/utils/gocdHelpers';
+} from '@/utils/gocd/gocdHelpers';
 
 export class DeployDatadogEvents {
   private feedName: string;

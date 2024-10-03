@@ -23,7 +23,7 @@ import { getChangedStack } from '@/utils/github/getChangedStack';
 import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
 import { getUser } from '@/utils/github/getUser';
 import { isGetsentryRequiredCheck } from '@/utils/github/isGetsentryRequiredCheck';
-import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocdHelpers';
+import { INPROGRESS_MSG, READY_TO_DEPLOY } from '@/utils/gocd/gocdHelpers';
 import { getBlocksForCommit } from '@/utils/slack/getBlocksForCommit';
 import { slackMessageUser } from '@/utils/slack/slackMessageUser';
 import { bolt } from '@api/slack';

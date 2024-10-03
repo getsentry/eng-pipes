@@ -24,7 +24,7 @@ import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
 import { MockedBolt } from '../../../test/utils/testTypes';
-import { FINAL_STAGE_NAMES } from '../../utils/gocdHelpers';
+import { FINAL_STAGE_NAMES } from '../../utils/gocd/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';

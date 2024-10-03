@@ -13,7 +13,7 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 
-import { getTeams } from './getTeams';
+import { getTeams } from './github/getTeams';
 
 const HOUR_IN_MS = 60 * 60 * 1000;
 const BUSINESS_DAY_IN_MS = 8 * HOUR_IN_MS;

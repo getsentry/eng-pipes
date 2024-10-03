@@ -13,7 +13,7 @@ import {
 import {
   getGitHubActivityMetrics,
   getIssueEventsForTeam,
-} from '@/utils/scores';
+} from '@/utils/db/scores';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 

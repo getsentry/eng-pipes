@@ -3,7 +3,7 @@ import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getBaseAndHeadCommit,
-} from '@/utils/gocdHelpers';
+} from '@/utils/gocd/gocdHelpers';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
 jest.mock('@utils/db/getLatestDeploy');
