@@ -8,9 +8,9 @@ import {
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
 import { Fastify } from '@/types';
+import * as businessHourFunctions from '@/utils/misc/businessHours';
 import { defaultErrorHandler, githubEvents } from '@api/github';
 import { MockOctokitError } from '@api/github/__mocks__/mockError';
-import * as businessHourFunctions from '@utils/businessHours';
 import { db } from '@utils/db';
 
 jest.mock('google-auth-library');

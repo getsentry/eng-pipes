@@ -1,6 +1,6 @@
 import { GETSENTRY_REPO_SLUG, SENTRY_REPO_SLUG } from '@/config';
+import { wrapHandler } from '@/utils/misc/wrapHandler';
 import { bolt } from '@api/slack';
-import { wrapHandler } from '@utils/wrapHandler';
 
 import getProgress from './getProgress';
 

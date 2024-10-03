@@ -25,7 +25,7 @@ import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { getAuthors } from '@/utils/github/getAuthors';
 import { getUser } from '@/utils/github/getUser';
 import { getBaseAndHeadCommit } from '@/utils/gocd/gocdHelpers';
-import { isSentryEmail } from '@/utils/isSentryEmail';
+import { isSentryEmail } from '@/utils/misc/isSentryEmail';
 import { filterNulls } from '@/utils/typing/arrays';
 
 import { DeployFeed } from './deployFeed';

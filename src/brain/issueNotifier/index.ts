@@ -7,10 +7,10 @@ import {
   SUPPORT_CHANNEL_ID,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
+import { wrapHandler } from '@/utils/misc/wrapHandler';
 import { getChannelsForIssue } from '@/utils/slack/getChannelsForIssue';
 import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
-import { wrapHandler } from '@utils/wrapHandler';
 
 export const githubLabelHandler = async ({
   payload: { issue, label, repository, organization },

@@ -13,12 +13,12 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WAITING_FOR_SUPPORT_LABEL,
 } from '@/config';
-import { isFromABot } from '@/utils/isFromABot';
-import { isFromOutsideCollaborator } from '@/utils/isFromOutsideCollaborator';
+import { isFromABot } from '@/utils/github/isFromABot';
+import { isFromOutsideCollaborator } from '@/utils/github/isFromOutsideCollaborator';
+import { isNotFromAnExternalOrGTMUser } from '@/utils/github/isNotFromAnExternalOrGTMUser';
+import { shouldSkip } from '@/utils/github/shouldSkip';
+import { slugizeProductArea } from '@/utils/misc/slugizeProductArea';
 import { db } from '@utils/db';
-import { isNotFromAnExternalOrGTMUser } from '@utils/isNotFromAnExternalOrGTMUser';
-import { shouldSkip } from '@utils/shouldSkip';
-import { slugizeProductArea } from '@utils/slugizeProductArea';
 
 type PredictionInfo = {
   comment: string;

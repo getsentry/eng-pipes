@@ -13,10 +13,10 @@ import {
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
+import * as metrics from '@/utils/db/metrics';
 import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocd/gocdHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
-import * as metrics from '@utils/metrics';
 
 import { pleaseDeployNotifier } from '../pleaseDeployNotifier';
 

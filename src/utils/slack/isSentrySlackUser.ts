@@ -1,4 +1,4 @@
-import { isSentryEmail } from './isSentryEmail';
+import { isSentryEmail } from '../misc/isSentryEmail';
 
 // This is incomplete
 type SlackUser = {
