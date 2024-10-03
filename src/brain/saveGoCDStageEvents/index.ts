@@ -1,7 +1,7 @@
 import * as Sentry from '@sentry/node';
 
 import { gocdevents } from '@/api/gocd/gocdEventEmitter';
-import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types';
+import { DBGoCDBuildMaterial, GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { db } from '@utils/db';
 import { filterBuildCauses } from '@utils/gocdHelpers';
 

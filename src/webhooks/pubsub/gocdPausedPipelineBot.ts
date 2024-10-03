@@ -9,7 +9,7 @@ import {
   GOCD_ORIGIN,
   GOCD_PAUSED_PIPELINE_REMINDERS,
 } from '@/config';
-import { GoCDDashboardResponse } from '@/types';
+import { GoCDDashboardResponse } from '@/types/gocd';
 
 const GOCD_PAUSED_PIPELINE_REMINDER_TEXT_SINGULAR =
   'A pipeline has been paused for an extended period of time. If this is unintentional, please look into unpausing it if it is safe to do so.';

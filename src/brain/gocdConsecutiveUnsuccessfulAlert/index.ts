@@ -5,7 +5,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
-import { GoCDResponse } from '@/types';
+import { GoCDResponse } from '@/types/gocd';
 
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';
 

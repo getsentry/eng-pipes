@@ -1,4 +1,4 @@
-import { GoCDPipeline } from '@/types';
+import { GoCDPipeline } from '@/types/gocd';
 import {
   filterBuildCauses,
   firstGitMaterialSHA,

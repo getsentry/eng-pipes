@@ -21,7 +21,7 @@ import {
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { GoCDPipeline, GoCDResponse } from '@/types';
+import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { filterNulls } from '@/utils/arrays';
 import { getAuthors } from '@/utils/github/getAuthors';
 import { getUser } from '@/utils/github/getUser';

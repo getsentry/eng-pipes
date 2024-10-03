@@ -10,7 +10,7 @@ import {
   GOCD_ORIGIN,
   SENTRY_REPO_SLUG,
 } from '@/config';
-import { GoCDPipeline, GoCDResponse } from '@/types';
+import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { getAuthors } from '@/utils/github/getAuthors';
 import { getUser } from '@/utils/github/getUser';

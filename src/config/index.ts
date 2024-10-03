@@ -3,7 +3,7 @@ import fs from 'fs';
 import yaml from 'js-yaml';
 import moment from 'moment-timezone';
 
-import { GoCDPausedPipelineReminder } from '@/types';
+import { GoCDPausedPipelineReminder } from '@/types/gocd';
 
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
