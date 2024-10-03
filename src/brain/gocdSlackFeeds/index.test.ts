@@ -17,7 +17,7 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { GoCDResponse } from '@/types/gocd';
-import { getUser as nonMockedGetUser } from '@api/getUser';
+import { getUser as nonMockedGetUser } from '@/utils/github/getUser';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -29,7 +29,7 @@ import {
   ROLLBACK_PLAYBOOK_LINK,
 } from '.';
 
-jest.mock('@api/getUser');
+jest.mock('@/utils/github/getUser');
 const getUser = nonMockedGetUser as jest.Mock;
 
 describe('gocdSlackFeeds', function () {

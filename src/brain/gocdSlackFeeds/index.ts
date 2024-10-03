@@ -1,8 +1,6 @@
 import * as Sentry from '@sentry/node';
 
-import { getUser } from '@/api/getUser';
-import { getAuthors } from '@/api/github/getAuthors';
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import {
   context,
   divider,
@@ -25,6 +23,8 @@ import {
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { filterNulls } from '@/utils/arrays';
+import { getAuthors } from '@/utils/github/getAuthors';
+import { getUser } from '@/utils/github/getUser';
 import { getBaseAndHeadCommit } from '@/utils/gocdHelpers';
 import { isSentryEmail } from '@/utils/isSentryEmail';
 

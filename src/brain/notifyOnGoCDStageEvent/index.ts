@@ -3,9 +3,7 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 import { SlackMessageRow } from 'knex/types/tables';
 
-import { getChangedStack } from '@/api/github/getChangedStack';
-import { getRelevantCommit } from '@/api/github/getRelevantCommit';
-import { gocdevents } from '@/api/gocdevents';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
 import {
   GETSENTRY_ORG,
@@ -25,6 +23,9 @@ import {
 import { clearQueuedCommits } from '@/utils/db/clearQueuedCommits';
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
+import { getChangedStack } from '@/utils/github/getChangedStack';
+import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
+import { getUser } from '@/utils/github/getUser';
 import {
   ALL_MESSAGE_SUFFIX,
   filterBuildCauses,
@@ -33,7 +34,6 @@ import {
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocdHelpers';
-import { getUser } from '@api/getUser';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';

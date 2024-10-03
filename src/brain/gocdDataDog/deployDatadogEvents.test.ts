@@ -16,7 +16,7 @@ import { db } from '@utils/db';
 
 import { gocdDataDog, handler } from '.';
 
-jest.mock('@api/getUser');
+jest.mock('@/utils/github/getUser');
 
 describe('GocdDatadogEvents', () => {
   let fastify, datadogApiInstanceSpy;

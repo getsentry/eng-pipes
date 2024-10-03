@@ -1,6 +1,5 @@
-import { gocdevents } from '@api/gocdevents';
-
-import { GoCDResponse } from '../../../lib/types/index';
+import { gocdevents } from '@/api/gocd/gocdEventEmitter';
+import { GoCDResponse } from '@/types';
 
 describe('gocdevents', function () {
   beforeEach(async function () {

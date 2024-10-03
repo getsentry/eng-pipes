@@ -22,7 +22,7 @@ import { db } from '@utils/db';
 import { CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT } from './consecutiveUnsuccessfulDeploysAlert';
 import { gocdConsecutiveUnsuccessfulAlert, handler } from '.';
 
-jest.mock('@api/getUser');
+jest.mock('@/utils/github/getUser');
 
 describe('gocdConsecutiveUnsuccessfulAlerts', function () {
   let fastify: Fastify;

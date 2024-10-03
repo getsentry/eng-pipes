@@ -14,7 +14,7 @@ import { MockedGitHubAPI } from '../../../test/utils/testTypes';
 
 import { DeployFeed } from './deployFeed';
 
-jest.mock('@api/getUser');
+jest.mock('@/utils/github/getUser');
 
 describe('DeployFeed', () => {
   const org = GETSENTRY_ORG as unknown as { api: MockedGitHubAPI };

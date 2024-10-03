@@ -18,7 +18,7 @@ import { db } from '@utils/db';
 
 import { DEPLOYS_FAILING_LIMIT_MS, gocdNoDeploysAlert, handler } from '.';
 
-jest.mock('@api/getUser');
+jest.mock('@/utils/github/getUser');
 
 describe('gocdSlackFeeds', function () {
   let fastify: Fastify;
