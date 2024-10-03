@@ -23,7 +23,7 @@ export async function loadBrain() {
  * This function returns a list of relative paths to directories in brain which
  * contain a file that is not a .d.ts, .map, or .md file
  */
-export async function getBrainModules(dir: string = ROOT) {
+export async function getBrainModules(dir: string = ROOT): Promise<string[]> {
   // Read the directory contents
   const files = await fs.readdir(dir, { withFileTypes: true });
   const directories: Set<string> = new Set();
@@ -53,7 +53,7 @@ export async function getBrainModules(dir: string = ROOT) {
  * and returns a list of exported functions from those directories
  * which have the same name as the directory
  */
-export function getExportedFunctions(fileNames: string[]) {
+export function getExportedFunctions(fileNames: string[]): Function[] {
   return fileNames.flatMap((f) => {
     try {
       // Only return imported functions that match filename
