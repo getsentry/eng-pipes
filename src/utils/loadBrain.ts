@@ -57,10 +57,12 @@ export function getExportedFunctions(fileNames: string[]) {
     try {
       // Only return imported functions that match filename
       // This is because we sometimes need to export other functions to test
+      const t = path.join(ROOT, f);
+      const fileName = f.split('/').pop();
       return (
-        Object.entries(require(path.join(ROOT, f)))
+        Object.entries(require(t))
           // @ts-ignore
-          .filter(([key]) => key === f)
+          .filter(([key]) => key === fileName)
           .map(([, value]) => value)
       );
     } catch (e) {
