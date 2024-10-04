@@ -10,6 +10,8 @@ const ROOT = path.join(__dirname, '../brain');
  *
  * Currently we only want to load the exported fn whose name matches the module name,
  * this is because we sometimes export functions only for testing.
+ *
+ * This function supports nested directories in `@/brain` via recursion
  */
 export async function loadBrain() {
   const modules = getExportedFunctions(await getBrainModules());
@@ -18,25 +20,43 @@ export async function loadBrain() {
 
 /**
  * This is only exported for test
+ * This function returns a list of relative paths to directories in brain which
+ * contain a file that is not a .d.ts, .map, or .md file
  */
-export async function getBrainModules() {
-  return (await fs.readdir(ROOT)).filter(
-    (f) => !f.endsWith('.d.ts') && !f.endsWith('.map') && !f.endsWith('.md')
-  );
+export async function getBrainModules(dir: string = ROOT): Promise<string[]> {
+  // Read the directory contents
+  const files = await fs.readdir(dir, { withFileTypes: true });
+  const directories: Set<string> = new Set();
+
+  // Loop through each file or directory in the current directory
+  for (const file of files) {
+    if (file.isDirectory()) {
+      const nestedDirs = await getBrainModules(path.join(dir, file.name));
+      nestedDirs.forEach((nestedDir) => directories.add(nestedDir));
+    } else if (!file.name.endsWith('.d.ts') && file.name.endsWith('.ts')) {
+      directories.add(path.relative(ROOT, dir));
+    }
+  }
+
+  return Array.from(directories);
 }
 
 /**
  * This is only exported for test
+ * This function takes a list of relative paths to directories in brain
+ * and returns a list of exported functions from those directories
+ * which have the same name as the directory
  */
-export function getExportedFunctions(fileNames: string[]) {
+export function getExportedFunctions(fileNames: string[]): Function[] {
   return fileNames.flatMap((f) => {
     try {
       // Only return imported functions that match filename
       // This is because we sometimes need to export other functions to test
+      const fileName = f.split('/').pop();
       return (
         Object.entries(require(path.join(ROOT, f)))
           // @ts-ignore
-          .filter(([key]) => key === f)
+          .filter(([key]) => key === fileName)
           .map(([, value]) => value)
       );
     } catch (e) {
