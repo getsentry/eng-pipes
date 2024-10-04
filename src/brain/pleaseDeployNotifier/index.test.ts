@@ -7,7 +7,7 @@ import { MockedGitHubAPI } from '@test/utils/testTypes';
 import {
   DB_TABLE_MATERIALS,
   DB_TABLE_STAGES,
-} from '@/brain/gocd/saveGoCDStageEvents';
+} from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_ORG,
