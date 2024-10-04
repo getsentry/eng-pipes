@@ -30,16 +30,10 @@ export async function getBrainModules(dir: string = ROOT): Promise<string[]> {
 
   // Loop through each file or directory in the current directory
   for (const file of files) {
-    const filePath = path.join(dir, file.name);
-
     if (file.isDirectory()) {
-      const nestedDirs = await getBrainModules(filePath);
+      const nestedDirs = await getBrainModules(path.join(dir, file.name));
       nestedDirs.forEach((nestedDir) => directories.add(nestedDir));
-    } else if (
-      !file.name.endsWith('.d.ts') &&
-      !file.name.endsWith('.map') &&
-      !file.name.endsWith('.md')
-    ) {
+    } else if (!file.name.endsWith('.d.ts') && file.name.endsWith('.ts')) {
       directories.add(path.relative(ROOT, dir));
     }
   }
