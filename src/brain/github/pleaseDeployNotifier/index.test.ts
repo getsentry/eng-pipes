@@ -23,8 +23,8 @@ import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
-import { MockedBolt } from '../../../test/utils/testTypes';
-import { FINAL_STAGE_NAMES } from '../../utils/gocd/gocdHelpers';
+import { MockedBolt } from '../../../../test/utils/testTypes';
+import { FINAL_STAGE_NAMES } from '../../../utils/gocd/gocdHelpers';
 
 import * as actions from './actionViewUndeployedCommits';
 import { pleaseDeployNotifier } from '.';

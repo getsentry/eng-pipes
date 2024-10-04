@@ -1,7 +1,7 @@
 import moment from 'moment-timezone';
 
-import { getMessageBlocks } from '@/brain/apis';
-import { getStatsMessage } from '@/brain/apis/getStatsMessage';
+import { getMessageBlocks } from '@/brain/slack/apis';
+import { getStatsMessage } from '@/brain/slack/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,

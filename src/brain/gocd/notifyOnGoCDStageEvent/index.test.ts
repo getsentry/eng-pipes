@@ -18,7 +18,7 @@ import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocd/gocdHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { pleaseDeployNotifier } from '../../pleaseDeployNotifier';
+import { pleaseDeployNotifier } from '../../github/pleaseDeployNotifier';
 
 import { handler, notifyOnGoCDStageEvent } from '.';
 
