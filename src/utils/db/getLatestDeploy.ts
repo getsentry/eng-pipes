@@ -1,4 +1,4 @@
-import { DB_TABLE_STAGES } from '@/brain/gocd/saveGoCDStageEvents';
+import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
 import { DBGoCDDeployment } from '@/types/gocd';
 
 import { FINAL_STAGE_NAMES } from '../gocd/gocdHelpers';

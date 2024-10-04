@@ -4,7 +4,7 @@ import oldPayload from '@test/payloads/gocd/gocd-stage-building.json';
 import { MockedBolt } from '@test/utils/testTypes';
 
 import * as slackblocks from '@/blocks/slackBlocks';
-import { DB_TABLE_STAGES } from '@/brain/gocd/saveGoCDStageEvents';
+import { DB_TABLE_STAGES } from '@/brain/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
   DISCUSS_FRONTEND_CHANNEL_ID,
