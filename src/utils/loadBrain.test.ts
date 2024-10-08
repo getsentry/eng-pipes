@@ -1,4 +1,4 @@
-import { getBrainModules, getExportedFunctions } from './loadBrain';
+import { getBrainModules, getExportedFunctions, loadBrain } from './loadBrain';
 
 jest.unmock('./loadBrain');
 
@@ -8,5 +8,12 @@ describe('loadBrain', function () {
     const fns = getExportedFunctions(modules);
 
     expect(new Set(modules)).toEqual(new Set(fns.map((f) => f.name)));
+  });
+  it('makes sure that every exported function in `brain/` is actually loaded', async function () {
+    const modules = await getBrainModules();
+    const fns = getExportedFunctions(modules);
+
+    const loadedFns = await loadBrain();
+    expect(new Set(loadedFns)).toEqual(new Set(fns.map((f) => f.name)));
   });
 });
