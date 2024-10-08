@@ -12,7 +12,7 @@ import {
 } from '@/config';
 import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
-export async function handler(
+export async function kafkactlWebhook(
   request: FastifyRequest<{ Body: KafkaControlPlaneResponse }>,
   reply: FastifyReply
 ) {

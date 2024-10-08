@@ -1,42 +1,47 @@
-import path from 'path';
-
 import * as Sentry from '@sentry/node';
 
-/**
- * Return a function that routes webhook POSTs to this or that module
- * based on the service name.
- */
+import { Fastify } from '@/types';
 
-export function WebhookRouter(_server) {
-  return async function (request, reply) {
-    const rootDir = __dirname;
-    let handler;
+import { bootstrapWebhook } from './bootstrap-dev-env';
+import { gocdWebhook } from './gocd';
+import { kafkactlWebhook } from './kafka-control-plane';
+import { sentryOptionsWebhook } from './sentry-options';
+import { webpackWebhook } from './webpack';
 
-    try {
-      const handlerPath = path.resolve(__dirname, request.params.service);
+// Error handling wrapper function
+async function handleRoute(handler, request, reply) {
+  try {
+    return await handler(request, reply);
+  } catch (err) {
+    console.error(err);
+    Sentry.captureException(err);
+    return reply.code(400).send('Bad Request');
+  }
+}
 
-      // Prevent directory traversals
-      if (!handlerPath.startsWith(rootDir)) {
-        throw new Error('Invalid service');
-      }
+// Function that maps routes to their respective handlers
+export function routeHandlers(server: Fastify) {
+  server.post('/metrics/bootstrap-dev-env/webhook', (request, reply) =>
+    handleRoute(bootstrapWebhook, request, reply)
+  );
+  server.post('/metrics/gocd/webhook', (request, reply) =>
+    handleRoute(gocdWebhook, request, reply)
+  );
+  server.post('/metrics/kafka-control-plane/webhook', (request, reply) =>
+    handleRoute(kafkactlWebhook, request, reply)
+  );
+  server.post('/metrics/sentry-options/webhook', (request, reply) =>
+    handleRoute(sentryOptionsWebhook, request, reply)
+  );
+  server.post('/metrics/webpack/webhook', (request, reply) =>
+    handleRoute(webpackWebhook, request, reply)
+  );
 
-      ({ handler } = require(handlerPath));
-      if (!handler) {
-        throw new Error('Invalid service');
-      }
-    } catch (err) {
-      console.error(err);
-      Sentry.captureException(err);
-      reply.callNotFound();
-      return;
-    }
-
-    try {
-      return await handler(request, reply);
-    } catch (err) {
-      console.error(err);
-      Sentry.captureException(err);
-      return reply.code(400).send('Bad Request');
-    }
-  };
+  // Default handler for invalid routes
+  server.all('/metrics/*/webhook', async (request, reply) => {
+    const err = new Error('Invalid service');
+    console.error(err);
+    Sentry.captureException(err);
+    reply.callNotFound();
+  });
 }

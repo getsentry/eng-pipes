@@ -1,1 +1,1 @@
-export { handler } from './sentry-options';
+export { sentryOptionsWebhook } from './sentry-options';

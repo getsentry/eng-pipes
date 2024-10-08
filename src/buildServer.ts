@@ -2,7 +2,7 @@ import { createNodeMiddleware } from '@octokit/webhooks';
 import { RewriteFrames } from '@sentry/integrations';
 import * as Sentry from '@sentry/node';
 import * as Tracing from '@sentry/tracing';
-import { WebhookRouter } from '@webhooks';
+import { routeHandlers } from '@webhooks';
 import fastify from 'fastify';
 import fastifyFormBody from 'fastify-formbody';
 import middie from 'middie';
@@ -93,11 +93,12 @@ export async function buildServer(
   // Other webhooks operate as regular Fastify handlers (albeit routed to
   // filesystem/module-space based on service name) rather than through a
   // middleware/event abstraction layer.
-  server.post<{ Params: { service: string } }>(
-    '/metrics/:service/webhook',
-    {},
-    WebhookRouter(server)
-  );
+  // server.post<{ Params: { service: string } }>(
+  //   '/metrics/:service/webhook',
+  //   {},
+  //   WebhookRouter(server)
+  // );
+  routeHandlers(server);
 
   // Endpoint for Google PubSub events
   // TODO: Unify all these webhooks URL patterns!

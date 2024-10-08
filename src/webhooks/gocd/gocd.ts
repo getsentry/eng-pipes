@@ -6,7 +6,7 @@ import { GOCD_WEBHOOK_SECRET } from '@/config';
 import { GoCDResponse } from '@/types/gocd';
 import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
-export async function handler(
+export async function gocdWebhook(
   request: FastifyRequest<{ Body: GoCDResponse }>,
   reply: FastifyReply
 ) {

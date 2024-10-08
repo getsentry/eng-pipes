@@ -1,1 +1,1 @@
-export { handler } from './bootstrap-dev-env';
+export { bootstrapWebhook } from './bootstrap-dev-env';

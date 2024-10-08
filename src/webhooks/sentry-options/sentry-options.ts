@@ -15,7 +15,7 @@ import {
 } from '@/config';
 import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
-export async function handler(
+export async function sentryOptionsWebhook(
   request: FastifyRequest<{ Body: SentryOptionsResponse }>,
   reply: FastifyReply
 ) {

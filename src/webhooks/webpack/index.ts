@@ -1,1 +1,1 @@
-export { handler } from './webpack';
+export { webpackWebhook } from './webpack';

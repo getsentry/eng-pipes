@@ -1,1 +1,1 @@
-export { handler } from './gocd';
+export { gocdWebhook } from './gocd';

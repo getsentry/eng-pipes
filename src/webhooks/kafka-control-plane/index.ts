@@ -1,1 +1,1 @@
-export { handler } from './kafka-control-plane';
+export { kafkactlWebhook } from './kafka-control-plane';

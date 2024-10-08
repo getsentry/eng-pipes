@@ -4,7 +4,7 @@ import { insertAssetSize } from '@/utils/db/metrics';
 
 import { verifyWebhook } from './verifyWebhook';
 
-export async function handler(
+export async function webpackWebhook(
   request: FastifyRequest<{
     Body: { pull_request_number: number } & Record<string, any>;
   }>,
