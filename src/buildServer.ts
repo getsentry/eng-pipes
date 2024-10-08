@@ -90,14 +90,7 @@ export async function buildServer(
   );
   await loadBrain();
 
-  // Other webhooks operate as regular Fastify handlers (albeit routed to
-  // filesystem/module-space based on service name) rather than through a
-  // middleware/event abstraction layer.
-  // server.post<{ Params: { service: string } }>(
-  //   '/metrics/:service/webhook',
-  //   {},
-  //   WebhookRouter(server)
-  // );
+  // Other webhooks operate as regular Fastify handlers
   routeHandlers(server);
 
   // Endpoint for Google PubSub events
