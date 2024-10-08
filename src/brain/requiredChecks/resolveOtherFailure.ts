@@ -3,7 +3,7 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 
 import { BuildStatus, Color } from '@/config';
-import { CheckRun } from '@/types';
+import { CheckRun } from '@/types/github';
 import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
 import { bolt } from '@api/slack';
 import { getFailureMessages } from '@utils/db/getFailureMessages';

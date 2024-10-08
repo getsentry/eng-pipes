@@ -3,7 +3,7 @@ import { MessageAttachment } from '@slack/bolt';
 import { BuildStatus } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 
-import { CheckRunForRequiredChecksText } from '..';
+import { CheckRunForRequiredChecksText } from '../github';
 
 declare module 'knex/types/tables' {
   interface User {

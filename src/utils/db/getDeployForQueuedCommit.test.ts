@@ -1,4 +1,4 @@
-import { CompareCommits } from '@/types';
+import { CompareCommits } from '@/types/github';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
 import { db } from '@utils/db';
 

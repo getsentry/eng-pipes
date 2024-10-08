@@ -1,6 +1,6 @@
 import { KnownBlock } from '@slack/types';
 
-import { ReposGetCommit } from '@types';
+import { ReposGetCommit } from '@/types/github';
 
 import { getUser } from '../../github/getUser';
 

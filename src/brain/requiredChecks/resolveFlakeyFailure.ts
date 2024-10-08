@@ -5,7 +5,7 @@ import { SlackMessageRow } from 'knex/types/tables';
 
 import { BuildStatus, Color } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { CheckRun } from '@/types';
+import { CheckRun } from '@/types/github';
 import { updateRequiredCheck } from '@/utils/db/updateRequiredCheck';
 import { bolt } from '@api/slack';
 
