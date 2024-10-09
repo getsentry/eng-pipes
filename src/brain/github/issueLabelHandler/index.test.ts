@@ -17,7 +17,7 @@ jest.mock('google-auth-library');
 
 import { GoogleAuth as MockedGoogleAuth } from 'google-auth-library';
 
-import { MockedGithubOrg } from '../../../test/utils/testTypes';
+import { MockedGithubOrg } from '../../../../test/utils/testTypes';
 
 import { issueLabelHandler } from '.';
 
