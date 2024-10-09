@@ -70,15 +70,13 @@ function validatePayload(message: KafkaControlPlaneResponse) {
   const fields = [
     Object.hasOwn(message, 'title'),
     Object.hasOwn(message, 'body'),
-    Object.hasOwn(message, 'channel'),
   ];
 
   // if any fields don't exist, report sentry error
   if (!fields.every(Boolean)) {
     let errorMsg = 'message is missing required fields: ';
-    errorMsg += fields[0] ? 'title, ' : '';
-    errorMsg += fields[1] ? 'body, ' : '';
-    errorMsg += fields[2] ? 'channel' : '';
+    errorMsg += fields[0] ? '' : 'title, ';
+    errorMsg += fields[1] ? '' : 'body, ';
     reportMessageError(message, errorMsg);
     return;
   }
