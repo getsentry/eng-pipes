@@ -2,7 +2,7 @@ import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
 import { GETSENTRY_ORG } from '@/config';
-import { GoCDDashboardResponse } from '@/types';
+import { GoCDDashboardResponse } from '@/types/gocd';
 
 import * as gocdAPI from '../../api/gocd/index';
 import { bolt } from '../../api/slack/__mocks__';
