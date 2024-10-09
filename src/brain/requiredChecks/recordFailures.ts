@@ -1,4 +1,4 @@
-import { Annotation, CheckRun } from '@/types';
+import { Annotation, CheckRun } from '@/types/github';
 import { db } from '@/utils/db';
 
 interface RecordFailuresParams {

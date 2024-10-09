@@ -4,7 +4,7 @@ import yaml from 'js-yaml';
 
 // Don't use '@api' here, because it's ... not loaded yet, or something?
 import { GitHubOrg } from '../api/github/org';
-import { GitHubOrgConfig } from '../types';
+import { GitHubOrgConfig } from '../types/github';
 
 // Orgs are used throughout the codebase via `{ import GH_ORGS } from
 // '@/config'`. They are accessed by org slug, often taken from a GitHub event

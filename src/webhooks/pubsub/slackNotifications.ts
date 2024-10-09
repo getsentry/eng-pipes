@@ -5,7 +5,7 @@ import {
   PRODUCT_AREA_LABEL_PREFIX,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
-import { Issue } from '@/types';
+import { Issue } from '@/types/github';
 import { getBusinessHoursLeft } from '@/utils/misc/businessHours';
 import {
   ChannelItem,

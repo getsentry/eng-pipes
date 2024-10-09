@@ -3,12 +3,15 @@ import '@sentry/tracing';
 import * as Sentry from '@sentry/node';
 import { KnownBlock } from '@slack/types';
 
-import { ReposGetCommit } from '@types';
-
 import { jobStatuses } from '@/blocks/jobStatuses';
 import { BuildStatus, Color, REQUIRED_CHECK_CHANNEL } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { CHECK_RUN_PROPERTIES, CheckRun, CheckRunProperty } from '@/types';
+import {
+  CHECK_RUN_PROPERTIES,
+  CheckRun,
+  CheckRunProperty,
+  ReposGetCommit,
+} from '@/types/github';
 import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
 import { getBlocksForCommit } from '@/utils/slack/getBlocksForCommit';
 import { bolt } from '@api/slack';

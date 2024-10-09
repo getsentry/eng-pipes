@@ -13,7 +13,7 @@ import {
   SENTRY_REPO_SLUG,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
-import { CompareCommits } from '@/types';
+import { CompareCommits } from '@/types/github';
 import {
   GoCDBuildCause,
   GoCDPipeline,

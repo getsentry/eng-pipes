@@ -1,7 +1,7 @@
 import { createAppAuth } from '@octokit/auth-app';
 
 import { GETSENTRY_ORG } from '@/config';
-import { GitHubOrgConfig } from '@/types';
+import { GitHubOrgConfig } from '@/types/github';
 import { OctokitWithRetries as octokitClassImport } from '@api/github/octokitWithRetries';
 
 import { MockedGithubOrg } from '../../../test/utils/testTypes';

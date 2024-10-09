@@ -1,7 +1,7 @@
 import {
   AppAuthStrategyOptions,
   GitHubIssuesSomeoneElseCaresAbout,
-} from '@/types';
+} from '@/types/github';
 
 // Mocked Github Org for Jest
 export type MockedGithubOrg = {

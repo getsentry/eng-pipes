@@ -1,5 +1,5 @@
 import { GETSENTRY_ORG, GETSENTRY_REPO_SLUG } from '@/config';
-import { Annotation } from '@/types';
+import { Annotation } from '@/types/github';
 
 import { extractRunId } from './extractRunId';
 

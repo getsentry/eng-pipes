@@ -7,7 +7,7 @@ import {
   GitHubIssuesSomeoneElseCaresAbout,
   GitHubOrgConfig,
   GitHubOrgRepos,
-} from '@/types';
+} from '@/types/github';
 
 // We can't use @ to import config here or we get an error from jest due to
 // circular import or something. Try it out if you want. :)
