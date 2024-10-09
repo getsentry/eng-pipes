@@ -23,8 +23,7 @@ async function getBrainModules(dir: string = ROOT): Promise<string[]> {
       nestedDirs.forEach((nestedDir) => directories.add(nestedDir));
     } else if (
       !file.name.endsWith('.d.ts') &&
-      !file.name.endsWith('.map') &&
-      !file.name.endsWith('.md')
+      (file.name.endsWith('.ts') || file.name.endsWith('.js'))
     ) {
       directories.add(path.relative(ROOT, dir));
     }
