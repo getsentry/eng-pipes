@@ -6,40 +6,20 @@ import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
 import { GH_ORGS } from '@/config';
+import { Fastify } from '@/types';
 
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
 
-type PubSubPayload = {
-  name: string;
-};
-
-export const opts = {
-  schema: {
-    body: {
-      type: 'object',
-      required: ['message'],
-      properties: {
-        message: {
-          type: 'object',
-          required: ['data'],
-          properties: {
-            data: {
-              type: 'string',
-            },
-          },
-        },
-      },
-    },
-  },
-};
-
-export const pubSubHandler = async (
-  request: FastifyRequest<{ Body: { message: { data: string } } }>,
+// Error handling wrapper function
+// Additionally handles Auth from Cloud Scheduler
+async function handleRoute(
+  handler,
+  request: FastifyRequest,
   reply: FastifyReply
-) => {
+) {
   try {
     const client = new OAuth2Client();
     // Get the Cloud Pub/Sub-generated JWT in the "Authorization" header.
@@ -81,42 +61,59 @@ export const pubSubHandler = async (
     name: 'pubsub.pubSubHandler',
   });
 
-  const payload: PubSubPayload = JSON.parse(
-    Buffer.from(request.body.message.data, 'base64').toString().trim()
-  );
+  const func = async () => {
+    const now = moment().utc();
+    for (const org of GH_ORGS.orgs.values()) {
+      handler(org, now);
+    }
+  };
 
-  let code, func;
-  const operation = new Map([
-    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
-    ['stale-bot', triggerStaleBot],
-    ['slack-scores', triggerSlackScores],
-    ['gocd-paused-pipeline-bot', triggerPausedPipelineBot],
-  ]).get(payload.name);
-
-  if (operation) {
-    code = 204;
-    func = async () => {
-      const now = moment().utc();
-      for (const org of GH_ORGS.orgs.values()) {
-        // Performing the following check seems to suppress GitHub's dynamic method
-        // call security warning (as well as a Typescript error).
-        // https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/
-        if (typeof operation === 'function') {
-          operation(org, now);
-        }
-      }
-    };
-  } else {
-    code = 400;
-    func = async () => {}; // no-op
-  }
-
-  reply.code(code);
+  reply.code(204);
   reply.send(); // Respond early to not block the webhook sender
   await func();
   tx.finish();
+}
+
+export const opts = {
+  schema: {
+    body: {
+      type: 'object',
+      required: ['message'],
+      properties: {
+        message: {
+          type: 'object',
+          required: ['data'],
+          properties: {
+            data: {
+              type: 'string',
+            },
+          },
+        },
+      },
+    },
+  },
 };
 
-// Test command for `sentry-docs` repo:
-// curl -X POST 'http://127.0.0.1:3000/webhooks/pubsub' -H "Content-Type: application/json" -d '{"message": {"data": "eyJuYW1lIjoic3RhbGUtdHJpYWdlLW5vdGlmaWVyIiwicmVwb3MiOlsic2VudHJ5LWRvY3MiXX0="}}'
-// `message.data` is a Base64-encoded JSON string that is a `PubSubPayload` object
+// Function that creates a sub fastify server for job webhooks
+export async function routeJobs(server: Fastify, _options) {
+  server.post('/stale-triage-notifier', opts, (request, reply) =>
+    handleRoute(notifyProductOwnersForUntriagedIssues, request, reply)
+  );
+  server.post('/stale-bot', opts, (request, reply) =>
+    handleRoute(triggerStaleBot, request, reply)
+  );
+  server.post('/slack-scores', opts, (request, reply) =>
+    handleRoute(triggerSlackScores, request, reply)
+  );
+  server.post('/gocd-paused-pipeline-bot', opts, (request, reply) =>
+    handleRoute(triggerPausedPipelineBot, request, reply)
+  );
+
+  // Default handler for invalid routes
+  server.all('/*', async (request, reply) => {
+    const err = new Error('Invalid service');
+    console.error(err);
+    Sentry.captureException(err);
+    reply.callNotFound();
+  });
+}
