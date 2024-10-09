@@ -1,6 +1,6 @@
 import { GETSENTRY_ORG } from '@/config';
 
-import { MockedGitHubAPI } from '../../../test/utils/testTypes';
+import { MockedGitHubAPI } from '../../../../test/utils/testTypes';
 
 import { getAnnotations } from './getAnnotations';
 
