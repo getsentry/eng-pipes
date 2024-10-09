@@ -2,7 +2,7 @@ import { FastifyRequest } from 'fastify';
 
 import { insert } from '@/utils/db/metrics';
 
-export async function handler(
+export async function bootstrapWebhook(
   request: FastifyRequest<{ Body: { event: string; name: string } }>
 ) {
   const { body: payload } = request;
