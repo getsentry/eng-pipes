@@ -2,10 +2,14 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 
 import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
+import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 import * as slackNotifications from './slackNotifications';
+import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import * as slackScores from './slackScores';
+import { triggerSlackScores } from './slackScores';
 import * as staleBot from './stalebot';
-import { pubSubHandler } from '.';
+import { triggerStaleBot } from './stalebot';
+import { handleJobRoute } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
 const mockNotifier = jest.fn();
@@ -30,8 +34,16 @@ class MockReply {
   }
   send() {}
 }
+function mapOperation(operation: string) {
+  return new Map([
+    ['stale-triage-notifier', notifyProductOwnersForUntriagedIssues],
+    ['stale-bot', triggerStaleBot],
+    ['slack-scores', triggerSlackScores],
+    ['gocd-paused-pipeline-bot', triggerPausedPipelineBot],
+  ]).get(operation);
+}
 
-describe('slack app', function () {
+describe('cron jobs testing', function () {
   async function pubSub(operationSlug: string): Promise<MockReply> {
     const request = {
       body: {
@@ -46,7 +58,7 @@ describe('slack app', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await pubSubHandler(request, reply);
+    await handleJobRoute(mapOperation(operationSlug), request, reply);
     return reply;
   }
 
@@ -99,14 +111,15 @@ describe('slack app', function () {
     expect(mockStaleBot).not.toHaveBeenCalled();
   });
 
-  it('replies with 400 for unknown operations', async function () {
-    const reply = await pubSub('cheez-whiz');
-    expect(reply.statusCode).toBe(400);
-    expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
-    expect(mockNotifier).not.toHaveBeenCalled();
-    expect(mockSlackScores).not.toHaveBeenCalled();
-    expect(mockStaleBot).not.toHaveBeenCalled();
-  });
+  // Not needed with new routing
+  // it('replies with 400 for unknown operations', async function () {
+  //   const reply = await pubSub('cheez-whiz');
+  //   expect(reply.statusCode).toBe(400);
+  //   expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
+  //   expect(mockNotifier).not.toHaveBeenCalled();
+  //   expect(mockSlackScores).not.toHaveBeenCalled();
+  //   expect(mockStaleBot).not.toHaveBeenCalled();
+  // });
 
   it('replies with 400 for missing auth', async function () {
     const request = {
@@ -120,7 +133,7 @@ describe('slack app', function () {
       headers: {},
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await pubSubHandler(request, reply);
+    await handleJobRoute(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
@@ -138,7 +151,7 @@ describe('slack app', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await pubSubHandler(request, reply);
+    await handleJobRoute(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 

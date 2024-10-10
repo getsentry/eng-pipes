@@ -15,7 +15,7 @@ import { triggerStaleBot } from './stalebot';
 
 // Error handling wrapper function
 // Additionally handles Auth from Cloud Scheduler
-async function handleRoute(
+export async function handleJobRoute(
   handler,
   request: FastifyRequest,
   reply: FastifyReply
@@ -96,17 +96,17 @@ export const opts = {
 
 // Function that creates a sub fastify server for job webhooks
 export async function routeJobs(server: Fastify, _options) {
-  server.post('/stale-triage-notifier', opts, (request, reply) =>
-    handleRoute(notifyProductOwnersForUntriagedIssues, request, reply)
+  server.post('/stale-triage-notifier', (request, reply) =>
+    handleJobRoute(notifyProductOwnersForUntriagedIssues, request, reply)
   );
-  server.post('/stale-bot', opts, (request, reply) =>
-    handleRoute(triggerStaleBot, request, reply)
+  server.post('/stale-bot', (request, reply) =>
+    handleJobRoute(triggerStaleBot, request, reply)
   );
-  server.post('/slack-scores', opts, (request, reply) =>
-    handleRoute(triggerSlackScores, request, reply)
+  server.post('/slack-scores', (request, reply) =>
+    handleJobRoute(triggerSlackScores, request, reply)
   );
-  server.post('/gocd-paused-pipeline-bot', opts, (request, reply) =>
-    handleRoute(triggerPausedPipelineBot, request, reply)
+  server.post('/gocd-paused-pipeline-bot', (request, reply) =>
+    handleJobRoute(triggerPausedPipelineBot, request, reply)
   );
 
   // Default handler for invalid routes
