@@ -15,8 +15,8 @@ import {
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 
-import { getMessageBlocks } from '../../brain/apis';
-import { getStatsMessage } from '../../brain/apis/getStatsMessage';
+import { getMessageBlocks } from '../brain/apis';
+import { getStatsMessage } from '../brain/apis/getStatsMessage';
 
 type teamScoreInfo = {
   team: string;

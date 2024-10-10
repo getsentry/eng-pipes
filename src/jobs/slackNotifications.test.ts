@@ -6,8 +6,8 @@ import { GETSENTRY_ORG } from '@/config';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { MockedGithubOrg } from '../../../test/utils/testTypes';
-import { GitHubOrg } from '../../api/github/org';
+import { MockedGithubOrg } from '../../test/utils/testTypes';
+import { GitHubOrg } from '../api/github/org';
 
 import {
   constructSlackMessage,
