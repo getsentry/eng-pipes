@@ -34,6 +34,8 @@ module.exports = {
     '^@utils/(.*)$': '<rootDir>/src/utils/$1',
     '^@webhooks$': '<rootDir>/src/webhooks',
     '^@webhooks/(.*)$': '<rootDir>/src/webhooks/$1',
+    '^@jobs$': '<rootDir>/src/jobs',
+    '^@jobs/(.*)$': '<rootDir>/src/jobs/$1',
   },
 
   globalSetup: './test/jest.globalSetup.ts',

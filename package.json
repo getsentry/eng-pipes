@@ -41,7 +41,8 @@
     "@api": "lib/api",
     "@apps": "lib/apps",
     "@utils": "lib/utils",
-    "@webhooks": "lib/webhooks"
+    "@webhooks": "lib/webhooks",
+    "@jobs": "lib/jobs"
   },
   "dependencies": {
     "@datadog/datadog-api-client": "^1.18.0",
