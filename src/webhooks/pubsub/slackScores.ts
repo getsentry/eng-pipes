@@ -1,5 +1,7 @@
 import moment from 'moment-timezone';
 
+import { getMessageBlocks } from '@/brain/github/apis';
+import { getStatsMessage } from '@/brain/github/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   FEED_ENGINEERING_CHANNEL_ID,
@@ -14,9 +16,6 @@ import {
 } from '@/utils/db/scores';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
-
-import { getMessageBlocks } from '../../brain/apis';
-import { getStatsMessage } from '../../brain/apis/getStatsMessage';
 
 type teamScoreInfo = {
   team: string;
