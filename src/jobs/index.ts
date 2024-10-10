@@ -9,9 +9,9 @@ import { GH_ORGS } from '@/config';
 import { Fastify } from '@/types';
 
 import { notifyProductOwnersForUntriagedIssues } from '../webhooks/pubsub/slackNotifications';
-import { triggerSlackScores } from '../webhooks/pubsub/slackScores';
 
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
+import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
 
 // Error handling wrapper function
