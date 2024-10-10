@@ -1,15 +1,16 @@
 import { OAuth2Client } from 'google-auth-library';
 import moment from 'moment-timezone';
 
+import { MockedGithubOrg } from '@test/utils/testTypes';
+
 import { GitHubOrg } from '@/api/github/org';
 import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
-import { MockedGithubOrg } from '../../../test/utils/testTypes';
 import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WORK_IN_PROGRESS_LABEL,
-} from '../../config';
+} from '../config';
 
 import { triggerStaleBot } from './stalebot';
 
