@@ -4,7 +4,7 @@ import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import * as scoresUtils from '@/utils/db/scores';
 import { bolt } from '@api/slack';
 
-import * as getAPIsStatsMessage from '../../brain/apis/getStatsMessage';
+import * as getAPIsStatsMessage from '../../brain/github/apis/getStatsMessage';
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
