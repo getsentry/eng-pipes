@@ -8,10 +8,9 @@ import moment from 'moment-timezone';
 import { GH_ORGS } from '@/config';
 import { Fastify } from '@/types';
 
-import { triggerSlackScores } from '../webhooks/pubsub/slackScores';
-
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
+import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
 
 // Error handling wrapper function
