@@ -28,9 +28,7 @@
       "@types": ["src/types"],
       "@utils/*": ["src/utils/*"],
       "@webhooks": ["src/webhooks"],
-      "@webhooks/*": ["src/webhooks/*"],
-      "@jobs": ["src/jobs"],
-      "@jobs/*": ["src/jobs/*"]
+      "@webhooks/*": ["src/webhooks/*"]
     }
   },
   "include": ["src/**/*", "test", "migrations/*.ts"],
