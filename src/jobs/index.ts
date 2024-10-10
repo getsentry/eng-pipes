@@ -22,7 +22,7 @@ async function handleRoute(
 ) {
   try {
     const client = new OAuth2Client();
-    // Get the Cloud Pub/Sub-generated JWT in the "Authorization" header.
+    // Get the Cloud Scheduler JWT in the "Authorization" header.
     const bearer = request.headers.authorization || '';
 
     if (!bearer) {
@@ -58,7 +58,7 @@ async function handleRoute(
   }
   const tx = Sentry.startTransaction({
     op: 'webhooks',
-    name: 'pubsub.pubSubHandler',
+    name: 'jobs.jobsHandler',
   });
 
   const func = async () => {
