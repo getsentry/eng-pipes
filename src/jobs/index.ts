@@ -8,10 +8,11 @@ import moment from 'moment-timezone';
 import { GH_ORGS } from '@/config';
 import { Fastify } from '@/types';
 
+import { notifyProductOwnersForUntriagedIssues } from '../webhooks/pubsub/slackNotifications';
+import { triggerSlackScores } from '../webhooks/pubsub/slackScores';
+import { triggerStaleBot } from '../webhooks/pubsub/stalebot';
+
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
-import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
-import { triggerSlackScores } from './slackScores';
-import { triggerStaleBot } from './stalebot';
 
 // Error handling wrapper function
 // Additionally handles Auth from Cloud Scheduler
