@@ -10,7 +10,7 @@ import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 
-import { MockedGitHubAPI } from '../../../test/utils/testTypes';
+import { MockedGitHubAPI } from '../../../../test/utils/testTypes';
 
 import { DeployFeed } from './deployFeed';
 
