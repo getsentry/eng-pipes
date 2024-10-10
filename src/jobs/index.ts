@@ -110,7 +110,7 @@ export async function routeJobs(server: Fastify, _options) {
   );
 
   // Default handler for invalid routes
-  server.all('/*', async (request, reply) => {
+  server.all('/*', async (_request, reply) => {
     const err = new Error('Invalid service');
     console.error(err);
     Sentry.captureException(err);
