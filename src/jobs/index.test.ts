@@ -1,4 +1,8 @@
-import { FastifyReply, FastifyRequest } from 'fastify';
+import fastify, {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+} from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 
 import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
@@ -9,7 +13,7 @@ import * as slackScores from './slackScores';
 import { triggerSlackScores } from './slackScores';
 import * as staleBot from './stalebot';
 import { triggerStaleBot } from './stalebot';
-import { handleJobRoute } from '.';
+import { handleJobRoute, routeJobs } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
 const mockNotifier = jest.fn();
@@ -61,6 +65,7 @@ describe('cron jobs testing', function () {
     await handleJobRoute(mapOperation(operationSlug), request, reply);
     return reply;
   }
+  let server: FastifyInstance;
 
   beforeAll(function () {
     jest
@@ -69,10 +74,17 @@ describe('cron jobs testing', function () {
   });
 
   beforeEach(async function () {
+    server = fastify();
+    server.register(routeJobs, { prefix: '/jobs' });
     mockGocdPausedPipelineBot.mockClear();
     mockNotifier.mockClear();
     mockSlackScores.mockClear();
     mockStaleBot.mockClear();
+  });
+
+  afterEach(() => {
+    server.close();
+    jest.clearAllMocks();
   });
 
   it('basically works', async function () {
@@ -110,16 +122,6 @@ describe('cron jobs testing', function () {
     expect(mockSlackScores).not.toHaveBeenCalled();
     expect(mockStaleBot).not.toHaveBeenCalled();
   });
-
-  // Not needed with new routing
-  // it('replies with 400 for unknown operations', async function () {
-  //   const reply = await pubSub('cheez-whiz');
-  //   expect(reply.statusCode).toBe(400);
-  //   expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
-  //   expect(mockNotifier).not.toHaveBeenCalled();
-  //   expect(mockSlackScores).not.toHaveBeenCalled();
-  //   expect(mockStaleBot).not.toHaveBeenCalled();
-  // });
 
   it('replies with 400 for missing auth', async function () {
     const request = {
@@ -163,5 +165,66 @@ describe('cron jobs testing', function () {
       });
     const reply = await pubSub('stale-bot');
     expect(reply.statusCode).toBe(401);
+  });
+
+  it('POST /stale-triage-notifier should call notifyProductOwnersForUntriagedIssues', async () => {
+    const reply = await server.inject({
+      method: 'POST',
+      url: '/jobs/stale-triage-notifier',
+      headers: {
+        authorization: 'Bearer 1234abcd',
+      },
+    });
+    expect(reply.statusCode).toBe(204);
+    expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
+    expect(mockNotifier).toHaveBeenCalled();
+    expect(mockSlackScores).not.toHaveBeenCalled();
+    expect(mockStaleBot).not.toHaveBeenCalled();
+  });
+
+  it('POST /stale-bot should call triggerStaleBot', async () => {
+    const reply = await server.inject({
+      method: 'POST',
+      url: '/jobs/stale-bot',
+      headers: {
+        authorization: 'Bearer 1234abcd',
+      },
+    });
+
+    expect(reply.statusCode).toBe(204);
+    expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
+    expect(mockNotifier).not.toHaveBeenCalled();
+    expect(mockSlackScores).not.toHaveBeenCalled();
+    expect(mockStaleBot).toHaveBeenCalled();
+  });
+
+  it('POST /slack-scores should call triggerSlackScores', async () => {
+    const reply = await server.inject({
+      method: 'POST',
+      url: '/jobs/slack-scores',
+      headers: {
+        authorization: 'Bearer 1234abcd',
+      },
+    });
+    expect(reply.statusCode).toBe(204);
+    expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
+    expect(mockNotifier).not.toHaveBeenCalled();
+    expect(mockSlackScores).toHaveBeenCalled();
+    expect(mockStaleBot).not.toHaveBeenCalled();
+  });
+
+  it('POST /gocd-paused-pipeline-bot should call triggerPausedPipelineBot', async () => {
+    const reply = await server.inject({
+      method: 'POST',
+      url: '/jobs/gocd-paused-pipeline-bot',
+      headers: {
+        authorization: 'Bearer 1234abcd',
+      },
+    });
+    expect(reply.statusCode).toBe(204);
+    expect(mockGocdPausedPipelineBot).toHaveBeenCalled();
+    expect(mockNotifier).not.toHaveBeenCalled();
+    expect(mockSlackScores).not.toHaveBeenCalled();
+    expect(mockStaleBot).not.toHaveBeenCalled();
   });
 });
