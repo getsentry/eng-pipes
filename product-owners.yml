@@ -17,6 +17,8 @@ product_areas:
   - team-explore
   Footer:
   - team-issues
+  GDX:
+  - team-gdx
   Help:
   - team-support
   Ingestion and Filtering:
@@ -107,25 +109,28 @@ repos:
   sentry-cocoa: team-mobile-sdks
   sentry-dart: team-mobile-sdks
   sentry-dart-plugin: team-mobile-sdks
-  sentry-dotnet: team-web-backend-sdks
+  sentry-dotnet: team-gdx
   sentry-electron: team-web-frontend-sdks
   sentry-elixir: team-web-backend-sdks
   sentry-go: team-web-backend-sdks
+  sentry-godot: team-gdx
   sentry-java: team-cross-platform-java
   sentry-javascript: team-web-frontend-sdks
   sentry-javascript-bundler-plugins: team-web-frontend-sdks
   sentry-laravel: team-web-backend-sdks
   sentry-native: team-cross-platform-native
   sentry-php: team-web-backend-sdks
+  sentry-powershell: team-gdx
   sentry-python: team-web-backend-sdks
   sentry-react-native: team-mobile-sdks
   sentry-ruby: team-web-backend-sdks
   sentry-symfony: team-web-backend-sdks
-  sentry-unity: team-web-backend-sdks
-  sentry-unreal: team-web-backend-sdks
+  sentry-unity: team-gdx
+  sentry-unreal: team-gdx
   sentry-wizard: team-web-frontend-sdks
   snuba: team-sns
   snuba-sdk: team-sns
+  symbol-collector: team-gdx
   symbolic: team-ingest
   symbolicator: team-ingest
   wal2json: team-sns
@@ -168,6 +173,11 @@ teams:
     offices:
     - sfo
     slack_channel: CSD1XPPQA
+  team-gdx:
+    offices:
+    - vie
+    - yyz
+    slack_channel: C07QW5CGHN3
   team-ingest:
     offices:
     - vie
@@ -212,6 +222,8 @@ teams:
   team-replays:
     offices:
     - sfo
+    - yyz
+    - vie
     slack_channel: C04B0K358QM
   team-revenue:
     offices:
