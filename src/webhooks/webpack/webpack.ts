@@ -9,14 +9,14 @@ export async function webpackWebhook(
     Body: { pull_request_number: number } & Record<string, any>;
   }>,
   reply: FastifyReply
-) {
+): Promise<void> {
   if (!verifyWebhook(request)) {
     reply.code(400);
-    return {};
+    return;
   }
 
   insertAssetSize(request.body);
 
   reply.code(204);
-  return {};
+  return;
 }

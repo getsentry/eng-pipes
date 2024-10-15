@@ -18,7 +18,7 @@ import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignatur
 export async function sentryOptionsWebhook(
   request: FastifyRequest<{ Body: SentryOptionsResponse }>,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     // If the webhook secret is not defined, throw an error
     if (SENTRY_OPTIONS_WEBHOOK_SECRET === undefined) {

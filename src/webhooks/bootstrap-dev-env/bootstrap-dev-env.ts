@@ -1,10 +1,11 @@
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { insert } from '@/utils/db/metrics';
 
 export async function bootstrapWebhook(
-  request: FastifyRequest<{ Body: { event: string; name: string } }>
-) {
+  request: FastifyRequest<{ Body: { event: string; name: string } }>,
+  reply: FastifyReply
+): Promise<void> {
   const { body: payload } = request;
 
   const now = new Date();
@@ -20,5 +21,7 @@ export async function bootstrapWebhook(
     },
   });
 
-  return {};
+  reply.code(200).send('OK');
+
+  return;
 }

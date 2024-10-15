@@ -91,7 +91,7 @@ export async function buildServer(
   await loadBrain();
 
   // Other webhooks operate as regular Fastify handlers
-  routeHandlers(server);
+  server.register(routeHandlers);
 
   // Endpoints for Cloud Scheduler webhooks (Cron Jobs)
   server.register(routeJobs, { prefix: '/jobs' });
