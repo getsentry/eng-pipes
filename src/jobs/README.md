@@ -35,10 +35,10 @@ To add a new cron job:
 * In this file, export a function:
 
 ```ts
-export const cronJobName = async (
+export async function cronJobName(
   org: GitHubOrg,
   now: moment.Moment
-)
+){}
 ```
 
 (`org` and `now` are are used for some reason by all of the other cron jobs, but you can just rename them to `_org` and `_now`)

@@ -10,4 +10,4 @@ This folder contains various APIs and initialized code for use throughout the pr
 
 These APIs are to be used for communicating with downstream channels. To use them in the project, simply import them.
 
-To add a new API, simply create a new folder in this and import files elsewhere.
+To add a new API, simply create a new folder in this subdirectory and import files elsewhere.

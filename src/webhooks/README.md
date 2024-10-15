@@ -24,3 +24,5 @@ server.post('/webhook/route/here', (request, reply) =>
 handleRoute(webhookName, request, reply)
 );
 ```
+
+Make sure to write the appropriate tests for the new webhook as well, by creating a test file with the file path `.test.ts` in the same location.

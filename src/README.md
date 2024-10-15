@@ -2,7 +2,7 @@
 
 ## Development
 
-Below are descriptions for how this application is organized.
+Below are descriptions for how this application is organized. Each directory contains additional READMEs describing their functions in more detail. Those READMEs also describe how to contribute and edit code in the repo.
 
 | directory | description                                                                                                                                                                                                   |
 | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -17,6 +17,16 @@ Below are descriptions for how this application is organized.
 | `jobs`    | Webhook endpoints for cron jobs that are triggered via Cloud Scheduler                                                                                                                                        |
 
 `buildServer.ts` contains the server build logic, while `index.ts` is the entry point and initializes the server.
+
+## Common Use Cases
+
+### Adding a New Webhook
+
+To add a new webhook, nagivate to `webhooks` and follow the directions there. Most of the logic should be self-contained within the `webhooks` directory, with handlers in `brain` being appropriate if the webhook is for receiving event streams. To send a message to external sources, use the APIs in `api`.
+
+### Adding a New Cron Job
+
+To add a new running cron job, navigate to `jobs` and follow the directions there. Most of the logic should be self-contained there.
 
 ## Testing
 
