@@ -11,12 +11,12 @@ export async function webpackWebhook(
   reply: FastifyReply
 ): Promise<void> {
   if (!verifyWebhook(request)) {
-    reply.code(400);
+    reply.code(400).send();
     return;
   }
 
   insertAssetSize(request.body);
 
-  reply.code(204);
+  reply.code(204).send();
   return;
 }
