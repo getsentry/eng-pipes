@@ -1,7 +1,7 @@
 import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 
 import { buildServer } from '@/buildServer';
-import * as slackScoresFunctions from '@/webhooks/pubsub/slackScores';
+import * as slackScoresFunctions from '@/jobs/slackScores';
 
 import { TEAM_OSPO_CHANNEL_ID } from '../../../config';
 

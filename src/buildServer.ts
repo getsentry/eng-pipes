@@ -13,7 +13,6 @@ import { githubEvents } from '@api/github';
 import { bolt } from '@api/slack';
 import { loadBrain } from '@utils/loadBrain';
 
-import * as PubSub from './webhooks/pubsub';
 import { SENTRY_DSN } from './config';
 import { routeJobs } from './jobs';
 import { SlackRouter } from './slack';
@@ -93,10 +92,6 @@ export async function buildServer(
 
   // Other webhooks operate as regular Fastify handlers
   routeHandlers(server);
-
-  // Endpoint for Google PubSub events
-  // TODO: Unify all these webhooks URL patterns!
-  server.post('/webhooks/pubsub', PubSub.opts, PubSub.pubSubHandler);
 
   // Endpoints for Cloud Scheduler webhooks (Cron Jobs)
   server.register(routeJobs, { prefix: '/jobs' });
