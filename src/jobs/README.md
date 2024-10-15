@@ -53,3 +53,7 @@ server.post('/cron-job-path', (request, reply) =>
 ```
 
 By default, the actual job route will appear with `/jobs/` prepended to the route, so for example: `https://product-eng-webhooks-vmrqv3f7nq-uw.a.run.app/jobs/cron-job-path`
+
+## Authentication
+
+Since jobs are triggered via Cloud Scheduler, we use Google's built in JWT OIDC tokens for authentication. We use `{ OAuth2Client } from 'google-auth-library'` to validate incoming HTTP requests to all of the job endpoints.

@@ -26,3 +26,7 @@ handleRoute(webhookName, request, reply)
 ```
 
 Make sure to write the appropriate tests for the new webhook as well, by creating a test file with the file path `.test.ts` in the same location.
+
+## Authentication
+
+Auth is handled via HMAC SHA256 signing. Each webhook expects a HMAC SHA hash sent in the `x-` header. Requests are validated by locally computing the expected HMAC SHA hash using a local secret (from an env variable) and comparing the values. `@/utils/auth/extractAndVerifySignature.ts` provides a utility function for authenticating requests.
