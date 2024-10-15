@@ -15,7 +15,7 @@ import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignatur
 export async function kafkactlWebhook(
   request: FastifyRequest<{ Body: KafkaControlPlaneResponse }>,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     if (KAFKA_CONTROL_PLANE_WEBHOOK_SECRET === undefined) {
       throw new TypeError('KAFKA_CONTROL_PLANE_WEBHOOK_SECRET must be set');
@@ -34,10 +34,12 @@ export async function kafkactlWebhook(
 
     const { body }: { body: KafkaControlPlaneResponse } = request;
     await messageSlack(body);
-    return reply.code(200).send('OK');
+    reply.code(200).send('OK');
+    return;
   } catch (err) {
     Sentry.captureException(err);
-    return reply.code(500).send();
+    reply.code(500).send();
+    return;
   }
 }
 

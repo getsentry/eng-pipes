@@ -9,7 +9,7 @@ import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignatur
 export async function gocdWebhook(
   request: FastifyRequest<{ Body: GoCDResponse }>,
   reply: FastifyReply
-) {
+): Promise<void> {
   try {
     // If the webhook secret is not defined, throw an error
     if (GOCD_WEBHOOK_SECRET === undefined) {

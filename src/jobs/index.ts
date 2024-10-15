@@ -95,7 +95,7 @@ export const opts = {
 };
 
 // Function that creates a sub fastify server for job webhooks
-export async function routeJobs(server: Fastify, _options) {
+export async function routeJobs(server: Fastify, _options): Promise<void> {
   server.post('/stale-triage-notifier', (request, reply) =>
     handleJobRoute(notifyProductOwnersForUntriagedIssues, request, reply)
   );

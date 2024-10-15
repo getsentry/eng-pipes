@@ -1,26 +1,32 @@
 import * as Sentry from '@sentry/node';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 import { Fastify } from '@/types';
 
-import { bootstrapWebhook } from './bootstrap-dev-env';
-import { gocdWebhook } from './gocd';
-import { kafkactlWebhook } from './kafka-control-plane';
-import { sentryOptionsWebhook } from './sentry-options';
-import { webpackWebhook } from './webpack';
+import { bootstrapWebhook } from './bootstrap-dev-env/bootstrap-dev-env';
+import { gocdWebhook } from './gocd/gocd';
+import { kafkactlWebhook } from './kafka-control-plane/kafka-control-plane';
+import { sentryOptionsWebhook } from './sentry-options/sentry-options';
+import { webpackWebhook } from './webpack/webpack';
 
 // Error handling wrapper function
-async function handleRoute(handler, request, reply) {
+export async function handleRoute(
+  handler,
+  request: FastifyRequest,
+  reply: FastifyReply
+): Promise<void> {
   try {
-    return await handler(request, reply);
+    await handler(request, reply);
   } catch (err) {
     console.error(err);
     Sentry.captureException(err);
-    return reply.code(400).send('Bad Request');
+    reply.code(400).send('Bad Request');
+    return;
   }
 }
 
 // Function that maps routes to their respective handlers
-export function routeHandlers(server: Fastify) {
+export async function routeHandlers(server: Fastify, _options): Promise<void> {
   server.post('/metrics/bootstrap-dev-env/webhook', (request, reply) =>
     handleRoute(bootstrapWebhook, request, reply)
   );
