@@ -9,7 +9,7 @@ import * as gocdWebhooks from './gocd/gocd';
 import * as kafkaWebhooks from './kafka-control-plane/kafka-control-plane';
 import * as sentryOptionsWebhooks from './sentry-options/sentry-options';
 import * as webpackWebhooks from './webpack/webpack';
-import { routeHandlers } from '.';
+import { handleRoute, routeHandlers } from '.';
 
 const mockBootstrapWebhook = jest.fn(
   async (_request: FastifyRequest, response: FastifyReply) => {
@@ -36,27 +36,37 @@ const mockWebpack = jest.fn(
     response.code(204).send();
   }
 );
-
-jest
-  .spyOn(bootstrapDevEnv, 'bootstrapWebhook')
-  .mockImplementation(mockBootstrapWebhook);
-
-jest.spyOn(gocdWebhooks, 'gocdWebhook').mockImplementation(mockGocd);
-
-jest
-  .spyOn(kafkaWebhooks, 'kafkactlWebhook')
-  .mockImplementation(mockKafkaCtlPlane);
-
-jest
-  .spyOn(sentryOptionsWebhooks, 'sentryOptionsWebhook')
-  .mockImplementation(mockSentryOptions);
-
-jest.spyOn(webpackWebhooks, 'webpackWebhook').mockImplementation(mockWebpack);
+class MockReply {
+  statusCode: number = 0;
+  code(c) {
+    this.statusCode = c;
+    return this;
+  }
+  send() {}
+}
 
 describe('cron jobs testing', function () {
   let server: FastifyInstance;
 
   beforeEach(async function () {
+    jest
+      .spyOn(bootstrapDevEnv, 'bootstrapWebhook')
+      .mockImplementation(mockBootstrapWebhook);
+
+    jest.spyOn(gocdWebhooks, 'gocdWebhook').mockImplementation(mockGocd);
+
+    jest
+      .spyOn(kafkaWebhooks, 'kafkactlWebhook')
+      .mockImplementation(mockKafkaCtlPlane);
+
+    jest
+      .spyOn(sentryOptionsWebhooks, 'sentryOptionsWebhook')
+      .mockImplementation(mockSentryOptions);
+
+    jest
+      .spyOn(webpackWebhooks, 'webpackWebhook')
+      .mockImplementation(mockWebpack);
+
     server = fastify();
     server.register(routeHandlers);
     mockBootstrapWebhook.mockClear();
@@ -69,6 +79,18 @@ describe('cron jobs testing', function () {
   afterEach(() => {
     server.close();
     jest.clearAllMocks();
+  });
+
+  it('Expect 400 Bad Request error for bad handler', async () => {
+    const mockError = jest.fn(
+      async (_request: FastifyRequest, _response: FastifyReply) => {
+        throw new Error('Bad Request');
+      }
+    );
+    const reply = new MockReply() as FastifyReply;
+    await handleRoute(mockError, {} as FastifyRequest, reply);
+    expect(mockError).toHaveBeenCalled();
+    expect(reply.statusCode).toBe(400);
   });
 
   it('POST /metrics/bootstrap-dev-env/webhook should call bootstrapWebhook', async () => {

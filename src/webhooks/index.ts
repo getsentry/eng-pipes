@@ -10,7 +10,7 @@ import { sentryOptionsWebhook } from './sentry-options/sentry-options';
 import { webpackWebhook } from './webpack/webpack';
 
 // Error handling wrapper function
-async function handleRoute(
+export async function handleRoute(
   handler,
   request: FastifyRequest,
   reply: FastifyReply
