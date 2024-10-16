@@ -1,1 +1,0 @@
-export { webpackWebhook } from './webpack';
