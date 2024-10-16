@@ -88,7 +88,7 @@ describe('cron jobs testing', function () {
       }
     );
     const reply = new MockReply() as FastifyReply;
-    await handleRoute(mockError, {} as FastifyRequest, reply);
+    await handleRoute(mockError, {} as FastifyRequest, reply, '');
     expect(mockError).toHaveBeenCalled();
     expect(reply.statusCode).toBe(400);
   });
