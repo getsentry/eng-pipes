@@ -21,6 +21,7 @@ export async function genericEventNotifier(
       body.source === undefined ||
       EVENT_NOTIFIER_SECRETS[body.source] === undefined
     ) {
+      reply.code(400).send('Invalid source or missing secret');
       throw new Error('Invalid source or missing secret');
     }
 

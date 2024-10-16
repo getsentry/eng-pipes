@@ -1,3 +1,4 @@
+import testInvalidPayload from '@test/payloads/generic-notifier/testInvalidPayload.json';
 import testPayload from '@test/payloads/generic-notifier/testPayload.json';
 import { createNotifierRequest } from '@test/utils/createGenericMessageRequest';
 
@@ -28,6 +29,14 @@ describe('generic messages webhook', function () {
     expect(response.statusCode).toBe(200);
   });
 
+  it('returns 400 for an invalid source', async function () {
+    const response = await fastify.inject({
+      method: 'POST',
+      url: '/event-notifier/v1',
+      payload: testInvalidPayload,
+    });
+    expect(response.statusCode).toBe(400);
+  });
   it('returns 400 for invalid signature', async function () {
     const response = await fastify.inject({
       method: 'POST',
