@@ -1,12 +1,12 @@
 import JiraApi from 'jira-client';
 
-const jira = new JiraApi({
+import { JIRA_ACCOUNT, JIRA_API_TOKEN } from '@/config';
+
+export const jira = new JiraApi({
   protocol: 'https',
-  host: 'jira.somehost.com',
-  username: 'username',
-  password: 'password',
+  host: 'https://getsentry.atlassian.net',
+  username: JIRA_ACCOUNT,
+  password: JIRA_API_TOKEN,
   apiVersion: '2',
   strictSSL: true,
 });
-
-jira.addAttachmentOnIssue;

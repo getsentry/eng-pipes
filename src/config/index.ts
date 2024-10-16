@@ -237,3 +237,9 @@ export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
  * Regex
  */
 export const SHA256_REGEX = /^[A-Fa-f0-9]{64}$/;
+
+/**
+ * Jira Secrets
+ */
+export const JIRA_API_TOKEN = process.env.JIRA_API_TOKEN || '';
+export const JIRA_ACCOUNT = process.env.JIRA_ACCOUNT || '';
