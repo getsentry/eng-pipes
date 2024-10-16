@@ -1,1 +1,0 @@
-export { gocdWebhook } from './gocd';
