@@ -1,6 +1,7 @@
 import { IncomingMessage, Server, ServerResponse } from 'http';
 
 import { EventAlertType } from '@datadog/datadog-api-client/dist/packages/datadog-api-client-v1';
+import { Block, KnownBlock } from '@slack/types';
 import { FastifyInstance } from 'fastify';
 
 // e.g. the return type of `buildServer`
@@ -44,6 +45,7 @@ export type GenericEvent = {
     tags?: string[]; // Not used for Slack
     misc: {
       alertType?: EventAlertType; // Datadog alert type
+      blocks?: (KnownBlock | Block)[]; // Optional Slack blocks
     };
   };
 };

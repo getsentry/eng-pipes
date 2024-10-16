@@ -32,7 +32,6 @@ export async function genericEventNotifier(
     );
     if (!isVerified) {
       // If the signature is not verified, return (since extractAndVerifySignature sends the response)
-      reply.code(400).send('Invalid signature');
       return;
     }
 
@@ -71,6 +70,7 @@ export async function messageSlack(message: GenericEvent) {
       try {
         await bolt.client.chat.postMessage({
           channel: channel,
+          blocks: message.data.misc.blocks,
           text: text,
           unfurl_links: false,
         });
