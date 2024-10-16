@@ -6,7 +6,7 @@ import { GenericEvent } from '../../src/types/index';
 function createNotifierSignature(payload) {
   return createSignature(
     JSON.stringify(payload),
-    process.env.TESTING_SECRET || '',
+    process.env.EXAMPLE_SERVICE_SECRET || '',
     (i) => i,
     'sha256'
   );
@@ -20,7 +20,7 @@ export async function createNotifierRequest(
 
   return await fastify.inject({
     method: 'POST',
-    url: '/metrics/kafka-control-plane/webhook',
+    url: '/event-notifier/v1',
     headers: {
       'x-infra-hub-signature': signature.toString(),
     },

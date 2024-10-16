@@ -30,9 +30,9 @@ export async function genericEventNotifier(
       'x-infra-hub-signature',
       EVENT_NOTIFIER_SECRETS[body.source]
     );
-
     if (!isVerified) {
       // If the signature is not verified, return (since extractAndVerifySignature sends the response)
+      reply.code(400).send('Invalid signature');
       return;
     }
 
@@ -41,6 +41,7 @@ export async function genericEventNotifier(
     reply.code(200).send('OK');
     return;
   } catch (err) {
+    console.error(err);
     Sentry.captureException(err);
     reply.code(500).send();
     return;

@@ -56,7 +56,7 @@ export async function routeHandlers(server: Fastify, _options): Promise<void> {
     handleRoute(webpackWebhook, request, reply, 'webpack')
   );
   server.post('/event-notifier/v1', (request, reply) =>
-    handleRoute(genericEventNotifier, request, reply, 'webpack')
+    handleRoute(genericEventNotifier, request, reply, 'generic-notifier')
   );
 
   // Default handler for invalid routes

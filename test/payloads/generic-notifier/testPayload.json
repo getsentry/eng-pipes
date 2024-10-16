@@ -10,9 +10,9 @@
 		],
 		"misc": {},
 		"channels": {
-			"slack": ["#C07GZR8LA82"],
+			"slack": ["#aaaaaa"],
 			"datadog": ["example-proj-id"],
-			"jira": ["INC"]
+			"jira": ["TEST"]
 		}
 	}
 }
