@@ -32,6 +32,7 @@ export async function handleRoute(
   } catch (err) {
     Sentry.captureException(err);
     reply.code(400).send('Bad Request');
+    tx.setHttpStatus(400);
   }
   tx.finish();
 }
