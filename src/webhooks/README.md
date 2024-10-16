@@ -3,6 +3,36 @@
 * Webhooks in "production" are deployed to a Google Cloud Run instance, in the project `super-big-data`. Why? (TODO insert why)
 * The webhook points to `https://product-eng-webhooks-vmrqv3f7nq-uw.a.run.app`
 
+## Generic Event Notifier
+
+The folder `generic-notifier` provides a generic webhook which can be used to send messages to Sentry Slack channels and Sentry Datadog. Using this webhook is VERY simple.
+
+Simply, go to `@/config/secrets.ts` and add an entry to the `EVENT_NOTIFIER_SECRETS` object. This entry should contain a mapping from the name of your service (for example, `example-service`) to an environment variable. [TODO: Fill in how to set the prod env var here]. Make a PR with this change and get it approved & merged.
+
+Once this has been deployed, all you have to do is send a POST request to `https://product-eng-webhooks-vmrqv3f7nq-uw.a.run.app/event-notifier/v1` with a JSON payload in the format of the type `GenericEvent` defined in `@/types/index.ts`. Example:
+
+```json
+{
+ "source": "example-service", // This must match the mapping string you define in the EVENT_NOTIFIER_SECRETS obj
+ "timestamp": 0,
+ "service_name": "official_service_name",
+ "data": {
+  "title": "This is an Example Notification",
+  "message": "Random text here",
+  "tags": [
+   "source:example-service", "sentry-region:all", "sentry-user:bob"
+  ],
+  "misc": {},
+  "channels": {
+   "slack": ["C07EH2QGGQ5"],
+   "jira": ["TEST"]
+  }
+ }
+}
+```
+
+Additionally, you must compute the HMAC SHA256 hash of the raw payload string computed with the secret key, and attach it to the `Authorization` header. EX: `Authorization: <Hash here>`
+
 ## Adding a webhook to GoCD event emitter
 
 * goto [gocd](deploy.getsentry.net)
@@ -30,7 +60,3 @@ Make sure to write the appropriate tests for the new webhook as well, by creatin
 ## Authentication
 
 Auth is handled via HMAC SHA256 signing. Each webhook expects a HMAC SHA hash sent in the `x-` header. Requests are validated by locally computing the expected HMAC SHA hash using a local secret (from an env variable) and comparing the values. `@/utils/auth/extractAndVerifySignature.ts` provides a utility function for authenticating requests.
-
-## Generic Event Notifier
-
-Handlers in the folder `notifier` can be used to send messages to be sent to Sentry Slack channels.
