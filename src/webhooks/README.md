@@ -30,3 +30,7 @@ Make sure to write the appropriate tests for the new webhook as well, by creatin
 ## Authentication
 
 Auth is handled via HMAC SHA256 signing. Each webhook expects a HMAC SHA hash sent in the `x-` header. Requests are validated by locally computing the expected HMAC SHA hash using a local secret (from an env variable) and comparing the values. `@/utils/auth/extractAndVerifySignature.ts` provides a utility function for authenticating requests.
+
+## Generic Event Notifier
+
+Handlers in the folder `notifier` can be used to send messages to be sent to Sentry Slack channels.

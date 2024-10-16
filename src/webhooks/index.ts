@@ -6,6 +6,7 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { Fastify } from '@/types';
 
 import { bootstrapWebhook } from './bootstrap-dev-env/bootstrap-dev-env';
+import { genericEventNotifier } from './generic-notifier/generic-notifier';
 import { gocdWebhook } from './gocd/gocd';
 import { kafkactlWebhook } from './kafka-control-plane/kafka-control-plane';
 import { sentryOptionsWebhook } from './sentry-options/sentry-options';
@@ -53,6 +54,9 @@ export async function routeHandlers(server: Fastify, _options): Promise<void> {
   );
   server.post('/metrics/webpack/webhook', (request, reply) =>
     handleRoute(webpackWebhook, request, reply, 'webpack')
+  );
+  server.post('/event-notifier/v1', (request, reply) =>
+    handleRoute(genericEventNotifier, request, reply, 'webpack')
   );
 
   // Default handler for invalid routes
