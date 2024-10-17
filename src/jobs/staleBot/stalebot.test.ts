@@ -10,7 +10,7 @@ import {
   WAITING_FOR_COMMUNITY_LABEL,
   WAITING_FOR_PRODUCT_OWNER_LABEL,
   WORK_IN_PROGRESS_LABEL,
-} from '../config';
+} from '../../config';
 
 import { triggerStaleBot } from './stalebot';
 

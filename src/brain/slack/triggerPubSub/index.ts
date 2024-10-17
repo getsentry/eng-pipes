@@ -2,7 +2,7 @@ import { TEAM_OSPO_CHANNEL_ID } from '@/config';
 import {
   sendGitHubActivityMetrics,
   sendGitHubEngagementMetrics,
-} from '@/jobs/slackScores';
+} from '@/jobs/slackScores/slackScores';
 import { wrapHandler } from '@/utils/misc/wrapHandler';
 import { bolt } from '@api/slack';
 

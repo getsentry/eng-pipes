@@ -9,7 +9,7 @@ import {
   DISCUSS_PRODUCT_CHANNEL_ID,
   TEAM_OSPO_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
-} from '../config';
+} from '../../config';
 
 import {
   sendGitHubActivityMetrics,

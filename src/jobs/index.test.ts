@@ -5,14 +5,14 @@ import fastify, {
 } from 'fastify';
 import { OAuth2Client } from 'google-auth-library';
 
-import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
-import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
-import * as slackNotifications from './slackNotifications';
-import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
-import * as slackScores from './slackScores';
-import { triggerSlackScores } from './slackScores';
-import * as staleBot from './stalebot';
-import { triggerStaleBot } from './stalebot';
+import * as gocdPausedPipelineBot from './gocdPausedPipeline/gocdPausedPipelineBot';
+import { triggerPausedPipelineBot } from './gocdPausedPipeline/gocdPausedPipelineBot';
+import * as slackScores from './slackScores/slackScores';
+import { triggerSlackScores } from './slackScores/slackScores';
+import * as staleBot from './staleBot/stalebot';
+import { triggerStaleBot } from './staleBot/stalebot';
+import * as slackNotifications from './staleTriageNotifier/slackNotifications';
+import { notifyProductOwnersForUntriagedIssues } from './staleTriageNotifier/slackNotifications';
 import { handleJobRoute, routeJobs } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
