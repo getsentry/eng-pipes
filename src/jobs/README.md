@@ -4,13 +4,13 @@ Files in this subdirectory contain code for webhooks which trigger cron jobs. Th
 
 ## List of all Cron Jobs
 
-| Job Name                         | Route                            | Files                             |
-| -------------------------------- | -------------------------------- | --------------------------------- |
-| `stale-triage-notifier`          | `/jobs/stale-triage-notifier`    | `slackNotifications.ts`           |
-| `stale-bot`                      | `/jobs/stale-bot`                | `stalebot.ts`                     |
-| `slack-scores`                   | `/jobs/slack-scores`             | `slackScores.ts`                  |
-| `gocd-paused-pipeline-bot`       | `/jobs/gocd-paused-pipeline-bot` | `gocdPausedPipelineBot.ts`        |
-| `heartbeat`                      | `/jobs/heartbeat`                | `heartbeat.ts`                    |
+| Job Name                         | Route                            | Folders                         |
+| -------------------------------- | -------------------------------- | ------------------------------- |
+| `stale-triage-notifier`          | `/jobs/stale-triage-notifier`    | `/staleTriageNotifier`          |
+| `stale-bot`                      | `/jobs/stale-bot`                | `/staleBot`                     |
+| `slack-scores`                   | `/jobs/slack-scores`             | `/slackScores`                  |
+| `gocd-paused-pipeline-bot`       | `/jobs/gocd-paused-pipeline-bot` | `/gocdPausedPipeline`           |
+| `heartbeat`                      | `/jobs/heartbeat`                | `/heartbeat`                    |
 
 ## Development
 
