@@ -31,7 +31,8 @@ to notify product owners about their issues pending triage over [our SLO][proces
 
 To add a new cron job:
 
-* Create a unique file in this subdirectory
+* Create a new folder in this subdirectory
+* In this folder, create a file
 * In this file, export a function:
 
 ```ts
