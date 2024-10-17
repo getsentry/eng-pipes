@@ -13,13 +13,10 @@ import { triggerSlackScores } from './slackScores/slackScores';
 import { triggerStaleBot } from './staleBot/stalebot';
 import { notifyProductOwnersForUntriagedIssues } from './staleTriageNotifier/slackNotifications';
 
-// Error handling wrapper function
-// Additionally handles Auth from Cloud Scheduler
-export async function handleJobRoute(
-  handler,
+async function handleCronAuth(
   request: FastifyRequest,
   reply: FastifyReply
-) {
+): Promise<boolean> {
   try {
     const client = new OAuth2Client();
     // Get the Cloud Scheduler JWT in the "Authorization" header.
@@ -28,7 +25,7 @@ export async function handleJobRoute(
     if (!bearer) {
       reply.code(400);
       reply.send();
-      return;
+      return false;
     }
 
     const match = bearer.match(/Bearer (.*)/);
@@ -36,7 +33,7 @@ export async function handleJobRoute(
     if (!match) {
       reply.code(400);
       reply.send();
-      return;
+      return false;
     }
 
     const token = match[1];
@@ -54,7 +51,21 @@ export async function handleJobRoute(
   } catch (e) {
     reply.code(401);
     reply.send();
-    return;
+    return false;
+  }
+  return true;
+}
+
+// Error handling wrapper function
+// Additionally handles Auth from Cloud Scheduler
+export async function handleGithubJobs(
+  handler,
+  request: FastifyRequest,
+  reply: FastifyReply
+) {
+  const verified = await handleCronAuth(request, reply);
+  if (!verified) {
+    return; // Reply is already sent, so no need to re-send
   }
   const tx = Sentry.startTransaction({
     op: 'webhooks',
@@ -97,16 +108,16 @@ export const opts = {
 // Function that creates a sub fastify server for job webhooks
 export async function routeJobs(server: Fastify, _options): Promise<void> {
   server.post('/stale-triage-notifier', (request, reply) =>
-    handleJobRoute(notifyProductOwnersForUntriagedIssues, request, reply)
+    handleGithubJobs(notifyProductOwnersForUntriagedIssues, request, reply)
   );
   server.post('/stale-bot', (request, reply) =>
-    handleJobRoute(triggerStaleBot, request, reply)
+    handleGithubJobs(triggerStaleBot, request, reply)
   );
   server.post('/slack-scores', (request, reply) =>
-    handleJobRoute(triggerSlackScores, request, reply)
+    handleGithubJobs(triggerSlackScores, request, reply)
   );
   server.post('/gocd-paused-pipeline-bot', (request, reply) =>
-    handleJobRoute(triggerPausedPipelineBot, request, reply)
+    handleGithubJobs(triggerPausedPipelineBot, request, reply)
   );
 
   // Default handler for invalid routes
