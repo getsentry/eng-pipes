@@ -13,7 +13,7 @@ import * as staleBot from './staleBot/stalebot';
 import { triggerStaleBot } from './staleBot/stalebot';
 import * as slackNotifications from './staleTriageNotifier/slackNotifications';
 import { notifyProductOwnersForUntriagedIssues } from './staleTriageNotifier/slackNotifications';
-import { handleJobRoute, routeJobs } from '.';
+import { handleGithubJobs, routeJobs } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
 const mockNotifier = jest.fn();
@@ -62,7 +62,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation(operationSlug), request, reply);
+    await handleGithubJobs(mapOperation(operationSlug), request, reply);
     return reply;
   }
   let server: FastifyInstance;
@@ -135,7 +135,7 @@ describe('cron jobs testing', function () {
       headers: {},
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation('stale-bot'), request, reply);
+    await handleGithubJobs(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
@@ -153,7 +153,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation('stale-bot'), request, reply);
+    await handleGithubJobs(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
