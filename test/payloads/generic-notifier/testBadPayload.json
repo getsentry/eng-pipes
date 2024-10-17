@@ -1,0 +1,15 @@
+{
+	"service_name": "official_service_name",
+	"data": {
+		"message": "Random text here",
+		"tags": [
+			"source:example-service", "sentry-region:all", "sentry-user:bob"
+		],
+		"misc": {},
+		"channels": {
+			"slack": ["#C07GZR8LA82"],
+			"datadog": ["example-proj-id"],
+			"jira": ["INC"]
+		}
+	}
+}
