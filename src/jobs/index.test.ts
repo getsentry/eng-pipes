@@ -14,7 +14,7 @@ import * as slackScores from './slackScores';
 import { triggerSlackScores } from './slackScores';
 import * as staleBot from './stalebot';
 import { triggerStaleBot } from './stalebot';
-import { handleGithubJobs, routeJobs } from '.';
+import { handleGitHubJob, routeJobs } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
 const mockNotifier = jest.fn();
@@ -65,7 +65,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleGithubJobs(mapOperation(operationSlug), request, reply);
+    await handleGitHubJob(mapOperation(operationSlug), request, reply);
     return reply;
   }
   let server: FastifyInstance;
@@ -138,7 +138,7 @@ describe('cron jobs testing', function () {
       headers: {},
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleGithubJobs(mapOperation('stale-bot'), request, reply);
+    await handleGitHubJob(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
@@ -156,7 +156,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleGithubJobs(mapOperation('stale-bot'), request, reply);
+    await handleGitHubJob(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 

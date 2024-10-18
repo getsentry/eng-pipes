@@ -24,7 +24,7 @@ describe('test uptime heartbeat', function () {
         title: 'Infra Hub Update',
         text: 'Infra Hub is up',
         dateHappened: timestamp,
-        alertType: 'error',
+        alertType: 'info',
         tags: [
           `source_tool:infra-hub`,
           `source:infra-hub`,
