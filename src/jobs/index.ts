@@ -88,7 +88,7 @@ export async function handleGitHubJob(
 
 // Error handling wrapper function for Cron Jobs
 // Additionally handles Auth from Cloud Scheduler
-export async function handleCronJobs(
+export async function handleCronJob(
   handler,
   request: FastifyRequest,
   reply: FastifyReply
@@ -111,19 +111,19 @@ export async function handleCronJobs(
 // Function that creates a sub fastify server for job webhooks
 export async function routeJobs(server: Fastify, _options): Promise<void> {
   server.post('/stale-triage-notifier', (request, reply) =>
-    handleGithubJobs(notifyProductOwnersForUntriagedIssues, request, reply)
+    handleGitHubJob(notifyProductOwnersForUntriagedIssues, request, reply)
   );
   server.post('/stale-bot', (request, reply) =>
-    handleGithubJobs(triggerStaleBot, request, reply)
+    handleGitHubJob(triggerStaleBot, request, reply)
   );
   server.post('/slack-scores', (request, reply) =>
-    handleGithubJobs(triggerSlackScores, request, reply)
+    handleGitHubJob(triggerSlackScores, request, reply)
   );
   server.post('/gocd-paused-pipeline-bot', (request, reply) =>
-    handleGithubJobs(triggerPausedPipelineBot, request, reply)
+    handleGitHubJob(triggerPausedPipelineBot, request, reply)
   );
   server.post('/heartbeat', (request, reply) =>
-    handleCronJobs(heartbeat, request, reply)
+    handleCronJob(heartbeat, request, reply)
   );
 
   // Default handler for invalid routes
