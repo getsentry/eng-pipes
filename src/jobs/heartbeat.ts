@@ -8,13 +8,13 @@ export async function callDatadog(timestamp: number): Promise<void> {
   const params: v1.EventCreateRequest = {
     title: 'Infra Hub Update',
     text: 'Infra Hub is up',
-    alertType: 'error',
+    alertType: 'info',
     dateHappened: timestamp,
     tags: [
-      `source_tool:infra-hub`,
-      `source:infra-hub`,
-      `source_category:infra-tools`,
-      `sentry_user:infra-hub`,
+      'source_tool:infra-hub',
+      'source:infra-hub',
+      'source_category:infra-tools',
+      'sentry_user:infra-hub',
     ],
   };
   await DATADOG_API_INSTANCE.createEvent({ body: params });
