@@ -21,9 +21,35 @@ export async function callDatadog(timestamp: number): Promise<void> {
 }
 
 export async function heartbeat() {
+  const checkInId = Sentry.captureCheckIn(
+    {
+      monitorSlug: 'infra-hub-heartbeat',
+      status: 'in_progress',
+    },
+    {
+      schedule: {
+        type: 'crontab',
+        value: '*/5 * * * *',
+      },
+      checkinMargin: 1,
+      maxRuntime: 1,
+      timezone: 'America/Los_Angeles',
+    }
+  );
   try {
     await callDatadog(moment().unix());
+
+    Sentry.captureCheckIn({
+      checkInId,
+      monitorSlug: 'infra-hub-heartbeat',
+      status: 'ok',
+    });
   } catch (err) {
     Sentry.captureException(err);
+    Sentry.captureCheckIn({
+      checkInId,
+      monitorSlug: 'infra-hub-heartbeat',
+      status: 'error',
+    });
   }
 }
