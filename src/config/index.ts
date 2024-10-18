@@ -237,9 +237,3 @@ export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
  * Regex
  */
 export const SHA256_REGEX = /^[A-Fa-f0-9]{64}$/;
-
-/**
- * Cron Job consts
- */
-export const INFRA_HUB_HEARTBEAT_CHANNEL =
-  process.env.INFRA_HUB_HEARTBEAT_CHANNEL || 'C07T1QYJ672';

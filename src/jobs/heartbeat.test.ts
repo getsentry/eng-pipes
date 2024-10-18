@@ -1,24 +1,37 @@
-import { bolt } from '@/api/slack';
+import moment from 'moment-timezone';
 
-import { heartbeat } from './heartbeat';
+import { DATADOG_API_INSTANCE } from '@/config';
+
+import { callDatadog } from './heartbeat';
 
 describe('test uptime heartbeat', function () {
-  let postMessageSpy;
+  let datadogApiInstanceSpy;
   beforeEach(() => {
-    postMessageSpy = jest
-      .spyOn(bolt.client.chat, 'postMessage')
+    datadogApiInstanceSpy = jest
+      .spyOn(DATADOG_API_INSTANCE, 'createEvent')
       .mockImplementation(jest.fn());
   });
   afterEach(() => {
     jest.clearAllMocks();
   });
   it('should send a message to slack', async () => {
-    await heartbeat();
-    expect(postMessageSpy).toHaveBeenCalledTimes(1);
-    expect(postMessageSpy).toHaveBeenCalledWith(
-      expect.objectContaining({
+    const timestamp = moment().unix();
+    await callDatadog(timestamp);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(1);
+    const message = datadogApiInstanceSpy.mock.calls[0][0];
+    expect(message).toEqual({
+      body: {
+        title: 'Infra Hub Update',
         text: 'Infra Hub is up',
-      })
-    );
+        dateHappened: timestamp,
+        alertType: 'error',
+        tags: [
+          `source_tool:infra-hub`,
+          `source:infra-hub`,
+          `source_category:infra-tools`,
+          `sentry_user:infra-hub`,
+        ],
+      },
+    });
   });
 });
