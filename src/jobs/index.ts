@@ -59,7 +59,7 @@ async function handleCronAuth(
 
 // Error handling wrapper function for Cron Jobs involving Github
 // Additionally handles Auth from Cloud Scheduler
-export async function handleGithubJobs(
+export async function handleGitHubJob(
   handler,
   request: FastifyRequest,
   reply: FastifyReply
