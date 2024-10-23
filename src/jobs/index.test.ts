@@ -7,18 +7,20 @@ import { OAuth2Client } from 'google-auth-library';
 
 import * as gocdPausedPipelineBot from './gocdPausedPipelineBot';
 import { triggerPausedPipelineBot } from './gocdPausedPipelineBot';
+import * as heartbeat from './heartbeat';
 import * as slackNotifications from './slackNotifications';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import * as slackScores from './slackScores';
 import { triggerSlackScores } from './slackScores';
 import * as staleBot from './stalebot';
 import { triggerStaleBot } from './stalebot';
-import { handleJobRoute, routeJobs } from '.';
+import { handleGitHubJob, routeJobs } from '.';
 
 const mockGocdPausedPipelineBot = jest.fn();
 const mockNotifier = jest.fn();
 const mockSlackScores = jest.fn();
 const mockStaleBot = jest.fn();
+const mockHeartbeat = jest.fn();
 
 jest
   .spyOn(gocdPausedPipelineBot, 'triggerPausedPipelineBot')
@@ -30,6 +32,7 @@ jest
   .spyOn(slackScores, 'triggerSlackScores')
   .mockImplementation(mockSlackScores);
 jest.spyOn(staleBot, 'triggerStaleBot').mockImplementation(mockStaleBot);
+jest.spyOn(heartbeat, 'heartbeat').mockImplementation(mockHeartbeat);
 
 class MockReply {
   statusCode: number = 0;
@@ -62,7 +65,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation(operationSlug), request, reply);
+    await handleGitHubJob(mapOperation(operationSlug), request, reply);
     return reply;
   }
   let server: FastifyInstance;
@@ -135,7 +138,7 @@ describe('cron jobs testing', function () {
       headers: {},
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation('stale-bot'), request, reply);
+    await handleGitHubJob(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
@@ -153,7 +156,7 @@ describe('cron jobs testing', function () {
       },
     } as FastifyRequest<{ Body: { message: { data: string } } }>;
     const reply = new MockReply() as FastifyReply;
-    await handleJobRoute(mapOperation('stale-bot'), request, reply);
+    await handleGitHubJob(mapOperation('stale-bot'), request, reply);
     expect(reply.statusCode).toBe(400);
   });
 
@@ -226,5 +229,21 @@ describe('cron jobs testing', function () {
     expect(mockNotifier).not.toHaveBeenCalled();
     expect(mockSlackScores).not.toHaveBeenCalled();
     expect(mockStaleBot).not.toHaveBeenCalled();
+  });
+
+  it('POST /heartbeat should call uptime heartbeat', async () => {
+    const reply = await server.inject({
+      method: 'POST',
+      url: '/jobs/heartbeat',
+      headers: {
+        authorization: 'Bearer 1234abcd',
+      },
+    });
+    expect(reply.statusCode).toBe(204);
+    expect(mockGocdPausedPipelineBot).not.toHaveBeenCalled();
+    expect(mockNotifier).not.toHaveBeenCalled();
+    expect(mockSlackScores).not.toHaveBeenCalled();
+    expect(mockStaleBot).not.toHaveBeenCalled();
+    expect(mockHeartbeat).toHaveBeenCalled();
   });
 });
