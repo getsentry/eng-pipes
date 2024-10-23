@@ -15,7 +15,6 @@ import { loadBrain } from '@utils/loadBrain';
 
 import { SENTRY_DSN } from './config';
 import { routeJobs } from './jobs';
-import { SlackRouter } from './slack';
 
 export async function buildServer(
   logger: boolean | { prettyPrint: boolean } = {
@@ -95,12 +94,6 @@ export async function buildServer(
 
   // Endpoints for Cloud Scheduler webhooks (Cron Jobs)
   server.register(routeJobs, { prefix: '/jobs' });
-
-  server.post<{ Params: { service: string } }>(
-    '/slack/:service/webhook',
-    {},
-    SlackRouter(server)
-  );
 
   return server;
 }
