@@ -221,9 +221,7 @@ teams:
     slack_channel: C02N5PB50JH
   team-replays:
     offices:
-    - sfo
     - yyz
-    - vie
     slack_channel: C04B0K358QM
   team-revenue:
     offices:
