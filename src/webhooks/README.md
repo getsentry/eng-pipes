@@ -24,7 +24,7 @@ Once this has been deployed, all you have to do is send a POST request to `https
    "blocks": []
   }, {
    "type": "service_notification", // Slack message using service registry information
-   "service_name": "eng_pipes_gh_notifications",
+   "service_name": "eng_pipes_gh_notifications", 
    "text": "Random text here",
    // Optionally, include Slack Blocks
    "blocks": []
@@ -40,6 +40,8 @@ Once this has been deployed, all you have to do is send a POST request to `https
 ```
 
 Additionally, you must compute the HMAC SHA256 hash of the raw payload string computed with the secret key, and attach it to the `Authorization` header. EX: `Authorization: <Hash here>`
+
+TODO: Add the service registry configs to the deployed instance & replace the current dummy json at `@/service-registry/service_registry.json` with the actual service registry json.
 
 ## Adding a webhook to GoCD event emitter
 
