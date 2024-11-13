@@ -62,18 +62,11 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install git -y
-      - name: Set up SSH agent (for service-registry)
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SENTRY_INTERNAL_GH_SSH_PRIVATE_KEY }}
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
-      - name: yarn install
-        run: yarn install --immutable && yarn up "service-registry@git+ssh://git@github.com:getsentry/service-registry#main"
 
       - name: tsc
         run: yarn build
@@ -93,11 +86,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up SSH agent (for service-registry)
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SENTRY_INTERNAL_GH_SSH_PRIVATE_KEY }}
 
       - name: Builds docker image
         run: DOCKER_BUILDKIT=1 docker build --ssh default -t ci-tooling .
@@ -124,22 +112,11 @@ jobs:
         with:
           # for Sentry releases
           fetch-depth: 0
-      - name: Install Git
-        run: |
-          sudo apt-get update
-          sudo apt-get install git -y
-      - name: Set up SSH agent (for service-registry)
-        uses: webfactory/ssh-agent@v0.8.0
-        with:
-          ssh-private-key: ${{ secrets.SENTRY_INTERNAL_GH_SSH_PRIVATE_KEY }}
 
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-
-      - name: yarn install
-        run: yarn install --immutable && yarn up "service-registry@git+ssh://git@github.com:getsentry/service-registry#main"
 
       - name: tsc
         run: yarn build
