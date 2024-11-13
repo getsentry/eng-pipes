@@ -1,12 +1,14 @@
 import testInvalidPayload from '@test/payloads/generic-notifier/testInvalidPayload.json';
 import testPayload from '@test/payloads/generic-notifier/testPayload.json';
+import testServicePayload from '@test/payloads/generic-notifier/testServicePayload.json';
 import { createNotifierRequest } from '@test/utils/createGenericMessageRequest';
 
 import { buildServer } from '@/buildServer';
 import { DATADOG_API_INSTANCE } from '@/config';
+import { GenericEvent, ServiceSlackMessage, SlackMessage } from '@/types';
 import { bolt } from '@api/slack';
 
-import { messageSlack } from './generic-notifier';
+import { handleServiceSlackMessage, messageSlack } from './generic-notifier';
 
 describe('generic messages webhook', function () {
   let fastify;
@@ -24,7 +26,10 @@ describe('generic messages webhook', function () {
     jest
       .spyOn(DATADOG_API_INSTANCE, 'createEvent')
       .mockImplementation(jest.fn());
-    const response = await createNotifierRequest(fastify, testPayload);
+    const response = await createNotifierRequest(
+      fastify,
+      testPayload as GenericEvent
+    );
 
     expect(response.statusCode).toBe(200);
   });
@@ -65,7 +70,7 @@ describe('generic messages webhook', function () {
 
     it('writes to slack', async function () {
       const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-      await messageSlack(testPayload);
+      await messageSlack(testPayload.data[0] as SlackMessage);
       expect(postMessageSpy).toHaveBeenCalledTimes(1);
       const message = postMessageSpy.mock.calls[0][0];
       expect(message).toEqual({
@@ -75,18 +80,43 @@ describe('generic messages webhook', function () {
       });
     });
   });
+  describe('handleServiceSlackMessage tests', function () {
+    afterEach(function () {
+      jest.clearAllMocks();
+    });
+
+    it('writes to slack', async function () {
+      const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
+      await handleServiceSlackMessage(
+        testServicePayload.data[0] as ServiceSlackMessage
+      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
+      const message = postMessageSpy.mock.calls[0][0];
+      expect(message).toEqual({
+        channel: 'feed-datdog',
+        text: 'Random text here',
+        unfurl_links: false,
+      });
+    });
+  });
 
   it('checks that slack msg is sent', async function () {
     const postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
-    const response = await createNotifierRequest(fastify, testPayload);
+    const response = await createNotifierRequest(
+      fastify,
+      testPayload as GenericEvent
+    );
 
-    expect(postMessageSpy).toHaveBeenCalledTimes(1);
+    expect(postMessageSpy).toHaveBeenCalledTimes(2);
 
     expect(response.statusCode).toBe(200);
   });
   it('checks that dd msg is sent', async function () {
     const ddMessageSpy = jest.spyOn(DATADOG_API_INSTANCE, 'createEvent');
-    const response = await createNotifierRequest(fastify, testPayload);
+    const response = await createNotifierRequest(
+      fastify,
+      testPayload as GenericEvent
+    );
 
     expect(ddMessageSpy).toHaveBeenCalledTimes(1);
 

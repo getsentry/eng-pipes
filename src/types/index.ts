@@ -29,23 +29,38 @@ export interface KafkaControlPlaneResponse {
   body: string;
 }
 
+export interface SlackMessage {
+  type: 'slack';
+  channels: string[];
+  text: string;
+  blocks?: KnownBlock[] | Block[];
+}
+
+export interface DatadogEvent {
+  type: 'datadog';
+  title: string;
+  text: string;
+  tags: string[];
+  alertType: EventAlertType;
+}
+
+export interface JiraEvent {
+  type: 'jira';
+  projectId: string;
+  title: string;
+}
+
 export type GenericEvent = {
   source: string;
   timestamp: number;
-  service_name?: string; // Official service registry name if applicable
-  data: {
-    title: string;
-    message: string;
-    channels: {
-      slack?: string[]; // list of Slack Channels
-      datadog?: string[]; // list of DD Monitors
-      jira?: string[]; // list of Jira Projects
-      bigquery?: string;
-    };
-    tags?: string[]; // Not used for Slack
-    misc: {
-      alertType?: EventAlertType; // Datadog alert type
-      blocks?: (KnownBlock | Block)[]; // Optional Slack blocks
-    };
-  };
+  data: (DatadogEvent | JiraEvent | SlackMessage | ServiceSlackMessage)[];
 };
+
+// Currently only used for Slack notifications since
+// service registry only contains Slack channels (and not DD or Jira or others)
+export interface ServiceSlackMessage {
+  type: 'service_notification';
+  service_name: string; // Official service registry service id
+  text: string;
+  blocks?: KnownBlock[] | Block[];
+}

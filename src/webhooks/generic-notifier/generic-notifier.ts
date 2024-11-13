@@ -1,14 +1,20 @@
 import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
-import moment from 'moment-timezone';
 
-import { GenericEvent } from '@types';
+import {
+  DatadogEvent,
+  GenericEvent,
+  ServiceSlackMessage,
+  SlackMessage,
+} from '@types';
 
 import { bolt } from '@/api/slack';
 import { DATADOG_API_INSTANCE } from '@/config';
 import { EVENT_NOTIFIER_SECRETS } from '@/config/secrets';
 import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
+
+import { getService } from '../../utils/misc/serviceRegistry';
 
 export async function genericEventNotifier(
   request: FastifyRequest<{ Body: GenericEvent }>,
@@ -24,7 +30,6 @@ export async function genericEventNotifier(
       reply.code(400).send('Invalid source or missing secret');
       throw new Error('Invalid source or missing secret');
     }
-
     const isVerified = await extractAndVerifySignature(
       request,
       reply,
@@ -35,9 +40,15 @@ export async function genericEventNotifier(
       // If the signature is not verified, return (since extractAndVerifySignature sends the response)
       return;
     }
-
-    await messageSlack(body);
-    await sendEventToDatadog(body, moment().unix());
+    for (const message of body.data) {
+      if (message.type === 'slack') {
+        await messageSlack(message);
+      } else if (message.type === 'service_notification') {
+        await handleServiceSlackMessage(message);
+      } else if (message.type === 'datadog') {
+        await sendEventToDatadog(message, body.timestamp);
+      }
+    }
     reply.code(200).send('OK');
     return;
   } catch (err) {
@@ -49,36 +60,64 @@ export async function genericEventNotifier(
 }
 
 export async function sendEventToDatadog(
-  message: GenericEvent,
+  message: DatadogEvent,
   timestamp: number
 ) {
-  if (message.data.channels.datadog) {
+  try {
     const params: v1.EventCreateRequest = {
-      title: message.data.title,
-      text: message.data.message,
-      alertType: message.data.misc.alertType,
+      title: message.title,
+      text: message.text,
+      alertType: message.alertType,
       dateHappened: timestamp,
-      tags: message.data.tags,
+      tags: message.tags,
     };
     await DATADOG_API_INSTANCE.createEvent({ body: params });
+  } catch (err) {
+    Sentry.setContext('dd msg:', { text: message.text });
+    Sentry.captureException(err);
   }
 }
 
-export async function messageSlack(message: GenericEvent) {
-  if (message.data.channels.slack) {
-    for (const channel of message.data.channels.slack) {
-      const text = message.data.message;
-      try {
-        await bolt.client.chat.postMessage({
-          channel: channel,
-          blocks: message.data.misc.blocks,
-          text: text,
-          unfurl_links: false,
-        });
-      } catch (err) {
-        Sentry.setContext('msg:', { text });
-        Sentry.captureException(err);
+export async function messageSlack(message: SlackMessage) {
+  const channels = message.channels ?? [];
+  for (const channel of channels) {
+    try {
+      const args = {
+        channel: channel,
+        blocks: message.blocks,
+        text: message.text,
+        unfurl_links: false,
+      };
+      if (message.blocks) {
+        args.blocks = message.blocks;
       }
+      await bolt.client.chat.postMessage(args);
+    } catch (err) {
+      Sentry.setContext('slack msg:', { text: message.text });
+      Sentry.captureException(err);
     }
   }
+}
+
+export async function handleServiceSlackMessage(message: ServiceSlackMessage) {
+  const service = getService(message.service_name);
+  const channels = service.alert_slack_channels ?? [];
+  for (const channel of channels) {
+    try {
+      const args = {
+        channel: channel,
+        blocks: message.blocks,
+        text: message.text,
+        unfurl_links: false,
+      };
+      if (message.blocks) {
+        args.blocks = message.blocks;
+      }
+      await bolt.client.chat.postMessage(args);
+    } catch (err) {
+      Sentry.setContext('slack msg:', { text: message.text });
+      Sentry.captureException(err);
+    }
+  }
+  // TODO: Add other types of notifications (Jira, DD, etc.)
 }

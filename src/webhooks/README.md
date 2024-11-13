@@ -7,27 +7,35 @@
 
 The folder `generic-notifier` provides a generic webhook which can be used to send messages to Sentry Slack channels and Sentry Datadog. Using this webhook is VERY simple.
 
-Simply, go to `@/config/secrets.ts` and add an entry to the `EVENT_NOTIFIER_SECRETS` object. This entry should contain a mapping from the name of your service (for example, `example-service`) to an environment variable. [TODO: Fill in how to set the prod env var here]. Make a PR with this change and get it approved & merged.
+Simply, go to `@/config/secrets.ts` and add an entry to the `EVENT_NOTIFIER_SECRETS` object. This entry should contain a mapping from the source of the message (for example, `example-service`) to an environment variable. As of now, you will also need to edit `bin/deploy.sh` to add the new secret to the deployment and also add the secret to Google Secret Manager. Make a PR with this change and get it approved & merged.
 
-Once this has been deployed, all you have to do is send a POST request to `https://product-eng-webhooks-vmrqv3f7nq-uw.a.run.app/event-notifier/v1` with a JSON payload in the format of the type `GenericEvent` defined in `@/types/index.ts`. Example:
+Once this has been deployed, all you have to do is send a POST request to `https://product-eng-webhooks-vmrqv3f7nq-uw.a.run.app/event-notifier/v1` with a JSON payload in the format of the type `GenericEvent` defined in `@/types/index.ts`. Currently, only Datadog and Slack messages are supported. Example:
 
 ```json
 {
  "source": "example-service", // This must match the mapping string you define in the EVENT_NOTIFIER_SECRETS obj
  "timestamp": 0,
- "service_name": "official_service_name",
- "data": {
-  "title": "This is an Example Notification",
-  "message": "Random text here",
-  "tags": [
-   "source:example-service", "sentry-region:all", "sentry-user:bob"
-  ],
-  "misc": {},
-  "channels": {
-   "slack": ["C07EH2QGGQ5"],
-   "jira": ["TEST"]
+ "data": [
+  {
+   "type": "slack", // Basic Slack message
+   "text": "Random text here", 
+   "channels": ["#aaaaaa"],
+   // Optionally, include Slack Blocks
+   "blocks": []
+  }, {
+   "type": "service_notification", // Slack message using service registry information
+   "service_name": "eng_pipes_gh_notifications",
+   "text": "Random text here",
+   // Optionally, include Slack Blocks
+   "blocks": []
+  }, {
+   "type": "datadog", // Datadog message
+   "title": "This is an Example Notification",
+   "text": "Random text here",
+   "tags": ["source:example-service", "sentry-region:all", "sentry-user:bob"],
+   "alertType": "info"
   }
- }
+ ]
 }
 ```
 

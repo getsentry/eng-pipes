@@ -1,18 +1,26 @@
 {
 	"source": "example-service",
 	"timestamp": 0,
-	"service_name": "official_service_name",
-	"data": {
-		"title": "This is an Example Notification",
-		"message": "Random text here",
-		"tags": [
-			"source:example-service", "sentry-region:all", "sentry-user:bob"
-		],
-		"misc": {},
-		"channels": {
-			"slack": ["#aaaaaa"],
-			"datadog": ["example-proj-id"],
-			"jira": ["TEST"]
+	"data": [
+		{
+			"type": "slack",
+			"text": "Random text here",
+			"channels": ["#aaaaaa"]
+		}, {
+			"type": "service_notification",
+			"service_name": "eng_pipes_gh_notifications",
+			"text": "Random text here",
+			"channels": ["#aaaaaa"]
+		}, {
+			"type": "datadog",
+			"title": "This is an Example Notification",
+			"text": "Random text here",
+			"tags": ["source:example-service", "sentry-region:all", "sentry-user:bob"],
+			"alertType": "info"
+		}, {
+			"type": "jira",
+			"title": "This is an Example Notification",
+			"projectId": "TEST"
 		}
-	}
+	]
 }
