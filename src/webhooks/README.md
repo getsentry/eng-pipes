@@ -5,7 +5,7 @@
 
 ## Generic Event Notifier
 
-The folder `generic-notifier` provides a generic webhook which can be used to send messages to Sentry Slack channels and Sentry Datadog. Using this webhook is VERY simple.
+The folder `generic-notifier` provides a generic webhook which can be used to send messages to Sentry Slack channels and Sentry Datadog.
 
 Simply, go to `@/config/secrets.ts` and add an entry to the `EVENT_NOTIFIER_SECRETS` object. This entry should contain a mapping from the source of the message (for example, `example-service`) to an environment variable. As of now, you will also need to edit `bin/deploy.sh` to add the new secret to the deployment and also add the secret to Google Secret Manager. Make a PR with this change and get it approved & merged.
 

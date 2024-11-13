@@ -2,12 +2,7 @@ import { v1 } from '@datadog/datadog-api-client';
 import * as Sentry from '@sentry/node';
 import { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  DatadogEvent,
-  GenericEvent,
-  ServiceSlackMessage,
-  SlackMessage,
-} from '@types';
+import { DatadogEvent, GenericEvent, SlackMessage } from '@types';
 
 import { bolt } from '@/api/slack';
 import { DATADOG_API_INSTANCE } from '@/config';
@@ -43,8 +38,6 @@ export async function genericEventNotifier(
     for (const message of body.data) {
       if (message.type === 'slack') {
         await messageSlack(message);
-      } else if (message.type === 'service_notification') {
-        await handleServiceSlackMessage(message);
       } else if (message.type === 'datadog') {
         await sendEventToDatadog(message, body.timestamp);
       }
@@ -79,7 +72,13 @@ export async function sendEventToDatadog(
 }
 
 export async function messageSlack(message: SlackMessage) {
-  const channels = message.channels ?? [];
+  let channels: string[] = [];
+  if ('channels' in message) {
+    channels = message.channels ?? [];
+  } else if ('service_name' in message) {
+    const service = getService(message.service_name);
+    channels = service.alert_slack_channels ?? [];
+  }
   for (const channel of channels) {
     try {
       const args = {
@@ -97,27 +96,4 @@ export async function messageSlack(message: SlackMessage) {
       Sentry.captureException(err);
     }
   }
-}
-
-export async function handleServiceSlackMessage(message: ServiceSlackMessage) {
-  const service = getService(message.service_name);
-  const channels = service.alert_slack_channels ?? [];
-  for (const channel of channels) {
-    try {
-      const args = {
-        channel: channel,
-        blocks: message.blocks,
-        text: message.text,
-        unfurl_links: false,
-      };
-      if (message.blocks) {
-        args.blocks = message.blocks;
-      }
-      await bolt.client.chat.postMessage(args);
-    } catch (err) {
-      Sentry.setContext('slack msg:', { text: message.text });
-      Sentry.captureException(err);
-    }
-  }
-  // TODO: Add other types of notifications (Jira, DD, etc.)
 }

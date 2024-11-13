@@ -29,12 +29,22 @@ export interface KafkaControlPlaneResponse {
   body: string;
 }
 
-export interface SlackMessage {
+interface BaseSlackMessage {
   type: 'slack';
-  channels: string[];
   text: string;
   blocks?: KnownBlock[] | Block[];
 }
+
+export interface SlackChannel extends BaseSlackMessage {
+  channels: string[];
+}
+
+// Currently service registry is only used for Slack notifications since
+// it only contains Slack alert channels (and not DD or Jira or others)
+export interface ServiceSlackChannel extends BaseSlackMessage {
+  service_name: string;
+}
+export type SlackMessage = SlackChannel | ServiceSlackChannel;
 
 export interface DatadogEvent {
   type: 'datadog';
@@ -53,14 +63,5 @@ export interface JiraEvent {
 export type GenericEvent = {
   source: string;
   timestamp: number;
-  data: (DatadogEvent | JiraEvent | SlackMessage | ServiceSlackMessage)[];
+  data: (DatadogEvent | JiraEvent | SlackMessage)[];
 };
-
-// Currently only used for Slack notifications since
-// service registry only contains Slack channels (and not DD or Jira or others)
-export interface ServiceSlackMessage {
-  type: 'service_notification';
-  service_name: string; // Official service registry service id
-  text: string;
-  blocks?: KnownBlock[] | Block[];
-}

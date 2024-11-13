@@ -1,4 +1,4 @@
-import servicesData from 'service-registry/sentry_service_registry/config/combined/service_registry.json';
+import servicesData from 'service-registry/service_registry.json';
 import type { Service, ServiceRegistry } from 'service-registry/types/index';
 
 const services: ServiceRegistry = servicesData;
