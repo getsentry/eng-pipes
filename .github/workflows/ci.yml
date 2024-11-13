@@ -58,15 +58,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install Git
-        run: |
-          sudo apt-get update
-          sudo apt-get install git -y
-
       - name: Setup node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: yarn install
+        run: yarn install --immutable
 
       - name: tsc
         run: yarn build
@@ -88,7 +86,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Builds docker image
-        run: DOCKER_BUILDKIT=1 docker build --ssh default -t ci-tooling .
+        run: docker build -t ci-tooling .
 
   build-deploy:
     name: build and deploy
@@ -117,6 +115,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
+
+      - name: yarn install
+        run: yarn install --immutable
 
       - name: tsc
         run: yarn build
