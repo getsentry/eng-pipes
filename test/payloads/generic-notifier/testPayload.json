@@ -7,10 +7,9 @@
 			"text": "Random text here",
 			"channels": ["#aaaaaa"]
 		}, {
-			"type": "service_notification",
-			"service_name": "eng_pipes_gh_notifications",
-			"text": "Random text here",
-			"channels": ["#aaaaaa"]
+			"type": "slack",
+			"service_name": "example_service",
+			"text": "Random text here"
 		}, {
 			"type": "datadog",
 			"title": "This is an Example Notification",

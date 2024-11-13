@@ -1,5 +1,5 @@
-import servicesData from 'service-registry/service_registry.json';
-import type { Service, ServiceRegistry } from 'service-registry/types/index';
+import servicesData from '@/service-registry/service_registry.json';
+import type { Service, ServiceRegistry } from '@/service-registry/types/index';
 
 const services: ServiceRegistry = servicesData;
 
