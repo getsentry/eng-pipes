@@ -5,7 +5,7 @@ import gocdSnubaMigratePayloadRaw from '@test/payloads/gocd/gocd-snuba-build-pas
 import gocdStageBuildingDeployingRaw from '@test/payloads/gocd/gocd-stage-building-deploying.json';
 import gocdStateChecksPayload from '@test/payloads/gocd/gocd-stage-checks.json';
 import gocdFrontendBuildingRaw from '@test/payloads/gocd/gocd-stage-deploy-frontend.json';
-import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
+import testEmptyPayload from '@test/payloads/sentry-options/test-empty-payload.json';
 import { createGoCDRequest } from '@test/utils/createGoCDRequest';
 import { MockedGitHubAPI } from '@test/utils/testTypes';
 
