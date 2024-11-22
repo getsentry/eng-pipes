@@ -12,9 +12,7 @@ function getGitHubUsernameInput(currentUsername?: string): KnownBlock {
     dispatch_action: true,
     label: {
       type: 'plain_text',
-      text: currentUsername
-        ? 'Update GitHub username (case-sensitive)'
-        : 'GitHub username (case-sensitive)',
+      text: currentUsername ? 'Update GitHub username' : 'GitHub username',
     },
     element: {
       type: 'plain_text_input',

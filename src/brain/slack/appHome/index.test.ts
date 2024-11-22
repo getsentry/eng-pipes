@@ -95,7 +95,7 @@ describe('appHome', function () {
             "type": "plain_text_input",
           },
           "label": Object {
-            "text": "Update GitHub username (case-sensitive)",
+            "text": "Update GitHub username",
             "type": "plain_text",
           },
           "type": "input",
@@ -205,7 +205,7 @@ describe('appHome', function () {
             "type": "plain_text_input",
           },
           "label": Object {
-            "text": "GitHub username (case-sensitive)",
+            "text": "GitHub username",
             "type": "plain_text",
           },
           "type": "input",
