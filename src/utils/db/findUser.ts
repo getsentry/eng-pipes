@@ -19,9 +19,16 @@ export function findUser({ email, slackUser, githubUser }: GetUserParams) {
     Object.entries({
       email,
       slackUser,
-      githubUser,
     }).filter(([, v]) => v)
   );
 
-  return db('users').where(whereQuery);
+  let query = db('users').where(whereQuery);
+
+  if (typeof githubUser !== 'undefined') {
+    query = query.where(
+      db.raw('lower("githubUser") = ?', githubUser.toLowerCase())
+    );
+  }
+
+  return query;
 }
