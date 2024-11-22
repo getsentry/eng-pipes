@@ -1,12 +1,12 @@
 import * as Sentry from '@sentry/node';
 
-import testAdminPayload from '@test/payloads/sentry-options/testAdminPayload.json';
-import testBadPayload from '@test/payloads/sentry-options/testBadPayload.json';
-import testEmptyPayload from '@test/payloads/sentry-options/testEmptyPayload.json';
-import testMegaPayload from '@test/payloads/sentry-options/testMegaPayload.json';
-import testPartialPayload from '@test/payloads/sentry-options/testPartialPayload.json';
-import testPayload from '@test/payloads/sentry-options/testPayload.json';
-import testSaasPayload from '@test/payloads/sentry-options/testSaasPayload.json';
+import testAdminPayload from '@test/payloads/sentry-options/test-admin-payload.json';
+import testBadPayload from '@test/payloads/sentry-options/test-bad-payload.json';
+import testEmptyPayload from '@test/payloads/sentry-options/test-empty-payload.json';
+import testMegaPayload from '@test/payloads/sentry-options/test-mega-payload.json';
+import testPartialPayload from '@test/payloads/sentry-options/test-partial-payload.json';
+import testPayload from '@test/payloads/sentry-options/test-payload.json';
+import testSaasPayload from '@test/payloads/sentry-options/test-saas-payload.json';
 import { createSentryOptionsRequest } from '@test/utils/createSentryOptionsRequest';
 
 import { buildServer } from '@/buildServer';
