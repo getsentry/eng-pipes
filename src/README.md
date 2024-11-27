@@ -20,6 +20,10 @@ Below are descriptions for how this application is organized. Each directory con
 
 ## Common Use Cases
 
+## Generic Event Notifier
+
+You can use this service to send a message to Sentry Slack or Datadog. All you have to do is create a small PR to create a HMAC secret for your use case, and your service can send messages to Sentry Slack and Datadog via infra-hub. See [this README](webhooks/README.md) for more details.
+
 ### Adding a New Webhook
 
 To add a new webhook, nagivate to `webhooks` and follow the directions there. Most of the logic should be self-contained within the `webhooks` directory, with handlers in `brain` being appropriate if the webhook is for receiving event streams. To send a message to external sources, use the APIs in `api`.

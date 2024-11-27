@@ -27,6 +27,7 @@ GOCD_WEBHOOK_SECRET
 KAFKA_CONTROL_PLANE_WEBHOOK_SECRET
 SENTRY_OPTIONS_WEBHOOK_SECRET
 "
+# TODO: Revamp this and make it easier to add secrets & deploy to GCP
 
 secrets=""
 for secret_name in $secret_names; do

@@ -1,0 +1,36 @@
+{
+  "example_service": {
+    "alert_slack_channels": [
+      "slack-channel-id-or-name"
+    ],
+    "aspiring_domain_experts": [],
+    "component": "tool",
+    "dashboard": null,
+    "docs": {
+      "notion page": "https://www.notion.so/"
+    },
+    "domain_experts": [
+      {
+        "email": "example@sentry.io",
+        "name": "Example Person"
+      }
+    ],
+    "escalation": "https://sentry.pagerduty.com/",
+    "id": "example_service",
+    "name": "Example service",
+    "notes": null,
+    "production_readiness_docs": [],
+    "slack_channels": [
+      "discuss-stuff"
+    ],
+    "slos": [],
+    "teams": [
+      {
+        "display_name": "Team 1",
+        "id": "team1",
+        "tags": []
+      }
+    ],
+    "tier": 1
+  }
+}

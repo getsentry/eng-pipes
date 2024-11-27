@@ -1,0 +1,25 @@
+{
+	"source": "example-service",
+	"timestamp": 0,
+	"data": [
+		{
+			"type": "slack",
+			"text": "Random text here",
+			"channels": ["#aaaaaa"]
+		}, {
+			"type": "slack",
+			"service_name": "example_service",
+			"text": "Random text here"
+		}, {
+			"type": "datadog",
+			"title": "This is an Example Notification",
+			"text": "Random text here",
+			"tags": ["source:example-service", "sentry-region:all", "sentry-user:bob"],
+			"alertType": "info"
+		}, {
+			"type": "jira",
+			"title": "This is an Example Notification",
+			"projectId": "TEST"
+		}
+	]
+}
