@@ -176,7 +176,6 @@ teams:
   team-gdx:
     offices:
     - vie
-    - yyz
     slack_channel: C07QW5CGHN3
   team-ingest:
     offices:
