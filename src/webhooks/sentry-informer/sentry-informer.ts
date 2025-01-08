@@ -47,7 +47,7 @@ export async function messageSlack(message: SentryInformerResponse) {
   try {
     validatePayload(message);
     const sendBlock: KnownBlock[] = [
-      slackblocks.header(slackblocks.plaintext('Production access')),
+      slackblocks.header(slackblocks.plaintext('Production Access')),
       slackblocks.section(slackblocks.markdown(
         `${message.user} has ${message.action} privileges to ${message.permission} for ${message.incident_id}.` 
       ))
