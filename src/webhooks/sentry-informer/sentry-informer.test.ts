@@ -63,6 +63,7 @@ describe('sentry-informer webhook', () => {
       expect(sentrySetContextSpy.mock.calls[0][0]).toEqual(`message_data`);
       expect(sentrySetContextSpy.mock.calls[0][1]).toEqual({
         message: {
+          action: "all",
           bad_key_name: 'not good',
           source: 'sentry-informer',
           user: 'some user',
