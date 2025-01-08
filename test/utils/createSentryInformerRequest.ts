@@ -10,7 +10,10 @@ function createSentryInformerSignature(payload) {
   );
 }
 
-export async function createSentryInformerRequest(fastify: Fastify, payload: any) {
+export async function createSentryInformerRequest(
+  fastify: Fastify,
+  payload: any
+) {
   const signature = createSentryInformerSignature(payload);
 
   return await fastify.inject({

@@ -6,10 +6,10 @@ import testPayload from '@test/payloads/sentry-informer/testPayload.json';
 import { createSentryInformerRequest } from '@test/utils/createSentryInformerRequest';
 
 import { buildServer } from '@/buildServer';
+import { TRIAGE_INCIDENTS_CHANNED_ID } from '@/config';
 import { bolt } from '@api/slack';
 
 import { messageSlack } from './sentry-informer';
-import { TRIAGE_INCIDENTS_CHANNED_ID } from '@/config';
 
 describe('sentry-informer webhook', () => {
   let fastify;

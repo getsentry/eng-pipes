@@ -31,6 +31,6 @@ export interface SentryInformerResponse {
   source: string;
   user: string;
   incident_id: string;
-  action: string;     // escalated, revoked
+  action: string;
   permission: string;
 }

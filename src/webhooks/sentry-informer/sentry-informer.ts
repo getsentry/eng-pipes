@@ -1,12 +1,14 @@
 import * as Sentry from '@sentry/node';
 import type { KnownBlock } from '@slack/types';
-import type { FastifyReply, FastifyRequest } from 'fastify';
-
 import type { SentryInformerResponse } from '@types';
+import type { FastifyReply, FastifyRequest } from 'fastify';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { TRIAGE_INCIDENTS_CHANNED_ID, SENTRY_INFORMER_WEBHOOK_SECRET } from '@/config';
+import {
+  SENTRY_INFORMER_WEBHOOK_SECRET,
+  TRIAGE_INCIDENTS_CHANNED_ID,
+} from '@/config';
 import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignature';
 
 export async function sentryInformerWebhook(
@@ -52,13 +54,21 @@ export async function messageSlack(message: SentryInformerResponse) {
 
     // Incident id might not be present when an SRE wants to escalate their privileges.
     if (message.incident_id) {
-      sendBlock.push(slackblocks.section(slackblocks.markdown(
-        `${message.user} has ${message.action} privileges to ${message.permission} for ${message.incident_id}.` 
-      )))
+      sendBlock.push(
+        slackblocks.section(
+          slackblocks.markdown(
+            `${message.user} has ${message.action} privileges to ${message.permission} for ${message.incident_id}.`
+          )
+        )
+      );
     } else {
-      sendBlock.push(slackblocks.section(slackblocks.markdown(
-        `${message.user} has ${message.action} privileges to ${message.permission}.` 
-      )))
+      sendBlock.push(
+        slackblocks.section(
+          slackblocks.markdown(
+            `${message.user} has ${message.action} privileges to ${message.permission}.`
+          )
+        )
+      );
     }
 
     await sendMessage(sendBlock);
@@ -78,10 +88,12 @@ async function reportMessageError(
 
 function validatePayload(message: SentryInformerResponse) {
   const requiredFields = ['user', 'action'] as const;
-  const missingFields = requiredFields.filter(field => !message[field]);
+  const missingFields = requiredFields.filter((field) => !message[field]);
 
   if (missingFields.length > 0) {
-    const errorMsg = `Message is missing required fields: ${missingFields.join(', ')}`;
+    const errorMsg = `Message is missing required fields: ${missingFields.join(
+      ', '
+    )}`;
     reportMessageError(message, errorMsg);
   }
 }
