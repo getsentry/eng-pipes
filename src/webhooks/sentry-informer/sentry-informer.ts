@@ -48,9 +48,6 @@ export async function messageSlack(message: SentryInformerResponse) {
     validatePayload(message);
     const sendBlock: KnownBlock[] = [
       slackblocks.header(slackblocks.plaintext('Production Access')),
-      slackblocks.section(slackblocks.markdown(
-        `${message.user} has ${message.action} privileges to ${message.permission} for ${message.incident_id}.` 
-      ))
     ];
 
     // Incident id might not be present when an SRE wants to escalate their privileges.
