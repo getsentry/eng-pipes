@@ -83,7 +83,6 @@ function validatePayload(message: SentryInformerResponse) {
   if (missingFields.length > 0) {
     const errorMsg = `Message is missing required fields: ${missingFields.join(', ')}`;
     reportMessageError(message, errorMsg);
-    throw new Error(errorMsg);
   }
 }
 
