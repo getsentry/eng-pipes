@@ -1,5 +1,7 @@
 import { IncomingMessage, Server, ServerResponse } from 'http';
 
+import { EventAlertType } from '@datadog/datadog-api-client/dist/packages/datadog-api-client-v1';
+import { Block, KnownBlock } from '@slack/types';
 import { FastifyInstance } from 'fastify';
 
 // e.g. the return type of `buildServer`
@@ -26,3 +28,40 @@ export interface KafkaControlPlaneResponse {
   title: string;
   body: string;
 }
+
+interface BaseSlackMessage {
+  type: 'slack';
+  text: string;
+  blocks?: KnownBlock[] | Block[];
+}
+
+export interface SlackChannel extends BaseSlackMessage {
+  channels: string[];
+}
+
+// Currently service registry is only used for Slack notifications since
+// it only contains Slack alert channels (and not DD or Jira or others)
+export interface ServiceSlackChannel extends BaseSlackMessage {
+  service_name: string;
+}
+export type SlackMessage = SlackChannel | ServiceSlackChannel;
+
+export interface DatadogEvent {
+  type: 'datadog';
+  title: string;
+  text: string;
+  tags: string[];
+  alertType: EventAlertType;
+}
+
+export interface JiraEvent {
+  type: 'jira';
+  projectId: string;
+  title: string;
+}
+
+export type GenericEvent = {
+  source: string;
+  timestamp: number;
+  data: (DatadogEvent | JiraEvent | SlackMessage)[];
+};

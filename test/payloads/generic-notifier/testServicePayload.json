@@ -1,0 +1,11 @@
+{
+	"source": "example-service",
+	"timestamp": 0,
+	"data": [
+        {
+			"type": "slack",
+			"service_name": "example_service",
+			"text": "Random text here"
+		}
+	]
+}
