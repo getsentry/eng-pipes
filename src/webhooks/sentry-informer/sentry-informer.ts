@@ -44,8 +44,8 @@ export async function messageSlack(message: SentryInformerResponse) {
   if (message.source !== 'sentry-informer') {
     return;
   }
+  validatePayload(message);
   try {
-    validatePayload(message);
     const sendBlock: KnownBlock[] = [
       slackblocks.header(slackblocks.plaintext('Production Access')),
     ];
