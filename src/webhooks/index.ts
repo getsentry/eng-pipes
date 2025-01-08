@@ -51,6 +51,9 @@ export async function routeHandlers(server: Fastify, _options): Promise<void> {
   server.post('/metrics/sentry-options/webhook', (request, reply) =>
     handleRoute(sentryOptionsWebhook, request, reply, 'sentry-options')
   );
+  server.post('/metrics/sentry-informer/webhook', (request, reply) =>
+    handleRoute(sentryOptionsWebhook, request, reply, 'sentry-informer')
+  );
   server.post('/metrics/webpack/webhook', (request, reply) =>
     handleRoute(webpackWebhook, request, reply, 'webpack')
   );

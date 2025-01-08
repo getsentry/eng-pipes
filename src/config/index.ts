@@ -53,6 +53,10 @@ export const FEED_GOCD_JOB_RUNNER_CHANNEL_ID = // #feed-gocd-job-runner
   process.env.FEED_GOCD_JOB_RUNNER_CHANNEL_ID || 'C07E8TG7VJP';
 export const KAFKA_CONTROL_PLANE_CHANNEL_ID = // #feed-topicctl
   process.env.KAFKA_CONTROL_PLANE_CHANNEL_ID || 'C07E9S96YPM';
+// TODO: Fix the triage-incidents channel when everything works fine.
+// Till we test things out, this points to #feed-sentry-informer
+export const TRIAGE_INCIDENTS_CHANNED_ID = // #triage-incidents
+  process.env.TRIAGE_INCIDENTS_CHANNED_ID || 'C0874TSSHN1';
 export const SUPPORT_CHANNEL_ID = // #discuss-support-open-source
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
 export const TEAM_OSPO_CHANNEL_ID = // #team-ospo
@@ -232,6 +236,8 @@ export const SENTRY_OPTIONS_WEBHOOK_SECRET =
 export const GOCD_WEBHOOK_SECRET = process.env.GOCD_WEBHOOK_SECRET;
 export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
   process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
+export const SENTRY_INFORMER_WEBHOOK_SECRET =
+  process.env.SENTRY_INFORMER_WEBHOOK_SECRET;
 
 /**
  * Regex

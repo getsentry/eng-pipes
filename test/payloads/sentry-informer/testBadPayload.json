@@ -1,0 +1,5 @@
+{
+    "source": "sentry-informer",
+    "user": "some user",
+    "bad_key_name": "not good"
+}
