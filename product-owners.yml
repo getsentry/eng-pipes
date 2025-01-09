@@ -15,6 +15,8 @@ product_areas:
   - team-docs
   Explore:
   - team-explore
+  Explore - Logs:
+  - team-ourlogs
   Footer:
   - team-issues
   GDX:
@@ -206,6 +208,10 @@ teams:
     offices:
     - sea
     slack_channel: C04B27EECUB
+  team-ourlogs:
+    offices:
+    - yyz
+    slack_channel: C0887GWU26M
   team-performance:
     offices:
     - yyz
