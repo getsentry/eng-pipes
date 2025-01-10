@@ -8,7 +8,6 @@ import { Fastify } from '@/types';
 import { bootstrapWebhook } from './bootstrap-dev-env/bootstrap-dev-env';
 import { gocdWebhook } from './gocd/gocd';
 import { kafkactlWebhook } from './kafka-control-plane/kafka-control-plane';
-import { sentryInformerWebhook } from './sentry-informer/sentry-informer';
 import { sentryOptionsWebhook } from './sentry-options/sentry-options';
 import { webpackWebhook } from './webpack/webpack';
 
@@ -51,9 +50,6 @@ export async function routeHandlers(server: Fastify, _options): Promise<void> {
   );
   server.post('/metrics/sentry-options/webhook', (request, reply) =>
     handleRoute(sentryOptionsWebhook, request, reply, 'sentry-options')
-  );
-  server.post('/metrics/sentry-informer/webhook', (request, reply) =>
-    handleRoute(sentryInformerWebhook, request, reply, 'sentry-informer')
   );
   server.post('/metrics/webpack/webhook', (request, reply) =>
     handleRoute(webpackWebhook, request, reply, 'webpack')
