@@ -26,11 +26,3 @@ export interface KafkaControlPlaneResponse {
   title: string;
   body: string;
 }
-
-export interface SentryInformerResponse {
-  source: string;
-  user: string;
-  incident_id: string;
-  action: string;
-  permission: string;
-}
