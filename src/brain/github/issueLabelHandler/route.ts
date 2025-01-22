@@ -188,7 +188,7 @@ async function routeIssue(org, productAreaLabelName) {
     return `Routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
-    return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/dev-infra for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
   }
 }
 
