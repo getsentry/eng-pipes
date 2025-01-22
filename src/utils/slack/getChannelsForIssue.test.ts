@@ -32,7 +32,7 @@ describe('getChannelsForIssue', () => {
       },
     ]);
   });
-  it('will return team-ospo channel if inputs are invalid', () => {
+  it('will return team-dev-infra channel if inputs are invalid', () => {
     expect(
       getChannelsForIssue(
         'garbage-repo',

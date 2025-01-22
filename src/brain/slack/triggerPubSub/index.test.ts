@@ -30,7 +30,7 @@ describe('slack app', function () {
     jest.clearAllMocks();
   });
 
-  it('does not do anything if channel is not ospo team channel', async function () {
+  it('does not do anything if channel is not dev-infra team channel', async function () {
     const response = await createSlackAppMention(
       fastify,
       '<@U018UAXJVG8> ttr',

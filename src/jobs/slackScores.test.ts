@@ -7,7 +7,7 @@ import { bolt } from '@api/slack';
 
 import {
   DISCUSS_PRODUCT_CHANNEL_ID,
-  TEAM_OSPO_CHANNEL_ID,
+  TEAM_DEV_INFRA_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '../config';
 
@@ -97,7 +97,7 @@ describe('slackScores tests', function () {
       await sendGitHubEngagementMetrics(true);
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          channel: TEAM_OSPO_CHANNEL_ID,
+          channel: TEAM_DEV_INFRA_CHANNEL_ID,
         })
       );
     });
@@ -127,7 +127,7 @@ describe('slackScores tests', function () {
 | ingest                        |   - (0/0)      |
 | issues                        |   - (0/0)      |
 | null                          |   - (0/0)      |
-| ospo                          |   - (0/0)      |
+| dev-infra                     |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
               type: 'mrkdwn',
             },
@@ -202,7 +202,7 @@ describe('slackScores tests', function () {
 ├────────────────────────────────────────────────┤
 | Low Volume                                     |
 ├────────────────────────────────────────────────┤
-| ospo                          | 100 (1/1)      |
+| dev-infra                     | 100 (1/1)      |
 | enterprise                    |   0 (0/1)      |
 ├────────────────────────────────────────────────┤
 | No Volume                                      |
@@ -255,7 +255,7 @@ describe('slackScores tests', function () {
 | ingest                        |   - (0/0)      |
 | issues                        |   - (0/0)      |
 | null                          |   - (0/0)      |
-| ospo                          |   - (0/0)      |
+| dev-infra                     |   - (0/0)      |
 └────────────────────────────────────────────────┘\`\`\``,
               type: 'mrkdwn',
             },
@@ -298,7 +298,7 @@ describe('slackScores tests', function () {
 ├────────────────────────────────────────────────┤
 | Low Volume                                     |
 ├────────────────────────────────────────────────┤
-| ospo                          | 100 (1/1)      |
+| dev-infra                     | 100 (1/1)      |
 ├────────────────────────────────────────────────┤
 | No Volume                                      |
 ├────────────────────────────────────────────────┤
@@ -328,7 +328,7 @@ describe('slackScores tests', function () {
       expect(postMessageSpy).not.toHaveBeenCalled();
     });
 
-    it('should send github activity metrics properly to ospo team channel for testing', async () => {
+    it('should send github activity metrics properly to dev-infra team channel for testing', async () => {
       const discussions = [
         {
           title: 'Discussion 1',
@@ -359,7 +359,7 @@ describe('slackScores tests', function () {
       await sendGitHubActivityMetrics(true);
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({
-          channel: TEAM_OSPO_CHANNEL_ID,
+          channel: TEAM_DEV_INFRA_CHANNEL_ID,
         })
       );
     });

@@ -1,6 +1,6 @@
 product_areas:
   One-Team:
-    - team-ospo
+    - team-dev-infra
   Multi-Team:
     - team-issues
     - team-enterprise
@@ -17,13 +17,13 @@ product_areas:
     - team-issues
     - team-enterprise
   Unknown:
-    - team-ospo
+    - team-dev-infra
 repos:
   test-ttt-simple: team-issues
   vie-repo: team-ingest
   test-null: team-null
 teams:
-  team-ospo:
+  team-dev-infra:
     slack_channel: C05A6BW303Y
     offices:
       - sea
