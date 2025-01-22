@@ -5,7 +5,9 @@ import { getTeams } from './getTeams';
 // Check tests/product-owners.yml for data used for tests here
 describe('getTeams', function () {
   it('should return team-dev-infra if no teams were found', () => {
-    expect(getTeams('repo-does-not-exist', 'getsentry')).toEqual(['team-dev-infra']);
+    expect(getTeams('repo-does-not-exist', 'getsentry')).toEqual([
+      'team-dev-infra',
+    ]);
   });
 
   it('should return array with one team if repo does not have routing', () => {
