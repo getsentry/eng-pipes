@@ -2,12 +2,11 @@
 
 ## Time to Triage
 
-We track Time to Triage [as an SLO][looker] for the OSPO and the
-EPD org as a whole. The computation is [defined in LookML][implementation]
-based on the `Status: Untriaged` label. The handler in this directory
-implements logic to manipulate the `Status: Untriaged` label in repos that are
-owned by one team (i.e., not `sentry`; that's done with [a GitHub
-Action][action]). Here is the logic:
+We track Time to Triage [as an SLO][looker] for EPD. The computation is
+[defined in LookML][implementation] based on the `Status: Untriaged` label. The
+handler in this directory implements logic to manipulate the `Status:
+Untriaged` label in repos that are owned by one team (i.e., not `sentry`;
+that's done with [a GitHub Action][action]). Here is the logic:
 
   1. Apply `Status: Untriaged` to new issues/PRs from external users.
 
