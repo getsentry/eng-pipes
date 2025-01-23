@@ -16,9 +16,9 @@ import {
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
+  FEED_SDKS_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
-  FEED_SDKS_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -47,14 +47,9 @@ const BACKEND_PIPELINE_FILTER = [
 
 const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
 
-const INGEST_PIPELINE_FILTER = [
-  'deploy-relay-processing',
-  'deploy-relay-pop'
-];
+const INGEST_PIPELINE_FILTER = ['deploy-relay-processing', 'deploy-relay-pop'];
 
-const SDKS_PIPELINE_FILTER = [
-  'deploy-release-registry',
-];
+const SDKS_PIPELINE_FILTER = ['deploy-release-registry'];
 
 const SNS_SAAS_PIPELINE_FILTER = [
   'deploy-snuba',
