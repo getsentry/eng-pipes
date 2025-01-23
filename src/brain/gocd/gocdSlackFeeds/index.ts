@@ -16,6 +16,7 @@ import {
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
   FEED_INGEST_CHANNEL_ID,
+  FEED_SDKS_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
@@ -47,6 +48,8 @@ const BACKEND_PIPELINE_FILTER = [
 const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
 
 const INGEST_PIPELINE_FILTER = ['deploy-relay-processing', 'deploy-relay-pop'];
+
+const SDKS_PIPELINE_FILTER = ['deploy-release-registry'];
 
 const SNS_SAAS_PIPELINE_FILTER = [
   'deploy-snuba',
@@ -284,6 +287,20 @@ const ingestFeed = new DeployFeed({
   },
 });
 
+// Post certain pipelines to #feed-sdks
+const sdksFeed = new DeployFeed({
+  feedName: 'sdksSlackFeed',
+  channelID: FEED_SDKS_CHANNEL_ID,
+  msgType: SlackMessage.FEED_SDKS_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    if (!SDKS_PIPELINE_FILTER.includes(pipeline.name)) {
+      return false;
+    }
+
+    return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+});
+
 // Post certain pipelines to #discuss-backend
 const discussBackendFeed = new DeployFeed({
   feedName: 'discussBackendSlackFeed',
@@ -411,6 +428,7 @@ export async function handler(body: GoCDResponse) {
     discussSnSFeed.handle(body),
     goCDCustomJobRunnerFeed.handle(body),
     ingestFeed.handle(body),
+    sdksFeed.handle(body),
     snsS4SK8sFeed.handle(body),
     snsSaaSFeed.handle(body),
     snsSaaSK8sFeed.handle(body),
