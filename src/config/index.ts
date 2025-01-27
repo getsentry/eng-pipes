@@ -55,8 +55,8 @@ export const KAFKA_CONTROL_PLANE_CHANNEL_ID = // #feed-topicctl
   process.env.KAFKA_CONTROL_PLANE_CHANNEL_ID || 'C07E9S96YPM';
 export const SUPPORT_CHANNEL_ID = // #discuss-support-github
   process.env.SUPPORT_CHANNEL_ID || 'C02KHRNRZ1B';
-export const TEAM_DEV_INFRA_CHANNEL_ID = // #feed-dev-infra
-  process.env.TEAM_DEV_INFRA_CHANNEL_ID || 'C05816N2A2K';
+export const TEAM_DEV_INFRA_CHANNEL_ID = // #team-dev-infra
+  process.env.TEAM_DEV_INFRA_CHANNEL_ID || 'G01F13Y6AQ0';
 export const TEAM_PRODUCT_OWNERS_CHANNEL_ID =
   process.env.TEAM_PRODUCT_OWNERS_CHANNEL_ID || 'C063DCB4PGF';
 export const DISCUSS_PRODUCT_CHANNEL_ID = // #discuss-product
