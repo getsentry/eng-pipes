@@ -1,0 +1,7 @@
+{
+    "source": "sentry-informer",
+    "user": "some_user",
+    "incident_id": "some_incident",
+    "action": "elevated",
+    "permission": "all"
+}
