@@ -7,7 +7,7 @@ import {
   FEED_ENGINEERING_CHANNEL_ID,
   GETSENTRY_ORG,
   PRODUCT_OWNERS_INFO,
-  TEAM_OSPO_CHANNEL_ID,
+  TEAM_DEV_INFRA_CHANNEL_ID,
   TEAM_PRODUCT_OWNERS_CHANNEL_ID,
 } from '@/config';
 import {
@@ -73,7 +73,7 @@ export const sendApisPublishStatus = async () => {
 };
 
 export const sendGitHubEngagementMetrics = async (
-  ospo_internal: boolean = false
+  dev_infra_internal: boolean = false
 ) => {
   const teamScores: teamScoreInfo[] = await Promise.all(
     Object.keys(PRODUCT_OWNERS_INFO['teams']).map(async (team: string) => {
@@ -195,8 +195,8 @@ export const sendGitHubEngagementMetrics = async (
       text: '```' + scoreBoard + '```',
     },
   });
-  const channelsToPost = ospo_internal
-    ? [TEAM_OSPO_CHANNEL_ID]
+  const channelsToPost = dev_infra_internal
+    ? [TEAM_DEV_INFRA_CHANNEL_ID]
     : [TEAM_PRODUCT_OWNERS_CHANNEL_ID];
   const slackNotifications = channelsToPost.map((channelId: string) => {
     return bolt.client.chat.postMessage({
@@ -209,7 +209,7 @@ export const sendGitHubEngagementMetrics = async (
 };
 
 export const sendGitHubActivityMetrics = async (
-  ospo_internal: boolean = false
+  dev_infra_internal: boolean = false
 ) => {
   const { discussions, gitHubCommenters, issues } =
     await getGitHubActivityMetrics();
@@ -323,8 +323,8 @@ export const sendGitHubActivityMetrics = async (
       text: '```' + scoreBoard + '```',
     },
   });
-  const channelToPost = ospo_internal
-    ? TEAM_OSPO_CHANNEL_ID
+  const channelToPost = dev_infra_internal
+    ? TEAM_DEV_INFRA_CHANNEL_ID
     : DISCUSS_PRODUCT_CHANNEL_ID;
   await bolt.client.chat.postMessage({
     channel: channelToPost,

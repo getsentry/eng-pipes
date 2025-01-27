@@ -3,7 +3,7 @@ import { createSlackAppMention } from '@test/utils/createSlackAppMention';
 import { buildServer } from '@/buildServer';
 import * as slackScoresFunctions from '@/jobs/slackScores';
 
-import { TEAM_OSPO_CHANNEL_ID } from '../../../config';
+import { TEAM_DEV_INFRA_CHANNEL_ID } from '../../../config';
 
 import { triggerPubSub } from '.';
 
@@ -30,7 +30,7 @@ describe('slack app', function () {
     jest.clearAllMocks();
   });
 
-  it('does not do anything if channel is not ospo team channel', async function () {
+  it('does not do anything if channel is not dev-infra team channel', async function () {
     const response = await createSlackAppMention(
       fastify,
       '<@U018UAXJVG8> ttr',
@@ -45,7 +45,7 @@ describe('slack app', function () {
     const response = await createSlackAppMention(
       fastify,
       '<@U018UAXJVG8> ttr',
-      TEAM_OSPO_CHANNEL_ID
+      TEAM_DEV_INFRA_CHANNEL_ID
     );
     expect(response.statusCode).toBe(200);
     expect(sendGitHubEngagementMetricsSpy).toHaveBeenCalledWith(true);
@@ -56,7 +56,7 @@ describe('slack app', function () {
     const response = await createSlackAppMention(
       fastify,
       '<@U018UAXJVG8> activity',
-      TEAM_OSPO_CHANNEL_ID
+      TEAM_DEV_INFRA_CHANNEL_ID
     );
     expect(response.statusCode).toBe(200);
     expect(sendGitHubEngagementMetricsSpy).not.toHaveBeenCalled();

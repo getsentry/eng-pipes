@@ -4,21 +4,23 @@ import { getTeams } from './getTeams';
 
 // Check tests/product-owners.yml for data used for tests here
 describe('getTeams', function () {
-  it('should return team-ospo if no teams were found', () => {
-    expect(getTeams('repo-does-not-exist', 'getsentry')).toEqual(['team-ospo']);
+  it('should return team-dev-infra if no teams were found', () => {
+    expect(getTeams('repo-does-not-exist', 'getsentry')).toEqual([
+      'team-dev-infra',
+    ]);
   });
 
   it('should return array with one team if repo does not have routing', () => {
     expect(getTeams('test-ttt-simple', 'getsentry')).toEqual(['team-issues']);
   });
 
-  it('should return team-ospo if repo has routing and no product area is passed', () => {
-    expect(getTeams('routing-repo', 'getsentry')).toEqual(['team-ospo']);
+  it('should return team-dev-infra if repo has routing and no product area is passed', () => {
+    expect(getTeams('routing-repo', 'getsentry')).toEqual(['team-dev-infra']);
   });
 
   it('should return array with one team if repo has routing and product area is owned by one team', () => {
     expect(getTeams('routing-repo', 'getsentry', 'One-Team')).toEqual([
-      'team-ospo',
+      'team-dev-infra',
     ]);
   });
 
@@ -33,21 +35,21 @@ describe('getTeams', function () {
     expect(getTeams('codecov-repo', 'codecov', 'Multi-Team')).toEqual([]);
   });
 
-  it('should return team-ospo if team is not defined in product owners yml', () => {
+  it('should return team-dev-infra if team is not defined in product owners yml', () => {
     const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
     expect(getTeams('undefined-team-repo', 'getsentry', 'Multi-Team')).toEqual([
-      'team-ospo',
+      'team-dev-infra',
     ]);
     expect(captureMessageSpy).toHaveBeenCalledWith(
       'Teams is not defined for getsentry/undefined-team-repo'
     );
   });
 
-  it('should return team-ospo if product area is not defined in product owners yml', () => {
+  it('should return team-dev-infra if product area is not defined in product owners yml', () => {
     const captureMessageSpy = jest.spyOn(Sentry, 'captureMessage');
     expect(
       getTeams('routing-repo', 'getsentry', 'Undefined Product Area')
-    ).toEqual(['team-ospo']);
+    ).toEqual(['team-dev-infra']);
     expect(captureMessageSpy).toHaveBeenCalledWith(
       'Teams is not defined for Undefined Product Area'
     );

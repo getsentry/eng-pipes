@@ -495,7 +495,7 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(org.api.issues._comments).toEqual([
         'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/open-source for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/dev-infra for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });

@@ -24,7 +24,7 @@ describe('score tests', () => {
     jest.clearAllMocks();
   });
   it('should send the right sql we expect for getIssueEventsForTeam', () => {
-    getIssueEventsForTeam('team-ospo');
+    getIssueEventsForTeam('team-dev-infra');
     const query = `WITH labelings AS (
     SELECT
       issues.object_id AS issue_id,
@@ -94,7 +94,7 @@ describe('score tests', () => {
       triage_by_dt,
     FROM
       issues_to_count
-      WHERE 'team-ospo' in UNNEST(teams)
+      WHERE 'team-dev-infra' in UNNEST(teams)
       ;`;
     expect(mockQuery).toHaveBeenCalledWith(query);
   });
