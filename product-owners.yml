@@ -36,9 +36,9 @@ product_areas:
   Issues - Suggested Fix:
   - team-machine-learning
   Org Relocation:
-  - team-ospo
+  - team-dev-infra
   Other:
-  - team-ospo
+  - team-dev-infra
   Performance:
   - team-performance
   Processing:
@@ -94,7 +94,7 @@ product_areas:
   Stats:
   - team-revenue
   Unknown:
-  - team-ospo
+  - team-dev-infra
   User Feedback:
   - team-replays
   What's New:
@@ -102,10 +102,10 @@ product_areas:
 repos:
   arroyo: team-sns
   cdc: team-sns
-  craft: team-ospo
+  craft: team-dev-infra
   relay: team-ingest
-  responses: team-ospo
-  self-hosted: team-ospo
+  responses: team-dev-infra
+  self-hosted: team-dev-infra
   sentry-android-gradle-plugin: team-mobile-sdks
   sentry-cli: team-web-backend-sdks
   sentry-cocoa: team-mobile-sdks
@@ -156,7 +156,12 @@ teams:
   team-dashboards:
     offices:
     - yyz
-    slack_channel: C01MYDW8Y7K
+    slack_channel: C026Y0SK34H
+  team-dev-infra:
+    offices:
+    - sfo
+    - sea
+    slack_channel: C05816N2A2K
   team-docs:
     offices:
     - sea
@@ -204,10 +209,6 @@ teams:
     offices:
     - vie
     slack_channel: C0190510ABF
-  team-ospo:
-    offices:
-    - sea
-    slack_channel: C04B27EECUB
   team-ourlogs:
     offices:
     - yyz
