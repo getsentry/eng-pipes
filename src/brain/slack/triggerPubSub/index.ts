@@ -1,4 +1,4 @@
-import { TEAM_OSPO_CHANNEL_ID } from '@/config';
+import { TEAM_DEV_INFRA_CHANNEL_ID } from '@/config';
 import {
   sendGitHubActivityMetrics,
   sendGitHubEngagementMetrics,
@@ -8,7 +8,7 @@ import { bolt } from '@api/slack';
 
 export const slackHandler = async ({ event }) => {
   const { channel, text } = event;
-  if (channel !== TEAM_OSPO_CHANNEL_ID) {
+  if (channel !== TEAM_DEV_INFRA_CHANNEL_ID) {
     return;
   }
   if (text.includes('ttr')) {

@@ -151,7 +151,7 @@ describe('metrics tests', function () {
         testPayload.repository.name = 'routing-repo';
         const result = await insertOss('issues', testPayload);
         expect(result).toMatchObject({
-          teams: ['team-ospo'],
+          teams: ['team-dev-infra'],
           product_area: 'One-Team',
         });
       });
@@ -163,7 +163,7 @@ describe('metrics tests', function () {
         testPayload.repository.name = 'routing-repo';
         const result = await insertOss('issues', testPayload);
         expect(result).toMatchObject({
-          teams: ['team-ospo'],
+          teams: ['team-dev-infra'],
           product_area: 'One-Team',
         });
       });
@@ -212,7 +212,7 @@ describe('metrics tests', function () {
         testPayload.comment = { id: 123, created_at: null, updated_at: null };
         const result = await insertOss('issue_comment', testPayload);
         expect(result).toMatchObject({
-          teams: ['team-ospo'],
+          teams: ['team-dev-infra'],
           product_area: 'One-Team',
           target_name: 'Test Issue',
         });
@@ -259,7 +259,7 @@ describe('metrics tests', function () {
           target_id: 1,
           target_name: 'Issue Title',
           target_type: 'issue',
-          teams: ['team-ospo'],
+          teams: ['team-dev-infra'],
           timeToRouteBy: null,
           timeToTriageBy: null,
           type: 'issue_comment',
@@ -284,7 +284,7 @@ describe('metrics tests', function () {
           target_id: 1,
           target_name: 'Pull Request Title',
           target_type: 'pull_request',
-          teams: ['team-ospo'],
+          teams: ['team-dev-infra'],
           timeToRouteBy: null,
           timeToTriageBy: null,
           type: 'pull_request_comment',

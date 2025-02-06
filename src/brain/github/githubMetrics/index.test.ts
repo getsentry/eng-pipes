@@ -129,7 +129,7 @@ describe('github webhook', function () {
         timeToTriageBy: null,
         timeToRouteBy: null,
         product_area: null,
-        teams: ['team-ospo'],
+        teams: ['team-dev-infra'],
       },
       { schema: SCHEMA }
     );
@@ -174,7 +174,7 @@ describe('github webhook', function () {
         timeToTriageBy: null,
         timeToRouteBy: null,
         product_area: null,
-        teams: ['team-ospo'],
+        teams: ['team-dev-infra'],
       },
       { schema: SCHEMA }
     );
@@ -207,7 +207,7 @@ describe('github webhook', function () {
         timeToTriageBy: null,
         timeToRouteBy: null,
         product_area: null,
-        teams: ['team-ospo'],
+        teams: ['team-dev-infra'],
       },
       { schema: SCHEMA }
     );
