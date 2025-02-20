@@ -135,6 +135,27 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     expect(org.api.issues._comments).toEqual([]);
   });
 
+  it('should not mark PR as stale in routing-repo if it has been over 3 weeks but has wip label', async function () {
+    org.api.issues.listForRepo = jest.fn(() => []);
+    org.api.pulls.list = jest.fn(({ repo }) => {
+      return org.repos.withRouting.includes(repo)
+        ? [
+            {
+              ...issueInfo,
+              labels: [WAITING_FOR_COMMUNITY_LABEL, 'wip'],
+              merge_commit_sha: FAKE_MERGE_COMMIT,
+            },
+          ]
+        : [];
+    });
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-27T14:28:13Z').utc()
+    );
+    expect(org.api.issues._labels).not.toContain(STALE_LABEL);
+    expect(org.api.issues._comments).toEqual([]);
+  });
+
   it('should not mark PR as stale in repos without routing if it has been over 3 weeks', async function () {
     org.api.issues.listForRepo = jest.fn(() => []);
     org.api.pulls.list = jest.fn(({ repo }) => {
