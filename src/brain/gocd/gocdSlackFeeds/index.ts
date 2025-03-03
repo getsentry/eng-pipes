@@ -287,7 +287,7 @@ const ingestFeed = new DeployFeed({
   },
 });
 
-// Post certain pipelines to #feed-sdks
+// Post certain pipelines to #discuss-sdks
 const sdksFeed = new DeployFeed({
   feedName: 'sdksSlackFeed',
   channelID: FEED_SDKS_CHANNEL_ID,
