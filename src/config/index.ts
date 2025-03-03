@@ -49,8 +49,8 @@ export const FEED_SNS_ST_CHANNEL_ID = // #feed-sns-st
   process.env.FEED_SNS_ST_CHANNEL_ID || 'C0596EHDD9N';
 export const FEED_INGEST_CHANNEL_ID = // #discuss-ingest
   process.env.FEED_INGEST_CHANNEL_ID || 'C019637C760';
-export const FEED_SDKS_CHANNEL_ID = // #feed-sdks
-  process.env.FEED_SDKS_CHANNEL_ID || 'C05KQ0EMAT1';
+export const FEED_SDKS_CHANNEL_ID = // #discuss-sdks
+  process.env.FEED_SDKS_CHANNEL_ID || 'CA2V2LBDL';
 export const FEED_GOCD_JOB_RUNNER_CHANNEL_ID = // #feed-gocd-job-runner
   process.env.FEED_GOCD_JOB_RUNNER_CHANNEL_ID || 'C07E8TG7VJP';
 export const KAFKA_CONTROL_PLANE_CHANNEL_ID = // #feed-topicctl
