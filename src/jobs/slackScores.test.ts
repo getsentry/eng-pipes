@@ -1,6 +1,5 @@
 import { OAuth2Client } from 'google-auth-library';
 
-import * as getAPIsStatsMessage from '@/brain/github/apis/getStatsMessage';
 import { GETSENTRY_ORG, GH_ORGS } from '@/config';
 import * as scoresUtils from '@/utils/db/scores';
 import { bolt } from '@api/slack';
@@ -18,25 +17,14 @@ import {
 } from './slackScores';
 
 describe('slackScores tests', function () {
-  let getIssueEventsForTeamSpy,
-    getGithubActivityMetricsSpy,
-    postMessageSpy,
-    getStatsMessageSpy;
+  let getIssueEventsForTeamSpy, getGithubActivityMetricsSpy, postMessageSpy;
   beforeAll(() => {
     getIssueEventsForTeamSpy = jest.spyOn(scoresUtils, 'getIssueEventsForTeam');
     getGithubActivityMetricsSpy = jest.spyOn(
       scoresUtils,
       'getGitHubActivityMetrics'
     );
-    getStatsMessageSpy = jest.spyOn(getAPIsStatsMessage, 'getStatsMessage');
-    getStatsMessageSpy.mockImplementation(() => {
-      return {
-        messages: ['Some random message'],
-        should_show_docs: false,
-        goal: 50,
-        review_link: getAPIsStatsMessage.OWNERSHIP_FILE_LINK,
-      };
-    });
+
     postMessageSpy = jest.spyOn(bolt.client.chat, 'postMessage');
     jest
       .spyOn(OAuth2Client.prototype, 'verifyIdToken')
@@ -67,12 +55,7 @@ describe('slackScores tests', function () {
         gitHubCommenters: [],
       });
       await triggerSlackScores(GETSENTRY_ORG);
-      expect(postMessageSpy).toHaveBeenCalledTimes(2);
-      expect(postMessageSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          text: 'API Publish Stats By Team',
-        })
-      );
+      expect(postMessageSpy).toHaveBeenCalledTimes(1);
       expect(postMessageSpy).toHaveBeenCalledWith(
         expect.objectContaining({
           text: 'Weekly GitHub Team Scores',
