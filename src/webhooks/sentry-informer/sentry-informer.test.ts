@@ -88,7 +88,7 @@ describe('sentry-informer webhook', () => {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: 'some_user has elevated privileges to all for some_incident.',
+              text: ':trash: *some_user* has *elevated* privileges in region *some_region* for Incident *some_incident*',
             },
           },
         ],

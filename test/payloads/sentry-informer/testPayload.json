@@ -2,6 +2,7 @@
     "source": "sentry-informer",
     "user": "some_user",
     "incident_id": "some_incident",
+    "region": "some_region",
     "action": "elevated",
     "permission": "all"
 }

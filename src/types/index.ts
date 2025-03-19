@@ -31,6 +31,7 @@ export interface SentryInformerResponse {
   source: string;
   user: string;
   incident_id: string;
+  region: string;
   action: string;
   permission: string;
 }
