@@ -57,7 +57,9 @@ export async function messageSlack(message: SentryInformerResponse) {
       sendBlock.push(
         slackblocks.section(
           slackblocks.markdown(
-            `${message.user} has ${message.action} privileges to ${message.permission} for ${message.incident_id}.`
+            message.action === 'escalated'
+              ? `:alert: *${message.user}* has *${message.action}* privileges in region *${message.region}* for Incident *${message.incident_id}*`
+              : `:trash: *${message.user}* has *${message.action}* privileges in region *${message.region}* for Incident *${message.incident_id}*`
           )
         )
       );
@@ -65,7 +67,9 @@ export async function messageSlack(message: SentryInformerResponse) {
       sendBlock.push(
         slackblocks.section(
           slackblocks.markdown(
-            `${message.user} has ${message.action} privileges to ${message.permission}.`
+            message.action === 'escalated'
+              ? `:alert: *${message.user}* has *${message.action}* privileges in region *${message.region}*`
+              : `:trash: *${message.user}* has *${message.action}* privileges in region *${message.region}*`
           )
         )
       );
