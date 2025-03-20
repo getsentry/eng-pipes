@@ -58,8 +58,8 @@ export async function messageSlack(message: SentryInformerResponse) {
         slackblocks.section(
           slackblocks.markdown(
             message.action === 'escalated'
-              ? `:alert-light: *${message.user}* has *${message.action}* privileges in region *${message.region}* for *INC-${message.incident_id}*`
-              : `:broom: *${message.user}* has *${message.action}* privileges in region *${message.region}* for *INC${message.incident_id}*`
+              ? `:alert-light: *${message.user}* has *${message.action}* privileges in region *${message.region}* for *${message.incident_id}*`
+              : `:broom: *${message.user}* has *${message.action}* privileges in region *${message.region}* for *${message.incident_id}*`
           )
         )
       );
