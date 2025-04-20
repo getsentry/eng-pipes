@@ -79,5 +79,5 @@ codecov:
       status: 'PVTSSF_lADOAH2Fnc4ARzsqzgLXyI4'
       responseDue: 'PVTF_lADOAH2Fnc4ARzsqzgLXyhE'
   repos:
-    withoutRouting:
+    withRouting:
       - 'feedback'
