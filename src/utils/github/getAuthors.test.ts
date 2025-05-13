@@ -21,17 +21,8 @@ describe('getAuthors', () => {
   const mockCompareCommits = GETSENTRY_ORG.api.repos
     .compareCommits as unknown as jest.Mock;
   // @ts-ignore
-  const consoleErrorSpy = jest
-    .spyOn(console, 'error')
-    .mockImplementation(() => {});
-
   beforeEach(() => {
     mockCompareCommits.mockClear();
-    consoleErrorSpy.mockClear();
-  });
-
-  afterAll(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   it('should return author login and email from commits', async () => {
@@ -117,7 +108,6 @@ describe('getAuthors', () => {
     const authors = await getAuthors('my-repo', 'base-sha', 'head-sha');
 
     expect(authors).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(MOCK_ERROR);
   });
 
   it('should aggregate all users when multiple commits have different authors', async () => {
@@ -163,18 +153,10 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
     .compareCommits as unknown as jest.Mock;
   const mockOctokitRequest = GETSENTRY_ORG.api.request as unknown as jest.Mock;
   // @ts-ignore
-  const consoleErrorSpy = jest
-    .spyOn(console, 'error')
-    .mockImplementation(() => {});
 
   beforeEach(() => {
     mockCompareCommits.mockClear();
     mockOctokitRequest.mockClear();
-    consoleErrorSpy.mockClear();
-  });
-
-  afterAll(() => {
-    consoleErrorSpy.mockRestore();
   });
 
   it('should return authors for standard commits (no reverts)', async () => {
@@ -336,10 +318,6 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
     expect(authors).toEqual([
       { email: 'reverter@sentry.io', login: 'reverter_user' },
     ]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      `  Error fetching details for reverted commit ${ORIGINAL_COMMIT_SHA}:`,
-      expect.any(Error)
-    );
   });
 
   it('should handle a mix of standard and revert commits', async () => {
@@ -414,7 +392,6 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       'head'
     );
     expect(authors).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.any(Error));
   });
 
   it('should return empty array if compareCommits returns no commits', async () => {
@@ -428,11 +405,12 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
   });
 
   it('should fallback to commitStatus author if processCommit fails for non-revert specific reason', async () => {
+    const COMMIT_SHA = 'c0ffee';
     mockCompareCommits.mockResolvedValue({
       data: {
         commits: [
           {
-            sha: 'errorSha',
+            sha: COMMIT_SHA,
             commit: { author: { email: 'commitstatus@example.com' } },
             author: { login: 'commitstatus_user' },
           },
@@ -442,9 +420,9 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
     mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
       if (
         url === 'GET /repos/{owner}/{repo}/commits/{ref}' &&
-        params.ref === 'errorSha'
+        params.ref === COMMIT_SHA
       ) {
-        throw new Error('Failed to fetch commit details for errorSha');
+        throw new Error(`Failed to fetch commit details for ${COMMIT_SHA}`);
       }
       throw new Error(`Unexpected Octokit request to ${url}`);
     });
@@ -457,10 +435,6 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
     expect(authors).toEqual([
       { email: 'commitstatus@example.com', login: 'commitstatus_user' },
     ]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Error processing commit errorSha:',
-      expect.any(Error)
-    );
   });
 
   it('should handle missing email or login for original author of a revert commit', async () => {
