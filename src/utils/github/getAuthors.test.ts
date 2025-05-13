@@ -343,9 +343,9 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
   });
 
   it('should handle a mix of standard and revert commits', async () => {
-    const STANDARD_SHA = 'coffeebead';
-    const ORIGINAL_SHA = 'coffee';
-    const REVERT_SHA = 'decaf';
+    const STANDARD_SHA = 'deadc0de';
+    const ORIGINAL_SHA = 'c0ffee';
+    const REVERT_SHA = 'd3caf';
 
     mockCompareCommits.mockResolvedValue({
       data: {
@@ -357,7 +357,10 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
           },
           {
             sha: REVERT_SHA,
-            commit: { author: { email: 'reverter@example.com' } },
+            commit: {
+              author: { email: 'reverter@example.com' },
+              message: `This reverts commit ${ORIGINAL_SHA}`,
+            },
             author: { login: 'reverter_user' },
           },
         ],
