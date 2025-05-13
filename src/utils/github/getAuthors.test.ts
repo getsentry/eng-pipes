@@ -26,7 +26,6 @@ describe('getAuthors', () => {
     .mockImplementation(() => {});
 
   beforeEach(() => {
-    // Clear mock history before each test
     mockCompareCommits.mockClear();
     consoleErrorSpy.mockClear();
   });
@@ -235,15 +234,20 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
   });
 
   it('should return original author for a revert commit if found', async () => {
-    const REVERTED_COMMIT_SHA = 'revertedsha123';
-    const REVERT_COMMIT_SHA = 'revertcommisha456';
+    const ORIGINAL_COMMIT_SHA = 'deadbeef';
+    const REVERT_COMMIT_SHA = 'coffee';
 
     mockCompareCommits.mockResolvedValue({
       data: {
         commits: [
           {
             sha: REVERT_COMMIT_SHA,
-            commit: { author: { email: 'reverter@example.com' } },
+            commit: {
+              author: { email: 'reverter@example.com' },
+              message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.
+
+Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
+            },
             author: { login: 'reverter_user' },
           },
         ],
@@ -255,18 +259,20 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
         if (params.ref === REVERT_COMMIT_SHA) {
           return {
             data: {
+              owner: 'sentry',
+              repo: 'my-repo',
               sha: REVERT_COMMIT_SHA,
               commit: {
-                message: `Revert "feat: some feature"\n\nThis reverts commit ${REVERTED_COMMIT_SHA}.`,
+                message: `Revert "feat: some feature"\n\nThis reverts commit ${ORIGINAL_COMMIT_SHA}.`,
               },
               author: { login: 'reverter_user' },
             },
           };
         }
-        if (params.ref === REVERTED_COMMIT_SHA) {
+        if (params.ref === ORIGINAL_COMMIT_SHA) {
           return {
             data: {
-              sha: REVERTED_COMMIT_SHA,
+              sha: ORIGINAL_COMMIT_SHA,
               commit: { author: { email: 'original_author@example.com' } },
               author: { login: 'original_user' },
             },
@@ -288,8 +294,8 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
   });
 
   it('should fallback to reverter if original reverted commit details fail to fetch', async () => {
-    const REVERTED_COMMIT_SHA = 'revertedsha456';
-    const REVERT_COMMIT_SHA = 'revertcommisha789';
+    const ORIGINAL_COMMIT_SHA = 'deadbeef';
+    const REVERT_COMMIT_SHA = 'coffee';
 
     mockCompareCommits.mockResolvedValue({
       data: {
@@ -310,12 +316,12 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
             data: {
               sha: REVERT_COMMIT_SHA,
               commit: {
-                message: `This reverts commit ${REVERTED_COMMIT_SHA}.`,
+                message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.`,
               },
               author: { login: 'reverter_user' },
             },
           };
-        if (params.ref === REVERTED_COMMIT_SHA) {
+        if (params.ref === ORIGINAL_COMMIT_SHA) {
           throw new Error('Failed to fetch original commit');
         }
       }
@@ -331,15 +337,15 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
       { email: 'reverter@sentry.io', login: 'reverter_user' },
     ]);
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      `  Error fetching details for reverted commit ${REVERTED_COMMIT_SHA}:`,
+      `  Error fetching details for reverted commit ${ORIGINAL_COMMIT_SHA}:`,
       expect.any(Error)
     );
   });
 
   it('should handle a mix of standard and revert commits', async () => {
-    const STANDARD_SHA = 'standardsha';
-    const REVERTED_SHA = 'revertedoriginalsha';
-    const REVERT_SHA = 'revertingsha';
+    const STANDARD_SHA = 'coffeebead';
+    const ORIGINAL_SHA = 'coffee';
+    const REVERT_SHA = 'decaf';
 
     mockCompareCommits.mockResolvedValue({
       data: {
@@ -371,13 +377,13 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
           return {
             data: {
               sha: REVERT_SHA,
-              commit: { message: `This reverts commit ${REVERTED_SHA}.` },
+              commit: { message: `This reverts commit ${ORIGINAL_SHA}.` },
             },
           };
-        if (params.ref === REVERTED_SHA)
+        if (params.ref === ORIGINAL_SHA)
           return {
             data: {
-              sha: REVERTED_SHA,
+              sha: ORIGINAL_SHA,
               commit: { author: { email: 'original@example.com' } },
               author: { login: 'original_user' },
             },
@@ -455,14 +461,14 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
   });
 
   it('should handle missing email or login for original author of a revert commit', async () => {
-    const REVERTED_COMMIT_SHA = 'revertedsha_partial';
-    const REVERT_COMMIT_SHA = 'revertcommisha_partial';
+    const ORIGINAL_SHA = 'decaf';
+    const REVERT_SHA = 'coffee';
 
     mockCompareCommits.mockResolvedValue({
       data: {
         commits: [
           {
-            sha: REVERT_COMMIT_SHA,
+            sha: REVERT_SHA,
             commit: { author: { email: 'reverter@example.com' } },
             author: { login: 'reverter_user' },
           },
@@ -472,19 +478,19 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
 
     mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
       if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === REVERT_COMMIT_SHA)
+        if (params.ref === REVERT_SHA)
           return {
             data: {
-              sha: REVERT_COMMIT_SHA,
+              sha: REVERT_SHA,
               commit: {
-                message: `This reverts commit ${REVERTED_COMMIT_SHA}.`,
+                message: `This reverts commit ${ORIGINAL_SHA}.`,
               },
             },
           };
-        if (params.ref === REVERTED_COMMIT_SHA)
+        if (params.ref === ORIGINAL_SHA)
           return {
             data: {
-              sha: REVERTED_COMMIT_SHA,
+              sha: ORIGINAL_SHA,
               commit: { author: { name: 'Original Name' } }, // email missing
               author: { login: 'original_user_no_email' },
             },

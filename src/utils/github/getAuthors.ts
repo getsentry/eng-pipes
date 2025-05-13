@@ -40,7 +40,7 @@ interface RevertAuthorInfo {
 }
 
 function extractRevertedCommitHash(commitMessage: string): string | null {
-  const match = commitMessage.match(/this reverts commit ([a-f0-9]+)/i);
+  const match = commitMessage.match(/This reverts commit ([a-f0-9]+)/i);
   return match ? match[1] : null;
 }
 
@@ -135,9 +135,9 @@ export async function getAuthorsWithRevertedCommitAuthors(
     }
 
     const authors = await Promise.all(
-      commitsComparison.data.commits.map(async (commitStatus) => {
+      commitsComparison.data.commits.map(async (commitMetadata) => {
         const revertInfo = await processCommit(
-          commitStatus.sha,
+          commitMetadata.sha,
           GETSENTRY_ORG.slug,
           repo,
           GETSENTRY_ORG.api
@@ -150,8 +150,8 @@ export async function getAuthorsWithRevertedCommitAuthors(
           };
         }
         return {
-          email: commitStatus.commit.author?.email,
-          login: commitStatus.author?.login,
+          email: commitMetadata.commit.author?.email,
+          login: commitMetadata.author?.login,
         };
       })
     );
