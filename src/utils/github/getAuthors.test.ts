@@ -152,12 +152,13 @@ describe('getAuthors', () => {
 describe('getAuthorsWithRevertedCommitAuthors', () => {
   const mockCompareCommits = GETSENTRY_ORG.api.repos
     .compareCommits as unknown as jest.Mock;
-  const mockOctokitRequest = GETSENTRY_ORG.api.request as unknown as jest.Mock;
+  const mockReposGetCommit = GETSENTRY_ORG.api.repos
+    .getCommit as unknown as jest.Mock;
   // @ts-ignore
 
   beforeEach(() => {
     mockCompareCommits.mockClear();
-    mockOctokitRequest.mockClear();
+    mockReposGetCommit.mockClear();
   });
 
   it('should return authors for standard commits (no reverts)', async () => {
@@ -178,7 +179,7 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
       },
     };
     mockCompareCommits.mockResolvedValue(mockApiResponse);
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
+    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
       if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
         if (params.ref === 'sha1')
           return {
@@ -218,6 +219,7 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
   it('should return original author for a revert commit if found', async () => {
     const ORIGINAL_COMMIT_SHA = 'deadbeef';
     const REVERT_COMMIT_SHA = 'coffee';
+    const REPO_NAME = 'my-repo';
 
     mockCompareCommits.mockResolvedValue({
       data: {
@@ -226,9 +228,7 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
             sha: REVERT_COMMIT_SHA,
             commit: {
               author: { email: 'reverter@example.com' },
-              message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.
-
-Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
+              message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.\n\nCo-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
             },
             author: { login: 'reverter_user' },
           },
@@ -236,36 +236,40 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       },
     });
 
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
-      if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === REVERT_COMMIT_SHA) {
-          return {
-            data: {
-              owner: 'sentry',
-              repo: 'my-repo',
-              sha: REVERT_COMMIT_SHA,
-              commit: {
-                message: `Revert "feat: some feature"\n\nThis reverts commit ${ORIGINAL_COMMIT_SHA}.`,
-              },
-              author: { login: 'reverter_user' },
+    mockReposGetCommit.mockImplementation(async ({ owner, repo, ref }) => {
+      expect(owner).toBe(GETSENTRY_ORG.slug);
+      expect(repo).toBe(REPO_NAME);
+
+      if (ref === REVERT_COMMIT_SHA) {
+        return {
+          data: {
+            sha: REVERT_COMMIT_SHA,
+            commit: {
+              message: `Revert "feat: some feature"\n\nThis reverts commit ${ORIGINAL_COMMIT_SHA}.`,
             },
-          };
-        }
-        if (params.ref === ORIGINAL_COMMIT_SHA) {
-          return {
-            data: {
-              sha: ORIGINAL_COMMIT_SHA,
-              commit: { author: { email: 'original_author@example.com' } },
-              author: { login: 'original_user' },
-            },
-          };
-        }
+          },
+        };
       }
-      throw new Error(`Unexpected Octokit request to ${url}`);
+      if (ref === ORIGINAL_COMMIT_SHA) {
+        return {
+          data: {
+            sha: ORIGINAL_COMMIT_SHA,
+            commit: {
+              author: {
+                email: 'original_author@example.com',
+                name: 'Original Author',
+              },
+              message: 'feat: some feature',
+            },
+            author: { login: 'original_user' },
+          },
+        };
+      }
+      throw new Error(`Unexpected call to mockReposGetCommit with ref: ${ref}`);
     });
 
     const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
+      REPO_NAME,
       'base',
       'head'
     );
@@ -290,7 +294,7 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       },
     });
 
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
+    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
       if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
         if (params.ref === REVERT_COMMIT_SHA)
           return {
@@ -344,7 +348,7 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       },
     });
 
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
+    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
       if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
         if (params.ref === STANDARD_SHA)
           return {
@@ -416,7 +420,7 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
         ],
       },
     });
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
+    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
       if (
         url === 'GET /repos/{owner}/{repo}/commits/{ref}' &&
         params.ref === COMMIT_SHA
@@ -452,7 +456,7 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       },
     });
 
-    mockOctokitRequest.mockImplementation(async (url: string, params: any) => {
+    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
       if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
         if (params.ref === REVERT_SHA)
           return {
@@ -467,7 +471,7 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
           return {
             data: {
               sha: ORIGINAL_SHA,
-              commit: { author: { name: 'Original Name' } }, // email missing
+              commit: { author: { name: 'Original Name' } },
               author: { login: 'original_user_no_email' },
             },
           };

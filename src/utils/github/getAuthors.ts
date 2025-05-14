@@ -72,7 +72,7 @@ async function getRevertCommitDetails(
   }
 }
 
-async function processCommit(
+async function getRevertDetailsFromCommit(
   commitSha: string,
   commitMessage: string,
   repo: string
@@ -92,11 +92,11 @@ async function processCommit(
   }
 }
 
-async function processCommitAuthor(
+async function getCommitAuthorFromMetadata(
   commitMetadata: any,
   repo: string
 ): Promise<RevertAuthorInfo> {
-  const revertInfo = await processCommit(
+  const revertInfo = await getRevertDetailsFromCommit(
     commitMetadata.sha,
     commitMetadata.commit.message,
     repo
@@ -135,7 +135,7 @@ export async function getAuthorsWithRevertedCommitAuthors(
 
     const authors = await Promise.all(
       commitsComparison.data.commits.map((commitMetadata) =>
-        processCommitAuthor(commitMetadata, repo)
+        getCommitAuthorFromMetadata(commitMetadata, repo)
       )
     );
     return authors.filter((author) => author !== null) as RevertAuthorInfo[];
