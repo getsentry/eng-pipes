@@ -92,6 +92,28 @@ async function processCommit(
   }
 }
 
+async function processCommitAuthor(
+  commitMetadata: any,
+  repo: string
+): Promise<RevertAuthorInfo> {
+  const revertInfo = await processCommit(
+    commitMetadata.sha,
+    commitMetadata.commit.message,
+    repo
+  );
+
+  if (revertInfo) {
+    return {
+      email: revertInfo?.email,
+      login: revertInfo?.login,
+    };
+  }
+  return {
+    email: commitMetadata.commit.author?.email,
+    login: commitMetadata.author?.login,
+  };
+}
+
 export async function getAuthorsWithRevertedCommitAuthors(
   repo: string,
   baseCommit: string | null,
@@ -112,24 +134,9 @@ export async function getAuthorsWithRevertedCommitAuthors(
     }
 
     const authors = await Promise.all(
-      commitsComparison.data.commits.map(async (commitMetadata) => {
-        const revertInfo = await processCommit(
-          commitMetadata.sha,
-          commitMetadata.commit.message,
-          repo
-        );
-
-        if (revertInfo) {
-          return {
-            email: revertInfo?.email,
-            login: revertInfo?.login,
-          };
-        }
-        return {
-          email: commitMetadata.commit.author?.email,
-          login: commitMetadata.author?.login,
-        };
-      })
+      commitsComparison.data.commits.map((commitMetadata) =>
+        processCommitAuthor(commitMetadata, repo)
+      )
     );
     return authors.filter((author) => author !== null) as RevertAuthorInfo[];
   } catch (err) {
