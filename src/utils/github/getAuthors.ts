@@ -74,16 +74,11 @@ async function getRevertCommitDetails(
 
 async function processCommit(
   commitSha: string,
+  commitMessage: string,
   repo: string
 ): Promise<RevertAuthorInfo | null> {
   try {
-    const commitDetailsResponse = await GETSENTRY_ORG.api.repos.getCommit({
-      owner: GETSENTRY_ORG.slug,
-      repo,
-      ref: commitSha,
-    });
-    const commitData = commitDetailsResponse.data;
-    const revertedHash = extractRevertedCommitHash(commitData.commit.message);
+    const revertedHash = extractRevertedCommitHash(commitMessage);
     let revertDetails: RevertAuthorInfo | null = null;
 
     if (revertedHash) {
@@ -118,7 +113,11 @@ export async function getAuthorsWithRevertedCommitAuthors(
 
     const authors = await Promise.all(
       commitsComparison.data.commits.map(async (commitMetadata) => {
-        const revertInfo = await processCommit(commitMetadata.sha, repo);
+        const revertInfo = await processCommit(
+          commitMetadata.sha,
+          commitMetadata.commit.message,
+          repo
+        );
 
         if (revertInfo) {
           return {
