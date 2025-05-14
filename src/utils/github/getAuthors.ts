@@ -1,5 +1,3 @@
-import { Octokit } from '@octokit/rest';
-
 import { GETSENTRY_ORG } from '@/config';
 
 export async function getAuthors(
@@ -46,20 +44,15 @@ function extractRevertedCommitHash(commitMessage: string): string | null {
 
 async function getRevertCommitDetails(
   revertedHash: string,
-  owner: string,
-  repo: string,
-  octokitInstance: Octokit
+  repo: string
 ): Promise<RevertAuthorInfo | null> {
   try {
-    const revertedCommitDetailsResponse = await octokitInstance.request(
-      'GET /repos/{owner}/{repo}/commits/{ref}',
-      {
-        owner,
+    const revertedCommitDetailsResponse =
+      await GETSENTRY_ORG.api.repos.getCommit({
+        owner: GETSENTRY_ORG.slug,
         repo,
         ref: revertedHash,
-        headers: { 'X-GitHub-Api-Version': '2022-11-28' },
-      }
-    );
+      });
     const revertedData = revertedCommitDetailsResponse.data;
 
     const revertedCommitAuthor = revertedData.author
@@ -81,31 +74,20 @@ async function getRevertCommitDetails(
 
 async function processCommit(
   commitSha: string,
-  owner: string,
-  repo: string,
-  octokitInstance: Octokit
+  repo: string
 ): Promise<RevertAuthorInfo | null> {
   try {
-    const commitDetailsResponse = await octokitInstance.request(
-      'GET /repos/{owner}/{repo}/commits/{ref}',
-      {
-        owner,
-        repo,
-        ref: commitSha,
-        headers: { 'X-GitHub-Api-Version': '2022-11-28' },
-      }
-    );
+    const commitDetailsResponse = await GETSENTRY_ORG.api.repos.getCommit({
+      owner: GETSENTRY_ORG.slug,
+      repo,
+      ref: commitSha,
+    });
     const commitData = commitDetailsResponse.data;
     const revertedHash = extractRevertedCommitHash(commitData.commit.message);
     let revertDetails: RevertAuthorInfo | null = null;
 
     if (revertedHash) {
-      revertDetails = await getRevertCommitDetails(
-        revertedHash,
-        owner,
-        repo,
-        octokitInstance
-      );
+      revertDetails = await getRevertCommitDetails(revertedHash, repo);
     }
 
     return revertDetails;
@@ -119,7 +101,7 @@ export async function getAuthorsWithRevertedCommitAuthors(
   repo: string,
   baseCommit: string | null,
   headCommit: string
-): Promise<Array<{ email: string | undefined; login: string | undefined }>> {
+): Promise<Array<RevertAuthorInfo>> {
   try {
     const commitsComparison = await GETSENTRY_ORG.api.repos.compareCommits({
       owner: GETSENTRY_ORG.slug,
@@ -136,17 +118,12 @@ export async function getAuthorsWithRevertedCommitAuthors(
 
     const authors = await Promise.all(
       commitsComparison.data.commits.map(async (commitMetadata) => {
-        const revertInfo = await processCommit(
-          commitMetadata.sha,
-          GETSENTRY_ORG.slug,
-          repo,
-          GETSENTRY_ORG.api
-        );
+        const revertInfo = await processCommit(commitMetadata.sha, repo);
 
         if (revertInfo) {
           return {
-            email: revertInfo.email ?? undefined,
-            login: revertInfo.login ?? undefined,
+            email: revertInfo?.email,
+            login: revertInfo?.login,
           };
         }
         return {
@@ -155,7 +132,7 @@ export async function getAuthorsWithRevertedCommitAuthors(
         };
       })
     );
-    return authors;
+    return authors.filter((author) => author !== null) as RevertAuthorInfo[];
   } catch (err) {
     // eslint-disable-next-line no-console
     // @ts-ignore

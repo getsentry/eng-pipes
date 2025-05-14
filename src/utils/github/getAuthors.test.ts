@@ -11,6 +11,7 @@ jest.mock('@/config', () => ({
     api: {
       repos: {
         compareCommits: jest.fn(),
+        getCommit: jest.fn(),
       },
       request: jest.fn(),
     },
@@ -212,7 +213,6 @@ describe('getAuthorsWithRevertedCommitAuthors', () => {
       { email: 'author1@example.com', login: 'author1' },
       { email: 'author2@example.com', login: 'author2' },
     ]);
-    expect(mockOctokitRequest).toHaveBeenCalledTimes(2);
   });
 
   it('should return original author for a revert commit if found', async () => {
@@ -272,7 +272,6 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
     expect(authors).toEqual([
       { email: 'original_author@example.com', login: 'original_user' },
     ]);
-    expect(mockOctokitRequest).toHaveBeenCalledTimes(2);
   });
 
   it('should fallback to reverter if original reverted commit details fail to fetch', async () => {
@@ -481,8 +480,6 @@ Co-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
       'base',
       'head'
     );
-    expect(authors).toEqual([
-      { email: undefined, login: 'original_user_no_email' },
-    ]);
+    expect(authors).toEqual([{ email: null, login: 'original_user_no_email' }]);
   });
 });
