@@ -2,7 +2,7 @@
 
 import { GETSENTRY_ORG } from '@/config';
 
-import { getAuthors, getAuthorsWithRevertedCommitAuthors } from './getAuthors';
+import { getAuthors } from './getAuthors';
 
 // Mock the GETSENTRY_ORG.api.repos.compareCommits function
 jest.mock('@/config', () => ({
@@ -53,6 +53,90 @@ describe('getAuthors', () => {
     });
     expect(authors).toEqual([
       { email: 'author1@example.com', login: 'author1' },
+      { email: 'author2@example.com', login: 'author2' },
+    ]);
+  });
+
+  it('should not return revert author login from revert commits when flag is set to false', async () => {
+    const mockResponse = {
+      data: {
+        commits: [
+          {
+            commit: {
+              author: {
+                email: 'revertauthor@example.com',
+              },
+              message: `This reverts commit 1234567.
+              Co-authored-by: originalauthor <7654321+originalauthor@users.noreply.github.com>`,
+            },
+            author: { login: 'revertauthor' },
+          },
+          {
+            commit: { author: { email: 'author2@example.com' } },
+            author: { login: 'author2' },
+          },
+        ],
+      },
+    };
+    mockCompareCommits.mockResolvedValue(mockResponse);
+
+    const authorsWithoutRevert = await getAuthors(
+      'my-repo',
+      'base-sha',
+      'head-sha'
+    );
+
+    expect(mockCompareCommits).toHaveBeenCalledWith({
+      owner: 'sentry',
+      repo: 'my-repo',
+      base: 'base-sha',
+      head: 'head-sha',
+    });
+    expect(authorsWithoutRevert).toEqual([
+      { email: 'revertauthor@example.com', login: 'revertauthor' },
+      { email: 'author2@example.com', login: 'author2' },
+    ]);
+  });
+
+  it('should return revert author login from revert commits when flag is set to true', async () => {
+    const mockResponse = {
+      data: {
+        commits: [
+          {
+            commit: {
+              author: {
+                email: 'revertauthor@example.com',
+              },
+              message: `This reverts commit 1234567.
+              Co-authored-by: originalauthor <7654321+originalauthor@users.noreply.github.com>`,
+            },
+            author: { login: 'revertauthor' },
+          },
+          {
+            commit: { author: { email: 'author2@example.com' } },
+            author: { login: 'author2' },
+          },
+        ],
+      },
+    };
+    mockCompareCommits.mockResolvedValue(mockResponse);
+
+    const authorsWithRevert = await getAuthors(
+      'my-repo',
+      'base-sha',
+      'head-sha',
+      true
+    );
+
+    expect(mockCompareCommits).toHaveBeenCalledWith({
+      owner: 'sentry',
+      repo: 'my-repo',
+      base: 'base-sha',
+      head: 'head-sha',
+    });
+    expect(authorsWithRevert).toEqual([
+      { email: 'revertauthor@example.com', login: 'revertauthor' },
+      { email: undefined, login: 'originalauthor' },
       { email: 'author2@example.com', login: 'author2' },
     ]);
   });
@@ -146,344 +230,5 @@ describe('getAuthors', () => {
       { email: 'user3@example.com', login: 'user3' },
     ]);
     expect(authors.length).toBe(3);
-  });
-});
-
-describe('getAuthorsWithRevertedCommitAuthors', () => {
-  const mockCompareCommits = GETSENTRY_ORG.api.repos
-    .compareCommits as unknown as jest.Mock;
-  const mockReposGetCommit = GETSENTRY_ORG.api.repos
-    .getCommit as unknown as jest.Mock;
-  // @ts-ignore
-
-  beforeEach(() => {
-    mockCompareCommits.mockClear();
-    mockReposGetCommit.mockClear();
-  });
-
-  it('should return authors for standard commits (no reverts)', async () => {
-    const mockApiResponse = {
-      data: {
-        commits: [
-          {
-            sha: 'sha1',
-            commit: { author: { email: 'author1@example.com' } },
-            author: { login: 'author1' },
-          },
-          {
-            sha: 'sha2',
-            commit: { author: { email: 'author2@example.com' } },
-            author: { login: 'author2' },
-          },
-        ],
-      },
-    };
-    mockCompareCommits.mockResolvedValue(mockApiResponse);
-    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
-      if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === 'sha1')
-          return {
-            data: {
-              sha: 'sha1',
-              commit: { message: 'feat: regular commit' },
-              author: { login: 'author1' },
-            },
-          };
-        if (params.ref === 'sha2')
-          return {
-            data: {
-              sha: 'sha2',
-              commit: { message: 'fix: another regular commit' },
-              author: { login: 'author2' },
-            },
-          };
-      }
-      throw new Error(
-        `Unexpected Octokit request: ${url} with params ${JSON.stringify(
-          params
-        )}`
-      );
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([
-      { email: 'author1@example.com', login: 'author1' },
-      { email: 'author2@example.com', login: 'author2' },
-    ]);
-  });
-
-  it('should return original author for a revert commit if found', async () => {
-    const ORIGINAL_COMMIT_SHA = 'deadbeef';
-    const REVERT_COMMIT_SHA = 'coffee';
-    const REPO_NAME = 'my-repo';
-
-    mockCompareCommits.mockResolvedValue({
-      data: {
-        commits: [
-          {
-            sha: REVERT_COMMIT_SHA,
-            commit: {
-              author: { email: 'reverter@example.com' },
-              message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.\n\nCo-authored-by: originaluser <123456789+originaluser@users.noreply.github.com>`,
-            },
-            author: { login: 'reverter_user' },
-          },
-        ],
-      },
-    });
-
-    mockReposGetCommit.mockImplementation(async ({ owner, repo, ref }) => {
-      expect(owner).toBe(GETSENTRY_ORG.slug);
-      expect(repo).toBe(REPO_NAME);
-
-      if (ref === REVERT_COMMIT_SHA) {
-        return {
-          data: {
-            sha: REVERT_COMMIT_SHA,
-            commit: {
-              message: `Revert "feat: some feature"\n\nThis reverts commit ${ORIGINAL_COMMIT_SHA}.`,
-            },
-          },
-        };
-      }
-      if (ref === ORIGINAL_COMMIT_SHA) {
-        return {
-          data: {
-            sha: ORIGINAL_COMMIT_SHA,
-            commit: {
-              author: {
-                email: 'original_author@example.com',
-                name: 'Original Author',
-              },
-              message: 'feat: some feature',
-            },
-            author: { login: 'original_user' },
-          },
-        };
-      }
-      throw new Error(`Unexpected call to mockReposGetCommit with ref: ${ref}`);
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      REPO_NAME,
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([
-      { email: 'original_author@example.com', login: 'original_user' },
-    ]);
-  });
-
-  it('should fallback to reverter if original reverted commit details fail to fetch', async () => {
-    const ORIGINAL_COMMIT_SHA = 'deadbeef';
-    const REVERT_COMMIT_SHA = 'coffee';
-
-    mockCompareCommits.mockResolvedValue({
-      data: {
-        commits: [
-          {
-            sha: REVERT_COMMIT_SHA,
-            commit: { author: { email: 'reverter@sentry.io' } },
-            author: { login: 'reverter_user' },
-          },
-        ],
-      },
-    });
-
-    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
-      if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === REVERT_COMMIT_SHA)
-          return {
-            data: {
-              sha: REVERT_COMMIT_SHA,
-              commit: {
-                message: `This reverts commit ${ORIGINAL_COMMIT_SHA}.`,
-              },
-              author: { login: 'reverter_user' },
-            },
-          };
-        if (params.ref === ORIGINAL_COMMIT_SHA) {
-          throw new Error('Failed to fetch original commit');
-        }
-      }
-      throw new Error(`Unexpected Octokit request to ${url}`);
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([
-      { email: 'reverter@sentry.io', login: 'reverter_user' },
-    ]);
-  });
-
-  it('should handle a mix of standard and revert commits', async () => {
-    const STANDARD_SHA = 'deadc0de';
-    const ORIGINAL_SHA = 'c0ffee';
-    const REVERT_SHA = 'd3caf';
-
-    mockCompareCommits.mockResolvedValue({
-      data: {
-        commits: [
-          {
-            sha: STANDARD_SHA,
-            commit: { author: { email: 'std@example.com' } },
-            author: { login: 'std_user' },
-          },
-          {
-            sha: REVERT_SHA,
-            commit: {
-              author: { email: 'reverter@example.com' },
-              message: `This reverts commit ${ORIGINAL_SHA}`,
-            },
-            author: { login: 'reverter_user' },
-          },
-        ],
-      },
-    });
-
-    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
-      if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === STANDARD_SHA)
-          return {
-            data: {
-              sha: STANDARD_SHA,
-              commit: { message: 'feat: standard work' },
-            },
-          };
-        if (params.ref === REVERT_SHA)
-          return {
-            data: {
-              sha: REVERT_SHA,
-              commit: { message: `This reverts commit ${ORIGINAL_SHA}.` },
-            },
-          };
-        if (params.ref === ORIGINAL_SHA)
-          return {
-            data: {
-              sha: ORIGINAL_SHA,
-              commit: { author: { email: 'original@example.com' } },
-              author: { login: 'original_user' },
-            },
-          };
-      }
-      throw new Error(`Unexpected Octokit request to ${url}`);
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([
-      { email: 'std@example.com', login: 'std_user' },
-      { email: 'original@example.com', login: 'original_user' },
-    ]);
-  });
-
-  it('should return empty array if compareCommits API fails', async () => {
-    mockCompareCommits.mockRejectedValue(new Error('Compare API failed'));
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([]);
-  });
-
-  it('should return empty array if compareCommits returns no commits', async () => {
-    mockCompareCommits.mockResolvedValue({ data: { commits: [] } });
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([]);
-  });
-
-  it('should fallback to commitStatus author if processCommit fails for non-revert specific reason', async () => {
-    const COMMIT_SHA = 'c0ffee';
-    mockCompareCommits.mockResolvedValue({
-      data: {
-        commits: [
-          {
-            sha: COMMIT_SHA,
-            commit: { author: { email: 'commitstatus@example.com' } },
-            author: { login: 'commitstatus_user' },
-          },
-        ],
-      },
-    });
-    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
-      if (
-        url === 'GET /repos/{owner}/{repo}/commits/{ref}' &&
-        params.ref === COMMIT_SHA
-      ) {
-        throw new Error(`Failed to fetch commit details for ${COMMIT_SHA}`);
-      }
-      throw new Error(`Unexpected Octokit request to ${url}`);
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([
-      { email: 'commitstatus@example.com', login: 'commitstatus_user' },
-    ]);
-  });
-
-  it('should handle missing email or login for original author of a revert commit', async () => {
-    const ORIGINAL_SHA = 'decaf';
-    const REVERT_SHA = 'coffee';
-
-    mockCompareCommits.mockResolvedValue({
-      data: {
-        commits: [
-          {
-            sha: REVERT_SHA,
-            commit: { author: { email: 'reverter@example.com' } },
-            author: { login: 'reverter_user' },
-          },
-        ],
-      },
-    });
-
-    mockReposGetCommit.mockImplementation(async (url: string, params: any) => {
-      if (url === 'GET /repos/{owner}/{repo}/commits/{ref}') {
-        if (params.ref === REVERT_SHA)
-          return {
-            data: {
-              sha: REVERT_SHA,
-              commit: {
-                message: `This reverts commit ${ORIGINAL_SHA}.`,
-              },
-            },
-          };
-        if (params.ref === ORIGINAL_SHA)
-          return {
-            data: {
-              sha: ORIGINAL_SHA,
-              commit: { author: { name: 'Original Name' } },
-              author: { login: 'original_user_no_email' },
-            },
-          };
-      }
-      throw new Error(`Unexpected Octokit request to ${url}`);
-    });
-
-    const authors = await getAuthorsWithRevertedCommitAuthors(
-      'my-repo',
-      'base',
-      'head'
-    );
-    expect(authors).toEqual([{ email: null, login: 'original_user_no_email' }]);
   });
 });
