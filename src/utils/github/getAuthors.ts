@@ -58,7 +58,6 @@ export async function getAuthors(
     });
   } catch (err) {
     // eslint-disable-next-line no-console
-    // @ts-ignore
     console.error(err);
     return [];
   }

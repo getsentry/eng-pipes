@@ -196,7 +196,7 @@ const discussSnSFeed = new DeployFeed({
   },
   replyCallback: async (pipeline) => {
     const [base, head] = await getBaseAndHeadCommit(pipeline);
-    const authors = head ? await getAuthors('snuba', base, head) : [];
+    const authors = head ? await getAuthors('snuba', base, head, true) : [];
     // Get unique users from the authors
     const uniqueUsers = await getUniqueUsers(authors);
 
@@ -326,7 +326,7 @@ const discussBackendFeed = new DeployFeed({
 
     if (pauseCause == null) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
-    const authors = head ? await getAuthors('getsentry', base, head) : [];
+    const authors = head ? await getAuthors('getsentry', base, head, true) : [];
     // Get unique users from the authors
     const uniqueUsers = await getUniqueUsers(authors);
 
