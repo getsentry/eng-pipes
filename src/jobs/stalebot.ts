@@ -168,7 +168,7 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
           (pullRequest) =>
             !pullRequest.labels.some(
               (label) =>
-                (label as string)?.toUpperCase() === WORK_IN_PROGRESS_LABEL ||
+                (label as string).toUpperCase() === WORK_IN_PROGRESS_LABEL ||
                 label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
             )
         );
