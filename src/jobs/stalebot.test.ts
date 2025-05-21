@@ -121,7 +121,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [
             {
               ...issueInfo,
-              labels: [WAITING_FOR_COMMUNITY_LABEL, WORK_IN_PROGRESS_LABEL],
+              labels: [
+                { name: WAITING_FOR_COMMUNITY_LABEL },
+                { name: WORK_IN_PROGRESS_LABEL },
+              ],
               merge_commit_sha: FAKE_MERGE_COMMIT,
             },
           ]
@@ -142,7 +145,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [
             {
               ...issueInfo,
-              labels: [WAITING_FOR_COMMUNITY_LABEL, 'wip'],
+              labels: [{ name: WAITING_FOR_COMMUNITY_LABEL }, { name: 'WIP' }],
               merge_commit_sha: FAKE_MERGE_COMMIT,
             },
           ]
@@ -176,7 +179,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     org.api.issues.listForRepo = jest.fn(() => []);
     org.api.pulls.list = jest.fn(({ repo }) => {
       return org.repos.withRouting.includes(repo)
-        ? [{ ...issueInfo, labels: [STALE_LABEL] }]
+        ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
     await triggerStaleBot(
@@ -191,7 +194,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     org.api.issues.listForRepo = jest.fn(() => []);
     org.api.pulls.list = jest.fn(({ repo }) => {
       return org.repos.withRouting.includes(repo)
-        ? [{ ...issueInfo, labels: [STALE_LABEL] }]
+        ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
     await triggerStaleBot(
@@ -206,7 +209,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
     org.api.issues.listForRepo = jest.fn(() => []);
     org.api.pulls.list = jest.fn(({ repo }) => {
       return org.repos.withRouting.includes(repo)
-        ? [{ ...issueInfo, labels: [STALE_LABEL] }]
+        ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
     await triggerStaleBot(
@@ -226,7 +229,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
   it('should not close stale issue that has been inactive for more than a week and does not have label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = jest.fn(() => [
-      { ...issueInfo, labels: [STALE_LABEL] },
+      { ...issueInfo, labels: [{ name: STALE_LABEL }] },
     ]);
     org.api.pulls.list = jest.fn(() => []);
     await triggerStaleBot(
@@ -239,7 +242,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
   it('should close issue if there is no activity after a week and issue has label `Waiting for: Community`', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = jest.fn(() => [
-      { ...issueInfo, labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL] },
+      {
+        ...issueInfo,
+        labels: [{ name: STALE_LABEL }, { name: WAITING_FOR_COMMUNITY_LABEL }],
+      },
     ]);
     org.api.pulls.list = jest.fn(() => []);
     await triggerStaleBot(
@@ -258,7 +264,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
   it('should not close issue if there is no activity under a week and issue is stale', async function () {
     const issueUpdateSpy = jest.spyOn(org.api.issues, 'update');
     org.api.issues.listForRepo = jest.fn(() => [
-      { ...issueInfo, labels: [STALE_LABEL] },
+      { ...issueInfo, labels: [{ name: STALE_LABEL }] },
     ]);
     org.api.pulls.list = jest.fn(() => []);
     await triggerStaleBot(
@@ -273,7 +279,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       {
         ...issueInfo,
         updated_at: '2023-04-06T10:28:13Z',
-        labels: [STALE_LABEL],
+        labels: [{ name: STALE_LABEL }],
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
@@ -289,7 +295,10 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       {
         ...issueInfo,
         updated_at: '2023-04-06T10:28:13Z',
-        labels: [STALE_LABEL, WAITING_FOR_PRODUCT_OWNER_LABEL],
+        labels: [
+          { name: STALE_LABEL },
+          { name: WAITING_FOR_PRODUCT_OWNER_LABEL },
+        ],
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
@@ -305,7 +314,7 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
       {
         ...issueInfo,
         updated_at: '2023-04-06T10:28:13Z',
-        labels: [STALE_LABEL, WAITING_FOR_COMMUNITY_LABEL],
+        labels: [{ name: STALE_LABEL }, { name: WAITING_FOR_COMMUNITY_LABEL }],
       },
     ]);
     org.api.pulls.list = jest.fn(() => []);
