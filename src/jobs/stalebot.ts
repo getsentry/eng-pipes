@@ -166,19 +166,14 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
         });
         const pullRequestsToCheck = pullRequests.filter(
           (pullRequest) =>
-            !pullRequest.labels.some((label) =>
-              typeof label === 'string'
-                ? (label as string).toUpperCase() === WORK_IN_PROGRESS_LABEL
-                : label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
+            !pullRequest.labels.some(
+              (label) => label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
             )
         );
         // Unfortunately, octokit doesn't allow us to filter by labels when
         // sending a GET request for pull requests, so we need to do this manually.
         const stalePullRequests = pullRequestsToCheck.filter((pullRequest) =>
-          pullRequest.labels.some(
-            (label) =>
-              (label as string) === STALE_LABEL || label.name === STALE_LABEL
-          )
+          pullRequest.labels.some((label) => label.name === STALE_LABEL)
         );
         const activePullRequests = pullRequestsToCheck.filter(
           (pullRequest) => !stalePullRequests.includes(pullRequest)
