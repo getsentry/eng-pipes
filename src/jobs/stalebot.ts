@@ -167,7 +167,7 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
         const pullRequestsToCheck = pullRequests.filter(
           (pullRequest) =>
             !pullRequest.labels.some(
-              (label) => label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
+              (label) => label.name.toUpperCase() === WORK_IN_PROGRESS_LABEL
             )
         );
         // Unfortunately, octokit doesn't allow us to filter by labels when
