@@ -1,9 +1,29 @@
 import { GETSENTRY_ORG } from '@/config';
 
+function extractOriginalAuthor(message: string): {
+  email: undefined;
+  login: string | undefined;
+} {
+  try {
+    const originalAuthorMatch = message.match(/Co-authored-by: (\w+) <[^>]+>/);
+    return {
+      email: undefined,
+      login: originalAuthorMatch ? originalAuthorMatch[1] : undefined,
+    };
+  } catch (error) {
+    console.error('Failed to extract original author:', error);
+    return {
+      email: undefined,
+      login: undefined,
+    };
+  }
+}
+
 export async function getAuthors(
   repo: string,
   baseCommit: string | null,
-  headCommit: string
+  headCommit: string,
+  includeRevertedCommits: boolean = false
 ): Promise<Array<{ email: string | undefined; login: string | undefined }>> {
   try {
     const commitsComparison = await GETSENTRY_ORG.api.repos.compareCommits({
@@ -18,11 +38,23 @@ export async function getAuthors(
     ) {
       return [];
     }
-    return commitsComparison.data.commits.map((commitStatus) => {
-      return {
-        email: commitStatus.commit.author?.email,
-        login: commitStatus.author?.login,
-      };
+    return commitsComparison.data.commits.flatMap((commitStatus) => {
+      const authors = [
+        {
+          email: commitStatus.commit.author?.email,
+          login: commitStatus.author?.login,
+        },
+      ];
+      if (includeRevertedCommits) {
+        const originalAuthor = extractOriginalAuthor(
+          commitStatus.commit.message
+        );
+
+        if (originalAuthor.login) {
+          authors.push(originalAuthor);
+        }
+      }
+      return authors;
     });
   } catch (err) {
     // eslint-disable-next-line no-console
