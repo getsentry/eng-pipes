@@ -22,7 +22,7 @@ const staleStatusUpdater = async (
     issues.map((issue) => {
       // Only pull requests will have issue.merge_commit_sha property
       const isPullRequest = issue.merge_commit_sha ? true : false;
-      if (now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_STALE) {
+      if (now.diff(issue.updated_at, 'seconds') >= DAYS_BEFORE_STALE) {
         return Promise.all([
           org.api.issues.addLabels({
             owner: org.slug,
@@ -77,7 +77,7 @@ const closeStaleIssues = async (
       );
       if (
         issueHasWaitingForCommunityLabel &&
-        now.diff(issue.updated_at, 'days') >= DAYS_BEFORE_CLOSE
+        now.diff(issue.updated_at, 'seconds') >= DAYS_BEFORE_CLOSE
       ) {
         // Interestingly enough, this api works for both issues and pull requests
         return org.api.issues.update({
@@ -109,7 +109,7 @@ const closeStalePullRequests = async (
 ) => {
   await Promise.all(
     stalePullRequests.map((pullRequest) => {
-      if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
+      if (now.diff(pullRequest.updated_at, 'seconds') >= DAYS_BEFORE_CLOSE) {
         return org.api.issues.update({
           owner: org.slug,
           repo: repo,
@@ -166,10 +166,10 @@ export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
         });
         const pullRequestsToCheck = pullRequests.filter(
           (pullRequest) =>
-            !pullRequest.labels.some(
-              (label) =>
-                (label as string).toUpperCase() === WORK_IN_PROGRESS_LABEL ||
-                label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
+            !pullRequest.labels.some((label) =>
+              typeof label === 'string'
+                ? (label as string).toUpperCase() === WORK_IN_PROGRESS_LABEL
+                : label.name?.toUpperCase() === WORK_IN_PROGRESS_LABEL
             )
         );
         // Unfortunately, octokit doesn't allow us to filter by labels when
