@@ -30,7 +30,6 @@ product_areas:
   Issues:
   - team-issues
   Issues - Source Maps:
-  - team-ingest
   - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
