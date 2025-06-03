@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PROJECT=super-big-data
-IMAGE=gcr.io/${PROJECT}/product-eng-webhooks
+IMAGE=us-central1-docker.pkg.dev/${PROJECT}/eng-pipes
 
 env_vars="ENV=production,"
 env_vars="${env_vars}VERSION=${VERSION},"
