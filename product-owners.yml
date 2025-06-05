@@ -30,6 +30,7 @@ product_areas:
   Issues:
   - team-issues
   Issues - Source Maps:
+  - team-ingest
   - team-web-frontend-sdks
   - team-mobile-sdks
   Issues - Suggested Fix:
@@ -49,7 +50,7 @@ product_areas:
   Projects - Project Details:
   - team-issues
   Releases:
-  - team-replays
+  - team-alerts-notifications
   Replays:
   - team-replays
   SDKs - Mobile:
@@ -227,7 +228,7 @@ teams:
   team-replays:
     offices:
     - yyz
-    slack_channel: C04B0K358QM
+    slack_channel: C08V02G4Y2H
   team-revenue:
     offices:
     - sfo
