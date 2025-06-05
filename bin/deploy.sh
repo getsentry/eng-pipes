@@ -1,7 +1,7 @@
 #!/bin/sh
 
 PROJECT=super-big-data
-IMAGE=us-central1-docker.pkg.dev/${PROJECT}/eng-pipes
+IMAGE=us-central1-docker.pkg.dev/${PROJECT}/eng-pipes/product-eng-webhooks
 
 env_vars="ENV=production,"
 env_vars="${env_vars}VERSION=${VERSION},"
