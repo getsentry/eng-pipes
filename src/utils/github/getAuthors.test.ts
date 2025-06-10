@@ -188,11 +188,14 @@ describe('getAuthors', () => {
 
   it('should return an empty array and log error if API call fails', async () => {
     const MOCK_ERROR = new Error('API Error');
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
     mockCompareCommits.mockRejectedValue(MOCK_ERROR);
 
     const authors = await getAuthors('my-repo', 'base-sha', 'head-sha');
 
     expect(authors).toEqual([]);
+    expect(consoleSpy).toHaveBeenCalledWith(MOCK_ERROR);
+    consoleSpy.mockRestore();
   });
 
   it('should aggregate all users when multiple commits have different authors', async () => {

@@ -5,6 +5,12 @@ function extractOriginalAuthor(message: string): {
   login: string | undefined;
 } {
   try {
+    if (!message) {
+      return {
+        email: undefined,
+        login: undefined,
+      };
+    }
     const originalAuthorMatch = message.match(/Co-authored-by: (\w+) <[^>]+>/);
     return {
       email: undefined,
