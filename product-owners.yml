@@ -186,7 +186,7 @@ teams:
   team-ingest:
     offices:
     - vie
-    slack_channel: C019637C760
+    slack_channel: C027DDC5WTG # feed-ingest-triage
   team-insights:
     offices:
     - yyz
