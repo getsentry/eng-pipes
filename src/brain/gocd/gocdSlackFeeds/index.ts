@@ -371,8 +371,7 @@ ${
     ? `:warning: *Step 5: Canary Guidance*\n Review the *<${CANARY_GUIDANCE_LINK}|Canary Guidance>*.\n
 :arrow_forward: *Step 6: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
     : `:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
-}
-`)
+}`)
       ),
     ];
     if (ccUsers.length > 0) {
