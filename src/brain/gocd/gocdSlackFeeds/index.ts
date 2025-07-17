@@ -94,6 +94,8 @@ export const ROLLBACK_PLAYBOOK_LINK =
   'https://www.notion.so/sentry/GoCD-Playbook-920a1a88cf40499ab0baeb9226ffe86d?pvs=4#c6961edd7db34e979623288fe46fd45b';
 export const GOCD_USER_GUIDE_LINK =
   'https://www.notion.so/sentry/GoCD-User-Guide-4f8456d2477c458095c4aa0e67fc38a6?pvs=4#73e3d374ca744ba8bf66aa6330283f79';
+export const CANARY_GUIDANCE_LINK =
+  'https://www.notion.so/sentry/Canary-Guidance-20f8b10e4b5d80a99914fa3d49c7bb39';
 
 /**
  * Get the pause cause for a pipeline. A pause cause is a reason why a pipeline
@@ -364,7 +366,8 @@ const discussBackendFeed = new DeployFeed({
 :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`)
+:warning: *Step 5: Canary Guidance*\n Review the *<${CANARY_GUIDANCE_LINK}|Canary Guidance>*.\n
+:arrow_forward: *Step 6: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`)
       ),
     ];
     if (ccUsers.length > 0) {
