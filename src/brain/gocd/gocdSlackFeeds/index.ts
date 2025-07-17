@@ -366,8 +366,13 @@ const discussBackendFeed = new DeployFeed({
 :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:warning: *Step 5: Canary Guidance*\n Review the *<${CANARY_GUIDANCE_LINK}|Canary Guidance>*.\n
-:arrow_forward: *Step 6: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`)
+${
+  pauseCause === PauseCause.CANARY
+    ? `:warning: *Step 5: Canary Guidance*\n Review the *<${CANARY_GUIDANCE_LINK}|Canary Guidance>*.\n
+    :arrow_forward: *Step 6: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
+    : `:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
+}
+`)
       ),
     ];
     if (ccUsers.length > 0) {
