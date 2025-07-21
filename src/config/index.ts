@@ -73,6 +73,8 @@ export const DISCUSS_FRONTEND_CHANNEL_ID = // #discuss-frontend
   process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'C8V02RHC7';
 export const DISCUSS_ENG_SNS_CHANNEL_ID = // #discuss-eng-sns
   process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'CLTE78L73';
+export const FEED_UPTIME_CHANNEL_ID = // #feed-uptime
+  process.env.FEED_UPTIME_CHANNEL_ID || 'C07DXRCCFPC';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';

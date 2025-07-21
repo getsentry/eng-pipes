@@ -19,6 +19,7 @@ import {
   FEED_SDKS_CHANNEL_ID,
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
+  FEED_UPTIME_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
@@ -420,6 +421,22 @@ const goCDCustomJobRunnerFeed = new DeployFeed({
   },
 });
 
+// Post uptime pipeline failures to the uptime channel
+const uptimeSlackFeed = new DeployFeed({
+  feedName: 'uptimeSlackFeed',
+  channelID: FEED_UPTIME_CHANNEL_ID,
+  msgType: SlackMessage.FEED_UPTIME_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    // Only include pipelines with "uptime" in their name
+    if (!pipeline.name.toLowerCase().includes('uptime')) {
+      return false;
+    }
+    
+    // Only notify on failures
+    return pipeline.stage.result.toLowerCase() === 'failed';
+  },
+});
+
 export async function handler(body: GoCDResponse) {
   await Promise.all([
     deployFeed.handle(body),
@@ -433,6 +450,7 @@ export async function handler(body: GoCDResponse) {
     snsSaaSFeed.handle(body),
     snsSaaSK8sFeed.handle(body),
     snsSTFeed.handle(body),
+    uptimeSlackFeed.handle(body),
   ]);
 }
 
