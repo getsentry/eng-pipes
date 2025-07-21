@@ -431,7 +431,7 @@ const uptimeSlackFeed = new DeployFeed({
     if (!pipeline.name.toLowerCase().includes('uptime')) {
       return false;
     }
-    
+
     // Only notify on failures
     return pipeline.stage.result.toLowerCase() === 'failed';
   },
