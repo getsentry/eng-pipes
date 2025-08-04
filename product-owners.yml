@@ -5,8 +5,6 @@ product_areas:
   - team-alerts-notifications
   Crons:
   - team-crons
-  DDM:
-  - team-telemetry-experience
   Dashboards:
   - team-dashboards
   Discover:
