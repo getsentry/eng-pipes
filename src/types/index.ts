@@ -19,6 +19,7 @@ export interface SentryOptionsResponse {
     got_type: string;
     expected_type: string;
   }[];
+  latency_seconds?: number;
 }
 
 export interface KafkaControlPlaneResponse {
