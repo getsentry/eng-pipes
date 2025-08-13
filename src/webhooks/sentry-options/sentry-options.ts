@@ -75,7 +75,12 @@ export async function sendSentryOptionsUpdatesToDatadog(
   const region = formatRegionTag(message.region);
 
   for (const optionType in message) {
-    if (optionType === 'region' || optionType === 'source') continue;
+    if (
+      optionType === 'region' ||
+      optionType === 'source' ||
+      optionType === 'latency_seconds'
+    )
+      continue;
     for (const option of message[optionType]) {
       const text = {
         change: optionType,
