@@ -654,7 +654,6 @@ describe('sentry-options webhook', function () {
       },
     });
 
-    // Check the updated_options message
     const updatedMessage = datadogApiInstanceSpy.mock.calls[1][0];
     expect(updatedMessage).toEqual({
       body: {
@@ -679,7 +678,6 @@ describe('sentry-options webhook', function () {
     await sendSentryOptionsUpdatesToDatadog(testPartialPayload, 1699563828);
     expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
 
-    // Check that no tags contain latency_seconds
     const firstMessage = datadogApiInstanceSpy.mock.calls[0][0];
     const secondMessage = datadogApiInstanceSpy.mock.calls[1][0];
 
