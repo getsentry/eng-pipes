@@ -639,7 +639,7 @@ describe('sentry-options webhook', function () {
     expect(driftedMessage).toEqual({
       body: {
         dateHappened: 1699563828,
-        text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"}}',
+        text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"},"latency_seconds":2.5}',
         title: 'Sentry Options Update',
         alertType: 'error',
         tags: [
@@ -659,7 +659,7 @@ describe('sentry-options webhook', function () {
     expect(updatedMessage).toEqual({
       body: {
         dateHappened: 1699563828,
-        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"}}',
+        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"},"latency_seconds":2.5}',
         title: 'Sentry Options Update',
         alertType: 'success',
         tags: [
