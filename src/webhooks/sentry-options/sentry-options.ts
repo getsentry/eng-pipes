@@ -75,14 +75,36 @@ export async function sendSentryOptionsUpdatesToDatadog(
   const region = formatRegionTag(message.region);
 
   for (const optionType in message) {
-    if (optionType === 'region' || optionType === 'source') continue;
+    if (
+      optionType === 'region' ||
+      optionType === 'source' ||
+      optionType === 'latency_seconds'
+    )
+      continue;
     for (const option of message[optionType]) {
       const text = {
         change: optionType,
         option: option,
+        ...(message.latency_seconds !== undefined && {
+          latency_seconds: message.latency_seconds,
+        }),
       };
 
       const alertType = formatAlertType(optionType);
+
+      const tags = [
+        region,
+        `source_tool:${message.source}`,
+        `source:${message.source}`,
+        `source_category:infra-tools`,
+        `option_name:${option.option_name}`,
+        `sentry_user:${message.source}`,
+      ];
+
+      // Add latency_seconds as a tag if it exists
+      if (message.latency_seconds !== undefined) {
+        tags.push(`latency_seconds:${message.latency_seconds}`);
+      }
 
       const params: v1.EventCreateRequest = {
         title: 'Sentry Options Update',
@@ -90,14 +112,7 @@ export async function sendSentryOptionsUpdatesToDatadog(
         text: JSON.stringify(text),
         alertType: alertType,
         dateHappened: timestamp,
-        tags: [
-          region,
-          `source_tool:${message.source}`,
-          `source:${message.source}`,
-          `source_category:infra-tools`,
-          `option_name:${option.option_name}`,
-          `sentry_user:${message.source}`,
-        ],
+        tags: tags,
       };
       await DATADOG_API_INSTANCE.createEvent({ body: params });
     }

@@ -3,6 +3,7 @@ import * as Sentry from '@sentry/node';
 import testAdminPayload from '@test/payloads/sentry-options/test-admin-payload.json';
 import testBadPayload from '@test/payloads/sentry-options/test-bad-payload.json';
 import testEmptyPayload from '@test/payloads/sentry-options/test-empty-payload.json';
+import testLatencyPayload from '@test/payloads/sentry-options/test-latency-payload.json';
 import testMegaPayload from '@test/payloads/sentry-options/test-mega-payload.json';
 import testPartialPayload from '@test/payloads/sentry-options/test-partial-payload.json';
 import testPayload from '@test/payloads/sentry-options/test-payload.json';
@@ -627,5 +628,64 @@ describe('sentry-options webhook', function () {
         ],
       },
     });
+  });
+
+  it('should include latency_seconds tag when present', async function () {
+    await sendSentryOptionsUpdatesToDatadog(testLatencyPayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
+
+    // Check the drifted_options message
+    const driftedMessage = datadogApiInstanceSpy.mock.calls[0][0];
+    expect(driftedMessage).toEqual({
+      body: {
+        dateHappened: 1699563828,
+        text: '{"change":"drifted_options","option":{"option_name":"drifted_option_1","option_value":"value_1"},"latency_seconds":2.5}',
+        title: 'Sentry Options Update',
+        alertType: 'error',
+        tags: [
+          'sentry_region:st-test_region',
+          'source_tool:options-automator',
+          'source:options-automator',
+          'source_category:infra-tools',
+          'option_name:drifted_option_1',
+          'sentry_user:options-automator',
+          'latency_seconds:2.5',
+        ],
+      },
+    });
+
+    const updatedMessage = datadogApiInstanceSpy.mock.calls[1][0];
+    expect(updatedMessage).toEqual({
+      body: {
+        dateHappened: 1699563828,
+        text: '{"change":"updated_options","option":{"option_name":"updated_option_1","db_value":"db_value_1","value":"new_value_1"},"latency_seconds":2.5}',
+        title: 'Sentry Options Update',
+        alertType: 'success',
+        tags: [
+          'sentry_region:st-test_region',
+          'source_tool:options-automator',
+          'source:options-automator',
+          'source_category:infra-tools',
+          'option_name:updated_option_1',
+          'sentry_user:options-automator',
+          'latency_seconds:2.5',
+        ],
+      },
+    });
+  });
+
+  it('should not include latency_seconds tag when not present', async function () {
+    await sendSentryOptionsUpdatesToDatadog(testPartialPayload, 1699563828);
+    expect(datadogApiInstanceSpy).toHaveBeenCalledTimes(2);
+
+    const firstMessage = datadogApiInstanceSpy.mock.calls[0][0];
+    const secondMessage = datadogApiInstanceSpy.mock.calls[1][0];
+
+    expect(firstMessage.body.tags).not.toContain(
+      expect.stringMatching(/^latency_seconds:/)
+    );
+    expect(secondMessage.body.tags).not.toContain(
+      expect.stringMatching(/^latency_seconds:/)
+    );
   });
 });
