@@ -1,6 +1,6 @@
 import { client, v1 } from '@datadog/datadog-api-client';
 
-export function loadDatadogApiInstance(env) {
+function loadDatadogConfiguration(env) {
   const configurationOpts = {
     authMethods: {
       apiKeyAuth: env.DD_API_KEY,
@@ -9,6 +9,15 @@ export function loadDatadogApiInstance(env) {
     enableRetry: true,
   };
 
-  const configuration = client.createConfiguration(configurationOpts);
+  return client.createConfiguration(configurationOpts);
+}
+
+export function loadDatadogApiInstance(env): v1.EventsApi {
+  const configuration = loadDatadogConfiguration(env);
   return new v1.EventsApi(configuration);
+}
+
+export function loadDatadogApiMetricsInstance(env): v1.MetricsApi {
+  const configuration = loadDatadogConfiguration(env);
+  return new v1.MetricsApi(configuration);
 }
