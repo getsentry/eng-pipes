@@ -7,10 +7,7 @@ import { GoCDPausedPipelineReminder } from '@/types/gocd';
 
 import { makeUserTokenClient } from '../api/github/makeUserTokenClient';
 
-import {
-  loadDatadogApiInstance,
-  loadDatadogApiMetricsInstance,
-} from './loadDatadogApiInstance';
+import { loadDatadogApiInstance } from './loadDatadogApiInstance';
 import { GitHubOrgs, loadGitHubOrgs } from './loadGitHubOrgs';
 
 export const SENTRY_DSN =
@@ -88,9 +85,7 @@ export const PROJECT =
     ? 'super-big-data'
     : process.env.DEV_GCP_PROJECT;
 export const DATADOG_API_INSTANCE = loadDatadogApiInstance(process.env);
-export const DATADOG_API_METRICS_INSTANCE = loadDatadogApiMetricsInstance(
-  process.env
-);
+
 // The name of the GitHub Check that is created in getsentry to aggregate "required" jobs
 export const REQUIRED_CHECK_NAME = 'getsentry required checks';
 export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
