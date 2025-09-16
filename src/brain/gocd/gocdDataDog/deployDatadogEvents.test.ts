@@ -243,7 +243,9 @@ describe('GocdDatadogEvents', () => {
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
         body: {
-          title: 'GoCD: deploying <sentryio> <getsentry_frontend> <deploying> <In progress> in all',
+          title:
+            'GoCD: deploying <sentryio> <getsentry_frontend> <deploying> ' +
+            <In progress> in all',
           text:
             '%%% \n' +
             'GoCD deployment started from: [getsentry@2b0034becc4a](https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c),\n' +
@@ -276,7 +278,9 @@ describe('GocdDatadogEvents', () => {
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
         body: {
-          title: 'GoCD: deploying <snuba> <deploy-snuba-us> <st_migrate> <Passed> in us',
+          title:
+            'GoCD: deploying <snuba> <deploy-snuba-us> <st_migrate> ' +
+            <Passed> in us',
           text:
             '%%% \n' +
             'GoCD auto-deployment started from: [snuba@4d71a785da42](https://github.com/getsentry/snuba/commits/4d71a785da42db5606c2c82bb5a91adfb5006fc7),\n' +
