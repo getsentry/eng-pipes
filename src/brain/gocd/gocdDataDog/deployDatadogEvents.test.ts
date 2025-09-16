@@ -91,7 +91,7 @@ describe('GocdDatadogEvents', () => {
       expect(message).toEqual({
         body: {
           title:
-            'GoCD: deploying <getsentry-control-frontend> <deploy> <In progress> in all',
+            'GoCD: deploying <getsentry-control-frontend> <deploy-getsentry-control-frontend-test> <deploy> <In progress> in all',
           text:
             '%%% \n' +
             'GoCD auto-deployment started from: [getsentry@d2501d598f97](https://github.com/getsentry/getsentry/commits/d2501d598f97829b43627ba5d5721013f1d217dc),\n' +
@@ -132,7 +132,7 @@ describe('GocdDatadogEvents', () => {
       expect(message).toEqual({
         body: {
           title:
-            'GoCD: deploying <getsentry-control-frontend> <deploy> <Cancelled> in all',
+            'GoCD: deploying <getsentry-control-frontend> <deploy-getsentry-control-frontend-test> <deploy> <Cancelled> in all',
           text:
             '%%% \n' +
             'GoCD deployment started by <@U018H4DA8N5> from: [getsentry@d2501d598f97](https://github.com/getsentry/getsentry/commits/d2501d598f97829b43627ba5d5721013f1d217dc),\n' +
@@ -243,7 +243,7 @@ describe('GocdDatadogEvents', () => {
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
         body: {
-          title: 'GoCD: deploying <sentryio> <deploying> <In progress> in all',
+          title: 'GoCD: deploying <sentryio> <getsentry_frontend> <deploying> <In progress> in all',
           text:
             '%%% \n' +
             'GoCD deployment started from: [getsentry@2b0034becc4a](https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c),\n' +
@@ -276,7 +276,7 @@ describe('GocdDatadogEvents', () => {
       const message = datadogApiInstanceSpy.mock.calls[0][0];
       expect(message).toEqual({
         body: {
-          title: 'GoCD: deploying <snuba> <st_migrate> <Passed> in us',
+          title: 'GoCD: deploying <snuba> <deploy-snuba-us> <st_migrate> <Passed> in us',
           text:
             '%%% \n' +
             'GoCD auto-deployment started from: [snuba@4d71a785da42](https://github.com/getsentry/snuba/commits/4d71a785da42db5606c2c82bb5a91adfb5006fc7),\n' +
