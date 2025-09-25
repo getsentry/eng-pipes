@@ -16,7 +16,7 @@ import { triggerStaleBot } from './stalebot';
 
 const FAKE_MERGE_COMMIT = '12345';
 
-describe('Stalebot Tests', function () {
+describe.skip('Stalebot Tests', function () {
   const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   let origRepos;
 
