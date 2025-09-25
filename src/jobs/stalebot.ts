@@ -133,6 +133,8 @@ const closeStalePullRequests = async (
 };
 
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
+  // TODO: Re-enable stalebot
+  return;
   // Get all open issues and pull requests that are Waiting for Community
   await Promise.all(
     org.repos.all.map(
