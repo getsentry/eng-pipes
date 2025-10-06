@@ -11,7 +11,6 @@ import { GitHubOrg } from '@api/github/org';
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
 const DAYS_BEFORE_CLOSE = 7;
-const HOURS_IN_DAY = 24;
 
 const staleStatusUpdater = async (
   org: GitHubOrg,
