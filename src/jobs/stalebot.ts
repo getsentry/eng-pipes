@@ -1,6 +1,7 @@
 import moment from 'moment-timezone';
 
 import {
+  GETSENTRY_BOT_ID,
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WORK_IN_PROGRESS_LABEL,
@@ -107,8 +108,43 @@ const closeStalePullRequests = async (
   stalePullRequests,
   now: moment.Moment
 ) => {
-  await Promise.all(
-    stalePullRequests.map((pullRequest) => {
+  const stalePullRequestUpdates = stalePullRequests.map(async (pullRequest) => {
+      // Check if there was non-bot activity after we last labeled it stale
+      const { data: events } = await org.api.issues.listEvents({
+        owner: org.slug,
+        repo: repo,
+        issue_number: pullRequest.number,
+        per_page: 100,
+      });
+
+      const staleLabelEvent = events
+        .reverse()
+        .find(
+          (event) =>
+            event.event === 'labeled' &&
+            event.label?.name === STALE_LABEL
+        );
+
+      if (staleLabelEvent) {
+        const staleLabeledAt = moment(staleLabelEvent.created_at);
+        const hasActivityAfterStale = events.some(
+          (event) =>
+            moment(event.created_at).isAfter(staleLabeledAt) &&
+            event.actor?.id !== GETSENTRY_BOT_ID
+        );
+
+        // Remove stale label if there was real (non-bot) activity after we labeled it
+        if (hasActivityAfterStale) {
+          return org.api.issues.removeLabel({
+            owner: org.slug,
+            repo: repo,
+            issue_number: pullRequest.number,
+            name: STALE_LABEL,
+          });
+        }
+      }
+
+      // If no activity after stale label and 7+ days old, close the PR
       if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
         return org.api.issues.update({
           owner: org.slug,
@@ -118,23 +154,13 @@ const closeStalePullRequests = async (
           state: 'closed',
         });
       }
-      // If issue has been updated in the last day, we know that there has been activity
-      else if (now.diff(pullRequest.updated_at, 'hours') <= HOURS_IN_DAY) {
-        return org.api.issues.removeLabel({
-          owner: org.slug,
-          repo: repo,
-          issue_number: pullRequest.number,
-          name: STALE_LABEL,
-        });
-      }
+
       return Promise.resolve();
-    })
-  );
+    });
+  await Promise.all(stalePullRequestUpdates);
 };
 
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
-  // TODO: Re-enable stalebot
-  return;
   // Get all open issues and pull requests that are Waiting for Community
   await Promise.all(
     org.repos.all.map(
