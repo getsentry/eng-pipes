@@ -4,11 +4,7 @@ import moment from 'moment-timezone';
 import { MockedGithubOrg } from '@test/utils/testTypes';
 
 import { GitHubOrg } from '@/api/github/org';
-import {
-  GETSENTRY_BOT_ID,
-  GETSENTRY_ORG,
-  STALE_LABEL,
-} from '@/config';
+import { GETSENTRY_BOT_ID, GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
 import {
   WAITING_FOR_COMMUNITY_LABEL,

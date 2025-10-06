@@ -108,54 +108,53 @@ const closeStalePullRequests = async (
   now: moment.Moment
 ) => {
   const stalePullRequestUpdates = stalePullRequests.map(async (pullRequest) => {
-      // Check if there was non-bot activity after we last labeled it stale
-      const { data: events } = await org.api.issues.listEvents({
-        owner: org.slug,
-        repo: repo,
-        issue_number: pullRequest.number,
-        per_page: 100,
-      });
+    // Check if there was non-bot activity after we last labeled it stale
+    const { data: events } = await org.api.issues.listEvents({
+      owner: org.slug,
+      repo: repo,
+      issue_number: pullRequest.number,
+      per_page: 100,
+    });
 
-      const staleLabelEvent = events
-        .reverse()
-        .find(
-          (event) =>
-            event.event === 'labeled' &&
-            event.label?.name === STALE_LABEL
-        );
+    const staleLabelEvent = events
+      .reverse()
+      .find(
+        (event) =>
+          event.event === 'labeled' && event.label?.name === STALE_LABEL
+      );
 
-      if (staleLabelEvent) {
-        const staleLabeledAt = moment(staleLabelEvent.created_at);
-        const hasActivityAfterStale = events.some(
-          (event) =>
-            moment(event.created_at).isAfter(staleLabeledAt) &&
-            event.actor?.id !== GETSENTRY_BOT_ID
-        );
+    if (staleLabelEvent) {
+      const staleLabeledAt = moment(staleLabelEvent.created_at);
+      const hasActivityAfterStale = events.some(
+        (event) =>
+          moment(event.created_at).isAfter(staleLabeledAt) &&
+          event.actor?.id !== GETSENTRY_BOT_ID
+      );
 
-        // Remove stale label if there was real (non-bot) activity after we labeled it
-        if (hasActivityAfterStale) {
-          return org.api.issues.removeLabel({
-            owner: org.slug,
-            repo: repo,
-            issue_number: pullRequest.number,
-            name: STALE_LABEL,
-          });
-        }
-      }
-
-      // If no activity after stale label and 7+ days old, close the PR
-      if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
-        return org.api.issues.update({
+      // Remove stale label if there was real (non-bot) activity after we labeled it
+      if (hasActivityAfterStale) {
+        return org.api.issues.removeLabel({
           owner: org.slug,
           repo: repo,
           issue_number: pullRequest.number,
-          state_reason: 'not_planned',
-          state: 'closed',
+          name: STALE_LABEL,
         });
       }
+    }
 
-      return Promise.resolve();
-    });
+    // If no activity after stale label and 7+ days old, close the PR
+    if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
+      return org.api.issues.update({
+        owner: org.slug,
+        repo: repo,
+        issue_number: pullRequest.number,
+        state_reason: 'not_planned',
+        state: 'closed',
+      });
+    }
+
+    return Promise.resolve();
+  });
   await Promise.all(stalePullRequestUpdates);
 };
 
