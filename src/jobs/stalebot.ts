@@ -1,7 +1,6 @@
 import moment from 'moment-timezone';
 
 import {
-  GETSENTRY_BOT_ID,
   STALE_LABEL,
   WAITING_FOR_COMMUNITY_LABEL,
   WORK_IN_PROGRESS_LABEL,
@@ -109,51 +108,38 @@ const closeStalePullRequests = async (
 ) => {
   const stalePullRequestUpdates = stalePullRequests.map(async (pullRequest) => {
     // Check if there was non-bot activity after we last labeled it stale
-    const { data: events } = await org.api.issues.listEvents({
+    const { data: events } = await org.api.paginate(org.api.issues.listEvents, {
       owner: org.slug,
       repo: repo,
       issue_number: pullRequest.number,
       per_page: 100,
     });
 
-    const staleLabelEvent = events
-      .reverse()
-      .find(
-        (event) =>
-          event.event === 'labeled' && event.label?.name === STALE_LABEL
-      );
+    const lastEvent = events.at(-1);
 
-    if (staleLabelEvent) {
-      const staleLabeledAt = moment(staleLabelEvent.created_at);
-      const hasActivityAfterStale = events.some(
-        (event) =>
-          moment(event.created_at).isAfter(staleLabeledAt) &&
-          event.actor?.id !== GETSENTRY_BOT_ID
-      );
-
-      // Remove stale label if there was real (non-bot) activity after we labeled it
-      if (hasActivityAfterStale) {
-        return org.api.issues.removeLabel({
-          owner: org.slug,
-          repo: repo,
-          issue_number: pullRequest.number,
-          name: STALE_LABEL,
-        });
-      }
-    }
-
-    // If no activity after stale label and 7+ days old, close the PR
-    if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
-      return org.api.issues.update({
+    // If the last event was not a stale label event, we can remove the stale label and reset the clock for this PR
+    if (lastEvent?.event !== 'labeled' || lastEvent.label?.name !== STALE_LABEL) {
+      return org.api.issues.removeLabel({
         owner: org.slug,
         repo: repo,
         issue_number: pullRequest.number,
-        state_reason: 'not_planned',
-        state: 'closed',
+        name: STALE_LABEL,
       });
     }
 
-    return Promise.resolve();
+    // Otherwise, if it has been under a week since we added the stale label, we do nothing.
+    if (now.diff(moment(lastEvent.created_at), 'days') < DAYS_BEFORE_CLOSE) {
+      return Promise.resolve();
+    }
+
+    // If it has been over a week since we added the stale label, we close the PR
+    return org.api.issues.update({
+      owner: org.slug,
+      repo: repo,
+      issue_number: pullRequest.number,
+      state_reason: 'not_planned',
+      state: 'closed',
+    });
   });
   await Promise.all(stalePullRequestUpdates);
 };
