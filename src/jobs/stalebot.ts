@@ -118,7 +118,10 @@ const closeStalePullRequests = async (
     const lastEvent = events.at(-1);
 
     // If the last event was not a stale label event, we can remove the stale label and reset the clock for this PR
-    if (lastEvent?.event !== 'labeled' || lastEvent.label?.name !== STALE_LABEL) {
+    if (
+      lastEvent?.event !== 'labeled' ||
+      lastEvent.label?.name !== STALE_LABEL
+    ) {
       return org.api.issues.removeLabel({
         owner: org.slug,
         repo: repo,
