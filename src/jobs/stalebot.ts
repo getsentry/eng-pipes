@@ -108,14 +108,14 @@ const closeStalePullRequests = async (
 ) => {
   const stalePullRequestUpdates = stalePullRequests.map(async (pullRequest) => {
     // Check if there was non-bot activity after we last labeled it stale
-    const { data: events } = await org.api.paginate(org.api.issues.listEvents, {
+    const events = await org.api.paginate(org.api.issues.listEvents, {
       owner: org.slug,
       repo: repo,
       issue_number: pullRequest.number,
       per_page: 100,
     });
 
-    const lastEvent = events.at(-1);
+    const lastEvent = events[events.length - 1];
 
     // If the last event was not a stale label event, we can remove the stale label and reset the clock for this PR
     if (

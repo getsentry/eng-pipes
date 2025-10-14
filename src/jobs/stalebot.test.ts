@@ -182,16 +182,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
-    org.api.issues.listEvents = jest.fn(() => ({
-      data: [
-        {
-          event: 'labeled',
-          label: { name: STALE_LABEL },
-          created_at: '2023-04-05T15:51:22Z',
-          actor: { id: GETSENTRY_BOT_ID },
-        },
-      ],
-    }));
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T15:51:22Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
     await triggerStaleBot(
       org as unknown as GitHubOrg,
       moment('2023-04-10T14:28:13Z').utc()
@@ -208,21 +206,19 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         : [];
     });
 
-    org.api.issues.listEvents = jest.fn(() => ({
-      data: [
-        {
-          event: 'labeled',
-          label: { name: STALE_LABEL },
-          created_at: '2023-04-05T10:00:00Z',
-          actor: { id: GETSENTRY_BOT_ID },
-        },
-        {
-          event: 'commented',
-          created_at: '2023-04-05T15:51:22Z', // Real user comment after label
-          actor: { id: 12345 }, // Different user
-        },
-      ],
-    }));
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T10:00:00Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+      {
+        event: 'commented',
+        created_at: '2023-04-05T15:51:22Z', // Real user comment after label
+        actor: { id: 12345 }, // Different user
+      },
+    ]);
 
     await triggerStaleBot(
       org as unknown as GitHubOrg,
@@ -249,16 +245,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         : [];
     });
 
-    org.api.issues.listEvents = jest.fn(() => ({
-      data: [
-        {
-          event: 'labeled',
-          label: { name: STALE_LABEL },
-          created_at: staleLabeledAt,
-          actor: { id: GETSENTRY_BOT_ID },
-        },
-      ],
-    }));
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: staleLabeledAt,
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
 
     await triggerStaleBot(
       org as unknown as GitHubOrg,
@@ -277,16 +271,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
-    org.api.issues.listEvents = jest.fn(() => ({
-      data: [
-        {
-          event: 'labeled',
-          label: { name: STALE_LABEL },
-          created_at: '2023-04-05T15:51:22Z',
-          actor: { id: GETSENTRY_BOT_ID },
-        },
-      ],
-    }));
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T15:51:22Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
     await triggerStaleBot(
       org as unknown as GitHubOrg,
       moment('2023-04-13T14:28:13Z').utc()
