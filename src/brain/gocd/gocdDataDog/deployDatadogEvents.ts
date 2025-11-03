@@ -281,6 +281,9 @@ export class DeployDatadogEvents {
     // getsentry-frontend
     const service = pipeline.group;
 
+    // deploy-getsentry-backend-us
+    const pipelineName = pipeline.name;
+
     // getsentry@h92mfyw
     // let repoSha = this.getRepoSha(pipeline);
 
@@ -304,7 +307,7 @@ export class DeployDatadogEvents {
     const sentry_user_tags = authors.map((user) => `sentry_user:${user.login}`);
 
     // Title: GoCD: deploy sha (started/failed/completed)  in <insert>-region
-    const title = `GoCD: deploying <${service}> <${stageName}> <${pipelineResult}> in ${region}`;
+    const title = `GoCD: deploying <${service}> <${pipelineName}> <${stageName}> <${pipelineResult}> in ${region}`;
     // Automatic deploy triggered by <github push?>  to track details visit: https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s/2237
     const text = `%%% \n${deploymentReason} from: ${commitShaLink},\n \n ${commitDiffLink} \n GoCD:${stageLink} \n\n   *this message was produced by a eng-pipes gocd brain module* \n %%%`;
     // Tags: source:gocd customer_name:s4s sentry_region:s4s source_tool:gocd sentry_user:git commit email  source_category:infra-tools
