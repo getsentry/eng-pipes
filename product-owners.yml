@@ -53,7 +53,7 @@ product_areas:
   SDKs - Mobile:
   - team-mobile-sdks
   SDKs - Native:
-  - team-mobile-sdks
+  - team-gdx
   SDKs - Web Backend:
   - team-web-backend-sdks
   SDKs - Web Frontend:
@@ -117,7 +117,7 @@ repos:
   sentry-javascript: team-web-frontend-sdks
   sentry-javascript-bundler-plugins: team-web-frontend-sdks
   sentry-laravel: team-web-backend-sdks
-  sentry-native: team-cross-platform-native
+  sentry-native: team-gdx
   sentry-php: team-web-backend-sdks
   sentry-powershell: team-gdx
   sentry-python: team-web-backend-sdks
