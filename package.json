@@ -33,7 +33,9 @@
     "test:ci": "yarn test --forceExit",
     "test:dev": "yarn postgres && yarn test",
     "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage",
-    "postgres": "docker start ci-tooling-postgres || docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12"
+    "postgres": "docker start ci-tooling-postgres || docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12",
+    "run:stalebot": "yarn build && node lib/scripts/run-stalebot.js",
+    "run:stalebot:dev": "NODE_ENV=development ts-node --project tsconfig.json -r tsconfig-paths/register src/scripts/run-stalebot.ts"
   },
   "_moduleAliases": {
     "_comment": "⚠️  Keep this in sync with jest.config.ts and tsconfig.json. ⚠️ ",
