@@ -10,7 +10,6 @@ import { GitHubOrg } from '@api/github/org';
 const GH_API_PER_PAGE = 100;
 const DAYS_BEFORE_STALE = 21;
 const DAYS_BEFORE_CLOSE = 7;
-const HOURS_IN_DAY = 24;
 
 const staleStatusUpdater = async (
   org: GitHubOrg,
@@ -107,34 +106,48 @@ const closeStalePullRequests = async (
   stalePullRequests,
   now: moment.Moment
 ) => {
-  await Promise.all(
-    stalePullRequests.map((pullRequest) => {
-      if (now.diff(pullRequest.updated_at, 'days') >= DAYS_BEFORE_CLOSE) {
-        return org.api.issues.update({
-          owner: org.slug,
-          repo: repo,
-          issue_number: pullRequest.number,
-          state_reason: 'not_planned',
-          state: 'closed',
-        });
-      }
-      // If issue has been updated in the last day, we know that there has been activity
-      else if (now.diff(pullRequest.updated_at, 'hours') <= HOURS_IN_DAY) {
-        return org.api.issues.removeLabel({
-          owner: org.slug,
-          repo: repo,
-          issue_number: pullRequest.number,
-          name: STALE_LABEL,
-        });
-      }
+  const stalePullRequestUpdates = stalePullRequests.map(async (pullRequest) => {
+    // Check if there was non-bot activity after we last labeled it stale
+    const events = await org.api.paginate(org.api.issues.listEvents, {
+      owner: org.slug,
+      repo: repo,
+      issue_number: pullRequest.number,
+      per_page: 100,
+    });
+
+    const lastEvent = events[events.length - 1];
+
+    // If the last event was not a stale label event, we can remove the stale label and reset the clock for this PR
+    if (
+      lastEvent?.event !== 'labeled' ||
+      lastEvent.label?.name !== STALE_LABEL
+    ) {
+      return org.api.issues.removeLabel({
+        owner: org.slug,
+        repo: repo,
+        issue_number: pullRequest.number,
+        name: STALE_LABEL,
+      });
+    }
+
+    // Otherwise, if it has been under a week since we added the stale label, we do nothing.
+    if (now.diff(moment(lastEvent.created_at), 'days') < DAYS_BEFORE_CLOSE) {
       return Promise.resolve();
-    })
-  );
+    }
+
+    // If it has been over a week since we added the stale label, we close the PR
+    return org.api.issues.update({
+      owner: org.slug,
+      repo: repo,
+      issue_number: pullRequest.number,
+      state_reason: 'not_planned',
+      state: 'closed',
+    });
+  });
+  await Promise.all(stalePullRequestUpdates);
 };
 
 export const triggerStaleBot = async (org: GitHubOrg, now: moment.Moment) => {
-  // TODO: Re-enable stalebot
-  return;
   // Get all open issues and pull requests that are Waiting for Community
   await Promise.all(
     org.repos.all.map(

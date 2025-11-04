@@ -4,7 +4,7 @@ import moment from 'moment-timezone';
 import { MockedGithubOrg } from '@test/utils/testTypes';
 
 import { GitHubOrg } from '@/api/github/org';
-import { GETSENTRY_ORG, STALE_LABEL } from '@/config';
+import { GETSENTRY_BOT_ID, GETSENTRY_ORG, STALE_LABEL } from '@/config';
 
 import {
   WAITING_FOR_COMMUNITY_LABEL,
@@ -16,7 +16,7 @@ import { triggerStaleBot } from './stalebot';
 
 const FAKE_MERGE_COMMIT = '12345';
 
-describe.skip('Stalebot Tests', function () {
+describe('Stalebot Tests', function () {
   const org = GETSENTRY_ORG as unknown as MockedGithubOrg;
   let origRepos;
 
@@ -182,6 +182,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T15:51:22Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
     await triggerStaleBot(
       org as unknown as GitHubOrg,
       moment('2023-04-10T14:28:13Z').utc()
@@ -197,11 +205,62 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
+
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T10:00:00Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+      {
+        event: 'commented',
+        created_at: '2023-04-05T15:51:22Z', // Real user comment after label
+        actor: { id: 12345 }, // Different user
+      },
+    ]);
+
     await triggerStaleBot(
       org as unknown as GitHubOrg,
       moment('2023-04-06T00:28:13Z').utc()
     );
     expect(removeLabelSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not remove stale label when bot just added it', async function () {
+    const removeLabelSpy = jest.spyOn(org.api.issues, 'removeLabel');
+    const staleLabeledAt = '2023-04-05T16:00:00Z';
+
+    org.api.issues.listForRepo = jest.fn(() => []);
+    org.api.pulls.list = jest.fn(({ repo }) => {
+      return org.repos.withRouting.includes(repo)
+        ? [
+            {
+              ...issueInfo,
+              labels: [{ name: STALE_LABEL }],
+              // Bot added the label, so updated_at matches when label was added
+              updated_at: staleLabeledAt,
+            },
+          ]
+        : [];
+    });
+
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: staleLabeledAt,
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
+
+    await triggerStaleBot(
+      org as unknown as GitHubOrg,
+      moment('2023-04-08T16:00:00Z').utc() // Bot runs <7 days later
+    );
+
+    // Should not remove the label since the only activity was the bot adding it
+    expect(removeLabelSpy).toHaveBeenCalledTimes(0);
   });
 
   it('should close PR if there is no activity after a week and issue has label `Stale`', async function () {
@@ -212,6 +271,14 @@ But! If you comment or otherwise update it, I will reset the clock, and if you a
         ? [{ ...issueInfo, labels: [{ name: STALE_LABEL }] }]
         : [];
     });
+    org.api.issues.listEvents = jest.fn(() => [
+      {
+        event: 'labeled',
+        label: { name: STALE_LABEL },
+        created_at: '2023-04-05T15:51:22Z',
+        actor: { id: GETSENTRY_BOT_ID },
+      },
+    ]);
     await triggerStaleBot(
       org as unknown as GitHubOrg,
       moment('2023-04-13T14:28:13Z').utc()
