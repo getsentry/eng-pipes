@@ -108,7 +108,7 @@ repos:
   sentry-cocoa: team-mobile-sdks
   sentry-dart: team-mobile-sdks
   sentry-dart-plugin: team-mobile-sdks
-  sentry-dotnet: team-gdx
+  sentry-dotnet: team-web-backend-sdks
   sentry-electron: team-web-frontend-sdks
   sentry-elixir: team-web-backend-sdks
   sentry-go: team-web-backend-sdks
