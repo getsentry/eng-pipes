@@ -57,18 +57,25 @@ const INGEST_PIPELINE_FILTER = [
 const SDKS_PIPELINE_FILTER = ['deploy-release-registry'];
 
 const SNS_SAAS_PIPELINE_FILTER = [
-  'deploy-snuba',
-  'rollback-snuba',
-  'deploy-snuba-s4s',
-  'deploy-snuba-us',
-  'deploy-snuba-stable',
+  'deploy-snuba-py',
+  'rollback-snuba-py',
+  'deploy-snuba-py-s4s',
+  'deploy-snuba-py-us',
+  'deploy-snuba-rs',
+  'rollback-snuba-rs',
+  'deploy-snuba-rs-s4s',
+  'deploy-snuba-rs-us',
 ];
 
 const SNS_ST_PIPELINE_FILTER = [
-  'deploy-snuba-customer-1',
-  'deploy-snuba-customer-2',
-  'deploy-snuba-customer-3',
-  'deploy-snuba-customer-4',
+  'deploy-snuba-py-customer-1',
+  'deploy-snuba-py-customer-2',
+  'deploy-snuba-py-customer-4',
+  'deploy-snuba-py-customer-7',
+  'deploy-snuba-rs-customer-1',
+  'deploy-snuba-rs-customer-2',
+  'deploy-snuba-rs-customer-4',
+  'deploy-snuba-rs-customer-7',
 ];
 
 const SNS_SAAS_K8S_PIPELINE_FILTER = [
@@ -81,10 +88,8 @@ const SNS_S4S_K8S_PIPELINE_FILTER = [
   'deploy-snuba-k8s-s4s',
   'deploy-snuba-k8s-customer-1',
   'deploy-snuba-k8s-customer-2',
-  'deploy-snuba-k8s-customer-3',
   'deploy-snuba-k8s-customer-4',
-  'deploy-snuba-k8s-customer-5',
-  'deploy-snuba-k8s-customer-6',
+  'deploy-snuba-k8s-customer-7',
 ];
 
 const DEV_INFRA_PIPELINE_FILTER = [
