@@ -1695,7 +1695,7 @@ describe('gocdSlackFeeds', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-snuba-us',
+          name: 'deploy-snuba-py-us',
           stage: {
             name: 'deploy-canary',
             result: 'Failed',
@@ -1800,12 +1800,12 @@ describe('gocdSlackFeeds', function () {
       text: '',
       blocks: [
         slackblocks.header(
-          slackblocks.plaintext(':x: deploy-snuba-us has failed')
+          slackblocks.plaintext(':x: deploy-snuba-py-us has failed')
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has failed due to detected issues in deploy-canary.\n
 Please do not ignore this message just because the environment is not SaaS, because deployment to any subsequent environment will be cancelled.\n
-*Review the errors* in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
+*Review the errors* in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-snuba-py-us/20/deploy-canary/1/health_check|GoCD Logs>*.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
