@@ -106,6 +106,7 @@ repos:
   sentry-android-gradle-plugin: team-mobile-sdks
   sentry-cli: team-web-backend-sdks
   sentry-cocoa: team-mobile-sdks
+  sentry-cocoa-swift-log: team-mobile-sdks
   sentry-dart: team-mobile-sdks
   sentry-dart-plugin: team-mobile-sdks
   sentry-dotnet: team-web-backend-sdks
