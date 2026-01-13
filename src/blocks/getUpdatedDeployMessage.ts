@@ -12,7 +12,7 @@ function getSubject(
   if (slackUser) {
     return `<@${slackUser}> has`;
   }
-  if (approvedBy) {
+  if (approvedBy && approvedBy !== 'changes') {
     return `${approvedBy} has`;
   }
   return 'GoCD has';

@@ -79,13 +79,13 @@ describe('getUpdatedGoCDDeployMessage', function () {
       stage_name: FINAL_STAGE_NAMES[0],
       want: `GoCD has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
     },
-    // approvedBy is 'changes' (auto-deploy) - should show 'changes'
+    // approvedBy is 'changes' (auto-deploy) - should fall back to GoCD
     {
       slackUser: undefined,
       approvedBy: 'changes',
       state: 'Passed',
       stage_name: FINAL_STAGE_NAMES[0],
-      want: `changes has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
+      want: `GoCD has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
     },
   ];
 
