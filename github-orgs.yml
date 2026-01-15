@@ -26,6 +26,7 @@ getsentry:
   repos:
     withRouting:
       - 'sentry'
+      - 'seer'
 
     withoutRouting:
       - 'arroyo'

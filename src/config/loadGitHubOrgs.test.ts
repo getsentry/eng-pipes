@@ -28,7 +28,7 @@ describe('loadGitHubOrgs', function () {
     });
 
     // Spot-check repos for good measure.
-    expect(org.repos.withRouting).toEqual(['sentry']);
+    expect(org.repos.withRouting).toEqual(['sentry', 'seer']);
   });
 
   it('chokes on non-numeric appId', async function () {
