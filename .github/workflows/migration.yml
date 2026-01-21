@@ -67,5 +67,7 @@ jobs:
           DB_USER: ${{ secrets.DB_USER }}
           DB_NAME: ${{ secrets.DB_NAME }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MIGRATION_NAME: ${{ github.event.inputs.name || 'latest' }}
+          MIGRATION_ENV: ${{ github.event.inputs.environment || 'proxy' }}
         run: |
-          yarn migrate migrate:${{ github.event.inputs.name || 'latest' }} --env ${{ github.event.inputs.environment || 'proxy' }}
+          yarn migrate "migrate:$MIGRATION_NAME" --env "$MIGRATION_ENV"
