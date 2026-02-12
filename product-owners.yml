@@ -92,8 +92,12 @@ product_areas:
   - team-revenue
   Unknown:
   - team-dev-infra
+  Uptime:
+  - team-uptime
   User Feedback:
   - team-replays
+  Value Discovery:
+  - team-value-discovery
   What's New:
   - team-product
 repos:
@@ -248,6 +252,14 @@ teams:
     offices:
     - vie
     slack_channel: C047YNXDDA7
+  team-uptime:
+    offices:
+    - sfo
+    - yyz
+    slack_channel: C07DXRCCFPC
+  team-value-discovery:
+    offices: null
+    slack_channel: C0ABG0XDCFQ
   team-web-backend-sdks:
     offices:
     - vie
