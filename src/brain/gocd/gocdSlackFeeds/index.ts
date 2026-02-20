@@ -48,11 +48,7 @@ const BACKEND_PIPELINE_FILTER = [
 
 const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
 
-const INGEST_PIPELINE_FILTER = [
-  'deploy-edge-relay',
-  'deploy-relay-pop',
-  'deploy-relay-processing',
-];
+const INGEST_PIPELINE_FILTER = ['deploy-relay', 'deploy-symbolicator'];
 
 const SDKS_PIPELINE_FILTER = ['deploy-release-registry'];
 
