@@ -34,6 +34,7 @@ import {
   getProgressColor,
   getProgressSuffix,
 } from '@/utils/gocd/gocdHelpers';
+import { isSentryEmail } from '@/utils/misc/isSentryEmail';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
 import { getSlackMessage } from '@utils/db/getSlackMessage';
@@ -57,12 +58,16 @@ async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {
 
   const { stage } = pipeline;
   const updatedBlocks = message.context.blocks.slice(0, -1);
-  const payloadUser = await getUser({ email: stage['approved-by'] });
+  const approvedBy = stage['approved-by'];
+  const payloadUser = isSentryEmail(approvedBy)
+    ? await getUser({ email: approvedBy })
+    : null;
   const isUserDeploying = message.context.target === payloadUser?.slackUser;
 
   const updatedDeployMessage = getUpdatedGoCDDeployMessage({
     isUserDeploying,
     slackUser: payloadUser?.slackUser,
+    approvedBy,
     pipeline: {
       pipeline_name: pipeline.name,
       pipeline_counter: parseInt(pipeline.counter, 10),
