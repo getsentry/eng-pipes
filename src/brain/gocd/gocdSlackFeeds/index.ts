@@ -12,6 +12,7 @@ import {
 import {
   DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_ENG_SNS_CHANNEL_ID,
+  DISCUSS_SEER_INFRA_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
@@ -86,6 +87,17 @@ const SNS_S4S_K8S_PIPELINE_FILTER = [
   'deploy-snuba-k8s-customer-2',
   'deploy-snuba-k8s-customer-4',
   'deploy-snuba-k8s-customer-7',
+];
+
+const SEER_INFRA_PIPELINE_FILTER = [
+  'deploy-seer-s4s',
+  'deploy-seer-s4s2',
+  'deploy-seer-us',
+  'deploy-seer-de',
+  'deploy-seer-customer-1',
+  'deploy-seer-customer-2',
+  'deploy-seer-customer-4',
+  'deploy-seer-customer-7',
 ];
 
 const DEV_INFRA_PIPELINE_FILTER = [
@@ -248,6 +260,19 @@ Please do not ignore this message just because the environment is not SaaS, beca
       );
     }
     return blocks;
+  },
+});
+
+const discussSeerInfraFeed = new DeployFeed({
+  feedName: 'discussSeerInfraSlackFeed',
+  channelID: DISCUSS_SEER_INFRA_CHANNEL_ID,
+  msgType: SlackMessage.DISCUSS_SEER_INFRA_DEPLOY,
+  pipelineFilter: (pipeline) => {
+    if (!SEER_INFRA_PIPELINE_FILTER.includes(pipeline.name)) {
+      return false;
+    }
+
+    return pipeline.stage.result.toLowerCase() === 'failed';
   },
 });
 
@@ -454,6 +479,7 @@ export async function handler(body: GoCDResponse) {
     deployFeed.handle(body),
     devinfraFeed.handle(body),
     discussBackendFeed.handle(body),
+    discussSeerInfraFeed.handle(body),
     discussSnSFeed.handle(body),
     goCDCustomJobRunnerFeed.handle(body),
     ingestFeed.handle(body),

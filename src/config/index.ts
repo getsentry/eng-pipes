@@ -73,6 +73,8 @@ export const DISCUSS_FRONTEND_CHANNEL_ID = // #discuss-frontend
   process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'C8V02RHC7';
 export const DISCUSS_ENG_SNS_CHANNEL_ID = // #discuss-eng-sns
   process.env.DISCUSS_FRONTEND_CHANNEL_ID || 'CLTE78L73';
+export const DISCUSS_SEER_INFRA_CHANNEL_ID = // #discuss-seer-infra
+  process.env.DISCUSS_SEER_INFRA_CHANNEL_ID || 'C07818L0HS5';
 export const FEED_UPTIME_CHANNEL_ID = // #feed-uptime
   process.env.FEED_UPTIME_CHANNEL_ID || 'C07DXRCCFPC';
 export const DISABLE_GITHUB_METRICS =

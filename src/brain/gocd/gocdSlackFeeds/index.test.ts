@@ -9,6 +9,7 @@ import {
   Color,
   DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_ENG_SNS_CHANNEL_ID,
+  DISCUSS_SEER_INFRA_CHANNEL_ID,
   FEED_DEPLOY_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   FEED_GOCD_JOB_RUNNER_CHANNEL_ID,
@@ -1818,6 +1819,63 @@ Please do not ignore this message just because the environment is not SaaS, beca
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
     expect(postCalls[1][0]).toMatchObject(pipelineFailureReply);
+  });
+
+  it('post message to discuss-seer-infra on seer pipeline failure', async function () {
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: 'deploy-seer-us',
+          stage: {
+            name: 'deploy',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+
+    expect(postCalls[0][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: DISCUSS_SEER_INFRA_CHANNEL_ID,
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/deploy-seer-us*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *deploy*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/deploy-seer-us/20/deploy/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    expect(postCalls[1][0]).toMatchObject({
+      text: 'GoCD deployment started',
+      channel: FEED_DEPLOY_CHANNEL_ID,
+    });
   });
 
   it(`post message without a reply for run-custom-job when the stage result is unknown`, async function () {
