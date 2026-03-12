@@ -19,6 +19,7 @@ import {
   firstGitMaterialSHA,
   getBaseAndHeadCommit,
 } from '@/utils/gocd/gocdHelpers';
+import { isSentryEmail } from '@/utils/misc/isSentryEmail';
 
 export class DeployDatadogEvents {
   private feedName: string;
@@ -213,7 +214,7 @@ export class DeployDatadogEvents {
       // for this even though it may not match.
       if (approvedBy === 'changes') {
         body = `GoCD auto-deployment started`;
-      } else {
+      } else if (isSentryEmail(approvedBy)) {
         const user = await getUser({ email: approvedBy });
         if (user?.slackUser) {
           body = `GoCD deployment started by <@${user.slackUser}>`;
