@@ -60,7 +60,7 @@
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "12",
     "@types/tar": "^6.1.4",
-    "fastify": "^3.29.4",
+    "fastify": "^5.7.3",
     "fastify-formbody": "^5.2.0",
     "google-auth-library": "^9.10.0",
     "js-yaml": "^4.1.0",
