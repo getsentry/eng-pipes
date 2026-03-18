@@ -16,16 +16,19 @@ export const CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT = 3;
 export class ConsecutiveUnsuccessfulDeploysAlert {
   private slackChannelID: string;
   private consecutiveUnsuccessfulLimit: number;
+  private alertOnlyAtThreshold: boolean;
   private pipelineFilter: PipelineFilterCallback | undefined;
 
   constructor({
     slackChannelID,
     consecutiveUnsuccessfulLimit,
+    alertOnlyAtThreshold,
     pipelineFilter,
   }: ConsecutiveUnsuccessfulDeploysAlertArgs) {
     this.slackChannelID = slackChannelID;
     this.consecutiveUnsuccessfulLimit =
       consecutiveUnsuccessfulLimit || CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT;
+    this.alertOnlyAtThreshold = alertOnlyAtThreshold ?? false;
     this.pipelineFilter = pipelineFilter;
   }
 
@@ -57,6 +60,15 @@ export class ConsecutiveUnsuccessfulDeploysAlert {
     const numConsecutiveUnsuccessfulDeploys =
       Number(pipeline.counter) - Number(lastDeploy.pipeline_counter);
 
+    // exit early if we are doing exact number only, and we aren't at it
+    if (
+      this.alertOnlyAtThreshold &&
+      numConsecutiveUnsuccessfulDeploys !== this.consecutiveUnsuccessfulLimit
+    ) {
+      return;
+    }
+
+    // ... otherwise the behaviour is unchanged (>=)
     if (
       numConsecutiveUnsuccessfulDeploys >= this.consecutiveUnsuccessfulLimit
     ) {
@@ -103,6 +115,7 @@ export class ConsecutiveUnsuccessfulDeploysAlert {
 type ConsecutiveUnsuccessfulDeploysAlertArgs = {
   slackChannelID: string;
   consecutiveUnsuccessfulLimit?: number;
+  alertOnlyAtThreshold?: boolean;
   pipelineFilter?: PipelineFilterCallback;
 };
 
