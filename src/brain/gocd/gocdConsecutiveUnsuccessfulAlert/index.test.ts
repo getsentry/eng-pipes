@@ -281,7 +281,12 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     // First Event
     await handler(gocdPayload);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    const channels = bolt.client.chat.postMessage.mock.calls.map(
+      (c) => c[0].channel
+    );
+    expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
+    expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: `❗️ *getsentry-backend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
       channel: FEED_DEV_INFRA_CHANNEL_ID,
