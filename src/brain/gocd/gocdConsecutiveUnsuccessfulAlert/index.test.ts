@@ -7,6 +7,7 @@ import * as slackblocks from '@/blocks/slackBlocks';
 import { DB_TABLE_STAGES } from '@/brain/gocd/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
+  DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
@@ -280,7 +281,12 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     // First Event
     await handler(gocdPayload);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    const channels = bolt.client.chat.postMessage.mock.calls.map(
+      (c) => c[0].channel
+    );
+    expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
+    expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
       text: `❗️ *getsentry-backend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
       channel: FEED_DEV_INFRA_CHANNEL_ID,
@@ -297,6 +303,129 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
         ),
       ],
     });
+  });
+
+  it('post to discuss-backend and feed-dev-infra if the number of consecutive unsuccessful backend deploys is exactly the limit', async function () {
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'pipeline-id-123',
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+      stage_name: 'deploy-primary',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    const channels = bolt.client.chat.postMessage.mock.calls.map(
+      (c) => c[0].channel
+    );
+    expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
+    expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
+  });
+
+  it('does not post to discuss-backend again when consecutive unsuccessful backend deploys exceeds the limit', async function () {
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'pipeline-id-123',
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT - 1,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+      stage_name: 'deploy-primary',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    // feed-dev-infra fires (>= threshold), but discuss-backend does not (not exactly threshold)
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(1);
+    expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
+      channel: FEED_DEV_INFRA_CHANNEL_ID,
+    });
+    const channels = bolt.client.chat.postMessage.mock.calls.map(
+      (c) => c[0].channel
+    );
+    expect(channels).not.toContain(DISCUSS_BACKEND_CHANNEL_ID);
   });
 
   it('post to discuss-frontend and feed-dev-infra if the number of consecutive unsuccessful frontend deploys is over the limit', async function () {
