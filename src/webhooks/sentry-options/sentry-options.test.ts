@@ -19,6 +19,10 @@ import {
   sendSentryOptionsUpdatesToDatadog,
 } from './sentry-options';
 
+jest.mock('@/utils/db/unregisteredOptions', () => ({
+  saveUnregisteredOptions: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('sentry-options webhook', function () {
   it('noop', () => {});
   let fastify, datadogApiInstanceSpy;

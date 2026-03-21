@@ -13,6 +13,7 @@ import { heartbeat } from './heartbeat';
 import { notifyProductOwnersForUntriagedIssues } from './slackNotifications';
 import { triggerSlackScores } from './slackScores';
 import { triggerStaleBot } from './stalebot';
+import { sendUnregisteredOptionsSummary } from './unregisteredOptionsSummary';
 
 async function handleCronAuth(
   request: FastifyRequest,
@@ -124,6 +125,9 @@ export async function routeJobs(server: Fastify, _options): Promise<void> {
   );
   server.post('/heartbeat', (request, reply) =>
     handleCronJob(heartbeat, request, reply)
+  );
+  server.post('/unregistered-options-summary', (request, reply) =>
+    handleCronJob(sendUnregisteredOptionsSummary, request, reply)
   );
 
   // Default handler for invalid routes
