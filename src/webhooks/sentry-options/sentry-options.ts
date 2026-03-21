@@ -215,7 +215,6 @@ export async function messageSlack(message: SentryOptionsResponse) {
       ),
       ...generateBlock('drifted', message.drifted_options),
       ...generateBlock('not_writable', message.not_writable_options),
-      ...generateBlock('unregistered', message.unregistered_options),
       ...generateBlock('invalid_type', message.invalid_type_options),
     ];
     if (successBlock.length > 1) {
