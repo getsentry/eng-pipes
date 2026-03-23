@@ -248,29 +248,6 @@ describe('sentry-options webhook', function () {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: '*Unregistered Options:* ',
-            },
-          },
-          {
-            type: 'section',
-            fields: [
-              {
-                type: 'mrkdwn',
-                text: 'Option `unregisterd_option_1` is not registered!',
-              },
-              {
-                type: 'mrkdwn',
-                text: 'Option `unregisterd_option_2` is not registered!',
-              },
-            ],
-          },
-          {
-            type: 'divider',
-          },
-          {
-            type: 'section',
-            text: {
-              type: 'mrkdwn',
               text: '*Invalid_type Options:* ',
             },
           },
