@@ -36,6 +36,7 @@ const config = {
   proxy: {
     client: 'postgresql',
     connection: {
+      host: '127.0.0.1',
       database: 'postgres',
       user: 'postgres',
       password: DB_PASSWORD,
