@@ -40,7 +40,12 @@ export async function sentryOptionsWebhook(
     const { body }: { body: SentryOptionsResponse } = request;
     await messageSlack(body);
     await sendSentryOptionsUpdatesToDatadog(body, moment().unix());
-    await saveUnregisteredOptions(body.unregistered_options || [], body.region);
+    if (body.source === 'options-automator') {
+      await saveUnregisteredOptions(
+        body.unregistered_options || [],
+        body.region
+      );
+    }
     reply.code(200).send('OK');
     return;
   } catch (err) {
