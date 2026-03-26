@@ -14,7 +14,7 @@ product_areas:
   Explore:
   - team-explore
   Explore - Logs:
-  - team-ourlogs
+  - team-explore
   Footer:
   - team-issues
   GDX:
@@ -24,7 +24,7 @@ product_areas:
   Ingestion and Filtering:
   - team-ingest
   Insights:
-  - team-insights
+  - team-dashboards
   Issues:
   - team-issues
   Issues - Source Maps:
@@ -37,11 +37,11 @@ product_areas:
   Other:
   - team-dev-infra
   Performance:
-  - team-performance
+  - team-dashboards
   Processing:
   - team-ingest
   Profiling:
-  - team-profiling
+  - team-explore
   Projects - Project Creation:
   - team-telemetry-experience
   Projects - Project Details:
@@ -49,7 +49,7 @@ product_areas:
   Releases:
   - team-replays
   Replays:
-  - team-replays
+  - team-explore
   SDKs - Mobile:
   - team-mobile-sdks
   SDKs - Native:
@@ -158,7 +158,7 @@ teams:
   team-dashboards:
     offices:
     - yyz
-    slack_channel: C026Y0SK34H
+    slack_channel: C0AKZ014TQE
   team-dev-infra:
     offices:
     - sfo
@@ -176,8 +176,7 @@ teams:
   team-explore:
     offices:
     - yyz
-    - sfo
-    slack_channel: C026Y0SK34H
+    slack_channel: C0AKNLYDWBF
   team-foundations:
     offices:
     - sfo
@@ -190,10 +189,6 @@ teams:
     offices:
     - vie
     slack_channel: C027DDC5WTG
-  team-insights:
-    offices:
-    - yyz
-    slack_channel: C026Y0SK34H
   team-integrations:
     offices:
     - sfo
@@ -211,22 +206,10 @@ teams:
     offices:
     - vie
     slack_channel: C0190510ABF
-  team-ourlogs:
-    offices:
-    - yyz
-    slack_channel: C0887GWU26M
-  team-performance:
-    offices:
-    - yyz
-    slack_channel: C026Y0SK34H
   team-product:
     offices:
     - sfo
     slack_channel: C055Y9KB1AS
-  team-profiling:
-    offices:
-    - sfo
-    slack_channel: C02N5PB50JH
   team-replays:
     offices:
     - yyz
