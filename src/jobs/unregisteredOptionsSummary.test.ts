@@ -39,7 +39,7 @@ describe('unregisteredOptionsSummary', function () {
     await sendUnregisteredOptionsSummary();
     expect(postMessageSpy).toHaveBeenCalledTimes(1);
     const message = postMessageSpy.mock.calls[0][0];
-    expect(message.channel).toBe('C05QM3AUDKJ');
+    expect(message.channel).toBe('C04URUC21C5');
     expect(message.unfurl_links).toBe(false);
     expect(message.text).toBe('Daily summary: 2 unregistered options');
 

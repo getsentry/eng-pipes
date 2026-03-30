@@ -3,7 +3,7 @@ import { KnownBlock, MrkdwnElement } from '@slack/types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { FEED_OPTIONS_AUTOMATOR_CHANNEL_ID } from '@/config';
+import { PROJ_OPTIONS_AUTOMATOR_CHANNEL_ID } from '@/config';
 import { getUnregisteredOptions } from '@/utils/db/unregisteredOptions';
 
 const MAX_BLOCK_SIZE = 10;
@@ -53,7 +53,7 @@ export async function sendUnregisteredOptionsSummary(): Promise<void> {
     }
 
     await bolt.client.chat.postMessage({
-      channel: FEED_OPTIONS_AUTOMATOR_CHANNEL_ID,
+      channel: PROJ_OPTIONS_AUTOMATOR_CHANNEL_ID,
       blocks,
       text: `Daily summary: ${optionRegions.size} unregistered options`,
       unfurl_links: false,
