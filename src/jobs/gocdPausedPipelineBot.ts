@@ -31,7 +31,9 @@ export const triggerPausedPipelineBot = async (
   let dashboardResult: GoCDDashboardResponse;
   try {
     dashboardResult = await fetchDashboard();
-    console.error(`paused-pipeline-bot got ${dashboardResult.pipelines?.length} pipelines`);
+    console.error(
+      `paused-pipeline-bot got ${dashboardResult.pipelines?.length} pipelines`
+    );
   } catch (err) {
     Sentry.captureException(err);
     return;
