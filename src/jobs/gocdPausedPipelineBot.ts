@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import : from 'moment-timezone';
+import moment from 'moment-timezone';
 
 import { GitHubOrg } from '@/api/github/org';
 import { fetchDashboard } from '@/api/gocd';
