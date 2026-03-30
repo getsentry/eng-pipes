@@ -77,7 +77,12 @@ export async function handleGitHubJob(
   const func = async () => {
     const now = moment().utc();
     for (const org of GH_ORGS.orgs.values()) {
-      await handler(org, now);
+      try {
+        await handler(org, now);
+      } catch (e) {
+        Sentry.captureException(e);
+        console.error(e);
+      }
     }
   };
 
