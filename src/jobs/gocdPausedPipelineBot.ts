@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/node';
-import moment from 'moment-timezone';
+import : from 'moment-timezone';
 
 import { GitHubOrg } from '@/api/github/org';
 import { fetchDashboard } from '@/api/gocd';
@@ -56,6 +56,7 @@ function getRemindersByChannel(
     const pausedPipelineReminder = GOCD_PAUSED_PIPELINE_REMINDERS.find(
       (reminder) => reminder.pipelineName === pipeline.name
     );
+    console.log(`paused-pipeline-debug: ${pipeline.name}, info=${JSON.stringify(pauseInfo)}`);
     if (
       pausedPipelineReminder === undefined ||
       pauseInfo === undefined ||
