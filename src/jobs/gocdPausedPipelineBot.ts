@@ -31,9 +31,6 @@ export const triggerPausedPipelineBot = async (
   let dashboardResult: GoCDDashboardResponse;
   try {
     dashboardResult = await fetchDashboard();
-    console.error(
-      `paused-pipeline-bot got ${dashboardResult.pipelines?.length} pipelines`
-    );
   } catch (err) {
     Sentry.captureException(err);
     return;
@@ -58,11 +55,6 @@ function getRemindersByChannel(
     const pauseInfo = pipeline.pause_info;
     const pausedPipelineReminder = GOCD_PAUSED_PIPELINE_REMINDERS.find(
       (reminder) => reminder.pipelineName === pipeline.name
-    );
-    console.error(
-      `paused-pipeline-debug: ${pipeline.name}, info=${JSON.stringify(
-        pauseInfo
-      )}`
     );
     if (
       pausedPipelineReminder === undefined ||
