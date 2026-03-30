@@ -56,7 +56,11 @@ function getRemindersByChannel(
     const pausedPipelineReminder = GOCD_PAUSED_PIPELINE_REMINDERS.find(
       (reminder) => reminder.pipelineName === pipeline.name
     );
-    console.error(`paused-pipeline-debug: ${pipeline.name}, info=${JSON.stringify(pauseInfo)}`);
+    console.error(
+      `paused-pipeline-debug: ${pipeline.name}, info=${JSON.stringify(
+        pauseInfo
+      )}`
+    );
     if (
       pausedPipelineReminder === undefined ||
       pauseInfo === undefined ||
