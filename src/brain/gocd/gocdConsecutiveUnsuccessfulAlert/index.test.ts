@@ -288,17 +288,17 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
     expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: `❗️ *getsentry-backend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
+      text: `❗️ *${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
       channel: FEED_DEV_INFRA_CHANNEL_ID,
       blocks: [
         slackblocks.section(
           slackblocks.markdown(
-            `❗️ *getsentry-backend* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
+            `❗️ *${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
           )
         ),
         slackblocks.section(
           slackblocks.markdown(
-            `<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/getsentry-backend/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/getsentry-backend|Deploy Tools>`
+            `<https://deploy.getsentry.net/go/pipelines/${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}|Deploy Tools>`
           )
         ),
       ],
