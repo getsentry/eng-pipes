@@ -21,6 +21,7 @@ import {
   FEED_SNS_SAAS_CHANNEL_ID,
   FEED_SNS_ST_CHANNEL_ID,
   FEED_UPTIME_CHANNEL_ID,
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
 } from '@/config';
 import { SlackMessage } from '@/config/slackMessage';
 import { GoCDPipeline, GoCDResponse } from '@/types/gocd';
@@ -45,6 +46,7 @@ const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-us',
   'deploy-getsentry-backend-s4s2',
   'deploy-getsentry-backend-control',
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
 ];
 
 const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
