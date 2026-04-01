@@ -43,8 +43,10 @@ enum PauseCause {
 const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-s4s',
   'deploy-getsentry-backend-de',
-  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  'deploy-getsentry-backend-us',
+  'deploy-getsentry-backend-s4s2',
   'deploy-getsentry-backend-control',
+  GOCD_SENTRYIO_BE_PIPELINE_NAME,
 ];
 
 const GOCD_CUSTOM_JOB_PIPELINE_NAME = 'run-custom-job';
