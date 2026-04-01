@@ -3,7 +3,7 @@ import {
   DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
-  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { GoCDResponse } from '@/types/gocd';
@@ -11,7 +11,7 @@ import { GoCDResponse } from '@/types/gocd';
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';
 
 const PIPELINE_FILTER = [
-  GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
 
@@ -35,7 +35,7 @@ const discussBackendAlert = new ConsecutiveUnsuccessfulDeploysAlert({
   consecutiveUnsuccessfulLimit: 3,
   alertOnlyAtThreshold: true,
   pipelineFilter: (pipeline) =>
-    pipeline.name === GOCD_SENTRYIO_BE_PIPELINE_NAME,
+    pipeline.name === GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
 });
 
 export async function handler(body: GoCDResponse) {

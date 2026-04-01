@@ -32,7 +32,10 @@ export const GOCD_SENTRYIO_FE_PIPELINE_NAME =
 export const GOCD_SENTRYIO_BE_PIPELINE_GROUP =
   process.env.GOCD_SENTRYIO_BE_PIPELINE_GROUP || 'getsentry-backend';
 export const GOCD_SENTRYIO_BE_PIPELINE_NAME =
-  process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'deploy-getsentry-backend-s4s2';
+  process.env.GOCD_SENTRYIO_BE_PIPELINE_NAME || 'deploy-getsentry-backend-us';
+export const GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME =
+  process.env.GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME ||
+  'deploy-getsentry-backend-s4s2';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
 export const FEED_DEPLOY_CHANNEL_ID =
