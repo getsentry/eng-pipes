@@ -24,6 +24,7 @@ import {
   firstGitMaterialSHA,
   getProgressColor,
 } from '@/utils/gocd/gocdHelpers';
+import { isSentryEmail } from '@/utils/misc/isSentryEmail';
 
 import { stageBlock } from './stage';
 
@@ -263,7 +264,7 @@ export class DeployFeed {
       // for this even though it may not match.
       if (approvedBy === 'changes') {
         body = `GoCD auto-deployment started`;
-      } else {
+      } else if (isSentryEmail(approvedBy)) {
         const user = await getUser({ email: approvedBy });
         if (user?.slackUser) {
           body = `GoCD deployment started by <@${user.slackUser}>`;

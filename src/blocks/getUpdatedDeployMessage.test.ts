@@ -62,11 +62,57 @@ describe('getUpdatedGoCDDeployMessage', function () {
     },
   ];
 
+  const fallbackScenarios = [
+    // No slackUser but has approvedBy - should show approvedBy
+    {
+      slackUser: undefined,
+      approvedBy: 'admin',
+      state: 'Passed',
+      stage_name: FINAL_STAGE_NAMES[0],
+      want: `admin has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
+    },
+    // No slackUser and no approvedBy - should show GoCD
+    {
+      slackUser: undefined,
+      approvedBy: undefined,
+      state: 'Passed',
+      stage_name: FINAL_STAGE_NAMES[0],
+      want: `GoCD has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
+    },
+    // approvedBy is 'changes' (auto-deploy) - should fall back to GoCD
+    {
+      slackUser: undefined,
+      approvedBy: 'changes',
+      state: 'Passed',
+      stage_name: FINAL_STAGE_NAMES[0],
+      want: `GoCD has finished deploying this commit (<${GOCD_ORIGIN}/go/pipelines/example-pipeline/2/${FINAL_STAGE_NAMES[0]}/3|example-pipeline: Stage 3>)`,
+    },
+  ];
+
   for (const s of scenarios) {
     it(`return message for ${s.currentUser} - ${s.state}`, async function () {
       const got = getUpdatedGoCDDeployMessage({
         isUserDeploying: s.currentUser === CURRENT_USER,
         slackUser: s.currentUser,
+        approvedBy: `${s.currentUser}@sentry.io`,
+        pipeline: {
+          pipeline_name: 'example-pipeline',
+          pipeline_counter: 2,
+          stage_name: s.stage_name,
+          stage_counter: 3,
+          stage_state: s.state,
+        },
+      });
+      expect(got).toEqual(s.want);
+    });
+  }
+
+  for (const s of fallbackScenarios) {
+    it(`return fallback message for approvedBy=${s.approvedBy} - ${s.state}`, async function () {
+      const got = getUpdatedGoCDDeployMessage({
+        isUserDeploying: false,
+        slackUser: s.slackUser,
+        approvedBy: s.approvedBy,
         pipeline: {
           pipeline_name: 'example-pipeline',
           pipeline_counter: 2,

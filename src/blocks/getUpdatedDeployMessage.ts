@@ -1,12 +1,19 @@
 import { GOCD_ORIGIN } from '@/config';
 import { FINAL_STAGE_NAMES } from '@/utils/gocd/gocdHelpers';
 
-function getSubject(isUserDeploying, slackUser) {
+function getSubject(
+  isUserDeploying: boolean,
+  slackUser: string | undefined,
+  approvedBy: string | undefined
+) {
   if (isUserDeploying) {
     return 'You have';
   }
   if (slackUser) {
     return `<@${slackUser}> has`;
+  }
+  if (approvedBy && approvedBy !== 'changes') {
+    return `${approvedBy} has`;
   }
   return 'GoCD has';
 }
@@ -14,10 +21,12 @@ function getSubject(isUserDeploying, slackUser) {
 export function getUpdatedGoCDDeployMessage({
   isUserDeploying,
   slackUser,
+  approvedBy,
   pipeline,
 }: {
   isUserDeploying: boolean;
   slackUser: string | undefined;
+  approvedBy: string | undefined;
   pipeline: {
     pipeline_name: string;
     pipeline_counter: number;
@@ -26,7 +35,7 @@ export function getUpdatedGoCDDeployMessage({
     stage_state: string;
   };
 }) {
-  const subject = getSubject(isUserDeploying, slackUser);
+  const subject = getSubject(isUserDeploying, slackUser, approvedBy);
 
   const link = `${GOCD_ORIGIN}/go/pipelines/${pipeline.pipeline_name}/${pipeline.pipeline_counter}/${pipeline.stage_name}/${pipeline.stage_counter}`;
   const slackLink = `<${link}|${pipeline.pipeline_name}: Stage ${[
