@@ -1,8 +1,6 @@
 product_areas:
-  APIs:
-  - team-ecosystem
   Alerts:
-  - team-alerts-notifications
+  - team-issue-workflow
   Crons:
   - team-crons
   Dashboards:
@@ -67,15 +65,15 @@ product_areas:
   Settings - General:
   - team-issues
   Settings - Integrations:
-  - team-ecosystem
+  - team-issue-workflow
   Settings - Members:
   - team-foundations
   Settings - Projects:
-  - team-foundations
+  - team-telemetry-experience
   Settings - Relay:
   - team-ingest
   Settings - Repositories:
-  - team-ecosystem
+  - team-scm
   Settings - Security & Privacy:
   - team-foundations
   Settings - Spend Allocation:
@@ -139,10 +137,6 @@ repos:
   symbolicator: team-ingest
   wal2json: team-sns
 teams:
-  team-alerts-notifications:
-    offices:
-    - sfo
-    slack_channel: C06J6HKFKLG
   team-crons:
     offices:
     - sfo
@@ -169,10 +163,6 @@ teams:
     - sea
     - sfo
     slack_channel: C05CR9FM4AE
-  team-ecosystem:
-    offices:
-    - sfo
-    slack_channel: C058EAWNF1P
   team-explore:
     offices:
     - yyz
@@ -180,7 +170,8 @@ teams:
   team-foundations:
     offices:
     - sfo
-    slack_channel: CSD1XPPQA
+    - yyz
+    slack_channel: C0AQPDD2RT6
   team-gdx:
     offices:
     - vie
@@ -189,10 +180,10 @@ teams:
     offices:
     - vie
     slack_channel: C027DDC5WTG
-  team-integrations:
+  team-issue-workflow:
     offices:
     - sfo
-    slack_channel: C058EAWNF1P
+    slack_channel: C0AQPHD4DRA
   team-issues:
     offices:
     - sfo
@@ -218,10 +209,10 @@ teams:
     offices:
     - sfo
     slack_channel: C018ZU6704S
-  team-sentry-at-scale:
+  team-scm:
     offices:
-    - sfo
-    slack_channel: CSD1XPPQA
+    - yyz
+    slack_channel: C058EAWNF1P
   team-sns:
     offices:
     - sfo
