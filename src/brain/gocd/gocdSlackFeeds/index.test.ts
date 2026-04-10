@@ -670,7 +670,7 @@ describe('gocdSlackFeeds', function () {
     expect(slackMessages).toHaveLength(3);
   });
 
-  it('do not reply to canary if deploy-backend job did not fail', async function () {
+  it('reply with generic failure for canary if deploy-backend job did not fail', async function () {
     org.api.repos.compareCommits.mockImplementation((args) => {
       if (args.owner !== GETSENTRY_ORG.slug) {
         throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
@@ -717,7 +717,26 @@ describe('gocdSlackFeeds', function () {
     // First Event
     await handler(gocdPayload);
 
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const failureReply = {
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(':x: getsentry-backend has failed')
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has failed due to detected issues in deploy-canary.\n
+*Review the errors* in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/deploy-canary/1/another-job|GoCD Logs>*.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following people who have commits in this deploy:\n<@U018H4DA8N5>`
+          )
+        ),
+      ],
+    };
 
     const wantPostMsg = {
       text: 'GoCD deployment started',
@@ -749,17 +768,17 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
 
     const postCalls = bolt.client.chat.postMessage.mock.calls;
     postCalls.sort(sortMessages);
     expect(postCalls[0][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
     );
-    expect(postCalls[1][0]).toMatchObject(
+    expect(postCalls[1][0]).toMatchObject(failureReply);
+    expect(postCalls[2][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
     );
-    expect(postCalls[2][0]).toMatchObject(
+    expect(postCalls[3][0]).toMatchObject(
       merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
     );
 
@@ -832,7 +851,7 @@ describe('gocdSlackFeeds', function () {
         },
       ],
     };
-    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(3);
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
     // The reply message is not updated
     expect(bolt.client.chat.update).toHaveBeenCalledTimes(3);
     const updateCalls = bolt.client.chat.update.mock.calls;
@@ -1640,6 +1659,42 @@ describe('gocdSlackFeeds', function () {
           ],
         },
       ],
+    });
+  });
+
+  it('cc authors on non-pause stage failure (e.g. migration)', async function () {
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'migrate',
+            result: 'Failed',
+            jobs: [{ name: 'migrate-job', result: 'Failed' }],
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    // 3 feed messages + 1 reply with cc
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    const reply = postCalls.find(
+      (call) => call[0].text === '' && call[0].blocks
+    );
+    expect(reply).toBeDefined();
+    expect(reply![0]).toMatchObject({
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+      blocks: expect.arrayContaining([
+        expect.objectContaining({
+          text: expect.objectContaining({
+            text: expect.stringContaining('has failed'),
+          }),
+        }),
+      ]),
     });
   });
 
