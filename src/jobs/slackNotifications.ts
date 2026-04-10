@@ -385,6 +385,10 @@ export const constructSlackMessage = (
           .insert({ channel_id: channelId, last_notified_at: now })
           .onConflict('channel_id')
           .merge();
+      })
+      .catch((err) => {
+        Sentry.setContext('slack', { channelId });
+        Sentry.captureException(err);
       });
   });
 };
