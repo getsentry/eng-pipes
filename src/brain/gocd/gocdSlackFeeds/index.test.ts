@@ -1643,6 +1643,131 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('post and reply to discuss-backend for migration stage failure', async function () {
+    getUser.mockImplementation((args) => {
+      if (args && args.githubUser === 'githubUser') {
+        return {
+          email: 'test@sentry.io',
+          slackUser: 'U018H4DA8N5',
+          githubUser: 'githubUser',
+        };
+      }
+      return null;
+    });
+    org.api.repos.compareCommits.mockImplementation((args) => {
+      if (args.owner !== GETSENTRY_ORG.slug) {
+        throw new Error(`Unexpected compareCommits() owner: ${args.owner}`);
+      }
+      if (args.repo !== 'getsentry') {
+        throw new Error(`Unexpected compareCommits() repo: ${args.repo}`);
+      }
+      return {
+        status: 200,
+        data: {
+          commits: [
+            {
+              commit: {},
+              author: {
+                login: 'githubUser',
+              },
+            },
+          ],
+        },
+      };
+    });
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'migrate',
+            result: 'Failed',
+            jobs: [
+              {
+                name: 'migrate-job',
+                result: 'Failed',
+              },
+            ],
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    // 4 calls: feed-deploys, discuss-backend, dev-infra, and the reply with cc's
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const migrationReply = {
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+      text: '',
+      blocks: [
+        slackblocks.header(
+          slackblocks.plaintext(
+            ':double_vertical_bar: getsentry-backend has been paused'
+          )
+        ),
+        slackblocks.section(
+          slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in migrate. Here are the steps you should follow to address the situation:\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/getsentry-backend/20/migrate/1/migrate-job|GoCD Logs>*.\n
+:sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1|Sentry Release>* for any related issues.\n
+:thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
+:arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/getsentry-backend|unpause the pipeline>* once it is safe to do so.`)
+        ),
+        slackblocks.context(
+          slackblocks.markdown(
+            `cc'ing the following people who have commits in this deploy, please triage using the above steps:\n<@U018H4DA8N5>`
+          )
+        ),
+      ],
+    };
+
+    const wantPostMsg = {
+      text: 'GoCD deployment started',
+      attachments: [
+        {
+          color: Color.DANGER,
+          blocks: [
+            slackblocks.section(
+              slackblocks.markdown('*sentryio/getsentry-backend*')
+            ),
+            {
+              elements: [
+                slackblocks.markdown('Deploying'),
+                slackblocks.markdown(
+                  '<https://github.com/getsentry/getsentry/commits/2b0034becc4ab26b985f4c1a08ab068f153c274c|getsentry@2b0034becc4a>'
+                ),
+              ],
+            },
+            slackblocks.divider(),
+            {
+              elements: [
+                slackblocks.markdown('❌ *migrate*'),
+                slackblocks.markdown(
+                  '<https://deploy.getsentry.net/go/pipelines/getsentry-backend/20/migrate/1|Failed>'
+                ),
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    postCalls.sort(sortMessages);
+    expect(postCalls[0][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: DISCUSS_BACKEND_CHANNEL_ID })
+    );
+    expect(postCalls[1][0]).toMatchObject(migrationReply);
+    expect(postCalls[2][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEPLOY_CHANNEL_ID })
+    );
+    expect(postCalls[3][0]).toMatchObject(
+      merge({}, wantPostMsg, { channel: FEED_DEV_INFRA_CHANNEL_ID })
+    );
+  });
+
   it('post message to feed-deploy only misc pipeline', async function () {
     const gocdPayload = merge({}, payload, {
       data: {
