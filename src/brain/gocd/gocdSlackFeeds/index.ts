@@ -122,7 +122,7 @@ export const CANARY_GUIDANCE_LINK =
  * @param pipeline The pipeline to get the pause cause for
  * @returns The pause cause or null if there is none
  */
-function getPauseCause(pipeline: GoCDPipeline) {
+function getPauseCause(pipeline: GoCDPipeline): string | null {
   if (
     pipeline.stage.name.includes('canary') &&
     pipeline.stage.result.toLowerCase() === 'failed' &&
@@ -137,6 +137,14 @@ function getPauseCause(pipeline: GoCDPipeline) {
     pipeline.stage.result.toLowerCase() === 'failed'
   ) {
     return PauseCause.SOAK;
+  }
+  // Canary stages that didn't match the specific job check above shouldn't alert
+  if (pipeline.stage.name.includes('canary')) {
+    return null;
+  }
+  // Any other failed stage (e.g. migration) should alert and cc authors
+  if (pipeline.stage.result.toLowerCase() === 'failed') {
+    return pipeline.stage.name;
   }
   return null;
 }
