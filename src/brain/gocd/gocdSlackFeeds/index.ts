@@ -420,7 +420,9 @@ ${
           markdown(
             `cc'ing the following ${
               uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
-            }people who have commits in this deploy${pauseCause != null ? ', please triage using the above steps' : ''}:\n${ccString}`
+            }people who have commits in this deploy${
+              pauseCause != null ? ', please triage using the above steps' : ''
+            }:\n${ccString}`
           )
         )
       );
