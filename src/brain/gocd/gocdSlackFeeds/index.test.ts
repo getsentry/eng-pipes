@@ -1662,6 +1662,42 @@ describe('gocdSlackFeeds', function () {
     });
   });
 
+  it('cc authors on non-pause stage failure (e.g. migration)', async function () {
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+          stage: {
+            name: 'migrate',
+            result: 'Failed',
+            jobs: [{ name: 'migrate-job', result: 'Failed' }],
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    // 3 feed messages + 1 reply with cc
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(4);
+
+    const postCalls = bolt.client.chat.postMessage.mock.calls;
+    const reply = postCalls.find(
+      (call) => call[0].text === '' && call[0].blocks
+    );
+    expect(reply).toBeDefined();
+    expect(reply![0]).toMatchObject({
+      channel: DISCUSS_BACKEND_CHANNEL_ID,
+      blocks: expect.arrayContaining([
+        expect.objectContaining({
+          text: expect.objectContaining({
+            text: expect.stringContaining('has failed'),
+          }),
+        }),
+      ]),
+    });
+  });
+
   it('post message to feed-deploy only misc pipeline', async function () {
     const gocdPayload = merge({}, payload, {
       data: {
