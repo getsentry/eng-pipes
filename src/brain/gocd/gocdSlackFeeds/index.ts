@@ -122,7 +122,7 @@ export const CANARY_GUIDANCE_LINK =
  * @param pipeline The pipeline to get the pause cause for
  * @returns The pause cause or null if there is none
  */
-function getPauseCause(pipeline: GoCDPipeline): string | null {
+function getPauseCause(pipeline: GoCDPipeline) {
   if (
     pipeline.stage.name.includes('canary') &&
     pipeline.stage.result.toLowerCase() === 'failed' &&
@@ -137,14 +137,6 @@ function getPauseCause(pipeline: GoCDPipeline): string | null {
     pipeline.stage.result.toLowerCase() === 'failed'
   ) {
     return PauseCause.SOAK;
-  }
-  // Canary stages that didn't match the specific job check above shouldn't alert
-  if (pipeline.stage.name.includes('canary')) {
-    return null;
-  }
-  // Any other failed stage (e.g. migration) should alert and cc authors
-  if (pipeline.stage.result.toLowerCase() === 'failed') {
-    return pipeline.stage.name;
   }
   return null;
 }
@@ -363,9 +355,6 @@ const discussBackendFeed = new DeployFeed({
     return pipeline.stage.result.toLowerCase() === 'failed';
   },
   replyCallback: async (pipeline) => {
-    const pauseCause = getPauseCause(pipeline);
-
-    if (pauseCause == null) return [];
     const [base, head] = await getBaseAndHeadCommit(pipeline);
     const authors = head ? await getAuthors('getsentry', base, head, true) : [];
     // Get unique users from the authors
@@ -395,12 +384,15 @@ const discussBackendFeed = new DeployFeed({
       ? `https://sentry-st.sentry.io/releases/backend@${head}/?project=1513938`
       : `https://sentry.sentry.io/releases/backend@${head}/?project=1`;
 
-    const blocks = [
-      header(
-        plaintext(`:double_vertical_bar: ${pipeline.name} has been paused`)
-      ),
-      section(
-        markdown(`The deployment pipeline has been paused due to detected issues in ${pauseCause}. Here are the steps you should follow to address the situation:\n
+    const pauseCause = getPauseCause(pipeline);
+    let blocks;
+    if (pauseCause != null) {
+      blocks = [
+        header(
+          plaintext(`:double_vertical_bar: ${pipeline.name} has been paused`)
+        ),
+        section(
+          markdown(`The deployment pipeline has been paused due to detected issues in ${pauseCause}. Here are the steps you should follow to address the situation:\n
 :mag_right: *Step 1: Review the Errors*\n Review the errors in the *<${gocdLogsLink}|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<${sentryReleaseLink}|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
@@ -411,15 +403,24 @@ ${
 :arrow_forward: *Step 6: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
     : `:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<${gocdUnpausePipelineLink}|unpause the pipeline>* once it is safe to do so.`
 }`)
-      ),
-    ];
+        ),
+      ];
+    } else {
+      blocks = [
+        header(plaintext(`:x: ${pipeline.name} has failed`)),
+        section(
+          markdown(`The deployment pipeline has failed due to detected issues in ${pipeline.stage.name}.\n
+*Review the errors* in the *<${gocdLogsLink}|GoCD Logs>*.`)
+        ),
+      ];
+    }
     if (ccUsers.length > 0) {
       blocks.push(
         context(
           markdown(
             `cc'ing the following ${
               uniqueUsers.length > 10 ? `10 of ${uniqueUsers.length} ` : ''
-            }people who have commits in this deploy, please triage using the above steps:\n${ccString}`
+            }people who have commits in this deploy${pauseCause != null ? ', please triage using the above steps' : ''}:\n${ccString}`
           )
         )
       );
