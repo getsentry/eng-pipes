@@ -36,7 +36,7 @@ export async function sendUnregisteredOptionsSummary(): Promise<void> {
         slackblocks.markdown(
           `*${optionRegions.size} unregistered option(s)* found across regions.\n` +
             `These options exist in \`sentry-options-automator\` but are not registered in \`sentry\`. ` +
-            `Please remove them from <https://github.com/getsentry/sentry-options-automator|sentry-options-automator>.`
+            `<@U0AGGRG1V0X> please create a PR in <https://github.com/getsentry/sentry-options-automator|sentry-options-automator> to remove the unregistered options listed below from the YAML files in \`options/default/\` and \`options/regions/\`.`
         )
       ),
       slackblocks.divider(),
