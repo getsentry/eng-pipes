@@ -289,7 +289,7 @@ describe('gocdSlackFeeds', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-getsentry-backend-s4s',
+          name: 'deploy-getsentry-backend-s4s2',
           stage: {
             name: 'soak-time',
             result: 'Failed',
@@ -315,16 +315,16 @@ describe('gocdSlackFeeds', function () {
       blocks: [
         slackblocks.header(
           slackblocks.plaintext(
-            ':double_vertical_bar: deploy-getsentry-backend-s4s has been paused'
+            ':double_vertical_bar: deploy-getsentry-backend-s4s2 has been paused'
           )
         ),
         slackblocks.section(
           slackblocks.markdown(`The deployment pipeline has been paused due to detected issues in soak-time. Here are the steps you should follow to address the situation:\n
-:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-s4s/20/soak-time/1/soak|GoCD Logs>*.\n
+:mag_right: *Step 1: Review the Errors*\n Review the errors in the *<https://deploy.getsentry.net/go/tab/build/detail/deploy-getsentry-backend-s4s2/20/soak-time/1/soak|GoCD Logs>*.\n
 :sentry: *Step 2: Check Sentry Release*\n Check the *<https://sentry-st.sentry.io/releases/backend@2b0034becc4ab26b985f4c1a08ab068f153c274c/?project=1513938|Sentry Release>* for any related issues.\n
 :thinking_face: *Step 3: Is a Rollback Necessary?*\nDetermine if a rollback is necessary by reviewing our *<${IS_ROLLBACK_NECESSARY_LINK}|Guidelines>*.\n
 :arrow_backward: *Step 4: Rollback Procedure*\nIf a rollback is necessary, use the *<${ROLLBACK_PLAYBOOK_LINK}|GoCD Playbook>* or *<${GOCD_USER_GUIDE_LINK}|GoCD User Guide>* to guide you.\n
-:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/deploy-getsentry-backend-s4s|unpause the pipeline>* once it is safe to do so.`)
+:arrow_forward: *Step 5: Unpause the Pipeline*\nWhether or not a rollback was necessary, make sure to *<https://deploy.getsentry.net/go/pipeline/activity/deploy-getsentry-backend-s4s2|unpause the pipeline>* once it is safe to do so.`)
         ),
         slackblocks.context(
           slackblocks.markdown(
@@ -341,7 +341,7 @@ describe('gocdSlackFeeds', function () {
           color: Color.DANGER,
           blocks: [
             slackblocks.section(
-              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s*')
+              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s2*')
             ),
             {
               elements: [
@@ -356,7 +356,7 @@ describe('gocdSlackFeeds', function () {
               elements: [
                 slackblocks.markdown('❌ *soak-time*'),
                 slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s/20/soak-time/1|Failed>'
+                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s2/20/soak-time/1|Failed>'
                 ),
               ],
             },
@@ -425,7 +425,7 @@ describe('gocdSlackFeeds', function () {
           color: Color.SUCCESS,
           blocks: [
             slackblocks.section(
-              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s*')
+              slackblocks.markdown('*sentryio/deploy-getsentry-backend-s4s2*')
             ),
             {
               elements: [
@@ -440,7 +440,7 @@ describe('gocdSlackFeeds', function () {
               elements: [
                 slackblocks.markdown('✅ *soak-time*'),
                 slackblocks.markdown(
-                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s/20/soak-time/1|Passed>'
+                  '<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s2/20/soak-time/1|Passed>'
                 ),
               ],
             },

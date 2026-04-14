@@ -8,7 +8,7 @@ import { GoCDResponse } from '@/types/gocd';
 import { DeployDatadogEvents } from './deployDatadogEvents';
 
 // const ENGINEERING_PIPELINE_FILTER = [
-//   'deploy-getsentry-backend-s4s',
+//   'deploy-getsentry-backend-s4s2',
 //   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 //   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 // ];
