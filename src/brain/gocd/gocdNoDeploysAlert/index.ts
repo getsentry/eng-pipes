@@ -18,7 +18,6 @@ import {
 import { getLastGetSentryGoCDDeploy } from '@/utils/db/getLatestDeploy';
 
 const PIPELINE_FILTER = [
-  'deploy-getsentry-backend-s4s',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];

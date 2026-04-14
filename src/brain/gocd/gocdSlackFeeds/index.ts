@@ -41,7 +41,6 @@ enum PauseCause {
 
 // TODO: consolidate constants for regions
 const BACKEND_PIPELINE_FILTER = [
-  'deploy-getsentry-backend-s4s',
   'deploy-getsentry-backend-de',
   'deploy-getsentry-backend-us',
   'deploy-getsentry-backend-s4s2',
