@@ -104,7 +104,9 @@ export async function sendSentryOptionsUpdatesToDatadog(
         `source_tool:${message.source}`,
         `source:${message.source}`,
         `source_category:infra-tools`,
-        `option_name:${option.option_name}`,
+        `option_name:${
+          typeof option === 'string' ? option : option.option_name
+        }`,
         `sentry_user:${message.source}`,
       ];
 
