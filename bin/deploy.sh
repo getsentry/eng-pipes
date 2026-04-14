@@ -29,6 +29,7 @@ SENTRY_OPTIONS_WEBHOOK_SECRET
 SENTRY_INFORMER_WEBHOOK_SECRET
 "
 
+
 secrets=""
 for secret_name in $secret_names; do
   secrets="${secrets}${secret_name}=eng-pipes-${secret_name}:latest,"
