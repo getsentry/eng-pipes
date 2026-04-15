@@ -57,15 +57,17 @@ const SDKS_PIPELINE_FILTER = ['deploy-release-registry'];
 const SNS_SAAS_PIPELINE_FILTER = [
   'deploy-snuba-py',
   'rollback-snuba-py',
-  'deploy-snuba-py-s4s',
   'deploy-snuba-py-us',
   'deploy-snuba-rs',
   'rollback-snuba-rs',
-  'deploy-snuba-rs-s4s',
   'deploy-snuba-rs-us',
 ];
 
 const SNS_ST_PIPELINE_FILTER = [
+  // Grouped pipedream v3 names
+  'deploy-snuba-py-st',
+  'deploy-snuba-rs-st',
+  // Per-region names (v2, kept for backward compat during staged rollout)
   'deploy-snuba-py-customer-1',
   'deploy-snuba-py-customer-2',
   'deploy-snuba-py-customer-4',
