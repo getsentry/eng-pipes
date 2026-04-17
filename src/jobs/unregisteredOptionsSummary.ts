@@ -36,8 +36,9 @@ export async function sendUnregisteredOptionsSummary(): Promise<void> {
         slackblocks.markdown(
           `*${optionRegions.size} unregistered option(s)* found across regions.\n` +
             `These options exist in \`sentry-options-automator\` but are not registered in \`sentry\`. ` +
-            `<@U0AGGRG1V0X> please create a PR in <https://github.com/getsentry/sentry-options-automator|sentry-options-automator> to remove the unregistered options listed below from the YAML files in \`options/default/\` and \`options/regions/\`. ` +
-            `No sentry account is needed — all you need to do is create a PR in sentry-options-automator. If you can't open the PR directly, push the branch and share the compare link.`
+            `<@U08VC6UL9C7> please create a PR in <https://github.com/getsentry/sentry-options-automator|sentry-options-automator> to remove the unregistered options listed below from the YAML files in \`options/default/\` and \`options/regions/\`. ` +
+            `No sentry account is needed — all you need to do is create a PR in sentry-options-automator. If you can't open the PR directly, push the branch and share the compare link. ` +
+            `If you can't find the options, assume they're already unregistered and don't try to go and find other things to remove.`
         )
       ),
       slackblocks.divider(),
