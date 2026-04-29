@@ -44,7 +44,7 @@ const BACKEND_PIPELINE_FILTER = [
   'deploy-getsentry-backend-de',
   'deploy-getsentry-backend-us',
   'deploy-getsentry-backend-s4s2',
-  'deploy-getsentry-backend-control',
+  'deploy-getsentry-backend-prod-control',
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
 ];
 
