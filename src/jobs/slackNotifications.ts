@@ -124,12 +124,19 @@ export const getTriageSLOTimestamp = async (
   issueNumber: number,
   issueNodeId: string
 ): Promise<string> => {
-  const issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
-    issueNodeId,
-    repo,
-    issueNumber
-  );
-  const dueByDate = await org.getIssueDueDateFromProject(issueNodeIdInProject);
+  let issueNodeIdInProject: string;
+  let dueByDate: string | undefined;
+  try {
+    issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
+      issueNodeId,
+      repo,
+      issueNumber
+    );
+    dueByDate = await org.getIssueDueDateFromProject(issueNodeIdInProject);
+  } catch (err) {
+    Sentry.captureException(err);
+    return moment().toISOString();
+  }
   if (dueByDate == null || !moment(dueByDate).isValid()) {
     // Throw an exception if we have trouble parsing the timestamp
     Sentry.captureException(
