@@ -64,6 +64,7 @@ export class GitHubOrg {
     } catch (err) {
       Sentry.setContext('data', data);
       Sentry.captureException(err);
+      throw err;
     }
     return response;
   }
