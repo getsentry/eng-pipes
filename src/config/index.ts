@@ -242,6 +242,16 @@ export const GOCD_PAUSED_PIPELINE_REMINDERS: GoCDPausedPipelineReminder[] = [
     slackChannel: DISCUSS_SEER_INFRA_CHANNEL_ID,
     notifyAfter: moment.duration(1, 'hour'),
   },
+  {
+    pipelineName: 'deploy-seer-gpu-us',
+    slackChannel: DISCUSS_SEER_INFRA_CHANNEL_ID,
+    notifyAfter: moment.duration(1, 'hour'),
+  },
+  {
+    pipelineName: 'deploy-seer-gpu-de',
+    slackChannel: DISCUSS_SEER_INFRA_CHANNEL_ID,
+    notifyAfter: moment.duration(1, 'hour'),
+  },
 ];
 
 /**
