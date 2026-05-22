@@ -1,0 +1,7 @@
+{
+  "action": "pr_created",
+  "data": {
+    "pull_request": { "title": "fix: ..." },
+    "issue": { "title": "TypeError somewhere" }
+  }
+}

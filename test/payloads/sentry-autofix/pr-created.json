@@ -1,0 +1,18 @@
+{
+  "action": "pr_created",
+  "installation": { "uuid": "00000000-0000-0000-0000-000000000000" },
+  "data": {
+    "issue": {
+      "id": "1234567890",
+      "short_id": "GETSENTRY-ABC",
+      "title": "TypeError: Cannot read properties of undefined",
+      "web_url": "https://sentry.io/organizations/sentry/issues/1234567890/"
+    },
+    "pull_request": {
+      "url": "https://github.com/getsentry/sentry/pull/99999",
+      "title": "fix: handle undefined user in foo()",
+      "repository": "getsentry/sentry"
+    }
+  },
+  "actor": { "id": 1, "name": "Seer", "type": "application" }
+}
