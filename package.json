@@ -59,7 +59,7 @@
     "@slack/web-api": "^6.0.0",
     "@types/lodash.merge": "^4.6.6",
     "@types/node": "12",
-    "fastify": "^3.29.4",
+    "fastify": "^5.8.5",
     "fastify-formbody": "^5.2.0",
     "google-auth-library": "^9.10.0",
     "js-yaml": "^4.1.1",
