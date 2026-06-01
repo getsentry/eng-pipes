@@ -100,6 +100,18 @@ export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
 // Slack profile IDs
 export const SLACK_PROFILE_ID_GITHUB = 'XfEJ1CLM1C';
 
+// BigQuery table that maps {email -> github_username} for org members. Written
+// by the security team's update-github-directory cloud function (SEC-1508);
+// consumed by syncGithubUsers (DI-1639). Lives in the same GCP project
+// (super-big-data) as eng-pipes, so reads are an in-project IAM grant.
+// TODO(DI-1639): confirm dataset+table once SEC-1508 ships, then drop the
+// placeholder defaults.
+export const GITHUB_USER_DIRECTORY_BQ = {
+  dataset:
+    process.env.GITHUB_USER_DIRECTORY_BQ_DATASET || 'TODO_dataset_sec_1508',
+  table: process.env.GITHUB_USER_DIRECTORY_BQ_TABLE || 'TODO_table_sec_1508',
+};
+
 // Note, these are Sentry palette colors
 export enum Color {
   DANGER = '#F55459',
