@@ -11,7 +11,6 @@ import {
 import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_ORG,
-  GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
@@ -19,6 +18,7 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import { queueCommitsForDeploy } from '@/utils/db/queueCommitsForDeploy';
+import * as getChangedStackModule from '@/utils/github/getChangedStack';
 import { bolt as originalBolt } from '@api/slack';
 import { db } from '@utils/db';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
@@ -156,7 +156,7 @@ describe('pleaseDeployNotifier', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
@@ -197,16 +197,23 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -430,16 +437,23 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -531,7 +545,7 @@ describe('pleaseDeployNotifier', function () {
       message: {
         bot_id: 'B01834PAJDT',
         type: 'message',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/455e3db9eb4fa6a1789b70e4045b194f02db0b59|455e3db> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/455e3db9eb4fa6a1789b70e4045b194f02db0b59|455e3db> passed CI and is queued to deploy automatically.',
         user: 'U018UAXJVG8',
         ts: '1614650305.001000',
         team: 'T018UAQ7YRW',
@@ -580,15 +594,13 @@ describe('pleaseDeployNotifier', function () {
                 elements: [
                   {
                     type: 'button',
-                    action_id: 'gocd-deploy',
+                    action_id: 'view-in-deploy-tools',
                     text: {
                       type: 'plain_text',
-                      text: 'Deploy',
+                      text: 'View in deploy-tools',
                       emoji: true,
                     },
-                    style: 'primary',
-                    value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-                    url: GOCD_ORIGIN,
+                    url: 'https://deploy-tools.getsentry.net',
                   },
                   {
                     type: 'button',
@@ -756,16 +768,14 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "455e3db9eb4fa6a1789b70e4045b194f02db0b59",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
               ],
               "type": "actions",
@@ -821,7 +831,7 @@ describe('pleaseDeployNotifier', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
@@ -862,16 +872,23 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -976,7 +993,7 @@ describe('pleaseDeployNotifier', function () {
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
@@ -1017,16 +1034,23 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1156,7 +1180,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
@@ -1197,16 +1221,23 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1336,7 +1367,7 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
@@ -1377,16 +1408,23 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                  "url": "https://deploy-tools.getsentry.net",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1511,112 +1549,119 @@ Remove "always()" from GHA workflows`,
     expect(bolt.client.chat.postMessage).toHaveBeenCalledWith(
       expect.objectContaining({
         channel: 'U789123',
-        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> is ready to deploy',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically.',
       })
     );
 
     // @ts-ignore
     expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
       .toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "blocks": Array [
-              Object {
-                "text": Object {
-                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*build(ci): Remove if: always() conditions from workflows (#29414)*>",
+      Array [
+        Object {
+          "blocks": Array [
+            Object {
+              "text": Object {
+                "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*build(ci): Remove if: always() conditions from workflows (#29414)*>",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "text": Object {
+                "text": "Remove \\"always()\\" from GHA workflows",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "alt_text": "mars",
+                  "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                  "type": "image",
+                },
+                Object {
+                  "text": "<https://github.com/matejminar|mars (matejminar)>",
                   "type": "mrkdwn",
                 },
-                "type": "section",
-              },
-              Object {
-                "text": Object {
-                  "text": "Remove \\"always()\\" from GHA workflows",
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
                   "type": "mrkdwn",
                 },
-                "type": "section",
-              },
-              Object {
-                "elements": Array [
-                  Object {
-                    "alt_text": "mars",
-                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
-                    "type": "image",
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "View in deploy-tools",
+                    "type": "plain_text",
                   },
-                  Object {
-                    "text": "<https://github.com/matejminar|mars (matejminar)>",
-                    "type": "mrkdwn",
+                  "type": "button",
+                  "url": "https://deploy-tools.getsentry.net",
+                },
+                Object {
+                  "action_id": "view-undeployed-commits-",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "View Undeployed Commits",
+                    "type": "plain_text",
                   },
-                ],
-                "type": "context",
-              },
-              Object {
-                "elements": Array [
-                  Object {
-                    "action_id": "gocd-deploy",
-                    "style": "primary",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "Deploy",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "url": "${GOCD_ORIGIN}",
-                    "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
-                  },
-                  Object {
-                    "action_id": "view-undeployed-commits-",
-                    "text": Object {
-                      "emoji": true,
-                      "text": "View Undeployed Commits",
-                      "type": "plain_text",
-                    },
-                    "type": "button",
-                    "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
-                  },
-                  Object {
-                    "action_id": "mute-slack-deploy",
+                  "type": "button",
+                  "value": "6d225cb77225ac655d817a7551a26fff85090fe6",
+                },
+                Object {
+                  "action_id": "mute-slack-deploy",
+                  "confirm": Object {
                     "confirm": Object {
-                      "confirm": Object {
-                        "text": "Mute",
-                        "type": "plain_text",
-                      },
-                      "deny": Object {
-                        "text": "Cancel",
-                        "type": "plain_text",
-                      },
-                      "text": Object {
-                        "text": "Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
-
-        \`\`\`
-        deploy notifications on
-        \`\`\`
-
-        Or you can visit the App's \\"Home\\" tab in Slack.
-        ",
-                        "type": "mrkdwn",
-                      },
-                      "title": Object {
-                        "text": "Mute deploy notifications?",
-                        "type": "plain_text",
-                      },
-                    },
-                    "style": "danger",
-                    "text": Object {
-                      "emoji": true,
                       "text": "Mute",
                       "type": "plain_text",
                     },
-                    "type": "button",
-                    "value": "mute",
+                    "deny": Object {
+                      "text": "Cancel",
+                      "type": "plain_text",
+                    },
+                    "text": Object {
+                      "text": "Are you sure you want to mute these deploy notifications? You can re-enable them by DM-ing me
+
+      \`\`\`
+      deploy notifications on
+      \`\`\`
+
+      Or you can visit the App's \\"Home\\" tab in Slack.
+      ",
+                      "type": "mrkdwn",
+                    },
+                    "title": Object {
+                      "text": "Mute deploy notifications?",
+                      "type": "plain_text",
+                    },
                   },
-                ],
-                "type": "actions",
-              },
-            ],
-            "color": "#E7E1EC",
-          },
-        ]
-      `);
+                  "style": "danger",
+                  "text": Object {
+                    "emoji": true,
+                    "text": "Mute",
+                    "type": "plain_text",
+                  },
+                  "type": "button",
+                  "value": "mute",
+                },
+              ],
+              "type": "actions",
+            },
+          ],
+          "color": "#E7E1EC",
+        },
+      ]
+    `);
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '6d225cb77225ac655d817a7551a26fff85090fe6',
@@ -1707,49 +1752,49 @@ Remove "always()" from GHA workflows`,
     // @ts-ignore
     expect(bolt.client.chat.postMessage.mock.calls[0][0].attachments)
       .toMatchInlineSnapshot(`
-        Array [
-          Object {
-            "blocks": Array [
-              Object {
-                "text": Object {
-                  "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*getsentry/sentry@88c22a29176df64cfc027637a5ccfd9da1544e9f*>",
+      Array [
+        Object {
+          "blocks": Array [
+            Object {
+              "text": Object {
+                "text": "<https://github.com/getsentry/getsentry/commit/6d225cb77225ac655d817a7551a26fff85090fe6|*getsentry/sentry@88c22a29176df64cfc027637a5ccfd9da1544e9f*>",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "text": Object {
+                "text": "#skipsentry",
+                "type": "mrkdwn",
+              },
+              "type": "section",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "alt_text": "Matej Minar",
+                  "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
+                  "type": "image",
+                },
+                Object {
+                  "text": "<https://github.com/matejminar|Matej Minar (matejminar)>",
                   "type": "mrkdwn",
                 },
-                "type": "section",
+              ],
+              "type": "context",
+            },
+            Object {
+              "text": Object {
+                "text": "<@U789123> has begun deploying this commit (<https://deploy.getsentry.net/go/pipelines/getsentry-frontend/2/example-stage/3|getsentry-frontend: Stage 3>)",
+                "type": "mrkdwn",
               },
-              Object {
-                "text": Object {
-                  "text": "#skipsentry",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-              Object {
-                "elements": Array [
-                  Object {
-                    "alt_text": "Matej Minar",
-                    "image_url": "https://avatars.githubusercontent.com/u/9060071?v=4",
-                    "type": "image",
-                  },
-                  Object {
-                    "text": "<https://github.com/matejminar|Matej Minar (matejminar)>",
-                    "type": "mrkdwn",
-                  },
-                ],
-                "type": "context",
-              },
-              Object {
-                "text": Object {
-                  "text": "<@U789123> has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/2/example-stage/3|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 3>)",
-                  "type": "mrkdwn",
-                },
-                "type": "section",
-              },
-            ],
-            "color": "#E7E1EC",
-          },
-        ]
-      `);
+              "type": "section",
+            },
+          ],
+          "color": "#E7E1EC",
+        },
+      ]
+    `);
 
     expect(await db('slack_messages').first('*')).toMatchObject({
       refId: '333333',
@@ -1866,16 +1911,23 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "333333",
+                  "url": "https://deploy-tools.getsentry.net/services/getsentry-backend",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -2047,16 +2099,23 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "action_id": "gocd-deploy",
-                  "style": "primary",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "type": "mrkdwn",
+                },
+              ],
+              "type": "context",
+            },
+            Object {
+              "elements": Array [
+                Object {
+                  "action_id": "view-in-deploy-tools",
                   "text": Object {
                     "emoji": true,
-                    "text": "Deploy",
+                    "text": "View in deploy-tools",
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "${GOCD_ORIGIN}",
-                  "value": "333333",
+                  "url": "https://deploy-tools.getsentry.net/services/getsentry-backend",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -2120,6 +2179,106 @@ Remove "always()" from GHA workflows`,
       context: {
         status: 'undeployed',
       },
+    });
+  });
+
+  describe('deploy notification copy per stack', function () {
+    let getChangedStackSpy: jest.SpyInstance;
+
+    beforeEach(function () {
+      getChangedStackSpy = jest.spyOn(getChangedStackModule, 'getChangedStack');
+    });
+
+    afterEach(function () {
+      getChangedStackSpy.mockRestore();
+    });
+
+    const fireSuccessfulCheckRun = () =>
+      createGitHubEvent(fastify, 'check_run', {
+        repository: {
+          full_name: 'getsentry/getsentry',
+        },
+        check_run: {
+          status: 'completed',
+          conclusion: 'success',
+          name: REQUIRED_CHECK_NAME,
+          head_sha: '6d225cb77225ac655d817a7551a26fff85090fe6',
+          output: {
+            title: 'All checks passed',
+            summary: 'All checks passed',
+            text: '',
+            annotations_count: 0,
+            annotations_url: '',
+          },
+        },
+      });
+
+    const getDeployToolsButton = () => {
+      // @ts-ignore
+      const { attachments } = bolt.client.chat.postMessage.mock.calls[0][0];
+      const actions = attachments[0].blocks.find(
+        ({ type }) => type === 'actions'
+      );
+      return actions.elements.find(
+        ({ action_id }) => action_id === 'view-in-deploy-tools'
+      );
+    };
+
+    const getMessageText = () =>
+      // @ts-ignore
+      bolt.client.chat.postMessage.mock.calls[0][0].text;
+
+    it('says a full stack change deploys automatically to frontend + backend', async function () {
+      getChangedStackSpy.mockResolvedValue({
+        isFrontendOnly: false,
+        isBackendOnly: false,
+        isFullstack: true,
+      });
+
+      await fireSuccessfulCheckRun();
+
+      expect(getMessageText()).toBe(
+        'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically (frontend + backend).'
+      );
+      // A full stack change deploys both pipelines, so link to the
+      // deploy-tools root rather than a single service.
+      expect(getDeployToolsButton().url).toBe(
+        'https://deploy-tools.getsentry.net'
+      );
+    });
+
+    it('says a frontend-only change deploys automatically and deep-links to the frontend service', async function () {
+      getChangedStackSpy.mockResolvedValue({
+        isFrontendOnly: true,
+        isBackendOnly: false,
+        isFullstack: false,
+      });
+
+      await fireSuccessfulCheckRun();
+
+      expect(getMessageText()).toBe(
+        'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically (frontend).'
+      );
+      expect(getDeployToolsButton().url).toBe(
+        'https://deploy-tools.getsentry.net/services/getsentry-frontend'
+      );
+    });
+
+    it('says a backend-only change deploys automatically and deep-links to the backend service', async function () {
+      getChangedStackSpy.mockResolvedValue({
+        isFrontendOnly: false,
+        isBackendOnly: true,
+        isFullstack: false,
+      });
+
+      await fireSuccessfulCheckRun();
+
+      expect(getMessageText()).toBe(
+        'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically (backend).'
+      );
+      expect(getDeployToolsButton().url).toBe(
+        'https://deploy-tools.getsentry.net/services/getsentry-backend'
+      );
     });
   });
 });
