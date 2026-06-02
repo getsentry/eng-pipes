@@ -53,7 +53,10 @@ export async function syncGithubUsers(): Promise<SyncCounters> {
         continue;
       }
 
-      const slackResult = await bolt.client.users.lookupByEmail({ email });
+      // Typed as `any` to match getUser's pattern — @slack/web-api v6's
+      // response type for lookupByEmail leaves .user too weakly typed for
+      // direct use with our SlackUser shape.
+      const slackResult: any = await bolt.client.users.lookupByEmail({ email });
       if (
         !slackResult.ok ||
         !slackResult.user ||
