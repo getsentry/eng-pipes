@@ -17,7 +17,8 @@ const DEPLOYED_MSG = 'was deployed';
 export const FAILED_MSG = 'failed to deploy';
 const CANCELLED_MSG = 'was cancelled';
 export const SUCCESSFUL_MSG = 'was successful';
-export const READY_TO_DEPLOY = 'is ready to deploy';
+export const READY_TO_DEPLOY =
+  'passed CI and is queued to deploy automatically';
 
 export const ALL_MESSAGE_SUFFIX = [
   INPROGRESS_MSG,
