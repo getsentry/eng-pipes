@@ -8,13 +8,12 @@ import { buildServer } from '@/buildServer';
 import {
   GETSENTRY_BOT_ID,
   GETSENTRY_ORG,
-  GOCD_ORIGIN,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
 } from '@/config';
 import { Fastify } from '@/types';
 import * as metrics from '@/utils/db/metrics';
-import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocd/gocdHelpers';
+import { FINAL_STAGE_NAMES } from '@/utils/gocd/gocdHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 

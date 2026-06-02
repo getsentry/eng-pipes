@@ -793,6 +793,169 @@ describe('pleaseDeployNotifier', function () {
     `);
   });
 
+  it('still opens the undeployed-commits modal for older messages without the deploy-tools button', async function () {
+    // Regression: messages sent before the gocd-deploy -> view-in-deploy-tools
+    // button rename do not contain a view-in-deploy-tools button. The handler
+    // must not pass an `undefined` element to views.update (Slack rejects it).
+    // views.update is not reset between tests, so clear it to read our own call.
+    (bolt.client.views.update as jest.Mock).mockClear();
+
+    await db('gocd-stages').insert({
+      pipeline_id: 'pipeline-id-123',
+      pipeline_name: GOCD_SENTRYIO_BE_PIPELINE_NAME,
+      pipeline_counter: 2,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+      stage_name: FINAL_STAGE_NAMES[0],
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+    await db('gocd-stage-materials').insert({
+      stage_material_id: `123_github.com/example/example`,
+      pipeline_id: 'pipeline-id-123',
+      url: 'github.com/example/example',
+      branch: 'master',
+      revision: '333333',
+    });
+
+    // An older notification still carries the legacy `gocd-deploy` button.
+    await createSlackRequest(fastify, 'block_actions', {
+      type: 'block_actions',
+      user: {
+        id: 'U018H4DA8N5',
+        username: 'billy',
+        name: 'billy',
+        team_id: 'T018UAQ7YRW',
+      },
+      api_app_id: 'A017XPC80S2',
+      token: 'sentrydevtoken',
+      container: {
+        type: 'message_attachment',
+        message_ts: '1614650305.001000',
+        attachment_id: 1,
+        channel_id: 'G018X8Y9B1N',
+        is_ephemeral: false,
+        is_app_unfurl: false,
+      },
+      trigger_id:
+        '1815328135908.1300364270880.5e3ef7206bc9e21fa1feb2e5de3d7d3a',
+      team: {
+        id: 'T018UAQ7YRW',
+        domain: 'sentrydogdev',
+      },
+      enterprise: null,
+      is_enterprise_install: false,
+      channel: {
+        id: 'G018X8Y9B1N',
+        name: 'privategroup',
+      },
+      message: {
+        bot_id: 'B01834PAJDT',
+        type: 'message',
+        text: 'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/455e3db9eb4fa6a1789b70e4045b194f02db0b59|455e3db> is ready to deploy',
+        user: 'U018UAXJVG8',
+        ts: '1614650305.001000',
+        team: 'T018UAQ7YRW',
+        attachments: [
+          {
+            id: 1,
+            blocks: [
+              {
+                type: 'actions',
+                block_id: 'TvwVk',
+                elements: [
+                  {
+                    type: 'button',
+                    action_id: 'gocd-deploy',
+                    text: {
+                      type: 'plain_text',
+                      text: 'Deploy',
+                      emoji: true,
+                    },
+                    style: 'primary',
+                    value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
+                    url: 'https://deploy.getsentry.net',
+                  },
+                  {
+                    type: 'button',
+                    action_id: 'view-undeployed-commits-',
+                    text: {
+                      type: 'plain_text',
+                      text: 'View Undeployed Commits',
+                      emoji: true,
+                    },
+                    value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
+                  },
+                ],
+              },
+            ],
+            color: '#C6BECF',
+            fallback: '[no preview available]',
+          },
+        ],
+      },
+      response_url:
+        'https://hooks.slack.com/actions/T018UAQ7YRW/1809365465603/KPvO6Eijd4RDgscXV2Ro7avH',
+      actions: [
+        {
+          action_id: 'view-undeployed-commits-',
+          block_id: 'TvwVk',
+          text: {
+            type: 'plain_text',
+            text: 'View Undeployed Commits',
+            emoji: true,
+          },
+          value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
+          type: 'button',
+          action_ts: '1614650317.491035',
+        },
+      ],
+    });
+
+    // Wait for the modal update to complete.
+    let wait = true;
+    while (wait) {
+      if (bolt.client.views.update.mock.calls.length > 0) {
+        wait = false;
+        break;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
+    const { view } = bolt.client.views.update.mock.calls[0][0];
+    // The legacy button can't be found, so no actions block is rendered...
+    expect(view.blocks.filter(({ type }) => type === 'actions')).toHaveLength(
+      0
+    );
+    // ...and crucially no `undefined` element leaks into the payload.
+    expect(view.blocks.every(Boolean)).toBe(true);
+  });
+
   it('links user to frontend-only deploy from a sentry commit', async function () {
     await createGitHubEvent(fastify, 'check_run', {
       repository: {

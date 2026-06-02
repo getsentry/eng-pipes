@@ -132,7 +132,13 @@ export async function actionViewUndeployedCommits({
           },
         },
         ...commitBlocks,
-        { type: 'actions', elements: [deployButton] },
+        // The deploy button is pulled from the original notification, which may
+        // be missing (e.g. an older message predating a button change). Only
+        // re-render the actions block when we actually found it, otherwise the
+        // `elements` array contains `undefined` and Slack rejects the update.
+        ...(deployButton
+          ? [{ type: 'actions', elements: [deployButton] }]
+          : []),
       ],
     },
   });
