@@ -27,12 +27,12 @@ import { getChangedStack } from '@/utils/github/getChangedStack';
 import { getRelevantCommit } from '@/utils/github/getRelevantCommit';
 import { getUser } from '@/utils/github/getUser';
 import {
-  ALL_MESSAGE_SUFFIX,
   filterBuildCauses,
   FINAL_STAGE_NAMES,
   firstGitMaterialSHA,
   getProgressColor,
   getProgressSuffix,
+  replaceDeployMessageSuffix,
 } from '@/utils/gocd/gocdHelpers';
 import { GitHubOrg } from '@api/github/org';
 import { bolt } from '@api/slack';
@@ -44,11 +44,7 @@ function getProgressMessage(pipeline: GoCDPipeline, message: any) {
     return '';
   }
 
-  let msg = message.context.text;
-  for (const r of ALL_MESSAGE_SUFFIX) {
-    msg = msg.replace(r, progressText);
-  }
-  return msg;
+  return replaceDeployMessageSuffix(message.context.text, progressText);
 }
 
 async function updateSlackMessage(message: any, pipeline: GoCDPipeline) {

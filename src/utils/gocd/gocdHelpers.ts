@@ -20,6 +20,12 @@ export const SUCCESSFUL_MSG = 'was successful';
 export const READY_TO_DEPLOY =
   'passed CI and is queued to deploy automatically';
 
+// Wording used before automatic deploy messaging; kept so GoCD stage updates
+// can still rewrite stored Slack notifications.
+const LEGACY_READY_TO_DEPLOY = 'is ready to deploy';
+const LEGACY_FULLSTACK_READY_TO_DEPLOY =
+  'is a full stack change and ready to deploy on both the frontend and backend';
+
 export const ALL_MESSAGE_SUFFIX = [
   INPROGRESS_MSG,
   DEPLOYED_MSG,
@@ -27,7 +33,19 @@ export const ALL_MESSAGE_SUFFIX = [
   CANCELLED_MSG,
   SUCCESSFUL_MSG,
   READY_TO_DEPLOY,
+  LEGACY_FULLSTACK_READY_TO_DEPLOY,
+  LEGACY_READY_TO_DEPLOY,
 ];
+
+export function replaceDeployMessageSuffix(
+  text: string,
+  newSuffix: string
+): string {
+  return ALL_MESSAGE_SUFFIX.reduce(
+    (msg, suffix) => msg.replace(suffix, newSuffix),
+    text
+  );
+}
 
 // GoCD does not provide details about all pipeline stages, so we can't
 // know if a GoCD notification is the last stage in the pipeline or not.
