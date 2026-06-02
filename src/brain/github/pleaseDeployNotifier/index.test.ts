@@ -10,9 +10,12 @@ import {
 } from '@/brain/gocd/saveGoCDStageEvents';
 import { buildServer } from '@/buildServer';
 import {
+  DEPLOY_TOOLS_ORIGIN,
   GETSENTRY_ORG,
+  GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   REQUIRED_CHECK_NAME,
 } from '@/config';
@@ -197,7 +200,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -213,7 +216,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -437,7 +440,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -453,7 +456,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -600,7 +603,7 @@ describe('pleaseDeployNotifier', function () {
                       text: 'View in deploy-tools',
                       emoji: true,
                     },
-                    url: 'https://deploy-tools.getsentry.net',
+                    url: DEPLOY_TOOLS_ORIGIN,
                   },
                   {
                     type: 'button',
@@ -775,7 +778,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
               ],
               "type": "actions",
@@ -899,7 +902,7 @@ describe('pleaseDeployNotifier', function () {
                     },
                     style: 'primary',
                     value: '455e3db9eb4fa6a1789b70e4045b194f02db0b59',
-                    url: 'https://deploy.getsentry.net',
+                    url: GOCD_ORIGIN,
                   },
                   {
                     type: 'button',
@@ -1035,7 +1038,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -1051,7 +1054,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1197,7 +1200,7 @@ describe('pleaseDeployNotifier', function () {
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -1213,7 +1216,7 @@ describe('pleaseDeployNotifier', function () {
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1384,7 +1387,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -1400,7 +1403,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1571,7 +1574,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -1587,7 +1590,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1753,7 +1756,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -1769,7 +1772,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -1948,7 +1951,7 @@ Remove "always()" from GHA workflows`,
             },
             Object {
               "text": Object {
-                "text": "<@U789123> has begun deploying this commit (<https://deploy.getsentry.net/go/pipelines/getsentry-frontend/2/example-stage/3|getsentry-frontend: Stage 3>)",
+                "text": "<@U789123> has begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/2/example-stage/3|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 3>)",
                 "type": "mrkdwn",
               },
               "type": "section",
@@ -2074,7 +2077,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -2090,7 +2093,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net/services/getsentry-backend",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -2262,7 +2265,7 @@ Remove "always()" from GHA workflows`,
             Object {
               "elements": Array [
                 Object {
-                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.",
+                  "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
                   "type": "mrkdwn",
                 },
               ],
@@ -2278,7 +2281,7 @@ Remove "always()" from GHA workflows`,
                     "type": "plain_text",
                   },
                   "type": "button",
-                  "url": "https://deploy-tools.getsentry.net/services/getsentry-backend",
+                  "url": "${DEPLOY_TOOLS_ORIGIN}/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}",
                 },
                 Object {
                   "action_id": "view-undeployed-commits-",
@@ -2405,9 +2408,7 @@ Remove "always()" from GHA workflows`,
       );
       // A full stack change deploys both pipelines, so link to the
       // deploy-tools root rather than a single service.
-      expect(getDeployToolsButton().url).toBe(
-        'https://deploy-tools.getsentry.net'
-      );
+      expect(getDeployToolsButton().url).toBe(DEPLOY_TOOLS_ORIGIN);
     });
 
     it('says a frontend-only change deploys automatically and deep-links to the frontend service', async function () {
@@ -2423,7 +2424,7 @@ Remove "always()" from GHA workflows`,
         'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically (frontend).'
       );
       expect(getDeployToolsButton().url).toBe(
-        'https://deploy-tools.getsentry.net/services/getsentry-frontend'
+        `${DEPLOY_TOOLS_ORIGIN}/services/${GOCD_SENTRYIO_FE_PIPELINE_GROUP}`
       );
     });
 
@@ -2440,7 +2441,7 @@ Remove "always()" from GHA workflows`,
         'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/6d225cb77225ac655d817a7551a26fff85090fe6|6d225cb> passed CI and is queued to deploy automatically (backend).'
       );
       expect(getDeployToolsButton().url).toBe(
-        'https://deploy-tools.getsentry.net/services/getsentry-backend'
+        `${DEPLOY_TOOLS_ORIGIN}/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}`
       );
     });
   });

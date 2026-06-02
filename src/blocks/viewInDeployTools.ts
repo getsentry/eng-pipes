@@ -1,4 +1,4 @@
-const DEPLOY_TOOLS_ORIGIN = 'https://deploy-tools.getsentry.net';
+import { DEPLOY_TOOLS_ORIGIN } from '@/config';
 
 /**
  * Button linking to deploy-tools, where the automatic getsentry rollout can be

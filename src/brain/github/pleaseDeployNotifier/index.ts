@@ -11,6 +11,7 @@ import { viewInDeployTools } from '@/blocks/viewInDeployTools';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import {
   Color,
+  DEPLOY_TOOLS_ORIGIN,
   GETSENTRY_ORG,
   GETSENTRY_REPO_SLUG,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
@@ -150,17 +151,23 @@ async function handler({
 
   // Describe which stack(s) will deploy. getsentry deploys automatically via
   // GoCD, so the message is informational only - no manual action is needed.
-  let stackSuffix = '';
-  let deployToolsGroup: string | undefined;
+  // A full stack change deploys both pipelines, so it has no single group to
+  // deep-link to.
+  const STACK = {
+    fullstack: { suffix: ' (frontend + backend)', group: undefined },
+    frontend: { suffix: ' (frontend)', group: GOCD_SENTRYIO_FE_PIPELINE_GROUP },
+    backend: { suffix: ' (backend)', group: GOCD_SENTRYIO_BE_PIPELINE_GROUP },
+  } as const;
+  let stack: typeof STACK[keyof typeof STACK] | undefined;
   if (isFullstack) {
-    stackSuffix = ' (frontend + backend)';
+    stack = STACK.fullstack;
   } else if (isFrontendOnly) {
-    stackSuffix = ' (frontend)';
-    deployToolsGroup = GOCD_SENTRYIO_FE_PIPELINE_GROUP;
+    stack = STACK.frontend;
   } else if (isBackendOnly) {
-    stackSuffix = ' (backend)';
-    deployToolsGroup = GOCD_SENTRYIO_BE_PIPELINE_GROUP;
+    stack = STACK.backend;
   }
+  const stackSuffix = stack?.suffix ?? '';
+  const deployToolsGroup = stack?.group;
 
   let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}${stackSuffix}.`;
 
@@ -180,7 +187,7 @@ async function handler({
       elements: [
         {
           type: 'mrkdwn',
-          text: 'No action needed — getsentry deploys automatically. Track the rollout in <https://deploy-tools.getsentry.net/|deploy-tools>.',
+          text: `No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.`,
         },
       ],
     });

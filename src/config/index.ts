@@ -38,6 +38,8 @@ export const GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME =
   'deploy-getsentry-backend-s4s2';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
+export const DEPLOY_TOOLS_ORIGIN =
+  process.env.DEPLOY_TOOLS_ORIGIN || 'https://deploy-tools.getsentry.net';
 export const FEED_DEPLOY_CHANNEL_ID =
   process.env.FEED_DEPLOY_CHANNEL_ID || 'C051ED5GLN4';
 export const FEED_OPTIONS_AUTOMATOR_CHANNEL_ID =

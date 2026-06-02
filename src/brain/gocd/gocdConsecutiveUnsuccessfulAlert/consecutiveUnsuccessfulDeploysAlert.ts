@@ -2,7 +2,7 @@ import { KnownBlock } from '@slack/types';
 
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
-import { GOCD_ORIGIN } from '@/config';
+import { DEPLOY_TOOLS_ORIGIN, GOCD_ORIGIN } from '@/config';
 import {
   DBGoCDDeployment,
   GoCDPipeline,
@@ -97,7 +97,7 @@ export class ConsecutiveUnsuccessfulDeploysAlert {
   ): Array<KnownBlock> {
     const prevDeployVSMURL = `${GOCD_ORIGIN}/go/pipelines/value_stream_map/${lastDeploy.pipeline_name}/${lastDeploy.pipeline_counter}`;
     const currentOverviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
-    const deployToolsURL = `https://deploy-tools.getsentry.net/services/${pipeline.group}`;
+    const deployToolsURL = `${DEPLOY_TOOLS_ORIGIN}/services/${pipeline.group}`;
 
     return [
       slackblocks.section(
