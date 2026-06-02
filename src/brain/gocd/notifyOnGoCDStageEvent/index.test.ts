@@ -6,6 +6,7 @@ import { MockedGitHubAPI } from '@test/utils/testTypes';
 
 import { buildServer } from '@/buildServer';
 import {
+  DEPLOY_TOOLS_ORIGIN,
   GETSENTRY_BOT_ID,
   GETSENTRY_ORG,
   GOCD_ORIGIN,
@@ -14,7 +15,7 @@ import {
 } from '@/config';
 import { Fastify } from '@/types';
 import * as metrics from '@/utils/db/metrics';
-import { FINAL_STAGE_NAMES, INPROGRESS_MSG } from '@/utils/gocd/gocdHelpers';
+import { FINAL_STAGE_NAMES } from '@/utils/gocd/gocdHelpers';
 import { bolt } from '@api/slack';
 import { db } from '@utils/db';
 
@@ -302,6 +303,15 @@ describe('notifyOnGoCDStageEvent', function () {
                 "type": "context",
               },
               Object {
+                "elements": Array [
+                  Object {
+                    "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
                 "text": Object {
                   "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/1|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
@@ -313,7 +323,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> ${INPROGRESS_MSG}",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed (frontend).",
         "ts": "1234123.123",
       }
     `);
@@ -366,6 +376,15 @@ describe('notifyOnGoCDStageEvent', function () {
                 "type": "context",
               },
               Object {
+                "elements": Array [
+                  Object {
+                    "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
                 "text": Object {
                   "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/2|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 2>)",
                   "type": "mrkdwn",
@@ -377,7 +396,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> is being deployed",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed (frontend).",
         "ts": "1234123.123",
       }
     `);
@@ -432,6 +451,15 @@ describe('notifyOnGoCDStageEvent', function () {
                 "type": "context",
               },
               Object {
+                "elements": Array [
+                  Object {
+                    "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
                 "text": Object {
                   "text": "You have begun deploying this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/2|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 2>)",
                   "type": "mrkdwn",
@@ -443,7 +471,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> is being deployed",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed (frontend).",
         "ts": "1234123.123",
       }
     `);
@@ -558,6 +586,15 @@ describe('notifyOnGoCDStageEvent', function () {
                 "type": "context",
               },
               Object {
+                "elements": Array [
+                  Object {
+                    "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
                 "text": Object {
                   "text": "You have queued this commit for deployment (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/1|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
@@ -569,7 +606,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> ${INPROGRESS_MSG}",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> is being deployed (frontend).",
         "ts": "1234123.123",
       }
     `);
@@ -633,6 +670,15 @@ describe('notifyOnGoCDStageEvent', function () {
                 "type": "context",
               },
               Object {
+                "elements": Array [
+                  Object {
+                    "text": "No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.",
+                    "type": "mrkdwn",
+                  },
+                ],
+                "type": "context",
+              },
+              Object {
                 "text": Object {
                   "text": "You have failed to deploy this commit (<${GOCD_ORIGIN}/go/pipelines/${GOCD_SENTRYIO_FE_PIPELINE_NAME}/20/preliminary-checks/1|${GOCD_SENTRYIO_FE_PIPELINE_NAME}: Stage 1>)",
                   "type": "mrkdwn",
@@ -644,7 +690,7 @@ describe('notifyOnGoCDStageEvent', function () {
           },
         ],
         "channel": "U789123",
-        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/${HEAD_SHA}|${HEAD_SHA}> failed to deploy",
+        "text": "Your commit getsentry@<https://github.com/getsentry/getsentry/commits/982345|982345> failed to deploy (frontend).",
         "ts": "1234123.123",
       }
     `);

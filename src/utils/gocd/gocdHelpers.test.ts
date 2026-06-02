@@ -3,10 +3,44 @@ import {
   filterBuildCauses,
   firstGitMaterialSHA,
   getBaseAndHeadCommit,
+  INPROGRESS_MSG,
+  replaceDeployMessageSuffix,
 } from '@/utils/gocd/gocdHelpers';
 import { getLastGetSentryGoCDDeploy } from '@utils/db/getLatestDeploy';
 
 jest.mock('@utils/db/getLatestDeploy');
+
+describe('replaceDeployMessageSuffix', function () {
+  const commitPrefix =
+    'Your commit getsentry@<https://github.com/getsentry/getsentry/commits/abc123|abc123>';
+
+  it('rewrites legacy ready-to-deploy wording', function () {
+    expect(
+      replaceDeployMessageSuffix(
+        `${commitPrefix} is ready to deploy`,
+        INPROGRESS_MSG
+      )
+    ).toBe(`${commitPrefix} ${INPROGRESS_MSG}`);
+  });
+
+  it('rewrites legacy full-stack ready-to-deploy wording', function () {
+    expect(
+      replaceDeployMessageSuffix(
+        `${commitPrefix} is a full stack change and ready to deploy on both the frontend and backend`,
+        INPROGRESS_MSG
+      )
+    ).toBe(`${commitPrefix} ${INPROGRESS_MSG}`);
+  });
+
+  it('rewrites current ready-to-deploy wording and preserves stack suffix', function () {
+    expect(
+      replaceDeployMessageSuffix(
+        `${commitPrefix} passed CI and is queued to deploy automatically (frontend).`,
+        INPROGRESS_MSG
+      )
+    ).toBe(`${commitPrefix} ${INPROGRESS_MSG} (frontend).`);
+  });
+});
 
 describe('firstGitMaterialSHA', () => {
   afterEach(async function () {

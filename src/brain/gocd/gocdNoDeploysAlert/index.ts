@@ -4,6 +4,7 @@ import { gocdevents } from '@/api/gocd/gocdEventEmitter';
 import { bolt } from '@/api/slack';
 import * as slackblocks from '@/blocks/slackBlocks';
 import {
+  DEPLOY_TOOLS_ORIGIN,
   FEED_DEV_INFRA_CHANNEL_ID,
   GOCD_ORIGIN,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
@@ -34,7 +35,7 @@ function getMessageBlocks(
 ): Array<KnownBlock> {
   const prevDeployVSMURL = `${GOCD_ORIGIN}/go/pipelines/value_stream_map/${lastDeploy.pipeline_name}/${lastDeploy.pipeline_counter}`;
   const currentOverviewURL = `${GOCD_ORIGIN}/go/pipelines/${pipeline.name}/${pipeline.counter}/${pipeline.stage.name}/${pipeline.stage.counter}`;
-  const deployToolsURL = `https://deploy-tools.getsentry.net/services/${pipeline.group}`;
+  const deployToolsURL = `${DEPLOY_TOOLS_ORIGIN}/services/${pipeline.group}`;
 
   return [
     slackblocks.section(slackblocks.markdown(getBodyText(pipeline))),

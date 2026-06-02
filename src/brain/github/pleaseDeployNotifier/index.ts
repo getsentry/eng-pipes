@@ -6,14 +6,17 @@ import { KnownBlock } from '@slack/types';
 
 import { githubEvents } from '@/api/github';
 import { getUpdatedGoCDDeployMessage } from '@/blocks/getUpdatedDeployMessage';
-import { gocdDeploy } from '@/blocks/gocdDeploy';
 import { muteDeployNotificationsButton } from '@/blocks/muteDeployNotificationsButton';
+import { viewInDeployTools } from '@/blocks/viewInDeployTools';
 import { viewUndeployedCommits } from '@/blocks/viewUndeployedCommits';
 import {
   Color,
+  DEPLOY_TOOLS_ORIGIN,
   GETSENTRY_ORG,
   GETSENTRY_REPO_SLUG,
+  GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_BE_PIPELINE_NAME,
+  GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
   SENTRY_REPO_SLUG,
 } from '@/config';
@@ -141,18 +144,35 @@ async function handler({
     relevantCommit.sha === checkRun.head_sha
       ? GETSENTRY_REPO_SLUG
       : SENTRY_REPO_SLUG;
-  const { isFrontendOnly, isFullstack } = await getChangedStack(
+  const { isFrontendOnly, isBackendOnly, isFullstack } = await getChangedStack(
     relevantCommit.sha,
     relevantCommitRepo
   );
 
-  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}`;
+  // Describe which stack(s) will deploy. getsentry deploys automatically via
+  // GoCD, so the message is informational only - no manual action is needed.
+  // A full stack change deploys both pipelines, so it has no single group to
+  // deep-link to.
+  const STACK = {
+    fullstack: { suffix: ' (frontend + backend)', group: undefined },
+    frontend: { suffix: ' (frontend)', group: GOCD_SENTRYIO_FE_PIPELINE_GROUP },
+    backend: { suffix: ' (backend)', group: GOCD_SENTRYIO_BE_PIPELINE_GROUP },
+  } as const;
+  let stack: typeof STACK[keyof typeof STACK] | undefined;
   if (isFullstack) {
-    text = `Your commit getsentry@<${commitLink}|${commitLinkText}> is a full stack change and ready to deploy on both the frontend and backend`;
+    stack = STACK.fullstack;
+  } else if (isFrontendOnly) {
+    stack = STACK.frontend;
+  } else if (isBackendOnly) {
+    stack = STACK.backend;
   }
+  const stackSuffix = stack?.suffix ?? '';
+  const deployToolsGroup = stack?.group;
+
+  let text = `Your commit getsentry@<${commitLink}|${commitLinkText}> ${READY_TO_DEPLOY}${stackSuffix}.`;
 
   // If the commit is already queued, add that message, otherwise
-  // show actions to start the deploy / review it.
+  // show that the deploy is automatic and where to track it.
   const deployBlocks = await currentDeployBlocks(
     checkRun,
     user,
@@ -163,9 +183,18 @@ async function handler({
     blocks.push(...deployBlocks);
   } else {
     blocks.push({
+      type: 'context',
+      elements: [
+        {
+          type: 'mrkdwn',
+          text: `No action needed — getsentry deploys automatically. Track the rollout in <${DEPLOY_TOOLS_ORIGIN}|deploy-tools>.`,
+        },
+      ],
+    });
+    blocks.push({
       type: 'actions',
       elements: [
-        gocdDeploy(commit),
+        viewInDeployTools(deployToolsGroup),
         viewUndeployedCommits(commit),
         muteDeployNotificationsButton(),
       ],
@@ -211,7 +240,7 @@ async function handler({
 export async function pleaseDeployNotifier() {
   githubEvents.removeListener('check_run', handler);
   githubEvents.on('check_run', handler);
-  bolt.action(/gocd-deploy/, async ({ ack, body }) => {
+  bolt.action(/view-in-deploy-tools/, async ({ ack, body }) => {
     await ack();
     Sentry.withScope(async (scope) => {
       scope.setUser({
@@ -219,7 +248,7 @@ export async function pleaseDeployNotifier() {
       });
       const tx = Sentry.startTransaction({
         op: 'slack.action',
-        name: `gocd-deploy`,
+        name: `view-in-deploy-tools`,
       });
       tx.finish();
     });
