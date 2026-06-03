@@ -35,7 +35,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.12.0"],\
             ["@octokit/types", "npm:6.34.0"],\
             ["@octokit/webhooks", "npm:11.1.2"],\
-            ["@sentry/cli", "npm:2.20.1"],\
+            ["@sentry/cli", "npm:2.58.6"],\
             ["@sentry/integrations", "npm:7.72.0"],\
             ["@sentry/node", "npm:7.72.0"],\
             ["@sentry/tracing", "npm:7.72.0"],\
@@ -1941,15 +1941,95 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         }]\
       ]],\
       ["@sentry/cli", [\
-        ["npm:2.20.1", {\
-          "packageLocation": "./.yarn/unplugged/@sentry-cli-npm-2.20.1-5b79d11da4/node_modules/@sentry/cli/",\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-npm-2.58.6-fc466a5a0f/node_modules/@sentry/cli/",\
           "packageDependencies": [\
-            ["@sentry/cli", "npm:2.20.1"],\
+            ["@sentry/cli", "npm:2.58.6"],\
+            ["@sentry/cli-darwin", "npm:2.58.6"],\
+            ["@sentry/cli-linux-arm", "npm:2.58.6"],\
+            ["@sentry/cli-linux-arm64", "npm:2.58.6"],\
+            ["@sentry/cli-linux-i686", "npm:2.58.6"],\
+            ["@sentry/cli-linux-x64", "npm:2.58.6"],\
+            ["@sentry/cli-win32-arm64", "npm:2.58.6"],\
+            ["@sentry/cli-win32-i686", "npm:2.58.6"],\
+            ["@sentry/cli-win32-x64", "npm:2.58.6"],\
             ["https-proxy-agent", "npm:5.0.0"],\
-            ["node-fetch", "virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12"],\
+            ["node-fetch", "virtual:fc466a5a0fcf9bdb0d6ede26a42e546d82179fc99377be0b271bc3ad4fd164b837525a5042aaad4176b38939dfedae3a53048c54b12a221065e517cd339bc0cd#npm:2.6.12"],\
             ["progress", "npm:2.0.3"],\
             ["proxy-from-env", "npm:1.1.0"],\
             ["which", "npm:2.0.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-darwin", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-darwin-npm-2.58.6-9a17d7471b/node_modules/@sentry/cli-darwin/",\
+          "packageDependencies": [\
+            ["@sentry/cli-darwin", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-linux-arm", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-linux-arm-npm-2.58.6-01d7ebbfc3/node_modules/@sentry/cli-linux-arm/",\
+          "packageDependencies": [\
+            ["@sentry/cli-linux-arm", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-linux-arm64", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-linux-arm64-npm-2.58.6-fb0eef69ea/node_modules/@sentry/cli-linux-arm64/",\
+          "packageDependencies": [\
+            ["@sentry/cli-linux-arm64", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-linux-i686", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-linux-i686-npm-2.58.6-b8bc5c255b/node_modules/@sentry/cli-linux-i686/",\
+          "packageDependencies": [\
+            ["@sentry/cli-linux-i686", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-linux-x64", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-linux-x64-npm-2.58.6-832c1cc945/node_modules/@sentry/cli-linux-x64/",\
+          "packageDependencies": [\
+            ["@sentry/cli-linux-x64", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-win32-arm64", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-win32-arm64-npm-2.58.6-a4bdc108fa/node_modules/@sentry/cli-win32-arm64/",\
+          "packageDependencies": [\
+            ["@sentry/cli-win32-arm64", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-win32-i686", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-win32-i686-npm-2.58.6-7cc5df98ab/node_modules/@sentry/cli-win32-i686/",\
+          "packageDependencies": [\
+            ["@sentry/cli-win32-i686", "npm:2.58.6"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@sentry/cli-win32-x64", [\
+        ["npm:2.58.6", {\
+          "packageLocation": "./.yarn/unplugged/@sentry-cli-win32-x64-npm-2.58.6-a16742cb79/node_modules/@sentry/cli-win32-x64/",\
+          "packageDependencies": [\
+            ["@sentry/cli-win32-x64", "npm:2.58.6"]\
           ],\
           "linkType": "HARD"\
         }]\
@@ -8402,10 +8482,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12", {\
-          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-64c8ab7ada/0/cache/node-fetch-npm-2.6.12-48619ce9d6-3bc1655203.zip/node_modules/node-fetch/",\
+        ["virtual:71c3c0570974c795b79987bb85d4a29514e196f75c7ca2bb56e80f88177e71cbbb73c9a0f02e781c6ccd33e5e8542eb2d0a05fb7aad876eea2872ec6993aa554#npm:2.7.0", {\
+          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-749a5a9668/0/cache/node-fetch-npm-2.7.0-587d57004e-d76d2f5edb.zip/node_modules/node-fetch/",\
           "packageDependencies": [\
-            ["node-fetch", "virtual:5b79d11da47d4e735af0bb8dac9cfc39c42081ddaa25f666801c6782bede7bb770cc502016f06be416c3a2164a41034ec51b88cadeeca4d18aac9d1175f75999#npm:2.6.12"],\
+            ["node-fetch", "virtual:71c3c0570974c795b79987bb85d4a29514e196f75c7ca2bb56e80f88177e71cbbb73c9a0f02e781c6ccd33e5e8542eb2d0a05fb7aad876eea2872ec6993aa554#npm:2.7.0"],\
             ["@types/encoding", null],\
             ["encoding", null],\
             ["whatwg-url", "npm:5.0.0"]\
@@ -8416,10 +8496,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:71c3c0570974c795b79987bb85d4a29514e196f75c7ca2bb56e80f88177e71cbbb73c9a0f02e781c6ccd33e5e8542eb2d0a05fb7aad876eea2872ec6993aa554#npm:2.7.0", {\
-          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-749a5a9668/0/cache/node-fetch-npm-2.7.0-587d57004e-d76d2f5edb.zip/node_modules/node-fetch/",\
+        ["virtual:fc466a5a0fcf9bdb0d6ede26a42e546d82179fc99377be0b271bc3ad4fd164b837525a5042aaad4176b38939dfedae3a53048c54b12a221065e517cd339bc0cd#npm:2.6.12", {\
+          "packageLocation": "./.yarn/__virtual__/node-fetch-virtual-97ecc475e6/0/cache/node-fetch-npm-2.6.12-48619ce9d6-3bc1655203.zip/node_modules/node-fetch/",\
           "packageDependencies": [\
-            ["node-fetch", "virtual:71c3c0570974c795b79987bb85d4a29514e196f75c7ca2bb56e80f88177e71cbbb73c9a0f02e781c6ccd33e5e8542eb2d0a05fb7aad876eea2872ec6993aa554#npm:2.7.0"],\
+            ["node-fetch", "virtual:fc466a5a0fcf9bdb0d6ede26a42e546d82179fc99377be0b271bc3ad4fd164b837525a5042aaad4176b38939dfedae3a53048c54b12a221065e517cd339bc0cd#npm:2.6.12"],\
             ["@types/encoding", null],\
             ["encoding", null],\
             ["whatwg-url", "npm:5.0.0"]\
@@ -9807,7 +9887,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@octokit/rest", "npm:18.12.0"],\
             ["@octokit/types", "npm:6.34.0"],\
             ["@octokit/webhooks", "npm:11.1.2"],\
-            ["@sentry/cli", "npm:2.20.1"],\
+            ["@sentry/cli", "npm:2.58.6"],\
             ["@sentry/integrations", "npm:7.72.0"],\
             ["@sentry/node", "npm:7.72.0"],\
             ["@sentry/tracing", "npm:7.72.0"],\
