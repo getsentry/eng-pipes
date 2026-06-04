@@ -17,7 +17,7 @@ type SyncCounters = {
 };
 
 /**
- * Pulls the {email -> github_username} mapping from BigQuery (SEC-1508),
+ * Pulls the {email -> github_username} mapping from the Notion directory,
  * resolves each email to a Slack user, and upserts into the `users` table.
  *
  * Mirrors getUser's write path:
@@ -25,10 +25,14 @@ type SyncCounters = {
  *   - onConflict('email').merge() to update existing rows
  *   - isSentrySlackUser gate weeds out deactivated/restricted accounts
  *
+ * When DRY_RUN is set, the upsert is skipped and the would-write payload is
+ * logged instead — counters still reflect what would have been written.
+ *
  * No removal logic in v1 — keeps stale rows in place, matching today's
- * behavior. Revisit once SEC-1508 settles departed-user representation.
+ * behavior. Revisit once we see real data.
  */
 export async function syncGithubUsers(): Promise<SyncCounters> {
+  const dryRun = process.env.DRY_RUN === 'true' || process.env.DRY_RUN === '1';
   const counters: SyncCounters = {
     total: 0,
     upserted: 0,
@@ -66,14 +70,21 @@ export async function syncGithubUsers(): Promise<SyncCounters> {
         continue;
       }
 
-      await db('users')
-        .insert({
-          email,
-          slackUser: slackResult.user.id,
-          githubUser: login,
-        })
-        .onConflict('email')
-        .merge();
+      if (dryRun) {
+        /* eslint-disable-next-line no-console */
+        console.log(
+          `[syncGithubUsers] dry-run: would upsert email=${email} slackUser=${slackResult.user.id} githubUser=${login}`
+        );
+      } else {
+        await db('users')
+          .insert({
+            email,
+            slackUser: slackResult.user.id,
+            githubUser: login,
+          })
+          .onConflict('email')
+          .merge();
+      }
       counters.upserted++;
     } catch (err) {
       counters.errors++;
@@ -82,13 +93,18 @@ export async function syncGithubUsers(): Promise<SyncCounters> {
     }
   }
 
-  await emitDatadogEvent(counters, counters.errors > 0 ? 'warning' : 'info');
+  await emitDatadogEvent(
+    counters,
+    counters.errors > 0 ? 'warning' : 'info',
+    dryRun
+  );
   return counters;
 }
 
 async function emitDatadogEvent(
   counters: SyncCounters,
-  alertType: 'info' | 'warning' | 'error'
+  alertType: 'info' | 'warning' | 'error',
+  dryRun = false
 ) {
   const params: v1.EventCreateRequest = {
     title: 'eng-pipes sync-github-users',
@@ -100,6 +116,7 @@ async function emitDatadogEvent(
       'source:eng-pipes',
       'source_category:infra-tools',
       'job:sync-github-users',
+      ...(dryRun ? ['dry_run:true'] : []),
     ],
   };
   try {

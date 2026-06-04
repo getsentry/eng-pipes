@@ -180,5 +180,39 @@ describe('syncGithubUsers', function () {
     expect(body.tags).toEqual(
       expect.arrayContaining(['job:sync-github-users', 'source:eng-pipes'])
     );
+    expect(body.tags).not.toContain('dry_run:true');
+  });
+
+  it('skips the DB write but counts would-have-upserted when DRY_RUN is set', async function () {
+    const originalDryRun = process.env.DRY_RUN;
+    process.env.DRY_RUN = 'true';
+    try {
+      (fetchGithubUserDirectory as jest.Mock).mockResolvedValueOnce([
+        { email: 'test@sentry.io', githubUsername: 'alice-gh' },
+      ]);
+
+      const counters = await syncGithubUsers();
+
+      expect(counters).toEqual({
+        total: 1,
+        upserted: 1,
+        slackMisses: 0,
+        errors: 0,
+      });
+
+      // No actual row was written.
+      const row = await db('users').where('email', 'test@sentry.io').first('*');
+      expect(row).toBeUndefined();
+
+      // Datadog event carries the dry_run tag so dashboards can filter.
+      expect(datadogSpy).toHaveBeenCalledTimes(1);
+      expect(datadogSpy.mock.calls[0][0].body.tags).toContain('dry_run:true');
+    } finally {
+      if (originalDryRun === undefined) {
+        delete process.env.DRY_RUN;
+      } else {
+        process.env.DRY_RUN = originalDryRun;
+      }
+    }
   });
 });
