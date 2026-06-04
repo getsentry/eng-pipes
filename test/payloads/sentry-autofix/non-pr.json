@@ -1,0 +1,10 @@
+{
+  "action": "root_cause_completed",
+  "installation": { "uuid": "00000000-0000-0000-0000-000000000000" },
+  "data": {
+    "issue": {
+      "id": "1234567890",
+      "short_id": "GETSENTRY-ABC"
+    }
+  }
+}

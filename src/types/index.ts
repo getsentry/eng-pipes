@@ -36,3 +36,23 @@ export interface SentryInformerResponse {
   action: string;
   permission: string;
 }
+
+export interface SentryAutofixWebhook {
+  action: string;
+  installation?: { uuid: string };
+  data: {
+    issue?: {
+      id?: string | number;
+      short_id?: string;
+      title?: string;
+      web_url?: string;
+    };
+    pull_request?: {
+      url?: string;
+      title?: string;
+      repository?: string;
+    };
+    [key: string]: any;
+  };
+  actor?: { id?: number | string; name?: string; type?: string };
+}
