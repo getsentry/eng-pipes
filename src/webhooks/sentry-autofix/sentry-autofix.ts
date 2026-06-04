@@ -29,6 +29,10 @@ export async function sentryAutofixWebhook(
     );
 
     if (!isVerified) {
+      Sentry.captureMessage(
+        'Sentry Autofix webhook signature validation failed',
+        'warning'
+      );
       return;
     }
 
