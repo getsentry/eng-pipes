@@ -1,8 +1,8 @@
-import { BigQuery } from '@google-cloud/bigquery';
+import { Client } from '@notionhq/client';
 
-import { GITHUB_USER_DIRECTORY_BQ, PROJECT } from '@/config';
+import { GITHUB_USER_DIRECTORY_NOTION } from '@/config';
 
-const bigqueryClient = new BigQuery({ projectId: PROJECT });
+const notionClient = new Client({ auth: GITHUB_USER_DIRECTORY_NOTION.token });
 
 export type GhDirectoryRow = {
   email: string;
@@ -10,24 +10,54 @@ export type GhDirectoryRow = {
 };
 
 /**
- * Reads the {email -> github_username} mapping that the security team's
- * update-github-directory cloud function publishes to BigQuery (SEC-1508).
+ * Reads the {email -> github_username} mapping from the "GitHub Username
+ * Directory" Notion database. The database is maintained by security's
+ * update-github-directory cloud function in response to GitHub member
+ * webhooks.
  *
- * Returns one row per email. Rows missing either field are dropped — they
+ * Returns one row per page. Pages missing either field are dropped — they
  * can't drive a Slack @-mention either way.
  *
- * The SELECT shape assumes a full snapshot per refresh. If SEC-1508 lands as
- * append-only with an `updated_at` column we'll switch to latest-per-email
- * via QUALIFY ROW_NUMBER() OVER (PARTITION BY email ORDER BY updated_at DESC).
+ * Notion may split a property's text into multiple rich-text spans; we
+ * concatenate them, matching the producer's serialization.
  */
 export async function fetchGithubUserDirectory(): Promise<GhDirectoryRow[]> {
-  const { dataset, table } = GITHUB_USER_DIRECTORY_BQ;
-  const query = `SELECT email, github_username FROM \`${dataset}.${table}\``;
-  const [rows] = await bigqueryClient.query(query);
-  return rows
-    .filter((r: any) => r.email && r.github_username)
-    .map((r: any) => ({
-      email: r.email,
-      githubUsername: r.github_username,
-    }));
+  const rows: GhDirectoryRow[] = [];
+  let cursor: string | undefined;
+
+  // Paginate until Notion reports no more pages.
+  // Notion's database query page size caps at 100.
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    const response = await notionClient.databases.query({
+      database_id: GITHUB_USER_DIRECTORY_NOTION.databaseId,
+      start_cursor: cursor,
+      page_size: 100,
+    });
+
+    for (const page of response.results) {
+      const props = (page as any).properties;
+      const email = joinRichText(props?.Email?.title);
+      const githubUsername = joinRichText(
+        props?.['GitHub Username']?.rich_text
+      );
+      if (email && githubUsername) {
+        rows.push({ email, githubUsername });
+      }
+    }
+
+    if (!response.has_more || !response.next_cursor) {
+      break;
+    }
+    cursor = response.next_cursor;
+  }
+
+  return rows;
+}
+
+function joinRichText(spans: Array<{ plain_text?: string }> | undefined) {
+  if (!spans) {
+    return '';
+  }
+  return spans.map((span) => span.plain_text ?? '').join('');
 }
