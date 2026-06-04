@@ -99,8 +99,8 @@ product_areas:
   What's New:
   - team-product
 repos:
-  arroyo: team-sns
-  cdc: team-sns
+  arroyo: team-events-analytics-platform
+  cdc: team-events-analytics-platform
   craft: team-dev-infra
   relay: team-ingest
   responses: team-dev-infra
@@ -130,12 +130,12 @@ repos:
   sentry-unity: team-gdx
   sentry-unreal: team-gdx
   sentry-wizard: team-web-frontend-sdks
-  snuba: team-sns
-  snuba-sdk: team-sns
+  snuba: team-events-analytics-platform
+  snuba-sdk: team-events-analytics-platform
   symbol-collector: team-gdx
   symbolic: team-ingest
   symbolicator: team-ingest
-  wal2json: team-sns
+  wal2json: team-events-analytics-platform
 teams:
   team-crons:
     offices:
@@ -163,6 +163,10 @@ teams:
     - sea
     - sfo
     slack_channel: C05CR9FM4AE
+  team-events-analytics-platform:
+    offices:
+    - sfo
+    slack_channel: C05M9TU0RRR
   team-explore:
     offices:
     - yyz
@@ -213,10 +217,6 @@ teams:
     offices:
     - yyz
     slack_channel: C058EAWNF1P
-  team-sns:
-    offices:
-    - sfo
-    slack_channel: C05M9TU0RRR
   team-support:
     offices:
     - sfo
