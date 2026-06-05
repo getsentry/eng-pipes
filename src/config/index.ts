@@ -38,6 +38,8 @@ export const GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME =
   'deploy-getsentry-backend-s4s2';
 export const GOCD_ORIGIN =
   process.env.GOCD_ORIGIN || 'https://deploy.getsentry.net';
+export const DEPLOY_TOOLS_ORIGIN =
+  process.env.DEPLOY_TOOLS_ORIGIN || 'https://deploy-tools.getsentry.net';
 export const FEED_DEPLOY_CHANNEL_ID =
   process.env.FEED_DEPLOY_CHANNEL_ID || 'C051ED5GLN4';
 export const FEED_OPTIONS_AUTOMATOR_CHANNEL_ID =
@@ -82,6 +84,8 @@ export const DISCUSS_SEER_INFRA_CHANNEL_ID = // #discuss-seer-infra
   process.env.DISCUSS_SEER_INFRA_CHANNEL_ID || 'C07818L0HS5';
 export const FEED_UPTIME_CHANNEL_ID = // #feed-uptime
   process.env.FEED_UPTIME_CHANNEL_ID || 'C07DXRCCFPC';
+export const FEED_AUTOFIX_CHANNEL_ID = // #feed-self-healing
+  process.env.FEED_AUTOFIX_CHANNEL_ID || 'C0B6BKNG31B';
 export const DISABLE_GITHUB_METRICS =
   process.env.DISABLE_GITHUB_METRICS === 'true' ||
   process.env.DISABLE_GITHUB_METRICS === '1';
@@ -277,6 +281,8 @@ export const KAFKA_CONTROL_PLANE_WEBHOOK_SECRET =
   process.env.KAFKA_CONTROL_PLANE_WEBHOOK_SECRET;
 export const SENTRY_INFORMER_WEBHOOK_SECRET =
   process.env.SENTRY_INFORMER_WEBHOOK_SECRET;
+export const SENTRY_AUTOFIX_WEBHOOK_SECRET =
+  process.env.SENTRY_AUTOFIX_WEBHOOK_SECRET;
 
 /**
  * Regex

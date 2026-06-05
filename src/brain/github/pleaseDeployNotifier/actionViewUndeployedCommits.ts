@@ -97,7 +97,7 @@ export async function actionViewUndeployedCommits({
   ).flatMap((i) => i);
 
   // Find the attachments where this action was triggered so that
-  // we can find the deploy button that was used
+  // we can find the deploy-tools button that was used
   const attachmentsContainer = body.message.attachments.find(
     ({ id }) => id === body.container.attachment_id
   );
@@ -105,7 +105,7 @@ export async function actionViewUndeployedCommits({
     ({ block_id }) => block_id === action.block_id
   );
   const deployButton = actionsBlock?.elements.find(
-    ({ action_id }) => action_id === 'gocd-deploy'
+    ({ action_id }) => action_id === 'view-in-deploy-tools'
   );
 
   const { view } = await viewPromise;
@@ -132,7 +132,13 @@ export async function actionViewUndeployedCommits({
           },
         },
         ...commitBlocks,
-        { type: 'actions', elements: [deployButton] },
+        // The deploy button is pulled from the original notification, which may
+        // be missing (e.g. an older message predating a button change). Only
+        // re-render the actions block when we actually found it, otherwise the
+        // `elements` array contains `undefined` and Slack rejects the update.
+        ...(deployButton
+          ? [{ type: 'actions', elements: [deployButton] }]
+          : []),
       ],
     },
   });

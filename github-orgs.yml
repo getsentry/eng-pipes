@@ -27,6 +27,7 @@ getsentry:
     withRouting:
       - 'sentry'
       - 'seer'
+      - 'sentry-options-automator'
 
     withoutRouting:
       - 'arroyo'

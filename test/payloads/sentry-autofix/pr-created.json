@@ -1,0 +1,20 @@
+{
+  "action": "pr_created",
+  "installation": { "uuid": "00000000-0000-0000-0000-000000000000" },
+  "data": {
+    "run_id": 42,
+    "group_id": 1234567890,
+    "pull_requests": [
+      {
+        "provider": "github",
+        "repo_name": "getsentry/sentry",
+        "pull_request": {
+          "pr_id": 555,
+          "pr_number": 99999,
+          "pr_url": "https://github.com/getsentry/sentry/pull/99999"
+        }
+      }
+    ]
+  },
+  "actor": { "id": "sentry", "name": "Sentry", "type": "application" }
+}

@@ -1,0 +1,6 @@
+{
+  "action": "pr_created",
+  "data": {
+    "pull_requests": [{ "pull_request": {} }]
+  }
+}
