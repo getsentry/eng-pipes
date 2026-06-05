@@ -9,24 +9,10 @@ export type GhDirectoryRow = {
   githubUsername: string;
 };
 
-/**
- * Reads the {email -> github_username} mapping from the "GitHub Username
- * Directory" Notion database. The database is maintained by security's
- * update-github-directory cloud function in response to GitHub member
- * webhooks.
- *
- * Returns one row per page. Pages missing either field are dropped — they
- * can't drive a Slack @-mention either way.
- *
- * Notion may split a property's text into multiple rich-text spans; we
- * concatenate them, matching the producer's serialization.
- */
 export async function fetchGithubUserDirectory(): Promise<GhDirectoryRow[]> {
   const rows: GhDirectoryRow[] = [];
   let cursor: string | undefined;
 
-  // Paginate until Notion reports no more pages.
-  // Notion's database query page size caps at 100.
   // eslint-disable-next-line no-constant-condition
   while (true) {
     const response = await notionClient.databases.query({

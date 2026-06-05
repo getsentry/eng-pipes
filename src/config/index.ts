@@ -104,12 +104,6 @@ export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
 // Slack profile IDs
 export const SLACK_PROFILE_ID_GITHUB = 'XfEJ1CLM1C';
 
-// "GitHub Username Directory" Notion database — maps @sentry.io emails to
-// GitHub usernames. Maintained by the security team's update-github-directory
-// cloud function via GitHub member webhooks. Consumed by syncGithubUsers
-// (DI-1639). When/if security publishes the same mapping to BigQuery
-// (SEC-1508), the fetchGithubUserDirectory util can be repointed without
-// touching the job.
 export const GITHUB_USER_DIRECTORY_NOTION = {
   databaseId:
     process.env.NOTION_GITHUB_USER_DIRECTORY_DB_ID ||
