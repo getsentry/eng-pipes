@@ -13,6 +13,10 @@ import { extractAndVerifySignature } from '@/utils/auth/extractAndVerifySignatur
 
 const PR_CREATED_ACTION = 'pr_created';
 
+// Tracks whether we've already ensured the bot is a member of the feed
+// channel, so we only call conversations.join once (it's Tier 3 rate-limited).
+let hasJoinedAutofixChannel = false;
+
 export async function sentryAutofixWebhook(
   request: FastifyRequest<{ Body: SentryAutofixWebhook }>,
   reply: FastifyReply
@@ -73,6 +77,23 @@ function buildBlocks(message: SentryAutofixWebhook): KnownBlock[] {
 }
 
 async function sendMessage(blocks: KnownBlock[]) {
+  // Ensure the bot is a member of the target channel before posting. Slack
+  // rejects chat.postMessage with `not_in_channel` if the bot has never joined
+  // the (public) channel. conversations.join is Tier 3 rate-limited, so only
+  // attempt it once per process.
+  if (!hasJoinedAutofixChannel) {
+    // Mark as attempted up front so we make at most one join call per process,
+    // regardless of success or failure (avoids hammering the Tier 3 endpoint).
+    hasJoinedAutofixChannel = true;
+    try {
+      await bolt.client.conversations.join({ channel: FEED_AUTOFIX_CHANNEL_ID });
+    } catch (err) {
+      // Joining is best-effort (e.g. private channels can't be self-joined);
+      // surface it but still attempt to post below.
+      Sentry.captureException(err);
+    }
+  }
+
   try {
     await bolt.client.chat.postMessage({
       channel: FEED_AUTOFIX_CHANNEL_ID,
