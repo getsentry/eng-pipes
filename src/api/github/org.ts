@@ -264,12 +264,13 @@ export class GitHubOrg {
       issueNodeId,
     };
     const response = await this.sendGraphQuery(query, data);
-    // When the response due date is empty, the node doesn't exist so we default to empty string
-    const issueDueDateInfoNode =
-      response?.node.fieldValues.nodes.find(
-        (item) => item.field?.id === this.project.fieldIds.responseDue
-      ) || '';
-    return issueDueDateInfoNode.text;
+    // When the response due date is unset, the field value node doesn't exist.
+    // Return null in that case so callers can distinguish "no SLO set" from a
+    // genuinely unparseable value.
+    const issueDueDateInfoNode = response?.node.fieldValues.nodes.find(
+      (item) => item.field?.id === this.project.fieldIds.responseDue
+    );
+    return issueDueDateInfoNode?.text ?? null;
   }
 
   async getIssueDetailsFromNodeId(issueNodeId: string) {
