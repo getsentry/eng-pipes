@@ -41,17 +41,17 @@ export interface SentryAutofixWebhook {
   action: string;
   installation?: { uuid: string };
   data: {
-    issue?: {
-      id?: string | number;
-      short_id?: string;
-      title?: string;
-      web_url?: string;
-    };
-    pull_request?: {
-      url?: string;
-      title?: string;
-      repository?: string;
-    };
+    run_id?: number;
+    group_id?: number;
+    pull_requests?: Array<{
+      provider?: string;
+      repo_name?: string;
+      pull_request?: {
+        pr_id?: number;
+        pr_number?: number;
+        pr_url?: string;
+      };
+    }>;
     [key: string]: any;
   };
   actor?: { id?: number | string; name?: string; type?: string };

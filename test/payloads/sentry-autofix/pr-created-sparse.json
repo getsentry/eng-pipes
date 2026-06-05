@@ -1,7 +1,6 @@
 {
   "action": "pr_created",
   "data": {
-    "pull_request": { "title": "fix: ..." },
-    "issue": { "title": "TypeError somewhere" }
+    "pull_requests": [{ "pull_request": {} }]
   }
 }
