@@ -53,20 +53,30 @@ export class DeployFeed {
   async handle(resBody: GoCDResponse) {
     const { pipeline } = resBody.data;
 
-    const tx = Sentry.startTransaction({
-      op: 'brain',
-      name: this.feedName,
+    // Run each feed in its own async context so that its transaction (and the
+    // auto-instrumented DB spans created underneath it) are isolated on a forked
+    // hub/scope. Without this, the feeds run concurrently via Promise.all while
+    // sharing the global scope, so every feed's `slack_messages` query gets
+    // attributed to whichever transaction was last set as active — collapsing
+    // many independent single-row lookups into one transaction that Sentry
+    // misreports as an N+1 query.
+    await Sentry.runWithAsyncContext(async () => {
+      const hub = Sentry.getCurrentHub();
+      const tx = hub.startTransaction({
+        op: 'brain',
+        name: this.feedName,
+      });
+      hub.configureScope((scope) => scope.setSpan(tx));
+
+      try {
+        await this.postUpdateToSlack(pipeline);
+      } catch (err) {
+        Sentry.captureException(err);
+        console.error(err);
+      }
+
+      tx.finish();
     });
-    Sentry.configureScope((scope) => scope.setSpan(tx));
-
-    try {
-      await this.postUpdateToSlack(pipeline);
-    } catch (err) {
-      Sentry.captureException(err);
-      console.error(err);
-    }
-
-    tx.finish();
   }
 
   parseGitHubURL(url: string) {
