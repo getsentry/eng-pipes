@@ -104,6 +104,13 @@ export const REQUIRED_CHECK_CHANNEL = '#team-engineering';
 // Slack profile IDs
 export const SLACK_PROFILE_ID_GITHUB = 'XfEJ1CLM1C';
 
+export const GITHUB_USER_DIRECTORY_NOTION = {
+  databaseId:
+    process.env.NOTION_GITHUB_USER_DIRECTORY_DB_ID ||
+    'f27fac7294ac4bf7a275354baf4c11fc',
+  token: process.env.NOTION_API_TOKEN || '',
+};
+
 // Note, these are Sentry palette colors
 export enum Color {
   DANGER = '#F55459',
