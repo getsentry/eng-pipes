@@ -39,8 +39,7 @@ describe('sentry-autofix webhook', () => {
     expect(rendered).toContain(
       'https://sentry.io/organizations/sentry/issues/1234567890/'
     );
-    expect(rendered).toContain('GETSENTRY-ABC');
-    expect(rendered).toContain('getsentry/sentry');
+    expect(rendered).toContain('getsentry/sentry#99999');
   });
 
   it('is a no-op for non-PR actions', async () => {
@@ -96,9 +95,9 @@ describe('sentry-autofix webhook', () => {
     expect(postMessageSpy).toHaveBeenCalledTimes(1);
     const message = postMessageSpy.mock.calls[0][0] as any;
     const rendered = JSON.stringify(message.blocks);
-    expect(rendered).toContain('fix: ...');
+    expect(rendered).toContain('Autofix PR');
+    expect(rendered).toContain('the issue');
     expect(rendered).not.toContain('<https://');
-    expect(rendered).not.toContain('in `');
   });
 
   it('captures Slack postMessage errors without 500ing', async () => {

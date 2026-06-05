@@ -51,25 +51,44 @@ export async function messageSlack(message: SentryAutofixWebhook) {
 }
 
 function buildBlocks(message: SentryAutofixWebhook): KnownBlock[] {
-  const pr = message.data.pull_request ?? {};
-  const issue = message.data.issue ?? {};
+  const pullRequests = message.data.pull_requests ?? [];
+  const prLinks = pullRequests.map(({ repo_name, pull_request }) => {
+    const url = pull_request?.pr_url;
+    const number = pull_request?.pr_number;
+    const label =
+      repo_name && number
+        ? `${repo_name}#${number}`
+        : repo_name || url || 'Autofix PR';
+    return url ? `<${url}|${label}>` : label;
+  });
 
-  const prLabel = pr.title || pr.url || 'Autofix PR';
-  const prLink = pr.url ? `<${pr.url}|${prLabel}>` : prLabel;
+  const issueLink = issueLinkFor(message.data.group_id);
+  const multiple = prLinks.length > 1;
+  const headerText = multiple ? 'Autofix opened PRs' : 'Autofix opened a PR';
 
-  const issueLabel = issue.short_id || issue.title || 'issue';
-  const issueLink = issue.web_url
-    ? `<${issue.web_url}|${issueLabel}>`
-    : issueLabel;
-
-  const repoSuffix = pr.repository ? ` in \`${pr.repository}\`` : '';
+  let body: string;
+  if (prLinks.length <= 1) {
+    const prLink = prLinks[0] ?? 'a PR';
+    body = `:seer: ${prLink} for ${issueLink}`;
+  } else {
+    const list = prLinks.map((link) => `• ${link}`).join('\n');
+    body = `:seer: PRs for ${issueLink}:\n${list}`;
+  }
 
   return [
-    slackblocks.header(slackblocks.plaintext('Autofix opened a PR')),
-    slackblocks.section(
-      slackblocks.markdown(`:seer: ${prLink} for ${issueLink}${repoSuffix}`)
-    ),
+    slackblocks.header(slackblocks.plaintext(headerText)),
+    slackblocks.section(slackblocks.markdown(body)),
   ];
+}
+
+// Autofix webhooks only reference the issue by its numeric `group_id`, so we
+// build the issue URL ourselves from the configured org slug.
+function issueLinkFor(groupId: number | undefined): string {
+  if (groupId === undefined) {
+    return 'the issue';
+  }
+  const url = `https://sentry.io/organizations/sentry/issues/${groupId}/`;
+  return `<${url}|the issue>`;
 }
 
 async function sendMessage(blocks: KnownBlock[]) {
