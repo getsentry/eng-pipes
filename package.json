@@ -14,25 +14,25 @@
     "development-metrics"
   ],
   "scripts": {
-    "build": "yarn tsc -p tsconfig.build.json",
-    "build:production": "yarn clean && yarn build && sentry-cli sourcemaps inject ./lib",
+    "build": "tsc -p tsconfig.build.json",
+    "build:production": "pnpm clean && pnpm build && sentry-cli sourcemaps inject ./lib",
     "clean": "[ -d lib ] && rm -rf lib/* || true",
-    "deploy": "yarn build && (yarn deploy:development-metrics)",
+    "deploy": "pnpm build && pnpm deploy:development-metrics",
     "deploy:development-metrics": "./bin/deploy.sh",
-    "dev": "yarn clean && NODE_ENV=development nodemon --ignore '*.test.ts' --watch src/ -e ts --exec \"yarn start:clean\"",
-    "inspect:clean": "yarn build && yarn inspect",
+    "dev": "pnpm clean && NODE_ENV=development nodemon --ignore '*.test.ts' --watch src/ -e ts --exec \"pnpm start:clean\"",
+    "inspect:clean": "pnpm build && pnpm inspect",
     "inspect": "NODE_ENV=development node --inspect --async-stack-traces ./lib/index.js",
-    "migrate": "yarn knex --knexfile ./src/knexfile.ts",
-    "migrate:latest": "yarn migrate migrate:latest",
-    "start:clean": "yarn build && yarn start",
+    "migrate": "knex --knexfile ./src/knexfile.ts",
+    "migrate:latest": "pnpm migrate migrate:latest",
+    "start:clean": "pnpm build && pnpm start",
     "start": "node --async-stack-traces ./lib/index.js",
-    "lint": "yarn eslint --ext .ts \"src\" \"test/**/*.ts\"",
-    "lint:fix": "yarn lint --fix",
-    "test": "yarn jest --useStderr --runInBand",
-    "test:debug": "yarn run --inspect jest --runInBand",
-    "test:ci": "yarn test --forceExit",
-    "test:dev": "yarn postgres && yarn test",
-    "test:watch": "NODE_ENV=development yarn jest --watch --notify --notifyMode=change --coverage",
+    "lint": "eslint --ext .ts \"src\" \"test/**/*.ts\"",
+    "lint:fix": "pnpm lint --fix",
+    "test": "jest --useStderr --runInBand",
+    "test:debug": "node --inspect ./node_modules/.bin/jest --runInBand",
+    "test:ci": "pnpm test --forceExit",
+    "test:dev": "pnpm postgres && pnpm test",
+    "test:watch": "NODE_ENV=development jest --watch --notify --notifyMode=change --coverage",
     "postgres": "docker start ci-tooling-postgres || docker run --rm --name ci-tooling-postgres -e POSTGRES_PASSWORD=docker -d -p 127.0.0.1:5434:5432 postgres:12"
   },
   "_moduleAliases": {
@@ -44,63 +44,69 @@
     "@webhooks": "lib/webhooks"
   },
   "dependencies": {
-    "@datadog/datadog-api-client": "^1.18.0",
-    "@google-cloud/bigquery": "^5.3.0",
-    "@octokit/auth-app": "^3.6.1",
-    "@octokit/plugin-retry": "^3.0.9",
-    "@octokit/rest": "^18.12.0",
-    "@octokit/types": "^6.34.0",
-    "@octokit/webhooks": "^11.1.2",
-    "@sentry/integrations": "^7.72.0",
-    "@sentry/node": "^7.72.0",
-    "@sentry/tracing": "^7.72.0",
-    "@slack/bolt": "^3.1.1",
-    "@slack/types": "^2.0.0",
-    "@slack/web-api": "^6.0.0",
-    "@types/lodash.merge": "^4.6.6",
-    "@types/node": "12",
-    "fastify": "^3.29.4",
-    "fastify-formbody": "^5.2.0",
-    "google-auth-library": "^9.10.0",
-    "js-yaml": "^4.1.1",
-    "knex": "^2.4.2",
-    "middie": "^5.3.0",
-    "module-alias": "^2.2.2",
-    "moment-timezone": "^0.5.39",
-    "pg": "^8.5.1",
-    "typescript": "^4.7.0"
+    "@datadog/datadog-api-client": "1.18.0",
+    "@google-cloud/bigquery": "5.3.0",
+    "@octokit/auth-app": "3.6.1",
+    "@octokit/plugin-retry": "3.0.9",
+    "@octokit/rest": "18.12.0",
+    "@octokit/types": "6.34.0",
+    "@octokit/webhooks": "11.1.2",
+    "@sentry/integrations": "7.72.0",
+    "@sentry/node": "7.72.0",
+    "@sentry/tracing": "7.72.0",
+    "@slack/bolt": "3.1.1",
+    "@slack/types": "2.0.0",
+    "@slack/web-api": "6.0.0",
+    "@types/lodash.merge": "4.6.6",
+    "@types/node": "12.20.55",
+    "fastify": "3.29.5",
+    "fastify-formbody": "5.2.0",
+    "google-auth-library": "9.10.0",
+    "js-yaml": "4.1.1",
+    "knex": "2.4.2",
+    "middie": "5.3.0",
+    "module-alias": "2.2.2",
+    "moment-timezone": "0.5.39",
+    "pg": "8.5.1",
+    "typescript": "4.9.5"
   },
   "devDependencies": {
-    "@sentry/cli": "^2.20.1",
-    "@types/jest": "^29.0.0",
-    "@typescript-eslint/eslint-plugin": "^5.4.0",
-    "@typescript-eslint/parser": "^5.4.0",
-    "dotenv": "^16.0.3",
-    "eslint": "^8.2.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-simple-import-sort": "^7.0.0",
-    "husky": ">=4.3.0",
-    "jest": "^29.6.0",
-    "jest-circus": "^29.6.0",
-    "lint-staged": ">=10.5.4",
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.merge": "^4.6.2",
-    "markdownlint-cli": "^0.27.1",
-    "nodemon": "^2.0.7",
-    "prettier": "^2.4.1",
-    "ts-jest": "^29.1.5",
-    "ts-node": "^10.8.1"
+    "@sentry/cli": "2.20.1",
+    "@types/jest": "29.5.12",
+    "@typescript-eslint/eslint-plugin": "5.4.0",
+    "@typescript-eslint/parser": "5.4.0",
+    "dotenv": "16.0.3",
+    "eslint": "8.2.0",
+    "eslint-config-prettier": "8.3.0",
+    "eslint-plugin-prettier": "4.0.0",
+    "eslint-plugin-simple-import-sort": "7.0.0",
+    "husky": "4.3.0",
+    "jest": "29.7.0",
+    "jest-circus": "29.7.0",
+    "lint-staged": "10.5.4",
+    "lodash.clonedeep": "4.5.0",
+    "lodash.merge": "4.6.2",
+    "markdownlint-cli": "0.27.1",
+    "nodemon": "2.0.7",
+    "prettier": "2.4.1",
+    "ts-jest": "29.1.5",
+    "ts-node": "10.9.2"
   },
-  "resolutions": {
-    "set-value": ">=4.0.1"
+  "pnpm": {
+    "overrides": {
+      "set-value": ">=4.0.1"
+    },
+    "onlyBuiltDependencies": [
+      "@sentry/cli",
+      "husky",
+      "nodemon"
+    ]
   },
   "engines": {
     "node": ">= 18.17.1"
   },
   "volta": {
-    "node": "18.17.1",
-    "yarn": "3.6.3"
+    "node": "18.17.1"
   },
   "husky": {
     "hooks": {
@@ -109,11 +115,11 @@
   },
   "lint-staged": {
     "*.ts": [
-      "yarn lint:fix --cache"
+      "eslint --ext .ts --fix --cache"
     ],
     "*.md": [
-      "yarn markdownlint --fix"
+      "markdownlint --fix"
     ]
   },
-  "packageManager": "yarn@3.6.3"
+  "packageManager": "pnpm@10.28.2"
 }

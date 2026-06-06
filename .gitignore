@@ -13,14 +13,5 @@ lib
 .idea/
 .vscode/bookmarks.json
 
-# We are aiming for zero-installs:
-# https://yarnpkg.com/getting-started/qa#which-files-should-be-gitignored
-.yarn/*
-!.yarn/cache
-!.yarn/releases
-!.yarn/plugins
-!.yarn/sdks
-!.yarn/versions
-
 github-orgs.local.yml
 product-owners.local.yml

@@ -12,10 +12,6 @@ Dockerfile
 !migations
 !src
 !README*.md
-!.yarn/cache
-!.yarn/releases
-!.yarn/plugins
-!yarn.lock
-!.yarnrc.yml
-!.pnp.cjs
+!pnpm-lock.yaml
+!.npmrc
 !package.json

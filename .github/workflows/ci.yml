@@ -20,7 +20,7 @@ on:
       - 'package.json'
       - 'src/**/*.ts'
       - 'tsconfig.json'
-      - 'yarn.lock'
+      - 'pnpm-lock.yaml'
       - 'bin/deploy.sh'
       - 'holidays.yml'
       - 'product-owners.yml'
@@ -58,24 +58,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '18'
+          cache: 'pnpm'
 
-      - name: yarn install
-        run: yarn install --immutable
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: tsc
-        run: yarn build
+        run: pnpm build
       - name: test
-        run: yarn test:ci --coverage
+        run: pnpm test:ci --coverage
       - name: Codecov
         uses: codecov/codecov-action@b9fd7d16f6d7d1b5d2bec1a2887e65ceed900238 # v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
       - name: eslint
-        run: yarn lint
+        run: pnpm lint
 
   docker:
     runs-on: ubuntu-latest
@@ -111,16 +115,20 @@ jobs:
           # for Sentry releases
           fetch-depth: 0
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Setup node
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '18'
+          cache: 'pnpm'
 
-      - name: yarn install
-        run: yarn install --immutable
+      - name: pnpm install
+        run: pnpm install --frozen-lockfile
 
       - name: tsc
-        run: yarn build
+        run: pnpm build
 
       - id: 'auth'
         uses: google-github-actions/auth@c200f3691d83b41bf9bbd8638997a462592937ed # v2

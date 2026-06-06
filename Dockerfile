@@ -5,20 +5,22 @@ FROM node:18.17.1-bookworm-slim
 # Create and change to the app directory.
 WORKDIR /usr/src/app
 
-# Copy application dependency manifests to the container image.
-# Copying this separately prevents re-running npm install on every code change.
-COPY package.json yarn.lock .yarnrc.yml .pnp.cjs ./
-COPY .yarn ./.yarn
+# Enable Corepack so the pinned pnpm version from package.json is used.
+RUN corepack enable
 
-# Install production dependencies.
-RUN yarn install --immutable
+# Copy application dependency manifests to the container image.
+# Copying this separately prevents re-running install on every code change.
+COPY package.json pnpm-lock.yaml .npmrc ./
+
+# Install dependencies (exact, reproducible install from the lockfile).
+RUN pnpm install --frozen-lockfile
 
 # Copy local code to the container image.
 COPY . ./
 
-RUN yarn build:production
+RUN pnpm build:production
 
 RUN rm -rf src
 
 # Run the web service on container startup.
-CMD [ "yarn", "start" ]
+CMD [ "pnpm", "start" ]
