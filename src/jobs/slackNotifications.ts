@@ -6,7 +6,10 @@ import {
   WAITING_FOR_PRODUCT_OWNER_LABEL,
 } from '@/config';
 import { Issue } from '@/types/github';
-import { getBusinessHoursLeft } from '@/utils/misc/businessHours';
+import {
+  calculateSLOViolationTriage,
+  getBusinessHoursLeft,
+} from '@/utils/misc/businessHours';
 import {
   ChannelItem,
   getChannelsForIssue,
@@ -122,7 +125,8 @@ export const getTriageSLOTimestamp = async (
   org: GitHubOrg,
   repo: string,
   issueNumber: number,
-  issueNodeId: string
+  issueNodeId: string,
+  labels?: Issue['labels']
 ): Promise<string> => {
   const issueNodeIdInProject = await org.addIssueToGlobalIssuesProject(
     issueNodeId,
@@ -130,16 +134,39 @@ export const getTriageSLOTimestamp = async (
     issueNumber
   );
   const dueByDate = await org.getIssueDueDateFromProject(issueNodeIdInProject);
-  if (dueByDate == null || !moment(dueByDate).isValid()) {
-    // Throw an exception if we have trouble parsing the timestamp
-    Sentry.captureException(
-      new Error(
-        `Could not parse timestamp from comments for ${repo}/issues/${issueNumber}`
-      )
-    );
-    return moment().toISOString();
+
+  // A populated, parseable "Response Due" value: use it directly.
+  if (dueByDate != null && dueByDate !== '' && moment(dueByDate).isValid()) {
+    return dueByDate;
   }
-  return dueByDate;
+
+  // The "Response Due" field is unset. This is an expected state for issues
+  // that were labeled without the due date being populated, so compute it from
+  // the untriaged SLO instead of capturing an error, and backfill the field so
+  // future runs find a valid value.
+  if (dueByDate == null || dueByDate === '') {
+    const computedDueByDate =
+      calculateSLOViolationTriage(
+        WAITING_FOR_PRODUCT_OWNER_LABEL,
+        labels,
+        repo,
+        org.slug
+      ) || moment().toISOString();
+    await org.modifyDueByDate(
+      issueNodeIdInProject,
+      computedDueByDate,
+      org.project.fieldIds.responseDue
+    );
+    return computedDueByDate;
+  }
+
+  // A non-empty value we genuinely cannot parse is unexpected; report it.
+  Sentry.captureException(
+    new Error(
+      `Could not parse "Response Due" timestamp "${dueByDate}" from project for ${repo}/issues/${issueNumber}`
+    )
+  );
+  return moment().toISOString();
 };
 
 export const constructSlackMessage = (
@@ -421,7 +448,8 @@ export const notifyProductOwnersForUntriagedIssues = async (
         org,
         repo,
         issue.number,
-        issue.node_id
+        issue.node_id,
+        issue.labels
       ),
       createdAt: issue.created_at,
       channels: getChannelsForIssue(
