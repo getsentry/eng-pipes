@@ -10,8 +10,19 @@ import { GoCDResponse } from '@/types/gocd';
 
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';
 
+// All getsentry-backend region pipelines. A region can fail repeatedly while
+// its upstream keeps passing and re-triggering it (e.g. deploy-getsentry-backend-st
+// during DI-2024), so alerting on s4s2 alone is not enough.
+const BACKEND_PIPELINE_FILTER = [
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME, // deploy-getsentry-backend-s4s2
+  'deploy-getsentry-backend-de',
+  'deploy-getsentry-backend-us',
+  'deploy-getsentry-backend-prod-control',
+  'deploy-getsentry-backend-st',
+];
+
 const PIPELINE_FILTER = [
-  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
+  ...BACKEND_PIPELINE_FILTER,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 ];
 
@@ -34,8 +45,7 @@ const discussBackendAlert = new ConsecutiveUnsuccessfulDeploysAlert({
   slackChannelID: DISCUSS_BACKEND_CHANNEL_ID,
   consecutiveUnsuccessfulLimit: 3,
   alertOnlyAtThreshold: true,
-  pipelineFilter: (pipeline) =>
-    pipeline.name === GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
+  pipelineFilter: (pipeline) => BACKEND_PIPELINE_FILTER.includes(pipeline.name),
 });
 
 export async function handler(body: GoCDResponse) {
