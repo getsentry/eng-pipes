@@ -305,8 +305,67 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     });
   });
 
+  it('post to discuss-backend and feed-dev-infra if the number of consecutive unsuccessful backend deploys is exactly the limit', async function () {
+    await db(DB_TABLE_STAGES).insert({
+      pipeline_id: 'pipeline-id-123',
+      pipeline_name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
+      pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT,
+      pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+      pipeline_build_cause: JSON.stringify([
+        {
+          material: {
+            'git-configuration': {
+              'shallow-clone': false,
+              branch: 'master',
+              url: 'git@github.com:getsentry/getsentry.git',
+            },
+            type: 'git',
+          },
+          changed: false,
+          modifications: [
+            {
+              revision: '333333',
+              'modified-time': 'Oct 26, 2022, 5:05:17 PM',
+              data: {},
+            },
+          ],
+        },
+      ]),
+      stage_name: 'deploy-primary',
+      stage_counter: 1,
+      stage_approval_type: '',
+      stage_approved_by: '',
+      stage_state: 'Passed',
+      stage_result: 'unknown',
+      stage_create_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_last_transition_time: new Date('2022-10-26T17:57:53.000Z'),
+      stage_jobs: '{}',
+    });
+
+    const gocdPayload = merge({}, payload, {
+      data: {
+        pipeline: {
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
+          group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
+          stage: {
+            name: 'deploy-canary',
+            result: 'Failed',
+          },
+        },
+      },
+    });
+
+    await handler(gocdPayload);
+
+    expect(bolt.client.chat.postMessage).toHaveBeenCalledTimes(2);
+    const channels = bolt.client.chat.postMessage.mock.calls.map(
+      (c) => c[0].channel
+    );
+    expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
+    expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
+  });
+
   it.each([
-    GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME, // deploy-getsentry-backend-s4s2
     'deploy-getsentry-backend-de',
     'deploy-getsentry-backend-us',
     'deploy-getsentry-backend-prod-control',

@@ -10,9 +10,8 @@ import { GoCDResponse } from '@/types/gocd';
 
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';
 
-// All getsentry-backend region pipelines. A region can fail repeatedly while
-// its upstream keeps passing and re-triggering it (e.g. deploy-getsentry-backend-st
-// during DI-2024), so alerting on s4s2 alone is not enough.
+// All backend regions: a region can keep failing while its upstream keeps
+// passing and re-triggering it, so alerting on s4s2 alone is not enough (DI-2024).
 const BACKEND_PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME, // deploy-getsentry-backend-s4s2
   'deploy-getsentry-backend-de',
