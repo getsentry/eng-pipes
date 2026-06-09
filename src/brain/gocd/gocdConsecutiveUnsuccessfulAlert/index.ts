@@ -10,7 +10,6 @@ import { GoCDResponse } from '@/types/gocd';
 
 import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDeploysAlert';
 
-// Every getsentry-backend region pipeline needs to be watched, because a region can keep failing while its upstream keeps passing and re-triggering it, and breakage below the head of the chain would otherwise go unnoticed.
 export const BACKEND_PIPELINE_FILTER = [
   GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   'deploy-getsentry-backend-de',
