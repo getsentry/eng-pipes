@@ -3,6 +3,7 @@ import {
   DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
 } from '@/config';
 import { GoCDResponse } from '@/types/gocd';
@@ -11,7 +12,7 @@ import { ConsecutiveUnsuccessfulDeploysAlert } from './consecutiveUnsuccessfulDe
 
 // Every getsentry-backend region pipeline needs to be watched, because a region can keep failing while its upstream keeps passing and re-triggering it, and breakage below the head of the chain would otherwise go unnoticed.
 export const BACKEND_PIPELINE_FILTER = [
-  'deploy-getsentry-backend-s4s2',
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   'deploy-getsentry-backend-de',
   'deploy-getsentry-backend-us',
   'deploy-getsentry-backend-prod-control',

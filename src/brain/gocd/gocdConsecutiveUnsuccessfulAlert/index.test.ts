@@ -10,6 +10,7 @@ import {
   DISCUSS_BACKEND_CHANNEL_ID,
   DISCUSS_FRONTEND_CHANNEL_ID,
   FEED_DEV_INFRA_CHANNEL_ID,
+  GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
   GOCD_SENTRYIO_BE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_GROUP,
   GOCD_SENTRYIO_FE_PIPELINE_NAME,
@@ -78,7 +79,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           stage: {
             name: 'deploy-canary',
             result: 'Passed',
@@ -97,7 +98,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           stage: {
             name: 'deploy-canary',
             result: 'Failed',
@@ -116,7 +117,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'pipeline-id-123',
 
-      pipeline_name: 'deploy-getsentry-backend-s4s2',
+      pipeline_name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
       pipeline_counter: 19,
       pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
       pipeline_build_cause: JSON.stringify([
@@ -155,7 +156,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
       data: {
         pipeline: {
           group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           stage: {
             name: 'deploy-canary',
             result: 'Failed',
@@ -174,7 +175,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'pipeline-id-123',
 
-      pipeline_name: 'deploy-getsentry-backend-s4s2',
+      pipeline_name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
       pipeline_counter: 17,
       pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
       pipeline_build_cause: JSON.stringify([
@@ -213,7 +214,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
       data: {
         pipeline: {
           group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           stage: {
             name: 'deploy-canary',
             status: 'Building',
@@ -233,7 +234,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'pipeline-id-123',
 
-      pipeline_name: 'deploy-getsentry-backend-s4s2',
+      pipeline_name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
       pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT,
       pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
       pipeline_build_cause: JSON.stringify([
@@ -271,7 +272,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
           stage: {
             name: 'deploy-canary',
@@ -291,17 +292,17 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     expect(channels).toContain(FEED_DEV_INFRA_CHANNEL_ID);
     expect(channels).toContain(DISCUSS_BACKEND_CHANNEL_ID);
     expect(bolt.client.chat.postMessage.mock.calls[0][0]).toMatchObject({
-      text: `❗️ *deploy-getsentry-backend-s4s2* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
+      text: `❗️ *${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`,
       channel: FEED_DEV_INFRA_CHANNEL_ID,
       blocks: [
         slackblocks.section(
           slackblocks.markdown(
-            `❗️ *deploy-getsentry-backend-s4s2* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
+            `❗️ *${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}* has had ${CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT} consecutive unsuccessful deploys.`
           )
         ),
         slackblocks.section(
           slackblocks.markdown(
-            `<https://deploy.getsentry.net/go/pipelines/deploy-getsentry-backend-s4s2/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/deploy-getsentry-backend-s4s2/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}|Deploy Tools>`
+            `<https://deploy.getsentry.net/go/pipelines/${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}/20/deploy-canary/1|Latest failure> | <https://deploy.getsentry.net/go/pipelines/value_stream_map/${GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME}/17|Last good deploy> | <https://deploy-tools.getsentry.net/services/${GOCD_SENTRYIO_BE_PIPELINE_GROUP}|Deploy Tools>`
           )
         ),
       ],
@@ -374,7 +375,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
   it('does not post to discuss-backend again when consecutive unsuccessful backend deploys exceeds the limit', async function () {
     await db(DB_TABLE_STAGES).insert({
       pipeline_id: 'pipeline-id-123',
-      pipeline_name: 'deploy-getsentry-backend-s4s2',
+      pipeline_name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
       pipeline_counter: 20 - CONSECUTIVE_UNSUCCESSFUL_DEPLOYS_LIMIT - 1,
       pipeline_group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
       pipeline_build_cause: JSON.stringify([
@@ -411,7 +412,7 @@ describe('gocdConsecutiveUnsuccessfulAlerts', function () {
     const gocdPayload = merge({}, payload, {
       data: {
         pipeline: {
-          name: 'deploy-getsentry-backend-s4s2',
+          name: GOCD_SENTRYIO_BE_CONSECUTIVE_PIPELINE_NAME,
           group: GOCD_SENTRYIO_BE_PIPELINE_GROUP,
           stage: {
             name: 'deploy-canary',
