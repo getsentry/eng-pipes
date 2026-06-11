@@ -194,6 +194,7 @@ describe('filterBuildCauses', () => {
   describe('getBaseAndHeadCommit', () => {
     it('return nothing when there is no build cause', async function () {
       const got = await getBaseAndHeadCommit({
+        counter: '2',
         'build-cause': [],
         group: 'example-pipeline-group',
         name: 'example-pipeline-name',
@@ -203,6 +204,7 @@ describe('filterBuildCauses', () => {
 
     it('return nothing when there is no git build cause', async function () {
       const got = await getBaseAndHeadCommit({
+        counter: '2',
         group: 'example-pipeline-group',
         name: 'example-pipeline-name',
         'build-cause': [
@@ -220,6 +222,7 @@ describe('filterBuildCauses', () => {
 
     it('return nothing when there is no modifications', async function () {
       const got = await getBaseAndHeadCommit({
+        counter: '2',
         group: 'example-pipeline-group',
         name: 'example-pipeline-name',
         'build-cause': [
@@ -245,6 +248,7 @@ describe('filterBuildCauses', () => {
       getLastGetSentryGoCDDeploy.mockReturnValue(null);
 
       const got = await getBaseAndHeadCommit({
+        counter: '2',
         group: 'example-pipeline-group',
         name: 'example-pipeline-name',
         'build-cause': [
@@ -290,6 +294,7 @@ describe('filterBuildCauses', () => {
       getLastGetSentryGoCDDeploy.mockReturnValue(mockReturnValue);
 
       const got = await getBaseAndHeadCommit({
+        counter: '2',
         group: 'example-pipeline-group',
         name: 'example-pipeline-name',
         'build-cause': [

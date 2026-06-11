@@ -1,8 +1,6 @@
 import { DB_TABLE_STAGES } from '@/brain/gocd/saveGoCDStageEvents';
 import { DBGoCDDeployment } from '@/types/gocd';
 
-import { FINAL_STAGE_NAMES } from '../gocd/gocdHelpers';
-
 import { db } from '.';
 
 export async function getLatestDeploy(app_name: string) {
@@ -20,26 +18,21 @@ export async function getLatestDeploy(app_name: string) {
 
 export async function getLastGetSentryGoCDDeploy(
   pipeline_group: string,
-  pipeline_name: string
+  pipeline_name: string,
+  beforeCounter?: number | string
 ): Promise<DBGoCDDeployment | undefined> {
-  const stageParts: Array<String> = [];
-  const args: Array<String> = [];
-  for (const sn of FINAL_STAGE_NAMES) {
-    stageParts.push('LOWER(stage_name) = ?');
-    args.push(sn.toLowerCase());
-  }
-
-  const whereRaw = `( ${stageParts.join(
-    ' OR '
-  )} ) AND LOWER(stage_state) = ? AND pipeline_group = ? AND pipeline_name = ?`;
-  args.push('passed');
-  args.push(pipeline_group);
-  args.push(pipeline_name);
-
-  return await db
+  // A run keeps one row tracking its most recent stage event, so a row resting at
+  // "passed" means the run completed all of its stages, whatever they are named.
+  const query = db
     .select('*')
     .from(DB_TABLE_STAGES)
-    .whereRaw(whereRaw, args)
-    .orderBy('pipeline_counter', 'desc')
-    .first();
+    .where({ pipeline_group, pipeline_name })
+    .whereRaw('LOWER(stage_state) = ?', ['passed'])
+    .orderBy('pipeline_counter', 'desc');
+  if (beforeCounter !== undefined) {
+    // Callers handling a live stage event pass their run's counter, since that run
+    // would otherwise match itself as soon as any of its stages passes.
+    query.where('pipeline_counter', '<', Number(beforeCounter));
+  }
+  return await query.first();
 }
