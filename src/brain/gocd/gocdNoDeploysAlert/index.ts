@@ -60,8 +60,7 @@ export async function handler(body: GoCDResponse) {
 
   const lastDeploy = await getLastGetSentryGoCDDeploy(
     pipeline.group,
-    pipeline.name,
-    pipeline.counter
+    pipeline.name
   );
   if (!lastDeploy) {
     // Do nothing until we have at least one deploy

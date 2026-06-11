@@ -49,8 +49,7 @@ export class ConsecutiveUnsuccessfulDeploysAlert {
 
     const lastDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
-      pipeline.name,
-      pipeline.counter
+      pipeline.name
     );
 
     if (!lastDeploy) {

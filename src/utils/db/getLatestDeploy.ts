@@ -19,7 +19,7 @@ export async function getLatestDeploy(app_name: string) {
 export async function getLastGetSentryGoCDDeploy(
   pipeline_group: string,
   pipeline_name: string,
-  beforeCounter?: number | string
+  beforeCounter?: string
 ): Promise<DBGoCDDeployment | undefined> {
   // A run keeps one row tracking its most recent stage event, so a row resting at
   // "passed" means the run completed all of its stages, whatever they are named.

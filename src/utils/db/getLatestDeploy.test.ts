@@ -142,7 +142,7 @@ describe('getLatestDeploy', function () {
       const got = await getLastGetSentryGoCDDeploy(
         'example-pipeline-group',
         'example-pipeline-name',
-        2
+        '2'
       );
       expect(got?.pipeline_counter).toEqual(1);
 
