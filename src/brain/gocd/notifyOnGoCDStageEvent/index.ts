@@ -269,7 +269,8 @@ export async function handler(resBody: GoCDResponse) {
   try {
     const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
-      pipeline.name
+      pipeline.name,
+      pipeline.counter
     );
     const commits = await getCommitsInDeployment(
       GETSENTRY_ORG,

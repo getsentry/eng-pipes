@@ -156,7 +156,7 @@ export function filterBuildCauses(
 }
 
 export async function getBaseAndHeadCommit(
-  pipeline: Pick<GoCDPipeline, 'build-cause' | 'group' | 'name'>
+  pipeline: Pick<GoCDPipeline, 'build-cause' | 'group' | 'name' | 'counter'>
 ): Promise<[string | null, string | null]> {
   const buildCauses = filterBuildCauses(pipeline, 'git');
   if (buildCauses.length === 0) {
@@ -168,7 +168,8 @@ export async function getBaseAndHeadCommit(
 
   const latestDeploy = await getLastGetSentryGoCDDeploy(
     pipeline.group,
-    pipeline.name
+    pipeline.name,
+    pipeline.counter
   );
   if (!latestDeploy) {
     return [null, latestModification.revision];

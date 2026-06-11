@@ -133,7 +133,8 @@ export class DeployFeed {
   ): Promise<MrkdwnElement | undefined> {
     const latestDeploy = await getLastGetSentryGoCDDeploy(
       pipeline.group,
-      pipeline.name
+      pipeline.name,
+      pipeline.counter
     );
     if (!latestDeploy) {
       return;
