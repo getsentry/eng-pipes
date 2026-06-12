@@ -14,12 +14,9 @@ that's done with [a GitHub Action][action]). Here is the logic:
 
 ### How to resolve triage
 
-To clear an issue from the triage queue, **add any label** to the GitHub issue
+To clear an issue from the triage queue, add any label to the GitHub issue
 (e.g. a priority label, team label, or `Bug`). This triggers automatic removal
 of `Waiting for: Product Owner`.
-
-You can also remove `Waiting for: Product Owner` manually if you just want it
-gone immediately.
 
 [looker]: https://sentryio.cloud.looker.com/explore/super_big_facts/github_issues_tttriage?qid=qhmtzKtcqK6uxmTYEWEZRx&toggle=dat,pik,vis
 [implementation]: https://github.com/getsentry/lookml/blob/master/github_issues_tttriage.view.lkml
