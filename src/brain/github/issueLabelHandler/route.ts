@@ -59,7 +59,7 @@ async function makePredictions(
 ): Promise<PredictionInfo> {
   const auth = new GoogleAuth();
   const client = await auth.getIdTokenClient(PREDICT_ENDPOINT);
-  let comment = `Assigning to @${org.slug}/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️`;
+  let comment = `Assigning to @${org.slug}/support for [routing](https://open.sentry.io/process/#2-route) ⏲️`;
   let predictedLabel, predictedProductArea;
 
   try {
@@ -85,7 +85,7 @@ async function makePredictions(
       );
       const ghTeamSlug =
         'product-owners-' + slugizeProductArea(predictedProductArea);
-      comment = `Auto-routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+      comment = `Auto-routing to @${org.slug}/${ghTeamSlug} for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️`;
     } else {
       predictedLabel = null;
       predictedProductArea = null;
@@ -185,10 +185,10 @@ async function routeIssue(org, productAreaLabelName) {
       org: org.slug,
       team_slug: ghTeamSlug,
     }); // expected to throw if team doesn't exist
-    return `Routing to @${org.slug}/${ghTeamSlug} for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Routing to @${org.slug}/${ghTeamSlug} for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️`;
   } catch (error) {
     Sentry.captureException(error);
-    return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/dev-infra for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️`;
+    return `Failed to route for ${productAreaLabelName}. Defaulting to @${org.slug}/dev-infra for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️`;
   }
 }
 
