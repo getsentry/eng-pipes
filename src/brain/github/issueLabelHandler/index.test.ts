@@ -339,7 +339,7 @@ describe('issueLabelHandler', function () {
     });
   });
 
-  describe('[routing](https://open.sentry.io/triage/#2-route) test cases', function () {
+  describe('[routing](https://open.sentry.io/process/#2-route) test cases', function () {
     let addIssueToGlobalIssuesProjectSpy, modifyProjectIssueFieldSpy;
     beforeAll(function () {
       addIssueToGlobalIssuesProjectSpy = jest
@@ -383,7 +383,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -418,7 +418,7 @@ describe('issueLabelHandler', function () {
         'sentry-test-fixture-nonmember'
       );
       expect(org.api.issues._comments).toEqual([
-        'Auto-routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Auto-routing to @getsentry/product-owners-test for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -430,7 +430,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
       ]);
       expect(addIssueToGlobalIssuesProjectSpy).toHaveBeenCalled();
     });
@@ -467,8 +467,8 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -481,7 +481,7 @@ describe('issueLabelHandler', function () {
       // Simulate GitHub adding Waiting for Support Label to send webhook
       await addLabel(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -494,8 +494,8 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).not.toContain(WAITING_FOR_SUPPORT_LABEL);
       expect(org.api.issues._labels).toContain(WAITING_FOR_PRODUCT_OWNER_LABEL);
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/dev-infra for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
+        'Failed to route for Product Area: Does Not Exist. Defaulting to @getsentry/dev-infra for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -511,12 +511,12 @@ describe('issueLabelHandler', function () {
       expectWaitingforProductOwner();
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
 
-    it('removes previous Product Area labels when re[routing](https://open.sentry.io/triage/#2-route)', async function () {
+    it('removes previous Product Area labels when re[routing](https://open.sentry.io/process/#2-route)', async function () {
       await createIssue('routing-repo');
       await addLabel('Product Area: Test', 'routing-repo');
       expectWaitingforProductOwner();
@@ -525,9 +525,9 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).not.toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
-        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -545,9 +545,9 @@ describe('issueLabelHandler', function () {
         'Waiting for: Product Owner'
       );
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
-        'Routing to @getsentry/product-owners-rerouted for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
+        'Routing to @getsentry/product-owners-rerouted for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
@@ -561,8 +561,8 @@ describe('issueLabelHandler', function () {
       expect(org.api.issues._labels).toContain('Product Area: Rerouted');
       expect(org.api.issues._labels).toContain('Product Area: Test');
       expect(org.api.issues._comments).toEqual([
-        'Assigning to @getsentry/support for [routing](https://open.sentry.io/triage/#2-route) ⏲️',
-        'Routing to @getsentry/product-owners-test for [triage](https://develop.sentry.dev/processing-tickets/#3-triage) ⏲️',
+        'Assigning to @getsentry/support for [routing](https://open.sentry.io/process/#2-route) ⏲️',
+        'Routing to @getsentry/product-owners-test for [triage](https://open.sentry.io/process/#3-product-owner-response) ⏲️',
       ]);
       expect(modifyProjectIssueFieldSpy).toHaveBeenCalled();
     });
